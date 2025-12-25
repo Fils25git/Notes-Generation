@@ -1,44 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Teacher Note Assistant</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fila Assistant</title>
+
+    <!-- Word export libraries -->
+    <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
     <style>
-        /* Basic reset and body styling */
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
             font-family: Arial, sans-serif;
-            height: 100vh;
+            background-color: #f0f2f5;
+            color: #333;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            background-color: #f4f6f8; /* soft inclusive background */
-            color: #333; /* good contrast text */
-            padding: 10px;
+            min-height: 100vh;
         }
 
         h2 {
-            text-align: center;
             margin-bottom: 10px;
-            color: #1a73e8; /* friendly accessible blue */
+            color: green;
+            text-align: left;
         }
 
-        /* Output area (chat-like) */
         #output {
-            flex: 1; /* take remaining vertical space */
+            flex: 1;
+            width: 100%;
+            min-height: 200px;
+            max-height: 60vh;
             padding: 15px;
             border-radius: 8px;
             border: 1px solid #ccc;
-            background-color: #ffffff;
-            overflow-y: auto;
+            background-color: #fff;
             font-size: 16px;
+            font-family: "Times New Roman", Arial, sans-serif;
             margin-bottom: 10px;
-            resize: none;
+            overflow-y: auto;
+            resize: vertical;
         }
 
-        /* Bottom input area container */
         .input-area {
             display: flex;
-            flex-direction: column;
-            gap: 5px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         input, button {
@@ -46,22 +55,27 @@
             font-size: 16px;
             border-radius: 8px;
             border: 1px solid #ccc;
-        }
-
-        input {
-            flex: none;
+            width: 100%;
         }
 
         button {
-            background-color: #1a73e8;
-            color: white;
-            border: none;
+            background-color: #00AF00;
             cursor: pointer;
-            transition: background-color 0.2s;
         }
 
         button:hover {
-            background-color: #1669c1;
+            background-color: #d0d0d0;
+        }
+
+        #copy {
+            background-color: #F3F400;
+            width: 50%;
+        }
+
+        #genBtn {
+            padding: 6px;
+            font-size: 10px;
+            width: 30%;
         }
 
         @media (max-width: 600px) {
@@ -71,38 +85,42 @@
         }
     </style>
 </head>
+
 <body>
 
-<h2>English Note Assistant</h2>
+<h2>Fila Assistant</h2>
 
-<textarea id="output" placeholder="Generated notes will appear here..."></textarea>
+<textarea id="output" placeholder="Generated notes will appear here... and you will be able to edit them"></textarea>
 
 <div class="input-area">
     <input type="text" id="topicInput" placeholder="Enter topic here">
-    <button onclick="generateNotes()">Generate Notes</button>
-    <button onclick="copyNotes()">Copy Notes</button>
+    <button onclick="generateNotes()" id="genBtn">Generate Notes</button>
 </div>
 
-<!-- Include Fuse.js -->
+<div class="input-area">
+    <button onclick="copyNotes()" id="copy">Copy Notes</button>
+    <button onclick="saveAsWord()">Save as Word</button>
+</div>
+
+<!-- Fuse.js -->
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
 <script>
     let notesDatabase = {};
 
-    // Load notes from GitHub raw URL
     fetch('https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/Notes/EnglishNotes.json')
-        .then(response => response.json())
-        .then(data => { notesDatabase = data; })
-        .catch(error => console.log("Error loading notes:", error));
+        .then(res => res.json())
+        .then(data => notesDatabase = data)
+        .catch(err => console.log("Error loading notes:", err));
 
     function generateNotes() {
-        let topicInput = document.getElementById("topicInput").value.trim().toLowerCase();
+        const topicInput = document.getElementById("topicInput").value.trim().toLowerCase();
         let found = false;
 
         let searchList = [];
         Object.keys(notesDatabase).forEach(key => {
             notesDatabase[key].keywords.forEach(word => {
-                searchList.push({topic: key, keyword: word});
+                searchList.push({ topic: key, keyword: word });
             });
         });
 
@@ -110,24 +128,50 @@
         const result = fuse.search(topicInput);
 
         if (result.length > 0) {
-            let matchedTopic = result[0].item.topic;
-            let notesArray = notesDatabase[matchedTopic].content;
-            let randomIndex = Math.floor(Math.random() * notesArray.length);
+            const matchedTopic = result[0].item.topic;
+            const notesArray = notesDatabase[matchedTopic].content;
+            const randomIndex = Math.floor(Math.random() * notesArray.length);
             document.getElementById("output").value = notesArray[randomIndex];
             found = true;
         }
 
         if (!found) {
-            document.getElementById("output").value = "No notes found for this topic yet. AI can generate a draft here later.";
+            document.getElementById("output").value =
+                "No notes found for this topic yet. AI can generate a draft here later.";
         }
+
+        document.getElementById("output").scrollTop = 0;
     }
 
     function copyNotes() {
-        let copyText = document.getElementById("output");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999);
+        const textarea = document.getElementById("output");
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
         document.execCommand("copy");
         alert("Notes copied to clipboard!");
+    }
+
+    function saveAsWord() {
+        const text = document.getElementById("output").value;
+
+        if (!text.trim()) {
+            alert("No notes to save!");
+            return;
+        }
+
+        const { Document, Packer, Paragraph } = window.docx;
+
+        const doc = new Document({
+            sections: [{
+                children: text.split("\n").map(line =>
+                    new Paragraph({ text: line })
+                )
+            }]
+        });
+
+        Packer.toBlob(doc).then(blob => {
+            saveAs(blob, "My_Notes.docx");
+        });
     }
 </script>
 
