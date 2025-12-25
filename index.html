@@ -1,163 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fila Assistant</title>
-    <meta property="og:description" content=" FiLa EduAcademy is an educational website that offers a wide range of educational resources, including exams, learning materials, and study guides for teachers and students across primary and secondary education" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fila Assistant</title>
+<meta property="og:description" content="FiLa EduAcademy is an educational website that offers a wide range of educational resources, including exams, learning materials, and study guides for teachers and students across primary and secondary education" />
 <meta property="og:image" content="https://raw.githubusercontent.com/Fils25git/fleduportal/refs/heads/main/logo.png" />
 <meta property="og:url" content="https://raw.githubusercontent.com/Fils25git/fleduportal/refs/heads/main/logo.png" />
-    
 
-    <!-- Word export libraries -->
-    <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<!-- Word export libraries -->
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f2f5;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        padding-top: 60px; /* space for fixed header */
+        padding-bottom: 50px; /* space for fixed footer */
+    }
+
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #ffffdd;
+        display: flex;
+        align-items: center;
+        padding: 5px 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        z-index: 1000;
+        gap: 10px;
+    }
+
+    .logo-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+    }
+
+    header h2 {
+        font-size: 20px;
+        color: green;
+        margin-left: 5px;
+    }
+
+    footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #ffffdd;
+        text-align: center;
+        padding: 5px 10px;
+        font-size: 12px;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+
+    footer p {
+        margin: 2px 0;
+        font-weight: 300;
+    }
+
+    main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        padding: 10px 15px;
+    }
+
+    #output {
+        width: 60%;
+        min-height: 60vh;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        font-size: 16px;
+        font-family: "Times New Roman", Arial, sans-serif;
+        margin-bottom: 15px;
+        overflow-y: auto;
+        resize: vertical;
+    }
+
+    .input-area {
+        display: flex;
+        gap: 10px;
+        width: 60%;
+        margin-bottom: 10px;
+    }
+
+    input, button {
+        padding: 10px;
+        font-size: 14px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        flex: 1;
+    }
+
+    button {
+        cursor: pointer;
+        background-color: #00AF00;
+        color: white;
+    }
+
+    button:hover {
+        background-color: #008800;
+    }
+
+    #copy, #saveBtn {
+        background-color: #F3F400;
+    }
+
+    #genBtn {
+        padding: 6px;
+        font-size: 12px;
+        width: 30%;
+    }
+
+    @media (max-width: 768px) {
+        #output, .input-area {
+            width: 90%;
         }
-        .logo {
-  position: fixed; /* or absolute */
-  top: 12px;
-  left: 12px;
 
-  width: 36px;
-  height: 36px;
-
-  background-color: #25D366; /* WhatsApp green */
-  color: white;
-
-  font-size: 16px;
-  font-weight: bold;
-  font-family: Arial, sans-serif;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  cursor: pointer;
-}
-        header { position:fixed;
-                background-color: #ffffdd;
-                display:flex;
-                padding:5px;
-                margin-top:auto;}
-    #logo-img { display:flex;
-              gap:5px;
-              position:fixed;}
-        footer {
-    background-color: #ffffdd; /* Green background */
-    color: black; /* White text for contrast */
-    text-align: center;
-    padding: 5px;
-    font-size: 14px; /* Font size for readability */
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for visual separation */
-        }
-        footer p {
-    margin: 5px 0; /* Space between paragraphs */
-    font-weight: 300; /* Lighter font weight for a clean look */
-        }
-       
-
-        h2 {
-            margin-bottom: 10px;
-            color: green;
-        }
-
-        #output {
-            flex: 1;
-            width: 100%;
-            min-height: 200px;
-            max-height: 60vh;
-            padding: 60%;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            background-color: #fff;
+        header h2 {
             font-size: 16px;
-            font-family: "Times New Roman", Arial, sans-serif;
-            margin-bottom: 10px;
-            overflow-y: auto;
-            resize: vertical;
-        }
-
-        .input-area {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
         }
 
         input, button {
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            width: 100%;
+            font-size: 12px;
+            padding: 8px;
         }
-
-        button {
-            background-color: #00AF00;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #d0d0d0;
-        }
-
-        #copy,#saveBtn {
-            background-color: #F3F400;
-            width: 50%;
-            
-        }
-
-        #genBtn {
-            padding: 6px;
-            font-size: 10px;
-            width: 30%;
-        }
-
-        @media (max-width: 600px) {
-            input, button, #output {
-                font-size: 14px;
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 
 <body>
-    <header>
-    <div id='logo-img'>
-
-    <img src="logo.png" alt="FiLa Assistant Logo" class="logo">
-<h2>Fila Assistant</h2>
-    </div>
+<header>
+    <img src="logo.png" alt="FiLa Assistant Logo" class="logo-img">
+    <h2>Fila Assistant</h2>
 </header>
+
 <main>
-<textarea id="output" placeholder="Generated notes will appear here... and you will be able to edit them"></textarea>
+    <textarea id="output" placeholder="Generated notes will appear here... and you will be able to edit them"></textarea>
 
-<div class="input-area">
-    <input type="text" id="topicInput" placeholder="Enter topic here">
-    <button onclick="generateNotes()" id="genBtn">Generate Notes</button>
-</div>
+    <div class="input-area">
+        <input type="text" id="topicInput" placeholder="Enter topic here">
+        <button onclick="generateNotes()" id="genBtn">Generate Notes</button>
+    </div>
 
-<div class="input-area">
-    <button onclick="copyNotes()" id="copy">Copy Notes</button>
-    <button onclick="saveAsWord()" id="saveBtn">Save as Word</button>
-</div>
+    <div class="input-area">
+        <button onclick="copyNotes()" id="copy">Copy Notes</button>
+        <button onclick="saveAsWord()" id="saveBtn">Save as Word</button>
+    </div>
 </main>
-<!-- Fuse.js -->
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 <script>
     let notesDatabase = {};
 
@@ -228,10 +235,10 @@
     }
 </script>
 
+<footer>
+    <p>Email: support@fleduacademy.com</p>
+    <p>&copy; 2025 FL EduAcademy. All rights reserved.</p>
+</footer>
+
 </body>
-    <footer style="width:100%">
-      <p>Email:support@fleduacademy.com</p>
-      <p>&copy; 2025 FL EduAcademy. All rights reserved.</p>
-    </footer>
-    
-</html>
+    </html>
