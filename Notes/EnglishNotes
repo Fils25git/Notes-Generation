@@ -1,1 +1,15 @@
-
+{
+    "nouns": {
+        "keywords": ["noun", "nouns", "naming word", "name words"],
+        "content": [
+            "Definition: A noun is a naming word.\nExamples: teacher, school, book.\nExercise: Write 5 nouns.",
+            "Definition: Nouns are words for people, places, or things.\nExamples: cat, city, table.\nExercise: List 5 nouns."
+        ]
+    },
+    "verbs": {
+        "keywords": ["verb", "verbs", "action word", "doing words"],
+        "content": [
+            "Definition: A verb is an action word.\nExamples: run, eat, play.\nExercise: Write 5 verbs."
+        ]
+    }
+}
