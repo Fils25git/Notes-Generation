@@ -11,138 +11,137 @@
 <!-- Word export libraries -->
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
-<style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f0f2f5;
-        color: #333;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        padding-top: 60px;
-        padding-bottom: 50px;
-    }
-
-    header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background-color: #ffffdd;
-        display: flex;
-        align-items: center;
-        padding: 5px 15px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        z-index: 1000;
-        gap: 10px;
-    }
-
-    .logo-img {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-    }
-
-    header h2 {
-        font-size: 20px;
-        color: green;
-        margin-left: 5px;
-    }
-
-    footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: #ffffdd;
-        text-align: center;
-        padding: 5px 10px;
-        font-size: 12px;
-        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    }
-
-    footer p {
-        margin: 2px 0;
-        font-weight: 300;
-    }
-
-    main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        padding: 10px 15px;
-    }
-
-    #output {
-        width: 60%;
-        min-height: 200px;
-        max-height: 60vh;
-        padding: 20px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        background-color: #fff;
-        font-size: 16px;
-        font-family: "Times New Roman", Arial, sans-serif;
-        margin-bottom: 15px;
-        overflow-y: auto;
-        resize: vertical;
-    }
-
-    .input-area {
-        display: flex;
-        gap: 10px;
-        width: 60%;
-        margin-bottom: 10px;
-    }
-
-    input, button {
-        padding: 10px;
-        font-size: 14px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        flex: 1;
-    }
-
-    button {
-        cursor: pointer;
-        background-color: #00AF00;
-    }
-
-    button:hover {
-        background-color: #008800;
-    }
-
-    #copy, #saveBtn {
-        background-color: #F3F400;
-        color: #333;
-    }
-
-    #genBtn {
-        padding: 6px;
-        font-size: 12px;
-        width: 30%;
-    }
-
-    @media (max-width: 768px) {
-        #output, .input-area {
-            width: 90%;
-        }
-
-        header h2 {
-            font-size: 16px;
-        }
-
-        input, button {
-            font-size: 12px;
-            padding: 8px;
-        }
-    }
+<style>  
+    * { box-sizing: border-box; margin: 0; padding: 0; }  
+  
+    body {  
+        font-family: Arial, sans-serif;  
+        background-color: #f0f2f5;  
+        color: #333;  
+        display: flex;  
+        flex-direction: column;  
+        min-height: 100vh;  
+        padding-top: 60px; /* space for fixed header */  
+        padding-bottom: 50px; /* space for fixed footer */  
+    }  
+  
+    header {  
+        position: fixed;  
+        top: 0;  
+        left: 0;  
+        width: 100%;  
+        background-color: #ffffdd;  
+        display: flex;  
+        align-items: center;  
+        padding: 5px 15px;  
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);  
+        z-index: 1000;  
+        gap: 10px;  
+    }  
+  
+    .logo-img {  
+        width: 36px;  
+        height: 36px;  
+        border-radius: 50%;  
+    }  
+  
+    header h2 {  
+        font-size: 20px;  
+        color: green;  
+        margin-left: 5px;  
+    }  
+  
+    footer {  
+        position: fixed;  
+        bottom: 0;  
+        left: 0;  
+        width: 100%;  
+        background-color: #ffffdd;  
+        text-align: center;  
+        padding: 5px 10px;  
+        font-size: 12px;  
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);  
+    }  
+  
+    footer p {  
+        margin: 2px 0;  
+        font-weight: 300;  
+    }  
+  
+    main {  
+        flex: 1;  
+        display: flex;  
+        flex-direction: column;  
+        align-items: center;  
+        width: 100%;  
+        padding: 10px 15px;  
+    }  
+  
+    #output {  
+        width: 60%;  
+        min-height: 60vh;  
+        padding: 10px;  
+        border-radius: 8px;  
+        border: 1px solid #ccc;  
+        background-color: #fff;  
+        font-size: 16px;  
+        font-family: "Times New Roman", Arial, sans-serif;  
+        margin-bottom: 15px;  
+        overflow-y: auto;  
+        resize: vertical;  
+    }  
+  
+    .input-area {  
+        display: flex;  
+        gap: 10px;  
+        width: 60%;  
+        margin-bottom: 10px;  
+    }  
+  
+    input, button {  
+        padding: 10px;  
+        font-size: 14px;  
+        border-radius: 6px;  
+        border: 1px solid #ccc;  
+        flex: 1;  
+    }  
+  
+    button {  
+        cursor: pointer;  
+        background-color: #00AF00;  
+        color: white;  
+    }  
+  
+    button:hover {  
+        background-color: #008800;  
+    }  
+  
+    #copy, #saveBtn {  
+        background-color: #F3F400;  
+    }  
+  
+    #genBtn {  
+        padding: 6px;  
+        font-size: 12px;  
+        width: 30%;  
+    }  
+  
+    @media (max-width: 768px) {  
+        #output, .input-area {  
+            width: 90%;  
+        }  
+  
+        header h2 {  
+            font-size: 16px;  
+        }  
+  
+        input, button {  
+            font-size: 12px;  
+            padding: 8px;  
+        }  
+    }  
 </style>
+        
 </head>
 
 <body>
