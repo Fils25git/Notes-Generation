@@ -25,6 +25,36 @@
             flex-direction: column;
             min-height: 100vh;
         }
+        footer {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text for contrast */
+    text-align: center;
+    padding: 20px;
+    font-size: 14px; /* Font size for readability */
+    margin-top: auto;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for visual separation */
+        }
+        footer p {
+    margin: 5px 0; /* Space between paragraphs */
+    font-weight: 300; /* Lighter font weight for a clean look */
+        }
+        header {
+    display: flex;
+    align-items: center;
+    padding: 20px 30px;
+    background-color: #4CAF50;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+        @media (max-width: 768px) {
+    footer {
+        padding: 15px; /* Reduce padding for smaller screens */
+    }
+    footer p {
+        font-size: 13px; /* Slightly smaller text for mobile screens */
+    }
+        }
 
         h2 {
             margin-bottom: 10px;
@@ -92,9 +122,10 @@
 </head>
 
 <body>
-
+<header>
 <h2>Fila Assistant</h2>
-
+</header>
+<main>
 <textarea id="output" placeholder="Generated notes will appear here... and you will be able to edit them"></textarea>
 
 <div class="input-area">
@@ -106,7 +137,7 @@
     <button onclick="copyNotes()" id="copy">Copy Notes</button>
     <button onclick="saveAsWord()" id="saveBtn">Save as Word</button>
 </div>
-
+</main>
 <!-- Fuse.js -->
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
