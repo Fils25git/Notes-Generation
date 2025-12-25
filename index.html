@@ -166,85 +166,80 @@
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 <script>
-let htmlNote = "";
-
-// 1. Fetch HTML note
-fetch("https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/ENGnotesS3.html")
-  .then(res => res.text())
-  .then(data => htmlNote = data)
-  .catch(err => console.log("Error loading HTML note:", err));
+function normalize(text) {
+    return text
+        .toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .trim();
+}
 
 function generateNotes() {
-    const topicInput = document.getElementById("topicInput").value.trim().toLowerCase();
+    const input = normalize(document.getElementById("topicInput").value);
     const output = document.getElementById("output");
     output.value = "";
 
     if (!htmlNote) {
-        output.value = "Notes are still loading. Please try again.";
+        output.value = "Notes are still loading...";
         return;
     }
 
-    // 2. Convert HTML string to DOM
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlNote, "text/html");
+    const headings = Array.from(doc.querySelectorAll("h1, h2, h3, h4, h5, h6"));
 
-    // 3. Search headings & paragraphs
-    let foundText = "";
+    let foundHeader = null;
+    let headerLevel = 0;
 
-    doc.querySelectorAll("h1, h2, h3, p, li").forEach(el => {
-        if (el.textContent.toLowerCase().includes(topicInput)) {
-            foundText += el.textContent + "\n";
+    // 🔍 Find exact header match (H1-H6)
+    for (const h of headings) {
+        if (normalize(h.textContent) === input) {
+            foundHeader = h;
+            headerLevel = parseInt(h.tagName.charAt(1));
+            break;
         }
-    });
-
-    // 4. Typewriter effect
-    if (foundText) {
-        const lines = foundText.split("\n");
-        let i = 0;
-
-        function typeLine() {
-            if (i < lines.length) {
-                output.value += lines[i] + "\n";
-                output.scrollTop = output.scrollHeight;
-                i++;
-                setTimeout(typeLine, 250);
-            }
-        }
-        typeLine();
-    } else {
-        output.value = "No matching topic found in the notes.";
     }
-}
 
-// COPY
-function copyNotes() {
-    const textarea = document.getElementById("output");
-    textarea.select();
-    document.execCommand("copy");
-    alert("Notes copied!");
-}
-
-// SAVE AS WORD
-function saveAsWord() {
-    const text = document.getElementById("output").value;
-    if (!text.trim()) {
-        alert("No notes to save!");
+    if (!foundHeader) {
+        output.value = `Lesson not found: "${input}"\nTip: Use exact  Unit or lesson title.`;
         return;
     }
 
-    const { Document, Packer, Paragraph } = window.docx;
+    // Collect content until next header of same or higher level
+    let content = "";
+    let next = foundHeader.nextElementSibling;
+    while (next) {
+        const nextTag = next.tagName;
+        if (/H[1-6]/.test(nextTag)) {
+            const nextLevel = parseInt(nextTag.charAt(1));
+            if (nextLevel <= headerLevel) break; // stop at same or higher level
+        }
+        content += next.textContent + " ";
+        next = next.nextElementSibling;
+    }
 
-    const doc = new Document({
-        sections: [{
-            children: text.split("\n").map(line => new Paragraph(line))
-        }]
-    });
+    // Include the header title itself
+    content = foundHeader.textContent + " " + content;
 
-    Packer.toBlob(doc).then(blob => {
-        saveAs(blob, "My_Notes.docx");
-    });
+    // Typing effect: word by word
+    const words = content.split(/\s+/);
+    let i = 0;
+
+    function typeWord() {
+        if (i < words.length) {
+            output.value += words[i] + " ";
+            output.scrollTop = output.scrollHeight;
+
+            let delay = 80;
+            if (/[.!?]$/.test(words[i])) delay = 300;
+
+            i++;
+            setTimeout(typeWord, delay);
+        }
+    }
+    typeWord();
 }
 </script>
+
 <footer>
     <p>Email: support@fleduacademy.com</p>
     <p>&copy; 2025 FL EduAcademy. All rights reserved.</p>
