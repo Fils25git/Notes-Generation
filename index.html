@@ -154,7 +154,7 @@
     <textarea id="output" placeholder="Generated notes will appear here... and you will be able to edit them"></textarea>
 
     <div class="input-area">
-        <input type="text" id="topicInput" placeholder="Enter topic here">
+        <input type="text" id="topicInput" placeholder="Enter Lesson topic as it is in Student book">
         <button onclick="generateNotes()" id="genBtn">Generate Notes</button>
     </div>
 
@@ -209,7 +209,7 @@
         }
 
         if (!found) {
-            output.value = "No notes found for this topic yet. AI can generate a draft here later.";
+            output.value = "Please Enter correct lesson topic. No notes found for this topic yet. AI can generate a draft here later.";
         }
     }
 
