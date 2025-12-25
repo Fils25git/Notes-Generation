@@ -166,85 +166,85 @@
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 <script>
-    let notesDatabase = {};
+let htmlNote = "";
 
-    fetch('https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/Notes/EnglishNotes.json')
-        .then(res => res.json())
-        .then(data => notesDatabase = data)
-        .catch(err => console.log("Error loading notes:", err));
+// 1. Fetch HTML note
+fetch("https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/ENGnotesS3.html")
+  .then(res => res.text())
+  .then(data => htmlNote = data)
+  .catch(err => console.log("Error loading HTML note:", err));
 
-    function generateNotes() {
-        const topicInput = document.getElementById("topicInput").value.trim().toLowerCase();
-        const output = document.getElementById("output");
-        output.value = ""; // clear previous content
-        let found = false;
+function generateNotes() {
+    const topicInput = document.getElementById("topicInput").value.trim().toLowerCase();
+    const output = document.getElementById("output");
+    output.value = "";
 
-        let searchList = [];
-        Object.keys(notesDatabase).forEach(key => {
-            notesDatabase[key].keywords.forEach(word => {
-                searchList.push({ topic: key, keyword: word });
-            });
-        });
+    if (!htmlNote) {
+        output.value = "Notes are still loading. Please try again.";
+        return;
+    }
 
-        const fuse = new Fuse(searchList, { keys: ["keyword"], threshold: 0.4 });
-        const result = fuse.search(topicInput);
+    // 2. Convert HTML string to DOM
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlNote, "text/html");
 
-        if (result.length > 0) {
-            const matchedTopic = result[0].item.topic;
-            const notesArray = notesDatabase[matchedTopic].content;
-            const randomIndex = Math.floor(Math.random() * notesArray.length);
-            const lines = notesArray[randomIndex].split("\n");
+    // 3. Search headings & paragraphs
+    let foundText = "";
 
-            let i = 0;
-            function typeLine() {
-                if (i < lines.length) {
-                    output.value += lines[i] + "\n";
-                    output.scrollTop = output.scrollHeight; // auto scroll
-                    i++;
-                    setTimeout(typeLine, 300); // delay per line
-                }
+    doc.querySelectorAll("h1, h2, h3, p, li").forEach(el => {
+        if (el.textContent.toLowerCase().includes(topicInput)) {
+            foundText += el.textContent + "\n";
+        }
+    });
+
+    // 4. Typewriter effect
+    if (foundText) {
+        const lines = foundText.split("\n");
+        let i = 0;
+
+        function typeLine() {
+            if (i < lines.length) {
+                output.value += lines[i] + "\n";
+                output.scrollTop = output.scrollHeight;
+                i++;
+                setTimeout(typeLine, 250);
             }
-            typeLine();
-            found = true;
         }
+        typeLine();
+    } else {
+        output.value = "No matching topic found in the notes.";
+    }
+}
 
-        if (!found) {
-            output.value = "Please Enter correct lesson topic. No notes found for this topic yet. AI can generate a draft here later.";
-        }
+// COPY
+function copyNotes() {
+    const textarea = document.getElementById("output");
+    textarea.select();
+    document.execCommand("copy");
+    alert("Notes copied!");
+}
+
+// SAVE AS WORD
+function saveAsWord() {
+    const text = document.getElementById("output").value;
+    if (!text.trim()) {
+        alert("No notes to save!");
+        return;
     }
 
-    function copyNotes() {
-        const textarea = document.getElementById("output");
-        textarea.select();
-        textarea.setSelectionRange(0, 99999);
-        document.execCommand("copy");
-        alert("Notes copied to clipboard!");
-    }
+    const { Document, Packer, Paragraph } = window.docx;
 
-    function saveAsWord() {
-        const text = document.getElementById("output").value;
+    const doc = new Document({
+        sections: [{
+            children: text.split("\n").map(line => new Paragraph(line))
+        }]
+    });
 
-        if (!text.trim()) {
-            alert("No notes to save!");
-            return;
-        }
-
-        const { Document, Packer, Paragraph } = window.docx;
-
-        const doc = new Document({
-            sections: [{
-                children: text.split("\n").map(line =>
-                    new Paragraph({ text: line })
-                )
-            }]
-        });
-
-        Packer.toBlob(doc).then(blob => {
-            saveAs(blob, "My_Notes.docx");
-        });
-    }
+    Packer.toBlob(doc).then(blob => {
+        saveAs(blob, "My_Notes.docx");
+    });
+}
 </script>
-
 <footer>
     <p>Email: support@fleduacademy.com</p>
     <p>&copy; 2025 FL EduAcademy. All rights reserved.</p>
