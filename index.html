@@ -172,7 +172,6 @@ function normalize(text) {
         .replace(/[^\w\s]/g, "")
         .trim();
 }
-
 function generateNotes() {
     const input = normalize(document.getElementById("topicInput").value);
     const output = document.getElementById("output");
