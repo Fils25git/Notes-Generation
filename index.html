@@ -22,10 +22,10 @@
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
 <script>
-    let notesDatabase = {}; // Will be loaded from JSON
+    let notesDatabase = {};
 
-    // Load notes.json (replace URL with your GitHub raw JSON URL or local file path)
-    fetch('Notes/EnglishNotes.json') 
+    // Load notes from GitHub raw URL
+    fetch('https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/Notes/EnglishNotes.json')
         .then(response => response.json())
         .then(data => { notesDatabase = data; })
         .catch(error => console.log("Error loading notes:", error));
@@ -34,22 +34,14 @@
         let topicInput = document.getElementById("topicInput").value.trim().toLowerCase();
         let found = false;
 
-        // Prepare Fuse.js search list
         let searchList = [];
-        let topicKeys = Object.keys(notesDatabase);
-        topicKeys.forEach(key => {
+        Object.keys(notesDatabase).forEach(key => {
             notesDatabase[key].keywords.forEach(word => {
                 searchList.push({topic: key, keyword: word});
             });
         });
 
-        // Fuse.js options
-        const options = {
-            keys: ["keyword"],
-            threshold: 0.4, // 0.0 exact match, 1.0 very fuzzy
-        };
-
-        const fuse = new Fuse(searchList, options);
+        const fuse = new Fuse(searchList, { keys: ["keyword"], threshold: 0.4 });
         const result = fuse.search(topicInput);
 
         if (result.length > 0) {
@@ -61,72 +53,18 @@
         }
 
         if (!found) {
-            document.getElementById("output").value = 
-                "No notes found for this topic yet. AI can generate a draft here later.";
+            document.getElementById("output").value = "No notes found for this topic yet. AI can generate a draft here later.";
         }
     }
 
     function copyNotes() {
         let copyText = document.getElementById("output");
         copyText.select();
-        copyText.setSelectionRange(0, 99999); // for mobile
+        copyText.setSelectionRange(0, 99999);
         document.execCommand("copy");
         alert("Notes copied to clipboard!");
     }
 </script>
 
 </body>
-</html>            content: [
-                "Definition: A verb is an action word.\nExamples: run, eat, play.\nExercise: Write 5 verbs.",
-                "Definition: Verbs show action or state.\nExamples: jump, swim, read.\nExercise: Write 5 sentences with verbs."
-            ]
-        }
-    };
-
-    function generateNotes() {
-        let topicInput = document.getElementById("topicInput").value.trim().toLowerCase();
-        let found = false;
-
-        // Prepare Fuse.js search list
-        let searchList = [];
-        let topicKeys = Object.keys(notesDatabase);
-        topicKeys.forEach(key => {
-            notesDatabase[key].keywords.forEach(word => {
-                searchList.push({topic: key, keyword: word});
-            });
-        });
-
-        // Fuse.js options
-        const options = {
-            keys: ["keyword"],
-            threshold: 0.4, // 0.0 exact match, 1.0 very fuzzy
-        };
-
-        const fuse = new Fuse(searchList, options);
-        const result = fuse.search(topicInput);
-
-        if (result.length > 0) {
-            let matchedTopic = result[0].item.topic;
-            let notesArray = notesDatabase[matchedTopic].content;
-            let randomIndex = Math.floor(Math.random() * notesArray.length);
-            document.getElementById("output").value = notesArray[randomIndex];
-            found = true;
-        }
-
-        if (!found) {
-            document.getElementById("output").value = 
-                "No notes found for this topic yet. AI can generate a draft here later.";
-        }
-    }
-
-    function copyNotes() {
-        let copyText = document.getElementById("output");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999); // for mobile
-        document.execCommand("copy");
-        alert("Notes copied to clipboard!");
-    }
-</script>
-
-</body>
-  </html>
+</html>
