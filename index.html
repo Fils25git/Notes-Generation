@@ -3,20 +3,85 @@
 <head>
     <title>Teacher Note Assistant</title>
     <style>
-        body { font-family: Arial; padding: 20px; }
-        input, button, textarea { padding: 10px; font-size: 16px; margin: 5px 0; width: 100%; }
-        #output { margin-top: 10px; }
+        /* Basic reset and body styling */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f4f6f8; /* soft inclusive background */
+            color: #333; /* good contrast text */
+            padding: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #1a73e8; /* friendly accessible blue */
+        }
+
+        /* Output area (chat-like) */
+        #output {
+            flex: 1; /* take remaining vertical space */
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            background-color: #ffffff;
+            overflow-y: auto;
+            font-size: 16px;
+            margin-bottom: 10px;
+            resize: none;
+        }
+
+        /* Bottom input area container */
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        input, button {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        input {
+            flex: none;
+        }
+
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #1669c1;
+        }
+
+        @media (max-width: 600px) {
+            input, button, #output {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
 
 <h2>English Note Assistant</h2>
 
-<input type="text" id="topicInput" placeholder="Enter topic here">
-<button onclick="generateNotes()">Generate Notes</button>
+<textarea id="output" placeholder="Generated notes will appear here..."></textarea>
 
-<textarea id="output" rows="10" placeholder="Generated notes will appear here..."></textarea>
-<button onclick="copyNotes()">Copy Notes</button>
+<div class="input-area">
+    <input type="text" id="topicInput" placeholder="Enter topic here">
+    <button onclick="generateNotes()">Generate Notes</button>
+    <button onclick="copyNotes()">Copy Notes</button>
+</div>
 
 <!-- Include Fuse.js -->
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
