@@ -24,8 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const editBtn = document.getElementById("editBtn");
     const changeBtn = document.getElementById("changeSelectionBtn");
 
-    document.getElementById("currentSelection").textContent =
-        `${level} | ${classLevel} | ${subject} | ${unit}`;
+    const currentSelectionEl = document.getElementById("currentSelection");
+if (currentSelectionEl) {
+    currentSelectionEl.textContent = `${level} | ${classLevel} | ${subject} | ${unit}`;
+}
 
     /* ===============================
        CHANGE SELECTION ICON
