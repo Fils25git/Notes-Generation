@@ -50,26 +50,26 @@ let currentNotesHTML = ""; // store HTML notes for searching
                     "Unit 2: Classroom Objects": "primary/p1/english/classroomobjects.html",
                     "Unit 3: People at Home and School": "primary/p1/english/peopleathome.html",
                     "Unit 4: Clothes and Body Parts": "primary/p1/english/clothesandbodyparts.html",
-                    "Unit 5: Likes and Dislikes": "primary/p1/english/likesanddislikes.json",
+                    "Unit 5: Likes and Dislikes": "primary/p1/english/likesanddislikes.html",
                     "Unit 6: Classroom Objects and Personal Belongings": "primary/p1/english/classroomobjectsandbelongings.html",
                     "Unit 7: Home": "primary/p1/english/home.html",
-                    "Unit 8: Domestic Animals": "primary/p1/english/domesticanimals.html",
-                    "Unit 9: Daily Routine": "primary/p1/english/dailyroutine.html",
+                    "Unit 8: Domestic Animals": "primary/p1/english/animalsathome.html",
+                    "Unit 9: Daily Routine": "primary/p1/english/whatwedoeveryday.html",
                     "Unit 10: Story Telling": "primary/p1/english/storytelling.html"
                 }
             },
             "P2": {
                 "English": {
-                    "Unit 1: Greetings, Introductions and Talking about School": "primary/p2/english/greetings.json",
+                    "Unit 1: Greetings, Introductions and Talking about School": "primary/p2/english/greetings.html",
                     "Unit 2: Sports": "primary/p2/english/sports.json",
-                    "Unit 3: Telling the Time": "primary/p2/english/tellingthetime.json",
+                    "Unit 3: Telling the Time": "primary/p2/english/tellingthetime.html",
                     "Unit 4: Food Stuffs": "primary/p2/english/foodstuffs.json",
-                    "Unit 5: Stories and Descriptions": "primary/p2/english/storiesanddescriptions.json",
-                    "Unit 6: Family Members and Household Activities": "primary/p2/english/familyactivities.json",
-                    "Unit 7: Weather": "primary/p2/english/weather.json",
-                    "Unit 8: The Zoo (Animals)": "primary/p2/english/zooanimals.json",
-                    "Unit 9: Counting and Writing": "primary/p2/english/countingandwriting.json",
-                    "Unit 10: Past and Future Events": "primary/p2/english/pastandfuture.json"
+                    "Unit 5: Stories and Descriptions": "primary/p2/english/storiesanddescriptions.html",
+                    "Unit 6: Family Members and Household Activities": "primary/p2/english/familyactivities.html",
+                    "Unit 7: Weather": "primary/p2/english/weather.html",
+                    "Unit 8: The Zoo (Animals)": "primary/p2/english/zooanimals.html",
+                    "Unit 9: Counting and Writing": "primary/p2/english/countingandwriting.html",
+                    "Unit 10: Past and Future Events": "primary/p2/english/pastandfuture.html"
                 }
             },
             "P3": {
