@@ -178,6 +178,11 @@ function normalize(text) {
     return text.toLowerCase().replace(/[^\w\s]/g, "").trim();
 }
 
+// ✅ REMOVE LEADING NUMBERS (7. , 7.1 , 7.1.1 ...)
+function stripNumbers(text) {
+    return text.replace(/^\d+(\.\d+)*\s*/, "");
+}
+
 function generateNotes() {
     const input = normalize(document.getElementById("topicInput").value);
     const output = document.getElementById("output");
@@ -191,12 +196,12 @@ function generateNotes() {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlNote, "text/html");
 
-    // 2. Get all headers H1-H6
+    // 2. Get all headers H1–H6
     const headers = Array.from(doc.querySelectorAll("h1, h2, h3, h4, h5, h6"));
     let foundHeader = null;
     let headerLevel = 0;
 
-    // 🔍 Find exact header match
+    // 🔍 Exact header match
     for (const h of headers) {
         if (normalize(h.textContent) === input) {
             foundHeader = h;
@@ -206,24 +211,26 @@ function generateNotes() {
     }
 
     if (!foundHeader) {
-        output.value = `Lesson not found: "${input}"\nTip: Use exact header title (H1–H6).`;
+        output.value = `No lesson named "${input}" found.\nTip: Use exact lesson title.`;
         return;
     }
 
     // 3. Collect content until next header of same or higher level
-    let content = foundHeader.textContent + " "; // Include header title
+    let content = stripNumbers(foundHeader.textContent) + " ";
     let next = foundHeader.nextElementSibling;
 
     while (next) {
         const nextTag = next.tagName;
+
         if (/H[1-6]/.test(nextTag)) {
             const nextLevel = parseInt(nextTag.charAt(1));
-            if (nextLevel <= headerLevel) break; // Stop at same/higher level
+            if (nextLevel <= headerLevel) break;
         }
-        // Include paragraphs, list items, or other content
+
         if (next.tagName === "P" || next.tagName === "LI") {
-            content += next.textContent + " ";
+            content += stripNumbers(next.textContent) + " ";
         }
+
         next = next.nextElementSibling;
     }
 
@@ -237,7 +244,7 @@ function generateNotes() {
             output.scrollTop = output.scrollHeight;
 
             let delay = 80;
-            if (/[.!?]$/.test(words[i])) delay = 300; // pause on punctuation
+            if (/[.!?]$/.test(words[i])) delay = 300;
 
             i++;
             setTimeout(typeWord, delay);
@@ -257,10 +264,15 @@ function copyNotes() {
 // SAVE AS WORD
 function saveAsWord() {
     const text = document.getElementById("output").value;
+    const input = document.getElementById("topicInput").value;
+
     if (!text.trim()) {
         alert("No notes to save!");
         return;
     }
+
+    const safeTitle = makeFileName(input || "Lesson");
+    const fileName = `Notes_of_${safeTitle}.docx`;
 
     const { Document, Packer, Paragraph } = window.docx;
 
@@ -271,9 +283,10 @@ function saveAsWord() {
     });
 
     Packer.toBlob(doc).then(blob => {
-        saveAs(blob, "My_Notes.docx");
+        saveAs(blob, fileName);
     });
-}
+   }
+
 </script>
 
 <footer>
