@@ -1,0 +1,90 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body, html {
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-color: #ffffdd;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+    gap: 10px;
+}
+
+.logo-img { width: 36px; height: 36px; border-radius: 50%; }
+
+header h2 { font-size: 18px; color: green; }
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 50px; /* header height */
+    padding-bottom: 60px; /* input height */
+    width: 100%;
+}
+
+#output {
+    flex: 1;
+    width: 95%;
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    font-size: 16px;
+    font-family: "Times New Roman", Arial, sans-serif;
+    overflow-y: auto;
+    resize: none;
+}
+
+.input-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    gap: 5px;
+    padding: 5px 10px;
+    background-color: #ffffdd;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+.input-area input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.input-area button {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: #00AF00;
+    color: white;
+}
+
+.input-area button:hover { background-color: #008800; }
+
+#copy, #saveBtn { background-color: #F3F400; }
+
+@media (max-width: 768px) {
+    #output { width: 95%; font-size: 14px; }
+    input, button { font-size: 12px; padding: 8px; }
+  }
