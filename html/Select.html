@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fila Assistant - Selection</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+    <img src="assets/logo.png" alt="Fila Assistant Logo" class="logo-img">
+    <h2>Fila Assistant</h2>
+</header>
+
+<main>
+    <div class="selection-container">
+        <h3>Select Lesson</h3>
+
+        <label for="level">Level</label>
+        <select id="level">
+            <option value="">--Select Level--</option>
+            <option value="Primary">Primary</option>
+            <option value="Ordinary">Ordinary</option>
+        </select>
+
+        <label for="classSelect">Class</label>
+        <select id="classSelect" disabled>
+            <option value="">--Select Class--</option>
+        </select>
+
+        <label for="subject">Subject</label>
+        <select id="subject" disabled>
+            <option value="">--Select Subject--</option>
+            <option value="English">English</option>
+        </select>
+
+        <label for="unit">Unit / Lesson</label>
+        <select id="unit" disabled>
+            <option value="">--Select Unit--</option>
+        </select>
+
+        <button id="startBtn" disabled>Start</button>
+    </div>
+</main>
+
+<script src="js/selection.js"></script>
+</body>
+</html>
