@@ -42,16 +42,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     /* ===============================
-       NOTES DATABASE
+       LOAD NOTES DATABASE
     ================================ */
     let notesDatabase = {};
-
     fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unit}.json`)
         .then(res => res.json())
         .then(data => notesDatabase = data)
-        .catch(() => {
-            systemBubble("Notes not found for this unit.");
-        });
+        .catch(() => systemBubble("Notes not found for this unit."));
 
     /* ===============================
        CHAT BUBBLES
@@ -76,44 +73,52 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ===============================
-       WORD BY WORD EFFECT
+       WORD-BY-WORD EFFECT
     ================================ */
     async function wordByWord(element, text) {
         const words = text.split(" ");
         for (let word of words) {
             element.textContent += word + " ";
             scrollDown();
-            await new Promise(r => setTimeout(r, 60));
+            await new Promise(r => setTimeout(r, 50));
         }
     }
 
     /* ===============================
-       SEARCH NOTES
+       SEARCH NOTES WITH FUSE.JS
     ================================ */
     function searchNotes(query) {
-        query = query.toLowerCase();
-        for (let topic in notesDatabase) {
-            if (topic.toLowerCase().includes(query)) {
-                return notesDatabase[topic].content.join("\n\n");
-            }
+        if (!notesDatabase || Object.keys(notesDatabase).length === 0) return null;
+
+        const searchList = [];
+        Object.keys(notesDatabase).forEach(topic => {
+            notesDatabase[topic].keywords.forEach(word => {
+                searchList.push({ topic, keyword: word });
+            });
+        });
+
+        const fuse = new Fuse(searchList, { keys: ["keyword"], threshold: 0.4 });
+        const result = fuse.search(query);
+
+        if (result.length > 0) {
+            const matchedTopic = result[0].item.topic;
+            return notesDatabase[matchedTopic].content.join("\n\n");
         }
+
         return null;
     }
 
     /* ===============================
        SEND MESSAGE
     ================================ */
-    sendBtn.addEventListener("click", sendMessage);
-    input.addEventListener("keydown", e => {
-        if (e.key === "Enter") sendMessage();
-    });
-
     function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
 
-        userBubble(text); // 👈 user message recorded
+        // Show user message
+        userBubble(text);
 
+        // Search notes
         const response = searchNotes(text);
         if (response) {
             systemBubble(response);
@@ -122,16 +127,42 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         input.value = "";
+        input.focus();
     }
 
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") sendMessage();
+    });
+
     /* ===============================
-       COPY
+       COPY NOTES
     ================================ */
     copyBtn.addEventListener("click", () => {
-        const text = [...document.querySelectorAll(".system")]
-            .map(d => d.textContent).join("\n\n");
-        navigator.clipboard.writeText(text);
-        alert("Copied!");
+        const text = [...document.querySelectorAll(".bubble")]
+            .map(d => d.textContent)
+            .join("\n\n");
+        navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
+    });
+
+    /* ===============================
+       SAVE AS WORD
+    ================================ */
+    saveBtn.addEventListener("click", () => {
+        const { Document, Packer, Paragraph } = window.docx;
+
+        const allText = [...document.querySelectorAll(".bubble")]
+            .map(d => d.textContent);
+
+        if (!allText.length) return alert("No notes to save!");
+
+        const doc = new Document({
+            sections: [{
+                children: allText.map(line => new Paragraph({ text: line }))
+            }]
+        });
+
+        Packer.toBlob(doc).then(blob => saveAs(blob, "Notes.docx"));
     });
 
     /* ===============================
@@ -140,9 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
     editBtn.addEventListener("click", () => {
         document.querySelectorAll(".system").forEach(n => {
             n.contentEditable = n.contentEditable !== "true";
-            n.style.border = n.contentEditable === "true"
-                ? "1px dashed #00AF00"
-                : "none";
+            n.style.border = n.contentEditable === "true" ? "1px dashed #00AF00" : "none";
         });
     });
 
