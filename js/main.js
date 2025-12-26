@@ -173,7 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
         systemBubble("Notes not found for this unit.");
     }
 
-});
 
     /* ===============================
        CHAT BUBBLES
