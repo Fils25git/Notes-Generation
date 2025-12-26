@@ -47,15 +47,15 @@ let currentNotesHTML = ""; // store HTML notes for searching
             "P1": {
                 "English": {
                     "Unit 1: Welcome to the Classroom": "primary/p1/english/welcometoschool.html",
-                    "Unit 2: Classroom Objects": "primary/p1/english/classroomobjects.json",
-                    "Unit 3: People at Home and School": "primary/p1/english/peopleathome.json",
-                    "Unit 4: Clothes and Body Parts": "primary/p1/english/clothesandbodyparts.json",
+                    "Unit 2: Classroom Objects": "primary/p1/english/classroomobjects.html",
+                    "Unit 3: People at Home and School": "primary/p1/english/peopleathome.html",
+                    "Unit 4: Clothes and Body Parts": "primary/p1/english/clothesandbodyparts.html",
                     "Unit 5: Likes and Dislikes": "primary/p1/english/likesanddislikes.json",
-                    "Unit 6: Classroom Objects and Personal Belongings": "primary/p1/english/classroomobjectsandbelongings.json",
-                    "Unit 7: Home": "primary/p1/english/home.json",
-                    "Unit 8: Domestic Animals": "primary/p1/english/domesticanimals.json",
-                    "Unit 9: Daily Routine": "primary/p1/english/dailyroutine.json",
-                    "Unit 10: Story Telling": "primary/p1/english/storytelling.json"
+                    "Unit 6: Classroom Objects and Personal Belongings": "primary/p1/english/classroomobjectsandbelongings.html",
+                    "Unit 7: Home": "primary/p1/english/home.html",
+                    "Unit 8: Domestic Animals": "primary/p1/english/domesticanimals.html",
+                    "Unit 9: Daily Routine": "primary/p1/english/dailyroutine.html",
+                    "Unit 10: Story Telling": "primary/p1/english/storytelling.html"
                 }
             },
             "P2": {
