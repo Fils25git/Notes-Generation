@@ -4,27 +4,22 @@ document.addEventListener("DOMContentLoaded", () => {
        FORCE SELECTION FIRST
     ================================ */
     const requiredKeys = ["level", "classLevel", "subject", "unit"];
-    for (let key of requiredKeys) {
-        if (!localStorage.getItem(key)) {
-            window.location.replace("selection.html");
-            return;
-        }
-    }
+    document.addEventListener("DOMContentLoaded", () => {
 
-    /* ===============================
-       GET SELECTION
-    ================================ */
+    // 1️⃣ Retrieve selection from localStorage
     const level = localStorage.getItem("level");
     const classLevel = localStorage.getItem("classLevel");
     const subject = localStorage.getItem("subject");
     const unit = localStorage.getItem("unit");
 
-    document.getElementById("currentSelection").textContent =
-        `${level} | ${classLevel} | ${subject} | ${unit}`;
+    // 2️⃣ Force selection if missing
+    const requiredKeys = [level, classLevel, subject, unit];
+    if (requiredKeys.includes(null) || requiredKeys.includes("")) {
+        window.location.replace("selection.html");
+        return; // stop further execution
+    }
 
-    /* ===============================
-       ELEMENTS
-    ================================ */
+    // 3️⃣ Now safely get DOM elements
     const outputArea = document.getElementById("outputArea");
     const input = document.getElementById("noteInput");
     const sendBtn = document.getElementById("sendBtn");
@@ -33,9 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const editBtn = document.getElementById("editBtn");
     const changeBtn = document.getElementById("changeSelectionBtn");
 
-    /* ===============================
-       CHANGE SELECTION ICON
-    ================================ */
+    document.getElementById("currentSelection").textContent =
+        `${level} | ${classLevel} | ${subject} | ${unit}`;
+
+    // ...rest of my code
+    
+    /* ====================================== */
     changeBtn.addEventListener("click", () => {
         localStorage.clear();
         window.location.href = "selection.html";
