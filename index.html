@@ -6,6 +6,36 @@
 <title>Fila Assistant - Notes</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+    #outputArea {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    word-wrap: break-word;
+}
+
+.user {
+    align-self: flex-end;
+    background-color: #00AF00;
+    color: white;
+}
+
+.system {
+    align-self: flex-start;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+}
+</style>
 </head>
 <body>
 <header>
