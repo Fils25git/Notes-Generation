@@ -3,23 +3,19 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        FORCE SELECTION FIRST
     ================================ */
-    const requiredKeys = ["level", "classLevel", "subject", "unit"];
-    document.addEventListener("DOMContentLoaded", () => {
-
-    // 1️⃣ Retrieve selection from localStorage
     const level = localStorage.getItem("level");
     const classLevel = localStorage.getItem("classLevel");
     const subject = localStorage.getItem("subject");
     const unit = localStorage.getItem("unit");
 
-    // 2️⃣ Force selection if missing
-    const requiredKeys = [level, classLevel, subject, unit];
-    if (requiredKeys.includes(null) || requiredKeys.includes("")) {
+    if (!level || !classLevel || !subject || !unit) {
         window.location.replace("selection.html");
         return; // stop further execution
     }
 
-    // 3️⃣ Now safely get DOM elements
+    /* ===============================
+       DOM ELEMENTS
+    ================================ */
     const outputArea = document.getElementById("outputArea");
     const input = document.getElementById("noteInput");
     const sendBtn = document.getElementById("sendBtn");
@@ -31,18 +27,19 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("currentSelection").textContent =
         `${level} | ${classLevel} | ${subject} | ${unit}`;
 
-    // ...rest of my code
-    
-    /* ====================================== */
+    /* ===============================
+       CHANGE SELECTION ICON
+    ================================ */
     changeBtn.addEventListener("click", () => {
         localStorage.clear();
         window.location.href = "selection.html";
     });
 
     /* ===============================
-       LOAD NOTES DATABASE
+       NOTES DATABASE
     ================================ */
     let notesDatabase = {};
+
     fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unit}.json`)
         .then(res => res.json())
         .then(data => notesDatabase = data)
@@ -113,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const text = input.value.trim();
         if (!text) return;
 
-        // Show user message
+        // Show user message first
         userBubble(text);
 
         // Search notes
@@ -140,7 +137,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const text = [...document.querySelectorAll(".bubble")]
             .map(d => d.textContent)
             .join("\n\n");
-        navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
+        navigator.clipboard.writeText(text)
+            .then(() => alert("Copied to clipboard!"));
     });
 
     /* ===============================
@@ -149,9 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveBtn.addEventListener("click", () => {
         const { Document, Packer, Paragraph } = window.docx;
 
-        const allText = [...document.querySelectorAll(".bubble")]
-            .map(d => d.textContent);
-
+        const allText = [...document.querySelectorAll(".bubble")].map(d => d.textContent);
         if (!allText.length) return alert("No notes to save!");
 
         const doc = new Document({
