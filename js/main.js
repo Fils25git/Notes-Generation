@@ -2,7 +2,7 @@ const requiredKeys = ["level", "class", "subject", "unit"];
 
 for (let key of requiredKeys) {
     if (!localStorage.getItem(key)) {
-        window.location.href = "html/selection.html";
+        window.location.href = "selection.html";
         break;
     }
 }
