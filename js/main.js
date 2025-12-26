@@ -163,15 +163,22 @@ document.addEventListener("DOMContentLoaded", () => {
        FETCH NOTES BASED ON SELECTION
     ================================ */
     const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject]?.[unit];
+const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject]?.[unit];
 
 if (unitFilePath) {
     fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
-        .then(res => res.text())  // fetch as HTML/text
-        .then(html => {
-            currentNotesHTML = html; // store the full notes in a variable
-            systemBubble("Notes loaded! You can now search for a lesson."); // instruction message
+        .then(res => {
+            if (!res.ok) throw new Error("Not found");
+            return res.text();
         })
-        .catch(() => systemBubble("Notes not found for this unit."));
+        .then(html => {
+            currentNotesHTML = html;
+            systemBubble("Notes loaded! You can now search for a lesson.");
+        })
+        .catch(() => {
+            currentNotesHTML = ""; // clear previous notes
+            systemBubble("Notes not found for this unit.");
+        });
 } else {
     systemBubble("Notes not found for this unit.");
 }
