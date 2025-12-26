@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-
+let currentNotesHTML = ""; // store HTML notes for searching
     /* ===============================
        RETRIEVE SELECTION & FORCE SELECTION FIRST
     ================================ */
@@ -163,16 +163,15 @@ document.addEventListener("DOMContentLoaded", () => {
        FETCH NOTES BASED ON SELECTION
     ================================ */
     const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject]?.[unit];
-const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject]?.[unit];
 
 if (unitFilePath) {
     fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
         .then(res => {
             if (!res.ok) throw new Error("Not found");
-            return res.text();
+            return res.text(); // fetch as HTML/text
         })
         .then(html => {
-            currentNotesHTML = html;
+            currentNotesHTML = html; // store HTML notes
             systemBubble("Notes loaded! You can now search for a lesson.");
         })
         .catch(() => {
@@ -180,8 +179,9 @@ if (unitFilePath) {
             systemBubble("Notes not found for this unit.");
         });
 } else {
+    currentNotesHTML = "";
     systemBubble("Notes not found for this unit.");
-}
+        }
 
 
     /* ===============================
@@ -279,7 +279,7 @@ function warningBubble(text) {
     }
 
     return results || null;
-                          }
+    }
     /* ===============================
        SEND MESSAGE
     ================================ */
@@ -305,7 +305,12 @@ function warningBubble(text) {
 
     input.value = "";
     input.focus();
+        
         }
+sendBtn.addEventListener("click", sendMessage);
+input.addEventListener("keydown", e => {
+    if (e.key === "Enter") sendMessage();
+});
 
     /* ===============================
        SAVE AS WORD
