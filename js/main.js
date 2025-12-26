@@ -1,63 +1,94 @@
 let notesDatabase = {};
-const outputEl = document.getElementById("output");
+const outputArea = document.getElementById("outputArea");
+const input = document.getElementById("noteInput");
+const sendBtn = document.getElementById("sendBtn");
+const copyBtn = document.getElementById("copyBtn");
+const saveBtn = document.getElementById("saveBtn");
+const editBtn = document.getElementById("editBtn");
 
-// Load unit notes based on selection
-const level = localStorage.getItem("level");
-const className = localStorage.getItem("class");
-const subject = localStorage.getItem("subject");
-const unitName = localStorage.getItem("unit");
+// Load JSON notes
+const level = localStorage.getItem("level") || "Primary";
+const className = localStorage.getItem("class") || "P1";
+const subject = localStorage.getItem("subject") || "English";
+const unit = localStorage.getItem("unit") || "Unit 1 - Greetings";
 
-// Example: fetch notes JSON per unit
-fetch(`notes/${unitName.replace(/\s/g, "")}.json`)
+// Example JSON path pattern
+const jsonPath = `notes/${subject.replace(" ","")}${className}.json`;
+
+fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unit}.json`)
     .then(res => res.json())
     .then(data => notesDatabase = data)
     .catch(err => console.log("Error loading notes:", err));
 
-function generateNotes() {
-    const topic = document.getElementById("topicInput").value.trim().toLowerCase();
-    if(!topic) return;
-
+// Fuse.js setup
+function searchNotes(topic) {
     let searchList = [];
     Object.keys(notesDatabase).forEach(key => {
-        notesDatabase[key].keywords.forEach(word => searchList.push({topic: key, keyword: word}));
+        notesDatabase[key].keywords.forEach(word => {
+            searchList.push({topic: key, keyword: word});
+        });
     });
-
     const fuse = new Fuse(searchList, { keys: ["keyword"], threshold: 0.4 });
-    const result = fuse.search(topic);
+    return fuse.search(topic);
+}
 
-    if(result.length>0){
-        const matched = result[0].item.topic;
-        const content = notesDatabase[matched].content;
-        const randomIndex = Math.floor(Math.random()*content.length);
-        outputEl.innerText = content[randomIndex];
-    } else {
-        outputEl.innerText = "No notes found for this topic yet.";
+// Word-by-word effect
+async function generateWordByWord(text) {
+    const div = document.createElement("div");
+    div.classList.add("note");
+    outputArea.appendChild(div);
+    outputArea.scrollTop = outputArea.scrollHeight;
+
+    const words = text.split(" ");
+    for (let i = 0; i < words.length; i++) {
+        div.textContent += words[i] + " ";
+        await new Promise(r => setTimeout(r, 80));
+        outputArea.scrollTop = outputArea.scrollHeight;
     }
 }
 
-function copyNotes() {
-    if(!outputEl.innerText.trim()) return alert("No notes to copy!");
-    const range = document.createRange();
-    range.selectNodeContents(outputEl);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-    document.execCommand("copy");
-    sel.removeAllRanges();
-    alert("Notes copied!");
-}
+sendBtn.addEventListener("click", () => {
+    const topic = input.value.trim().toLowerCase();
+    if (!topic) return;
 
-function saveAsWord() {
-    const text = outputEl.innerText;
-    if(!text.trim()) return alert("No notes to save!");
+    const results = searchNotes(topic);
+    if (results.length > 0) {
+        const matched = results[0].item.topic;
+        const notesArray = notesDatabase[matched].content;
+        const randomIndex = Math.floor(Math.random() * notesArray.length);
+        generateWordByWord(notesArray[randomIndex]);
+    } else {
+        generateWordByWord("No notes found for this topic yet. AI can generate a draft later.");
+    }
+
+    input.value = "";
+});
+
+// Copy Notes
+copyBtn.addEventListener("click", () => {
+    const allText = Array.from(document.querySelectorAll(".note"))
+        .map(div => div.textContent).join("\n\n");
+    navigator.clipboard.writeText(allText).then(() => alert("Copied to clipboard!"));
+});
+
+// Save as Word
+saveBtn.addEventListener("click", () => {
     const { Document, Packer, Paragraph } = window.docx;
-    const doc = new Document({
-        sections:[{children: text.split("\n").map(line => new Paragraph({text: line}))}]
-    });
-    Packer.toBlob(doc).then(blob => saveAs(blob, "My_Notes.docx"));
-}
+    const allText = Array.from(document.querySelectorAll(".note"))
+        .map(div => div.textContent);
+    if (!allText.length) return alert("No notes to save!");
 
-function enableEdit() {
-    outputEl.contentEditable = true;
-    outputEl.focus();
-      }
+    const doc = new Document({
+        sections: [{ children: allText.map(line => new Paragraph({ text: line })) }]
+    });
+    Packer.toBlob(doc).then(blob => saveAs(blob, "Notes.docx"));
+});
+
+// Edit toggle
+editBtn.addEventListener("click", () => {
+    const notes = document.querySelectorAll(".note");
+    notes.forEach(n => {
+        n.contentEditable = n.contentEditable !== "true";
+        n.style.border = n.contentEditable === "true" ? "1px solid #00AF00" : "none";
+    });
+});
