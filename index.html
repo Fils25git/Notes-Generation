@@ -5,34 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fila Assistant - Notes</title>
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/index.css">
-<!-- Font Awesome for icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
 <header>
-    <img src="logo.png" alt="Logo" class="logo-img">
-    <h2>Fila Assistant</h2>
-    <div class="header-actions">
-        <button onclick="copyNotes()" title="Copy Note"><i class="fas fa-copy"></i></button>
-        <button onclick="saveAsWord()" title="Save as Word"><i class="fas fa-file-word"></i></button>
-        <button onclick="enableEdit()" title="Edit"><i class="fas fa-pen"></i></button>
+    <div class="header-left">
+        <img src="assets/logo.png" alt="Logo" class="logo-img">
+        <h2>Fila Assistant</h2>
+    </div>
+    <div class="header-right">
+        <button id="copyBtn" title="Copy Notes"><i class="fas fa-copy"></i></button>
+        <button id="saveBtn" title="Save as Word"><i class="fas fa-file-word"></i></button>
+        <button id="editBtn" title="Edit Notes"><i class="fas fa-edit"></i></button>
     </div>
 </header>
 
-<main>
-    <div id="output" contenteditable="false" class="notes-body">
-        <!-- Generated notes appear here -->
-    </div>
-</main>
+<main id="outputArea"></main>
 
 <footer>
-    <div class="footer-input">
-        <input type="text" id="topicInput" placeholder="Enter topic here...">
-        <button id="genBtn" onclick="generateNotes()">
-            <i class="fas fa-magic"></i><br>Generate
-        </button>
-    </div>
+    <input type="text" id="noteInput" placeholder="Type lesson title or topic..." />
+    <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
@@ -40,4 +32,4 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="js/main.js"></script>
 </body>
-            </html>
+    </html>
