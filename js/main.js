@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     /* ===============================
-       FORCE SELECTION FIRST
+       RETRIEVE SELECTION & FORCE SELECTION FIRST
     ================================ */
     const level = localStorage.getItem("level");
     const classLevel = localStorage.getItem("classLevel");
@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
        NOTES DATABASE
     ================================ */
     let notesDatabase = {};
-
     fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unit}.json`)
         .then(res => res.json())
         .then(data => notesDatabase = data)
@@ -110,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const text = input.value.trim();
         if (!text) return;
 
-        // Show user message first
+        // Show user message
         userBubble(text);
 
         // Search notes
@@ -137,8 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const text = [...document.querySelectorAll(".bubble")]
             .map(d => d.textContent)
             .join("\n\n");
-        navigator.clipboard.writeText(text)
-            .then(() => alert("Copied to clipboard!"));
+        navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
     });
 
     /* ===============================
@@ -147,7 +145,9 @@ document.addEventListener("DOMContentLoaded", () => {
     saveBtn.addEventListener("click", () => {
         const { Document, Packer, Paragraph } = window.docx;
 
-        const allText = [...document.querySelectorAll(".bubble")].map(d => d.textContent);
+        const allText = [...document.querySelectorAll(".bubble")]
+            .map(d => d.textContent);
+
         if (!allText.length) return alert("No notes to save!");
 
         const doc = new Document({
