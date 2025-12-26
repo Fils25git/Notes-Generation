@@ -162,21 +162,18 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        FETCH NOTES BASED ON SELECTION
     ================================ */
-    const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject]?.[unit];  
+    const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject]?.[unit];
 
-if (unitFilePath) {  
-    fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)  
+if (unitFilePath) {
+    fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
         .then(res => res.text())  // fetch as HTML/text
         .then(html => {
-            const div = document.createElement("div");
-            div.className = "bubble system"; // keep your chat style
-            div.innerHTML = html;             // insert the HTML content
-            outputArea.appendChild(div);
-            scrollDown();
+            currentNotesHTML = html; // store the full notes in a variable
+            systemBubble("Notes loaded! You can now search for a lesson."); // instruction message
         })
-        .catch(() => systemBubble("Notes not found for this unit."));  
-} else {  
-    systemBubble("Notes not found for this unit.");  
+        .catch(() => systemBubble("Notes not found for this unit."));
+} else {
+    systemBubble("Notes not found for this unit.");
 }
 
 
@@ -228,57 +225,54 @@ function warningBubble(text) {
        SEARCH NOTES WITH FUSE.JS
     ================================ */
     function searchNotes(query) {
-    const bubbles = [...document.querySelectorAll(".bubble.system")];
+    if (!currentNotesHTML) return null;
+
+    const container = document.createElement("div");
+    container.innerHTML = currentNotesHTML;
+
+    const headings = container.querySelectorAll("h1, h2, h3, h4, h5, h6");
     let results = "";
 
-    bubbles.forEach(bubble => {
-        const container = document.createElement("div");
-        container.innerHTML = bubble.innerHTML;
+    for (let i = 0; i < headings.length; i++) {
+        const heading = headings[i];
 
-        const headings = container.querySelectorAll("h1, h2, h3, h4, h5, h6");
+        if (heading.textContent.toLowerCase().includes(query.toLowerCase())) {
+            let headingStack = [];
+            let currentLevel = parseInt(heading.tagName.substring(1));
 
-        for (let i = 0; i < headings.length; i++) {
-            const heading = headings[i];
-
-            if (heading.textContent.toLowerCase().includes(query.toLowerCase())) {
-                // Step 1: Collect parent headings above it
-                let headingStack = [];
-                let currentLevel = parseInt(heading.tagName.substring(1));
-
-                for (let j = i - 1; j >= 0; j--) {
-                    const prev = headings[j];
-                    const prevLevel = parseInt(prev.tagName.substring(1));
-                    if (prevLevel < currentLevel) {
-                        headingStack.unshift(prev.outerHTML); // add parent heading
-                        currentLevel = prevLevel;
-                    }
+            // collect parent headings
+            for (let j = i - 1; j >= 0; j--) {
+                const prev = headings[j];
+                const prevLevel = parseInt(prev.tagName.substring(1));
+                if (prevLevel < currentLevel) {
+                    headingStack.unshift(prev.outerHTML);
+                    currentLevel = prevLevel;
                 }
-
-                // Step 2: Add the matched heading itself
-                headingStack.push(heading.outerHTML);
-
-                // Step 3: Add all content until next heading of same or higher level
-                let contentHTML = "";
-                let sibling = heading.nextElementSibling;
-                const matchLevel = parseInt(heading.tagName.substring(1));
-
-                while (sibling) {
-                    if (sibling.tagName && sibling.tagName.match(/^H[1-6]$/)) {
-                        let siblingLevel = parseInt(sibling.tagName.substring(1));
-                        if (siblingLevel <= matchLevel) break; // stop at same or higher
-                    }
-                    contentHTML += sibling.outerHTML;
-                    sibling = sibling.nextElementSibling;
-                }
-
-                results += headingStack.join("\n") + contentHTML;
-                break; // only first match per bubble
             }
+
+            headingStack.push(heading.outerHTML);
+
+            // collect content until next heading of same or higher level
+            let contentHTML = "";
+            let sibling = heading.nextElementSibling;
+            const matchLevel = parseInt(heading.tagName.substring(1));
+
+            while (sibling) {
+                if (sibling.tagName && sibling.tagName.match(/^H[1-6]$/)) {
+                    let siblingLevel = parseInt(sibling.tagName.substring(1));
+                    if (siblingLevel <= matchLevel) break;
+                }
+                contentHTML += sibling.outerHTML;
+                sibling = sibling.nextElementSibling;
+            }
+
+            results += headingStack.join("\n") + contentHTML;
+            break; // only first match
         }
-    });
+    }
 
     return results || null;
-            }
+                          }
     /* ===============================
        SEND MESSAGE
     ================================ */
