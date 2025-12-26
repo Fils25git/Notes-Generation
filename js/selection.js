@@ -14,13 +14,15 @@ levelSelect.addEventListener("change", () => {
     if(levelSelect.value === "Primary"){
         ["P1","P2","P3","P4","P5","P6"].forEach(c=>{
             const opt = document.createElement("option");
-            opt.value = c; opt.textContent = c;
+            opt.value = c; 
+            opt.textContent = c;
             classSelect.appendChild(opt);
         });
     } else if(levelSelect.value === "Ordinary"){
         ["S1","S2","S3"].forEach(c=>{
             const opt = document.createElement("option");
-            opt.value = c; opt.textContent = c;
+            opt.value = c; 
+            opt.textContent = c;
             classSelect.appendChild(opt);
         });
     }
@@ -143,39 +145,18 @@ subjectSelect.addEventListener("change", ()=>{
                 ];
                 break;
             case "S2":
-                units = [
-                    "Unit 1: TBD",
-                    "Unit 2: TBD",
-                    "Unit 3: TBD",
-                    "Unit 4: TBD",
-                    "Unit 5: TBD",
-                    "Unit 6: TBD",
-                    "Unit 7: TBD",
-                    "Unit 8: TBD",
-                    "Unit 9: TBD",
-                    "Unit 10: TBD"
-                ];
+                units = Array.from({length:10}, (_,i)=>`Unit ${i+1}: TBD`);
                 break;
             case "S3":
-                units = [
-                    "Unit 1: TBD",
-                    "Unit 2: TBD",
-                    "Unit 3: TBD",
-                    "Unit 4: TBD",
-                    "Unit 5: TBD",
-                    "Unit 6: TBD",
-                    "Unit 7: TBD",
-                    "Unit 8: TBD",
-                    "Unit 9: TBD",
-                    "Unit 10: TBD"
-                ];
+                units = Array.from({length:10}, (_,i)=>`Unit ${i+1}: TBD`);
                 break;
         }
     }
 
     units.forEach(u => {
         const opt = document.createElement("option");
-        opt.value = u;
+        // Transform unit to JSON-compatible filename
+        opt.value = u.toLowerCase().replace(/^unit\s\d+:\s*/i,'').replace(/[^a-z0-9]/g,'');
         opt.textContent = u;
         unitSelect.appendChild(opt);
     });
@@ -188,11 +169,12 @@ subjectSelect.addEventListener("change", ()=>{
     });
 });
 
+// On Start click: save selections & go to main page
 startBtn.addEventListener("click", ()=>{
     localStorage.setItem("level", levelSelect.value);
     localStorage.setItem("classLevel", classSelect.value);
     localStorage.setItem("subject", subjectSelect.value);
-    localStorage.setItem("unit", unitSelect.value);
+    localStorage.setItem("unit", unitSelect.value); // matches JSON file name
     localStorage.setItem("selectionDone", "true");
     window.location.href = "index.html";
 });
