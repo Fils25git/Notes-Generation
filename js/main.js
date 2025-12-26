@@ -67,6 +67,16 @@ if (currentSelectionEl) {
     function scrollDown() {
         outputArea.scrollTop = outputArea.scrollHeight;
     }
+    /* ===============================
+   WARNING BUBBLE
+=============================== */
+function warningBubble(text) {
+    const div = document.createElement("div");
+    div.className = "bubble warning";  // New CSS class for warning
+    div.textContent = text;
+    outputArea.appendChild(div);
+    scrollDown();
+}
 
     /* ===============================
        WORD-BY-WORD EFFECT
@@ -109,8 +119,10 @@ if (currentSelectionEl) {
     ================================ */
     function sendMessage() {
         const text = input.value.trim();
-        if (!text) return;
-
+        if (!text) {
+    warningBubble("⚠ Please type in a Lesson title first!");
+    return;
+        }
         // Show user message
         userBubble(text);
 
