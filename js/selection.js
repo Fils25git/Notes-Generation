@@ -9,7 +9,7 @@ levelSelect.addEventListener("change", () => {
     classSelect.innerHTML = '<option value="">--Select Class--</option>';
     unitSelect.innerHTML = '<option value="">--Select Unit--</option>';
     unitSelect.disabled = true;
-    subjectSelect.disabled = false;
+    subjectSelect.disabled = true;
 
     if(levelSelect.value === "Primary"){
         ["P1","P2","P3","P4","P5","P6"].forEach(c=>{
@@ -27,11 +27,15 @@ levelSelect.addEventListener("change", () => {
     classSelect.disabled = false;
 });
 
-// Enable Unit select after subject selected
+// Enable Subject only after Class selected
+classSelect.addEventListener("change", () => {
+    subjectSelect.disabled = false;
+});
+
+// Enable Unit select after Subject selected
 subjectSelect.addEventListener("change", ()=>{
     unitSelect.disabled = false;
     unitSelect.innerHTML = '<option value="">--Select Unit--</option>';
-    // Add example units; replace with all your real units
     ["Unit 1: Greetings","Unit 2: Family","Unit 3: Numbers"].forEach(u=>{
         const opt = document.createElement("option");
         opt.value = u; opt.textContent = u;
@@ -48,8 +52,9 @@ subjectSelect.addEventListener("change", ()=>{
 
 startBtn.addEventListener("click", ()=>{
     localStorage.setItem("level", levelSelect.value);
-    localStorage.setItem("class", classSelect.value);
+    localStorage.setItem("classLevel", classSelect.value); // 🔹 Updated
     localStorage.setItem("subject", subjectSelect.value);
     localStorage.setItem("unit", unitSelect.value);
+    localStorage.setItem("selectionDone", "true"); // optional flag
     window.location.href = "index.html";
 });
