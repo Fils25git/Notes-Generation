@@ -1,3 +1,12 @@
+const requiredKeys = ["level", "class", "subject", "unit"];
+
+for (let key of requiredKeys) {
+    if (!localStorage.getItem(key)) {
+        window.location.href = "selection.html";
+        break;
+    }
+}
+
 let notesDatabase = {};
 const outputArea = document.getElementById("outputArea");
 const input = document.getElementById("noteInput");
