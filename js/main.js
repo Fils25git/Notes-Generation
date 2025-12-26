@@ -14,7 +14,8 @@ const sendBtn = document.getElementById("sendBtn");
 const copyBtn = document.getElementById("copyBtn");
 const saveBtn = document.getElementById("saveBtn");
 const editBtn = document.getElementById("editBtn");
-
+document.getElementById("currentSelection").textContent =
+    `${level} | ${classLevel} | ${subject} | ${unit}`;
 // Load JSON notes
 const level = localStorage.getItem("level") || "Primary";
 const className = localStorage.getItem("class") || "P1";
