@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "Primary": {
             "P1": {
                 "English": {
-                    "Unit 1: Welcome to the Classroom": "primary/p1/english/welcometoschool.json",
+                    "Unit 1: Welcome to the Classroom": "primary/p1/english/welcometoschool.html",
                     "Unit 2: Classroom Objects": "primary/p1/english/classroomobjects.json",
                     "Unit 3: People at Home and School": "primary/p1/english/peopleathome.json",
                     "Unit 4: Clothes and Body Parts": "primary/p1/english/clothesandbodyparts.json",
@@ -162,16 +162,22 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        FETCH NOTES BASED ON SELECTION
     ================================ */
-    const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject]?.[unit];
+    const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject]?.[unit];  
 
-    if (unitFilePath) {
-        fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
-            .then(res => res.json())
-            .then(data => notesDatabase = data)
-            .catch(() => systemBubble("Notes not found for this unit."));
-    } else {
-        systemBubble("Notes not found for this unit.");
-    }
+if (unitFilePath) {  
+    fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)  
+        .then(res => res.text())  // fetch as HTML/text
+        .then(html => {
+            const div = document.createElement("div");
+            div.className = "bubble system"; // keep your chat style
+            div.innerHTML = html;             // insert the HTML content
+            outputArea.appendChild(div);
+            scrollDown();
+        })
+        .catch(() => systemBubble("Notes not found for this unit."));  
+} else {  
+    systemBubble("Notes not found for this unit.");  
+}
 
 
     /* ===============================
@@ -222,64 +228,83 @@ function warningBubble(text) {
        SEARCH NOTES WITH FUSE.JS
     ================================ */
     function searchNotes(query) {
-        if (!notesDatabase || Object.keys(notesDatabase).length === 0) return null;
+    const bubbles = [...document.querySelectorAll(".bubble.system")];
+    let results = "";
 
-        const searchList = [];
-        Object.keys(notesDatabase).forEach(topic => {
-            notesDatabase[topic].keywords.forEach(word => {
-                searchList.push({ topic, keyword: word });
-            });
-        });
+    bubbles.forEach(bubble => {
+        const container = document.createElement("div");
+        container.innerHTML = bubble.innerHTML;
 
-        const fuse = new Fuse(searchList, { keys: ["keyword"], threshold: 0.4 });
-        const result = fuse.search(query);
+        const headings = container.querySelectorAll("h1, h2, h3, h4, h5, h6");
 
-        if (result.length > 0) {
-            const matchedTopic = result[0].item.topic;
-            return notesDatabase[matchedTopic].content.join("\n\n");
+        for (let i = 0; i < headings.length; i++) {
+            const heading = headings[i];
+
+            if (heading.textContent.toLowerCase().includes(query.toLowerCase())) {
+                // Step 1: Collect parent headings above it
+                let headingStack = [];
+                let currentLevel = parseInt(heading.tagName.substring(1));
+
+                for (let j = i - 1; j >= 0; j--) {
+                    const prev = headings[j];
+                    const prevLevel = parseInt(prev.tagName.substring(1));
+                    if (prevLevel < currentLevel) {
+                        headingStack.unshift(prev.outerHTML); // add parent heading
+                        currentLevel = prevLevel;
+                    }
+                }
+
+                // Step 2: Add the matched heading itself
+                headingStack.push(heading.outerHTML);
+
+                // Step 3: Add all content until next heading of same or higher level
+                let contentHTML = "";
+                let sibling = heading.nextElementSibling;
+                const matchLevel = parseInt(heading.tagName.substring(1));
+
+                while (sibling) {
+                    if (sibling.tagName && sibling.tagName.match(/^H[1-6]$/)) {
+                        let siblingLevel = parseInt(sibling.tagName.substring(1));
+                        if (siblingLevel <= matchLevel) break; // stop at same or higher
+                    }
+                    contentHTML += sibling.outerHTML;
+                    sibling = sibling.nextElementSibling;
+                }
+
+                results += headingStack.join("\n") + contentHTML;
+                break; // only first match per bubble
+            }
         }
+    });
 
-        return null;
-    }
-
+    return results || null;
+            }
     /* ===============================
        SEND MESSAGE
     ================================ */
     function sendMessage() {
-        const text = input.value.trim();
-        if (!text) {
-    warningBubble("⚠ Please type in a Lesson title first!");
-    return;
-        }
-        // Show user message
-        userBubble(text);
-
-        // Search notes
-        const response = searchNotes(text);
-        if (response) {
-            systemBubble(response);
-        } else {
-            systemBubble("No notes found yet. AI-generated notes will be added soon.");
-        }
-
-        input.value = "";
-        input.focus();
+    const text = input.value.trim();
+    if (!text) {
+        warningBubble("⚠ Please type in a Lesson title first!");
+        return;
     }
 
-    sendBtn.addEventListener("click", sendMessage);
-    input.addEventListener("keydown", e => {
-        if (e.key === "Enter") sendMessage();
-    });
+    userBubble(text);
 
-    /* ===============================
-       COPY NOTES
-    ================================ */
-    copyBtn.addEventListener("click", () => {
-        const text = [...document.querySelectorAll(".bubble")]
-            .map(d => d.textContent)
-            .join("\n\n");
-        navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
-    });
+    const response = searchNotes(text);
+    if (response) {
+        const div = document.createElement("div");
+        div.className = "bubble system";
+        div.innerHTML = response; // headings + content under matched heading
+        outputArea.appendChild(div);
+        scrollDown();
+    } else {
+        systemBubble("No notes found for this heading.");
+    }
+
+    input.value = "";
+    input.focus();
+        }
 
     /* ===============================
        SAVE AS WORD
