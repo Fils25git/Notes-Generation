@@ -174,7 +174,7 @@ startBtn.addEventListener("click", ()=>{
     localStorage.setItem("level", levelSelect.value);
     localStorage.setItem("classLevel", classSelect.value);
     localStorage.setItem("subject", subjectSelect.value);
-    localStorage.setItem("unit", unitSelect.value); // matches JSON file name
+    localStorage.setItem("unit", unitSelect.options[unitSelect.selectedIndex].textContent);// matches JSON file name
     localStorage.setItem("selectionDone", "true");
     window.location.href = "index.html";
 });
