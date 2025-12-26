@@ -1,3 +1,18 @@
+.current-selection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #444;
+}
+
+.current-selection button {
+    background: none;
+    border: none;
+    color: #00AF00;
+    cursor: pointer;
+    font-weight: bold;
+}
 main {
     margin-top: 60px; /* space for header */
     margin-bottom: 60px; /* space for footer */
