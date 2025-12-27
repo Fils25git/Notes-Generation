@@ -10,7 +10,7 @@ function showWelcomeBubble() {
 
     systemBubble(`👋 Welcome to Fila Assistant!
 Type a *Lesson Title* or *Unit Name* to get notes.
-📚 You are currently viewing: ${level} - ${classLevel} - ${subject}`);
+📚 You are currently viewing: ${level} - ${classLevel} - ${subject} Tap 🔁 To access other notes`);
 }
 
 function systemBubble(text) {
@@ -223,7 +223,7 @@ function warningBubble(text) {
         for (let word of words) {
             element.textContent += word + " ";
             scrollDown();
-            await new Promise(r => setTimeout(r, 50));
+            await new Promise(r => setTimeout(r, 100));
         }
     }
 
