@@ -129,35 +129,87 @@ let currentNotesHTML = ""; // store HTML notes for searching
             }
         },
         "Ordinary": {
-            "S1": {
-                "English": {
-                    "Unit 1: My Secondary School": "ordinary/s1/english/mysecondaryschool.json",
-                    "Unit 2: Food and Nutrition": "ordinary/s1/english/foodandnutrition.json",
-                    "Unit 3: Holiday Activities": "ordinary/s1/english/holidayactivities.json",
-                    "Unit 4: Clothes and Fashion": "ordinary/s1/english/clothesandfashion.json",
-                    "Unit 5: Books and School Work Habits": "ordinary/s1/english/booksschoolwork.json",
-                    "Unit 6: Healthy Living": "ordinary/s1/english/healthyliving.json",
-                    "Unit 7: History of Rwanda": "ordinary/s1/english/historyofrwanda.json",
-                    "Unit 8: The Physical Environment": "ordinary/s1/english/physicalenvironment.json",
-                    "Unit 9: Anti‑social Behaviour": "ordinary/s1/english/antisocial.json",
-                    "Unit 10: Sources of Wealth": "ordinary/s1/english/sourcesofwealth.json"
-                }
-            },
-            "S2": {
-                "English": {
-                    "Unit 1: TBD": "ordinary/s2/english/unit1.json",
-                    "Unit 2: TBD": "ordinary/s2/english/unit2.json"
-                }
-            },
-            "S3": {
-                "English": {
-                    "Unit 1: TBD": "ordinary/s3/english/unit1.json",
-                    "Unit 2: TBD": "ordinary/s3/english/unit2.json"
-                }
-            }
+const notesFileMap = {
+    "Primary": {
+        "P1": {
+            "English": "primary/p1/english.html",
+            "Kinyarwanda": "primary/p1/kinyarwanda.html",
+            "Mathematics": "primary/p1/mathematics.html",
+            "Social and Religious Studies": "primary/p1/srs.html",
+            "Science and Elementary Technology": "primary/p1/science.html"
+        },
+        "P2": {
+            "English": "primary/p2/english.html",
+            "Kinyarwanda": "primary/p2/kinyarwanda.html",
+            "Mathematics": "primary/p2/mathematics.html",
+            "Social and Religious Studies": "primary/p2/srs.html",
+            "Science and Elementary Technology": "primary/p2/science.html"
+        },
+        "P3": {
+            "English": "primary/p3/english.html",
+            "Kinyarwanda": "primary/p3/kinyarwanda.html",
+            "Mathematics": "primary/p3/mathematics.html",
+            "Social and Religious Studies": "primary/p3/srs.html",
+            "Science and Elementary Technology": "primary/p3/science.html"
+        },
+        "P4": {
+            "English": "primary/p4/english.html",
+            "Kinyarwanda": "primary/p4/kinyarwanda.html",
+            "Mathematics": "primary/p4/mathematics.html",
+            "Social and Religious Studies": "primary/p4/srs.html",
+            "Science and Elementary Technology": "primary/p4/science.html"
+        },
+        "P5": {
+            "English": "primary/p5/english.html",
+            "Kinyarwanda": "primary/p5/kinyarwanda.html",
+            "Mathematics": "primary/p5/mathematics.html",
+            "Social and Religious Studies": "primary/p5/srs.html",
+            "Science and Elementary Technology": "primary/p5/science.html"
+        },
+        "P6": {
+            "English": "primary/p6/english.html",
+            "Kinyarwanda": "primary/p6/kinyarwanda.html",
+            "Mathematics": "primary/p6/mathematics.html",
+            "Social and Religious Studies": "primary/p6/srs.html",
+            "Science and Elementary Technology": "primary/p6/science.html"
         }
-    };
-
+    },
+    "Ordinary": {
+        "S1": {
+            "English": "ordinary/s1/english.html",
+            "Biology": "ordinary/s1/biology.html",
+            "Chemistry": "ordinary/s1/chemistry.html",
+            "Physics": "ordinary/s1/physics.html",
+            "Entrepreneurship": "ordinary/s1/entrepreneurship.html",
+            "Kinyarwanda": "ordinary/s1/kinyarwanda.html",
+            "History and Citizenship": "ordinary/s1/history.html",
+            "Geography": "ordinary/s1/geography.html",
+            "Mathematics": "ordinary/s1/mathematics.html"
+        },
+        "S2": {
+            "English": "ordinary/s2/english.html",
+            "Biology": "ordinary/s2/biology.html",
+            "Chemistry": "ordinary/s2/chemistry.html",
+            "Physics": "ordinary/s2/physics.html",
+            "Entrepreneurship": "ordinary/s2/entrepreneurship.html",
+            "Kinyarwanda": "ordinary/s2/kinyarwanda.html",
+            "History and Citizenship": "ordinary/s2/history.html",
+            "Geography": "ordinary/s2/geography.html",
+            "Mathematics": "ordinary/s2/mathematics.html"
+        },
+        "S3": {
+            "English": "ordinary/s3/english.html",
+            "Biology": "ordinary/s3/biology.html",
+            "Chemistry": "ordinary/s3/chemistry.html",
+            "Physics": "ordinary/s3/physics.html",
+            "Entrepreneurship": "ordinary/s3/entrepreneurship.html",
+            "Kinyarwanda": "ordinary/s3/kinyarwanda.html",
+            "History and Citizenship": "ordinary/s3/history.html",
+            "Geography": "ordinary/s3/geography.html",
+            "Mathematics": "ordinary/s3/mathematics.html"
+        }
+    }
+};
     /* ===============================
        FETCH NOTES BASED ON SELECTION
     ================================ */
