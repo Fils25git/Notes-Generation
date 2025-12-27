@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 let currentNotesHTML = ""; // store HTML notes for searching
-    /* ===============================
+    /* ==============================
        RETRIEVE SELECTION & FORCE SELECTION FIRST
     ================================ */
     const level = localStorage.getItem("level");
