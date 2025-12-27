@@ -6,9 +6,8 @@ let currentNotesHTML = ""; // store HTML notes for searching
     const level = localStorage.getItem("level");
     const classLevel = localStorage.getItem("classLevel");
     const subject = localStorage.getItem("subject");
-    const unit = localStorage.getItem("unit");
-
-    if (!level || !classLevel || !subject || !unit) {
+    
+    if (!level || !classLevel || !subject) {
         window.location.replace("selection.html");
         return; // stop further execution
     }
@@ -26,7 +25,7 @@ let currentNotesHTML = ""; // store HTML notes for searching
 
     const currentSelectionEl = document.getElementById("currentSelection");
     if (currentSelectionEl) {
-        currentSelectionEl.textContent = `${level} | ${classLevel} | ${subject} | ${unit}`;
+        currentSelectionEl.textContent = `${level} | ${classLevel} | ${subject}`;
     }
 
     /* ===============================
