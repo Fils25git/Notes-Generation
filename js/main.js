@@ -1,4 +1,37 @@
 document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener("DOMContentLoaded", () => {
+    showWelcomeBubble();
+});
+
+function showWelcomeBubble() {
+    const level = localStorage.getItem("level") || "No level selected";
+    const classLevel = localStorage.getItem("classLevel") || "No class selected";
+    const subject = localStorage.getItem("subject") || "No subject selected";
+
+    systemBubble(`👋 Welcome to Fila Assistant!
+Type a *Lesson Title* or *Unit Name* to get notes.
+📚 You are currently viewing: ${level} - ${classLevel} - ${subject}`);
+}
+
+function systemBubble(text) {
+    const outputArea = document.getElementById("outputArea");
+    if (!outputArea) return;
+
+    const div = document.createElement("div");
+    div.className = "bubble system";
+    outputArea.appendChild(div);
+
+    wordByWord(div, text);
+}
+
+async function wordByWord(element, text) {
+    const words = text.split(" ");
+    for (let word of words) {
+        element.textContent += word + " ";
+        element.scrollTop = element.scrollHeight; // scroll down
+        await new Promise(r => setTimeout(r, 50));
+    }
+}
 let currentNotesHTML = ""; // store HTML notes for searching
     /* ==============================
        RETRIEVE SELECTION & FORCE SELECTION FIRST
@@ -122,11 +155,18 @@ const notesFileMap = {
     }
 };
     /* ===============================
-       FETCH NOTES BASED ON SELECTION
-    ================================ */
-    const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject]?.[unit];
+/* ===============================
+   FETCH NOTES BASED ON SELECTION
+=============================== */
+function fetchNotes(level, classLevel, subject) {
+    const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject];
 
-if (unitFilePath) {
+    if (!unitFilePath) {
+        currentNotesHTML = "";
+        systemBubble("Notes not found for this subject.");
+        return;
+    }
+
     fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
         .then(res => {
             if (!res.ok) throw new Error("Not found");
@@ -134,16 +174,13 @@ if (unitFilePath) {
         })
         .then(html => {
             currentNotesHTML = html; // store HTML notes
-            systemBubble("Notes loaded! You can now search for a lesson.");
+            showWelcomeBubble(level, classLevel, subject); // show welcome message
         })
         .catch(() => {
             currentNotesHTML = ""; // clear previous notes
-            systemBubble("Notes not found for this unit.");
+            systemBubble("Notes not found for this subject.");
         });
-} else {
-    currentNotesHTML = "";
-    systemBubble("Notes not found for this unit.");
-        }
+                }
 
 
     /* ===============================
