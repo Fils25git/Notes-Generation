@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function wordByWord(element, text, delay = 150) {
         const words = text.split(" ");
         for (let w of words) {
-            element.textContent += w + " ";
+            element.innerHTML += w + " ";
             element.scrollTop = element.scrollHeight;
             await new Promise(res => setTimeout(res, delay));
         }
@@ -158,15 +158,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject];
         if (!unitFilePath) return systemBubble("⚠ Error fetching notes!");
 
-        systemBubble("⏳I am  Loading your notes, please wait...");
+        systemBubble(`⏳I am  loading your notes of ${subject} ${classLevel}, please wait...`);
 
         fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
             .then(r => r.ok ? r.text() : Promise.reject())
             .then(html => {
                 currentNotesHTML = html;
-                systemBubble(" Welcome 👋 I have these Notes of ${subject} in ${classLevel} for sure😛 and i am ready to pour them🥰 Just give me a lesson or unit title, remember i don't intend to discuss i only need lesson title. to change selections tap 🔁");
+                systemBubble(`Hello and Welcome 👋 <br>I have these Notes of <b>${subject} in ${classLevel}</b> for sure😛 and i am ready to pour them🥰 <br>Just give me a <b>lesson or unit title</b>, <br><b>N.B:</b>remember i don't intend to discuss i only need lesson title. to change selections tap 🔁`);
             })
-            .catch(() => systemBubble("Sorry‼️, I don't have notes of ${subject} for ${classLevel} Yet, you can explore other notes by tapping 🔁 above to change selection."));
+            .catch(() => systemBubble(`Sorry‼️, I don't have notes of ${subject} for ${classLevel} Yet,<br> you can explore other notes by tapping 🔁 above to change selection.`));
     }
 
     /* ===============================
