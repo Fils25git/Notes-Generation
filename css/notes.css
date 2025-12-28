@@ -1,133 +1,233 @@
-/* ===============================
-   BASE LAYOUT
-=============================== */
+/* ===== RESET & BASE STYLES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
-    margin: 40px auto;
-    max-width: 900px;
-    padding: 20px;
     color: #333;
-    background-color: #f9f9f9;
+    background-color: #f8f9fa;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-header, footer {
-    text-align: center;
-    font-size: 1em;
-    color: #666;
-    margin: 30px 0;
-}
-
-/* ===============================
-   HEADINGS
-=============================== */
+/* ===== HEADING STYLES ===== */
 h1 {
-    text-align: center;
-    color: #0056b3;
-    border-bottom: 3px solid #0056b3;
+    color: #2c3e50;
+    border-bottom: 3px solid #3498db;
     padding-bottom: 15px;
-    margin: 40px 0 30px;
+    margin: 40px 0 25px 0;
+    font-size: 2.2em;
+    text-align: center;
 }
 
 h2 {
-    color: #007bff;
-    margin-top: 30px;
-    border-left: 5px solid #007bff;
-    padding-left: 10px;
+    color: #34495e;
+    border-left: 4px solid #2ecc71;
+    padding-left: 15px;
+    margin: 35px 0 20px 0;
+    font-size: 1.8em;
 }
 
 h3 {
-    color: #28a745;
-    margin-top: 20px;
+    color: #2c3e50;
+    margin: 25px 0 15px 0;
+    font-size: 1.5em;
 }
 
-/* ===============================
-   TEXT
-=============================== */
-p {
-    margin-bottom: 12px;
+h4 {
+    color: #7f8c8d;
+    margin: 20px 0 12px 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+/* ===== CONTENT SECTIONS ===== */
+.unit-header {
+    background-color: #3498db;
+    color: white;
+    padding: 25px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.content-section {
+    background: white;
+    padding: 25px;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border: 1px solid #e0e0e0;
+}
+
+/* ===== EXAMPLE BOXES ===== */
+.example-box {
+    background-color: #f8f9fa;
+    border-left: 4px solid #3498db;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.letter-example {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+}
+
+/* ===== EXERCISE STYLES ===== */
+.exercise {
+    background-color: #e8f4fc;
+    border: 2px solid #3498db;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+}
+
+.exercise-title {
+    color: #2980b9;
+    font-weight: bold;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+/* ===== EXERCISE TYPE SPECIFIC STYLES ===== */
+.multiple-choice {
+    background-color: #f0f8ff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.true-false {
+    background-color: #fff0f0;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.matching {
+    background-color: #f0fff0;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.fill-blank {
+    background-color: #fff8f0;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.open-ended {
+    background-color: #f5f0ff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+/* ===== SPECIAL ELEMENTS ===== */
+code {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.code-box {
+    background-color: #f0f8ff;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    border-left: 3px solid #4169e1;
 }
 
 ul, ol {
-    margin-left: 30px;
+    margin-left: 25px;
     margin-bottom: 15px;
 }
 
 li {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
-/* ===============================
-   TABLES (FOR NOTES & EXERCISES)
-=============================== */
+.tip {
+    background-color: #d4edda;
+    border-left: 4px solid #28a745;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.note {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.answer {
+    color: #27ae60;
+    font-weight: bold;
+    background-color: rgba(39, 174, 96, 0.1);
+    padding: 5px 10px;
+    border-radius: 3px;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+/* ===== TABLE STYLES ===== */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
-    background-color: #fff;
+    margin: 15px 0;
 }
 
-table th,
-table td {
-    border: 2px solid #000;   /* Clear visible borders */
+th, td {
+    border: 1px solid #ddd;
     padding: 10px;
     text-align: left;
-    vertical-align: top;
 }
 
-table th {
-    background-color: #d0e4ff;
+th {
+    background-color: #f2f2f2;
     font-weight: bold;
 }
 
-/* Zebra stripes */
-table tbody tr:nth-child(even) {
-    background-color: #f2f2f2;
+tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
-/* ===============================
-   IMAGES (FETCHED NOTES SAFE)
-=============================== */
-/* Option 1: Standard size for most notes */
-.system img {
-    max-width: 90vw;       /* Never exceed 90% of viewport */
-    width: auto;
-    height: auto;
-    display: block;
-    margin: 15px auto;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-/* Option 2: Smaller images, e.g., icons or diagrams */
-.system img.small-img {
-    max-width: 45vw;       /* Smaller fraction of viewport */
-}
-
-/* Responsive adjustments for mobile */
-@media (max-width: 600px) {
-    .system img {
-        max-width: 80vw;
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
     }
-    .system img.small-img {
-        max-width: 60vw;
+    
+    h1 {
+        font-size: 1.8em;
     }
-}
-
-/* ===============================
-   EXERCISES SECTION
-=============================== */
-section.exercises {
-    background-color: #e8f4ff;
-    padding: 20px;
-    border-radius: 10px;
-    margin: 40px 0;
-    border: 2px solid #007bff;
-}
-
-section.exercises h2 {
-    color: #d9534f;
-    border: none;
-    text-align: center;
-}
+    
+    h2 {
+        font-size: 1.5em;
+    }
+    
+    .content-section {
+        padding: 15px;
+    }
+    
+    table {
+        font-size: 0.9em;
+    }
+       }
