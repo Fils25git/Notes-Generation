@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        SYSTEM BUBBLE (SAFETY VERSION)
     ================================ */
-    function systemBubble(text, delay = 80) {
+    function systemBubble(text, delay = 150) {
         const outputArea = document.getElementById("outputArea");
         if (!outputArea) return;
         const div = document.createElement("div");
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         wordByWord(div, text, delay);
     }
 
-    async function wordByWord(element, text, delay = 80) {
+    async function wordByWord(element, text, delay = 150) {
         const words = text.split(" ");
         for (let w of words) {
             element.textContent += w + " ";
@@ -251,6 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (sendBtn) sendBtn.onclick = sendMessage;
 if (input) {
+    // 1️⃣ Enter key to send message
     input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
@@ -258,10 +259,16 @@ if (input) {
         }
     });
 
+    // 2️⃣ Live search without interfering with mobile keyboard
     input.addEventListener("input", () => {
         const text = input.value.trim();
         if (!text) return;
-        outputArea.querySelectorAll(".live-preview").forEach(el => el.remove());
+
+        // Only remove previous live preview bubbles
+        const previousPreviews = outputArea.querySelectorAll(".live-preview");
+        previousPreviews.forEach(el => el.remove());
+
+        // Perform search without touching input
         const result = searchNotes(text);
         if (result) {
             const div = document.createElement("div");
@@ -270,7 +277,11 @@ if (input) {
             outputArea.appendChild(div);
             outputArea.scrollTop = outputArea.scrollHeight;
         }
+
+        // Make sure input keeps focus
+        input.focus();
     });
+           }
                           }
     /* ===============================
        SAVE AS WORD (PROTECTED)
