@@ -62,15 +62,42 @@ table th {
     background-color: #e9ecef;
 }
 
+/* Fix images being too big */
 img {
     max-width: 100%;
+    width: auto;
     height: auto;
+    max-height: 500px;           /* Limits height so images don't take full screen */
     display: block;
-    margin: 25px auto;
-    border: 2px solid #ddd;
+    margin: 20px auto;
+    border: 2px solid #ccc;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
+
+/* Add clear borders to all tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+table th, table td {
+    border: 2px solid #000;      /* Thick black borders for visibility */
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+}
+
+table th {
+    background-color: #d0e4ff;
+    font-weight: bold;
+}
+
+/* Optional: Zebra stripes for better readability */
+table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+        }
 
 section.exercises {
     background-color: #e8f4ff;
