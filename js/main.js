@@ -156,17 +156,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchNotes(level, classLevel, subject) {
         const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject];
-        if (!unitFilePath) return systemBubble("⚠ No notes file mapped!");
+        if (!unitFilePath) return systemBubble("⚠ Error fetching notes!");
 
-        systemBubble("⏳ Loading notes, please wait...");
+        systemBubble("⏳I am  Loading your notes, please wait...");
 
         fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
             .then(r => r.ok ? r.text() : Promise.reject())
             .then(html => {
                 currentNotesHTML = html;
-                systemBubble("👋 Notes ready! Type a heading to search.");
+                systemBubble(" Welcome 👋 I have these Notes of ${subject} in ${classLevel} for sure😛 and i am ready to pour them🥰 Just give me a lesson or unit title, remember i don't intend to discuss i only need lesson title. to change selections tap 🔁");
             })
-            .catch(() => systemBubble("❌ Failed to load notes. (Check file path or internet)"));
+            .catch(() => systemBubble("Sorry‼️, I don't have notes of ${subject} for ${classLevel} Yet, you can explore other notes by tapping 🔁 above to change selection."));
     }
 
     /* ===============================
