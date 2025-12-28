@@ -250,38 +250,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (sendBtn) sendBtn.onclick = sendMessage;
-if (input) {
-    // 1️⃣ Enter key to send message
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            sendMessage();
-        }
-    });
-
-    // 2️⃣ Live search without interfering with mobile keyboard
-    input.addEventListener("input", () => {
-        const text = input.value.trim();
-        if (!text) return;
-
-        // Only remove previous live preview bubbles
-        const previousPreviews = outputArea.querySelectorAll(".live-preview");
-        previousPreviews.forEach(el => el.remove());
-
-        // Perform search without touching input
-        const result = searchNotes(text);
-        if (result) {
-            const div = document.createElement("div");
-            div.className = "bubble system live-preview";
-            div.innerHTML = result;
-            outputArea.appendChild(div);
-            outputArea.scrollTop = outputArea.scrollHeight;
-        }
-
-        // Make sure input keeps focus
-        input.focus();
-    });
-           }
+input.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        e.preventDefault(); // only stop Enter
+        sendMessage();
+    }
+});
                           }
     /* ===============================
        SAVE AS WORD (PROTECTED)
