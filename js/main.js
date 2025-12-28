@@ -4,43 +4,28 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     /* ===============================
-       SHOW WELCOME BUBBLE
+       SYSTEM BUBBLE (SAFETY VERSION)
     ================================ */
-    function showWelcomeBubble() {
-        const level = localStorage.getItem("level") || "No level selected";
-        const classLevel = localStorage.getItem("classLevel") || "No class selected";
-        const subject = localStorage.getItem("subject") || "No subject selected";
-
-        systemBubble(`👋 Welcome to Fila Assistant!
-Type a *Lesson Title* or *Unit Name* to get notes.
-📚 You are currently viewing: ${level} - ${classLevel} - ${subject} Tap 🔁 To access other notes`);
-    }
-
-    /* ===============================
-       SYSTEM BUBBLE + WORD-BY-WORD
-    ================================ */
-    function systemBubble(text, delay = 50) {
+    function systemBubble(text, delay = 40) {
         const outputArea = document.getElementById("outputArea");
         if (!outputArea) return;
-
         const div = document.createElement("div");
         div.className = "bubble system";
         outputArea.appendChild(div);
-
         wordByWord(div, text, delay);
     }
 
-    async function wordByWord(element, text, delay = 50) {
+    async function wordByWord(element, text, delay = 40) {
         const words = text.split(" ");
-        for (let word of words) {
-            element.textContent += word + " ";
-            element.scrollTop = element.scrollHeight; // scroll inside this bubble
-            await new Promise(r => setTimeout(r, delay));
+        for (let w of words) {
+            element.textContent += w + " ";
+            element.scrollTop = element.scrollHeight;
+            await new Promise(res => setTimeout(res, delay));
         }
     }
 
     /* ===============================
-       RETRIEVE SELECTION
+       LOCAL STORAGE CHECK
     ================================ */
     const level = localStorage.getItem("level");
     const classLevel = localStorage.getItem("classLevel");
@@ -48,11 +33,19 @@ Type a *Lesson Title* or *Unit Name* to get notes.
 
     if (!level || !classLevel || !subject) {
         window.location.replace("selection.html");
-        return; // stop further execution
+        return;
     }
 
     /* ===============================
-       DOM ELEMENTS
+       DISPLAY CURRENT SELECTION
+    ================================ */
+    const currentSelectionEl = document.getElementById("currentSelection");
+    if (currentSelectionEl) {
+        currentSelectionEl.textContent = `${level} | ${classLevel} | ${subject}`;
+    }
+
+    /* ===============================
+       DOM ELEMENTS (SAFE VERSION)
     ================================ */
     const outputArea = document.getElementById("outputArea");
     const input = document.getElementById("noteInput");
@@ -62,24 +55,19 @@ Type a *Lesson Title* or *Unit Name* to get notes.
     const editBtn = document.getElementById("editBtn");
     const changeBtn = document.getElementById("changeSelectionBtn");
 
-    const currentSelectionEl = document.getElementById("currentSelection");
-    if (currentSelectionEl) {
-        currentSelectionEl.textContent = `${level} | ${classLevel} | ${subject}`;
-    }
-
     /* ===============================
-       CHANGE SELECTION BUTTON
+       CHANGE SELECTION SAFELY
     ================================ */
     if (changeBtn) {
-        changeBtn.addEventListener("click", () => {
+        changeBtn.onclick = () => {
             localStorage.clear();
             window.location.href = "selection.html";
-        });
+        };
     }
 
     /* ===============================
-       NOTES DATABASE MAPPING
-    ================================ */
+       NOTES FILE MAP (KEPT SAME)
+=============================== */
     const notesFileMap = {
         "Primary": {
             "P1": {
@@ -162,171 +150,117 @@ Type a *Lesson Title* or *Unit Name* to get notes.
         }
     };
    /* ===============================
-   FETCH NOTES BASED ON SELECTION
+       LOAD NOTES WITH LOADING MESSAGE
 =============================== */
-let currentNotesHTML = "";
+    let currentNotesHTML = "";
 
-function fetchNotes(level, classLevel, subject) {
-    const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject];
+    function fetchNotes(level, classLevel, subject) {
+        const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject];
+        if (!unitFilePath) return systemBubble("⚠ No notes file mapped!");
 
-    if (!unitFilePath) {
-        currentNotesHTML = "";
-        systemBubble("Notes not found for this subject.");
-        return;
+        systemBubble("⏳ Loading notes, please wait...");
+
+        fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
+            .then(r => r.ok ? r.text() : Promise.reject())
+            .then(html => {
+                currentNotesHTML = html;
+                systemBubble("👋 Notes ready! Type a heading to search.");
+            })
+            .catch(() => systemBubble("❌ Failed to load notes. (Check file path or internet)"));
     }
 
-    fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
-        .then(res => {
-            if (!res.ok) throw new Error("Not found");
-            return res.text();
-        })
-        .then(html => {
-            currentNotesHTML = html;
-            showWelcomeBubble();
-        })
-        .catch(() => {
-            currentNotesHTML = "";
-            systemBubble("Notes not found for this subject.");
-        });
-}
-
-/* ===============================
-   CHAT BUBBLES
+    /* ===============================
+       UTILITIES
 =============================== */
-function userBubble(text) {
-    const div = document.createElement("div");
-    div.className = "bubble user";
-    div.textContent = text;
-    outputArea.appendChild(div);
-    scrollDown();
-}
-
-function warningBubble(text) {
-    const div = document.createElement("div");
-    div.className = "bubble warning";
-    div.textContent = text;
-    outputArea.appendChild(div);
-    scrollDown();
-}
-
-function scrollDown() {
-    outputArea.scrollTop = outputArea.scrollHeight;
-}
-
-/* ===============================
-   SEARCH NOTES
-=============================== */
-function searchNotes(query) {
-    if (!currentNotesHTML) return null;
-
-    const container = document.createElement("div");
-    container.innerHTML = currentNotesHTML;
-
-    const headings = container.querySelectorAll("h1, h2, h3, h4, h5, h6");
-    let results = "";
-
-    for (let i = 0; i < headings.length; i++) {
-        const heading = headings[i];
-
-        if (heading.textContent.toLowerCase().includes(query.toLowerCase())) {
-            let headingStack = [];
-            let currentLevel = parseInt(heading.tagName.substring(1));
-
-            for (let j = i - 1; j >= 0; j--) {
-                const prev = headings[j];
-                const prevLevel = parseInt(prev.tagName.substring(1));
-                if (prevLevel < currentLevel) {
-                    headingStack.unshift(prev.outerHTML);
-                    currentLevel = prevLevel;
-                }
-            }
-
-            headingStack.push(heading.outerHTML);
-
-            let contentHTML = "";
-            let sibling = heading.nextElementSibling;
-            const matchLevel = parseInt(heading.tagName.substring(1));
-
-            while (sibling) {
-                if (sibling.tagName && sibling.tagName.match(/^H[1-6]$/)) {
-                    let siblingLevel = parseInt(sibling.tagName.substring(1));
-                    if (siblingLevel <= matchLevel) break;
-                }
-                contentHTML += sibling.outerHTML;
-                sibling = sibling.nextElementSibling;
-            }
-
-            results += headingStack.join("\n") + contentHTML;
-            break;
-        }
-    }
-
-    return results || null;
-}
-
-/* ===============================
-   SEND MESSAGE
-=============================== */
-function sendMessage() {
-    const text = input.value.trim();
-    if (!text) {
-        warningBubble("⚠ Please type in a Lesson title first!");
-        return;
-    }
-
-    userBubble(text);
-
-    const response = searchNotes(text);
-    if (response) {
+    function userBubble(text) {
         const div = document.createElement("div");
-        div.className = "bubble system";
-        div.innerHTML = response;
+        div.className = "bubble user";
+        div.textContent = text;
         outputArea.appendChild(div);
-        scrollDown();
-    } else {
-        systemBubble("No notes found for this heading.");
+        outputArea.scrollTop = outputArea.scrollHeight;
     }
 
-    input.value = "";
-    input.focus();
-}
+    function searchNotes(query) {
+        if (!currentNotesHTML) return null;
+        const container = document.createElement("div");
+        container.innerHTML = currentNotesHTML;
+        const headings = container.querySelectorAll("h1,h2,h3,h4,h5,h6");
 
-sendBtn.addEventListener("click", sendMessage);
-input.addEventListener("keydown", e => {
-    if (e.key === "Enter") sendMessage();
-});
+        for (let i = 0; i < headings.length; i++) {
+            let h = headings[i];
+            if (h.textContent.toLowerCase().includes(query.toLowerCase())) {
+                let content = h.outerHTML;
+                let next = h.nextElementSibling;
+                while (next && !next.tagName?.match(/^H[1-6]$/)) {
+                    content += next.outerHTML;
+                    next = next.nextElementSibling;
+                }
+                return content;
+            }
+        }
+        return null;
+    }
 
-/* ===============================
-   SAVE AS WORD
+    /* ===============================
+       SEND MESSAGE (SAFE)
 =============================== */
-saveBtn.addEventListener("click", () => {
-    const { Document, Packer, Paragraph } = window.docx;
+    function sendMessage() {
+        const text = input?.value.trim();
+        if (!text) return systemBubble("⚠ Type a lesson title first!");
 
-    const allText = [...document.querySelectorAll(".bubble")]
-        .map(d => d.textContent);
+        userBubble(text);
+        const result = searchNotes(text);
 
-    if (!allText.length) return alert("No notes to save!");
+        if (result) {
+            const div = document.createElement("div");
+            div.className = "bubble system";
+            div.innerHTML = result;
+            outputArea.appendChild(div);
+        } else {
+            systemBubble("❌ No matching section found.");
+        }
 
-    const doc = new Document({
-        sections: [{
-            children: allText.map(line => new Paragraph({ text: line }))
-        }]
-    });
+        input.value = "";
+    }
 
-    Packer.toBlob(doc).then(blob => saveAs(blob, "Notes.docx"));
-});
+    if (sendBtn) sendBtn.onclick = sendMessage;
+    if (input) input.onkeydown = e => e.key === "Enter" && sendMessage();
 
-/* ===============================
-   EDIT MODE
+    /* ===============================
+       SAVE AS WORD (PROTECTED)
 =============================== */
-editBtn.addEventListener("click", () => {
-    document.querySelectorAll(".system").forEach(n => {
-        n.contentEditable = n.contentEditable !== "true";
-        n.style.border = n.contentEditable === "true" ? "1px dashed #00AF00" : "none";
-    });
-});
+    if (saveBtn) {
+        saveBtn.onclick = () => {
+            if (!window.docx) return alert("❌ docx library missing!");
+            const { Document, Packer, Paragraph } = window.docx;
+            const bubbles = [...document.querySelectorAll(".bubble")].map(x => x.textContent);
 
-/* ===============================
-   INITIALIZE NOTES & WELCOME
+            if (!bubbles.length) return alert("⚠ Nothing to save!");
+
+            const doc = new Document({
+                sections: [{ children: bubbles.map(t => new Paragraph({ text: t })) }]
+            });
+
+            Packer.toBlob(doc).then(blob => saveAs(blob, "Notes.docx"));
+        };
+    }
+
+    /* ===============================
+       EDIT MODE (SAFE)
 =============================== */
-fetchNotes(level, classLevel, subject);
+    if (editBtn) {
+        editBtn.onclick = () => {
+            document.querySelectorAll(".system").forEach(n => {
+                const editing = n.isContentEditable ? false : true;
+                n.contentEditable = editing;
+                n.style.border = editing ? "1px dashed #00AF00" : "none";
+            });
+        };
+    }
+
+    /* ===============================
+       START
+=============================== */
+    fetchNotes(level, classLevel, subject);
+
+});
