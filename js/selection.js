@@ -41,7 +41,7 @@ classSelect.addEventListener("change", () => {
 
     let subjects = [];
     if (levelSelect.value === "Primary") {
-        subjects = ["English","Kinyarwanda","Mathematics","Social and Religious Studies (SRS)","Science and Elementary Technology"];
+        subjects = ["English","Kinyarwanda","Mathematics","Social and Religious Studies","Science and Elementary Technology"];
     } else if (levelSelect.value === "Ordinary") {
         subjects = ["Biology","Chemistry","Physics","English","Entrepreneurship","Kinyarwanda","History and Citizenship","Geography","Mathematics"];
     }
