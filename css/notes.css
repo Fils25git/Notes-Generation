@@ -88,10 +88,10 @@ table tbody tr:nth-child(even) {
 /* ===============================
    IMAGES (FETCHED NOTES SAFE)
 =============================== */
-/* Scoped to notes so icons/logos are not affected */
+/* Option 1: Standard size for most notes */
 .system img {
-    max-width: 300px;        /* NOTE-SIZE images */
-    width: 100%;
+    max-width: 90vw;       /* Never exceed 90% of viewport */
+    width: auto;
     height: auto;
     display: block;
     margin: 15px auto;
@@ -100,9 +100,19 @@ table tbody tr:nth-child(even) {
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* Optional small images */
+/* Option 2: Smaller images, e.g., icons or diagrams */
 .system img.small-img {
-    max-width: 180px;
+    max-width: 45vw;       /* Smaller fraction of viewport */
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 600px) {
+    .system img {
+        max-width: 80vw;
+    }
+    .system img.small-img {
+        max-width: 60vw;
+    }
 }
 
 /* ===============================
@@ -120,4 +130,4 @@ section.exercises h2 {
     color: #d9534f;
     border: none;
     text-align: center;
-    }
+}
