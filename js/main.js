@@ -231,31 +231,42 @@ document.addEventListener("DOMContentLoaded", () => {
        SEND MESSAGE (SAFE)
 =============================== */
     function sendMessage() {
-        const text = input?.value.trim();
-        if (!text) return systemBubble("⚠ Type a lesson title first!");
+    const text = input.value.trim();
+    if (!text) {
+        systemBubble("⚠ Type a lesson title first!");
+        return;
+    }
 
-        userBubble(text);
-        const result = searchNotes(text);
+    userBubble(text);
+    const result = searchNotes(text);
 
-        if (result) {
-            const div = document.createElement("div");
-            div.className = "bubble system";
-            div.innerHTML = result;
-            outputArea.appendChild(div);
-        } else {
-            systemBubble("❌ No matching section found.");
+    if (result) {
+        const div = document.createElement("div");
+        div.className = "bubble system";
+        div.innerHTML = result;
+        outputArea.appendChild(div);
+        outputArea.scrollTop = outputArea.scrollHeight;
+    } else {
+        systemBubble("❌ No matching section found.");
+    }
+
+    input.value = "";
+}
+
+/* SEND BUTTON */
+if (sendBtn) {
+    sendBtn.addEventListener("click", sendMessage);
+}
+
+/* ENTER KEY — MOBILE SAFE */
+if (input) {
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+            e.preventDefault();   // block Enter only
+            sendMessage();
         }
-
-        input.value = "";
+    });
     }
-
-    if (sendBtn) sendBtn.onclick = sendMessage;
-input.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-        e.preventDefault(); // only stop Enter
-        sendMessage();
-    }
-});
                           }
     /* ===============================
        SAVE AS WORD (PROTECTED)
