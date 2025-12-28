@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        SYSTEM BUBBLE (SAFETY VERSION)
     ================================ */
-    function systemBubble(text, delay = 40) {
+    function systemBubble(text, delay = 80) {
         const outputArea = document.getElementById("outputArea");
         if (!outputArea) return;
         const div = document.createElement("div");
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         wordByWord(div, text, delay);
     }
 
-    async function wordByWord(element, text, delay = 40) {
+    async function wordByWord(element, text, delay = 80) {
         const words = text.split(" ");
         for (let w of words) {
             element.textContent += w + " ";
@@ -250,8 +250,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (sendBtn) sendBtn.onclick = sendMessage;
-    if (input) input.onkeydown = e => e.key === "Enter" && sendMessage();
-
+    // Fix input so Backspace works normally
+if (input) {
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();   // stop line break
+            sendMessage();
+        }
+        // Backspace and other keys are allowed normally
+    });
+}
     /* ===============================
        SAVE AS WORD (PROTECTED)
 =============================== */
