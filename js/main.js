@@ -250,16 +250,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (sendBtn) sendBtn.onclick = sendMessage;
-    // Fix input so Backspace works normally
 if (input) {
     input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
-            e.preventDefault();   // stop line break
+            e.preventDefault();
             sendMessage();
         }
-        // Backspace and other keys are allowed normally
     });
-}
+
+    input.addEventListener("input", () => {
+        const text = input.value.trim();
+        if (!text) return;
+        outputArea.querySelectorAll(".live-preview").forEach(el => el.remove());
+        const result = searchNotes(text);
+        if (result) {
+            const div = document.createElement("div");
+            div.className = "bubble system live-preview";
+            div.innerHTML = result;
+            outputArea.appendChild(div);
+            outputArea.scrollTop = outputArea.scrollHeight;
+        }
+    });
+                          }
     /* ===============================
        SAVE AS WORD (PROTECTED)
 =============================== */
