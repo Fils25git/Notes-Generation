@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchNotes(level, classLevel, subject) {
         const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject];
-        if (!unitFilePath) return systemBubble("⚠ Error fetching notes!");
+        if (!unitFilePath) return systemBubble("⚠ Error fetching notes of ${classLevel} ${subject}!");
 
         systemBubble(`⏳I am  loading your notes of ${subject} ${classLevel}, please wait...`);
 
@@ -164,9 +164,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(r => r.ok ? r.text() : Promise.reject())
             .then(html => {
                 currentNotesHTML = html;
-                systemBubble(`Hello and Welcome 👋 <br>I have these Notes of <b>${subject} in ${classLevel}</b> for sure😛 and i am ready to pour them🥰 <br>Just give me a <b>lesson or unit title</b>, <br><b>N.B:</b>remember i don't intend to discuss i only need lesson title. to change selections tap 🔁`);
+                systemBubble(`Hello and Welcome 👋 <br>I have these Notes of <b>${subject} in <b>${classLevel}</b> for sure😛 and i am ready to pour them🥰 <br>Just give me a <b>lesson or <b>unit title</b>, <br><br><b>N.B:</b>remember i don't intend to discuss i only need lesson title. to change selections tap 🔁`);
             })
-            .catch(() => systemBubble(`Sorry‼️, I don't have notes of ${subject} for ${classLevel} Yet,<br> you can explore other notes by tapping 🔁 above to change selection.`));
+            .catch(() => systemBubble(`Sorry‼️, I don't have notes of ${subject} for ${classLevel} Yet,<br> <br>you can explore other notes by tapping 🔁 above to change selection.`));
     }
 
     /* ===============================
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function sendMessage() {
     const text = input.value.trim();
     if (!text) {
-        systemBubble("⚠ Type a lesson title first!");
+        systemBubble("⚠ What❗😫, You can't give me empty. Type a lesson title first!");
         return;
     }
 
@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         outputArea.appendChild(div);
         outputArea.scrollTop = outputArea.scrollHeight;
     } else {
-        systemBubble("❌ No matching section found.");
+        systemBubble(`❌ Oooh Sorry, <br><br>No <b>lesson or <b>unit</b> title called ${text} in ${classLevel} ${subject} notes i have.<br> <br>Give me correct lesson or unit title and i give you what you want. <br> <br>OR if i told you that I have not given these notes yet, Tap 🔁 to change selection and access other notes`);
     }
 
     input.value = "";
