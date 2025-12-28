@@ -180,26 +180,52 @@ document.addEventListener("DOMContentLoaded", () => {
         outputArea.scrollTop = outputArea.scrollHeight;
     }
 
-    function searchNotes(query) {
-        if (!currentNotesHTML) return null;
-        const container = document.createElement("div");
-        container.innerHTML = currentNotesHTML;
-        const headings = container.querySelectorAll("h1,h2,h3,h4,h5,h6");
+     function searchNotes(query) {
+    if (!currentNotesHTML) return null;
 
-        for (let i = 0; i < headings.length; i++) {
-            let h = headings[i];
-            if (h.textContent.toLowerCase().includes(query.toLowerCase())) {
-                let content = h.outerHTML;
-                let next = h.nextElementSibling;
-                while (next && !next.tagName?.match(/^H[1-6]$/)) {
-                    content += next.outerHTML;
-                    next = next.nextElementSibling;
-                }
-                return content;
-            }
+    const container = document.createElement("div");
+    container.innerHTML = currentNotesHTML;
+    const headings = [...container.querySelectorAll("h1,h2,h3,h4,h5,h6")];
+
+    // Find the heading the user is searching for
+    let startIndex = headings.findIndex(h =>
+        h.textContent.trim().toLowerCase().includes(query.toLowerCase())
+    );
+    if (startIndex === -1) return null; // Not found
+
+    const startHeading = headings[startIndex];
+    const startLevel = parseInt(startHeading.tagName.replace("H", ""));
+
+    let content = "";
+
+    // 🔼 Collect parent headings above it
+    for (let i = startIndex - 1; i >= 0; i--) {
+        const h = headings[i];
+        const level = parseInt(h.tagName.replace("H", ""));
+        if (level < startLevel) {
+            content = h.outerHTML + content; 
+            // keep adding until we hit top-level or no more parents
         }
-        return null;
+        if (level === 1) break; // Stop at Unit or H1 top root
     }
+
+    // Add the searched heading itself
+    content += startHeading.outerHTML;
+
+    // 🔽 Collect content below it until same or higher heading appears
+    let node = startHeading.nextElementSibling;
+    while (node) {
+        // If next heading is same or higher level → stop
+        if (node.tagName && /^H[1-6]$/i.test(node.tagName)) {
+            const level = parseInt(node.tagName.replace("H",""));
+            if (level <= startLevel) break;
+        }
+        content += node.outerHTML;
+        node = node.nextElementSibling;
+    }
+
+    return content;
+                                            }
 
     /* ===============================
        SEND MESSAGE (SAFE)
