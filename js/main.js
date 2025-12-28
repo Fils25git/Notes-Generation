@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchNotes(level, classLevel, subject) {
         const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject];
-        if (!unitFilePath) return systemBubble("⚠ Error fetching notes of ${classLevel} ${subject}!");
+        if (!unitFilePath) return systemBubble(`⚠ Error fetching notes of ${classLevel} ${subject}!`);
 
         systemBubble(`⏳I am  loading your notes of ${subject} ${classLevel}, please wait...`);
 
