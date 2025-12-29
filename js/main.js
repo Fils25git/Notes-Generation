@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         outputArea.appendChild(div);
         outputArea.scrollTop = outputArea.scrollHeight;
     }
-   Const notesFileMap = {
+   const notesFileMap = {
 "Primary": {
         "P1": {
             "English": [
@@ -614,7 +614,12 @@ document.addEventListener("DOMContentLoaded", () => {
   e.preventDefault();
   sendMessage();
 });
-    input.onkeydown = e => e.key === "Enter" && sendMessage();
+    input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendMessage();
+  }
+});
     changeBtn.onclick = () => {
         localStorage.clear();
         location.href = "selection.html";
