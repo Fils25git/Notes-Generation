@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (currentSelectionEl) {
-        currentSelectionEl.textContent = `${level} | ${classLevel} | ${subject}`;
+        currentSelectionEl.textContent = ` ${classLevel} | ${subject}`;
     }
 
     let currentNotesHTML = "";
@@ -479,7 +479,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const files = notesFileMap[level]?.[classLevel]?.[subject];
 
         if (!files || !files.length) {
-            systemBubble(`❌ No notes found for ${classLevel} ${subject}`);
+            systemBubble(`❌ No notes for ${classLevel} ${subject} yet. try again leter`);
             return;
         }
 
@@ -496,7 +496,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
             })
             .catch(() =>
-                systemBubble(`❌ Failed to load notes. Please change selection.`)
+                systemBubble(`❌  ${subject} notes of ${classLevel} are not yet available. Please change selection.`)
             );
     }
 
@@ -602,7 +602,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         result
             ? createNoteBubble(result)
-            : systemBubble(`❌ "${text}" not found.`);
+            : systemBubble(`❌ There is no lesson or unit title called "${text}" I find in ${subject} notes of ${classLevel}.`);
 
         input.value = "";
     }
