@@ -560,35 +560,86 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        COPY / EDIT / SAVE
     ================================ */
-    window.copyBubble = bubble => {
-        const text = bubble.querySelector('.bubble-content').innerText;
-        navigator.clipboard.writeText(text);
-    };
+    window.copyBubble = (bubble, btn) => {
+    const text = bubble.querySelector('.bubble-content').innerText.trim();
+
+    if (!text) {
+        btn.textContent = "Nothing to copy";
+        btn.classList.add("error");
+
+        setTimeout(() => {
+            btn.textContent = "📋 Copy";
+            btn.classList.remove("error");
+        }, 1500);
+        return;
+    }
+
+    navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = "Copied ✓";
+        btn.classList.add("success");
+
+        setTimeout(() => {
+            btn.textContent = "📋 Copy";
+            btn.classList.remove("success");
+        }, 1500);
+    });
+};
 
     window.toggleEdit = bubble => {
-        const content = bubble.querySelector('.bubble-content');
-        const actions = bubble.querySelector('.bubble-actions');
+    const content = bubble.querySelector('.bubble-content');
+    const actions = bubble.querySelector('.bubble-actions');
 
-        if (content.isContentEditable) {
-            content.contentEditable = false;
-            actions.innerHTML = `
-                <button onclick="copyBubble(this.closest('.bubble'))">📋 Copy</button>
-                <button onclick="toggleEdit(this.closest('.bubble'))">✏ Edit</button>
-            `;
-        } else {
-            content.contentEditable = true;
-            content.focus();
-            actions.innerHTML = `
-                <select>
-                    <option value="txt">TXT</option>
-                    <option value="docx">DOCX</option>
-                    <option value="pdf">PDF</option>
-                </select>
-                <input placeholder="filename">
-                <button onclick="toggleEdit(this.closest('.bubble'))">💾 Save</button>
-            `;
-        }
-    };
+    if (content.isContentEditable) {
+        // SAVE MODE
+        content.contentEditable = false;
+
+        actions.innerHTML = `
+            <button onclick="copyBubble(this.closest('.bubble'), this)">📋 Copy</button>
+            <button onclick="toggleEdit(this.closest('.bubble'))">✏ Edit</button>
+        `;
+    } else {
+        // EDIT MODE
+        content.contentEditable = true;
+        content.focus();
+
+        actions.innerHTML = `
+            <select class="format">
+                <option value="txt">TXT</option>
+                <option value="docx">DOCX</option>
+                <option value="pdf">PDF</option>
+            </select>
+            <input class="filename" placeholder="File name">
+            <button onclick="saveBubble(this.closest('.bubble'), this)">💾 Save</button>
+        `;
+    }
+};
+   window.saveBubble = (bubble, btn) => {
+    const content = bubble.querySelector('.bubble-content').innerText.trim();
+    const filenameInput = bubble.querySelector('.filename');
+    const formatSelect = bubble.querySelector('.format');
+
+    const filename = filenameInput.value.trim();
+    const format = formatSelect.value;
+
+    if (!filename) {
+        btn.textContent = "Name required";
+        btn.classList.add("error");
+
+        setTimeout(() => {
+            btn.textContent = "💾 Save";
+            btn.classList.remove("error");
+        }, 1500);
+        return;
+    }
+
+    // (Actual export will be added later)
+    btn.textContent = "Saved ✓";
+    btn.classList.add("success");
+
+    setTimeout(() => {
+        toggleEdit(bubble);
+    }, 1200);
+};
 
     /* ===============================
        SEND MESSAGE
