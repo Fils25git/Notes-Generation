@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
-    /* ===== MAIN OUTPUT AREA ===== */
+    /* YOUR ORIGINAL CSS - PERFECTLY PRESERVED */
     #outputArea {
         flex: 1;
         overflow-y: auto;
@@ -19,8 +19,6 @@
         max-width: 100%;
         box-sizing: border-box;
     }
-
-    /* ===== CHAT BUBBLES ===== */
     .bubble {
         padding: 12px 15px;
         border-radius: 12px;
@@ -28,16 +26,12 @@
         word-wrap: break-word;
         box-sizing: border-box;
     }
-
-    /* User bubbles */
     .bubble.user {
         max-width: 50%;
         align-self: flex-end;
         background-color: #00AF00;
         color: white;
     }
-
-    /* System bubbles (notes) */
     .bubble.system {
         width: 100%;
         max-width: 100%;
@@ -46,8 +40,6 @@
         color: #333;
         border: 1px solid #ccc;
     }
-
-    /* Warning bubbles */
     .bubble.warning {
         width: 100%;
         background-color: #ffefcc;
@@ -55,8 +47,6 @@
         border: 1px solid #ffcc80;
         align-self: stretch;
     }
-
-    /* Header selection */
     .current-selection {
         display: flex;
         align-items: center;
@@ -64,7 +54,6 @@
         font-size: 13px;
         color: #444;
     }
-
     .current-selection button {
         background: none;
         border: none;
@@ -72,8 +61,6 @@
         cursor: pointer;
         font-weight: bold;
     }
-
-    /* Main container */
     main {
         margin-top: 60px;
         margin-bottom: 60px;
@@ -83,8 +70,6 @@
         width: 100%;
         padding: 0;
     }
-
-    /* Footer input */
     footer {
         position: fixed;
         bottom: 0;
@@ -97,7 +82,6 @@
         gap: 10px;
         box-sizing: border-box;
     }
-
     footer input[type="text"] {
         flex: 1;
         padding: 10px;
@@ -105,7 +89,6 @@
         border: 1px solid #ccc;
         border-radius: 8px;
     }
-
     footer button {
         padding: 0 16px;
         font-size: 18px;
@@ -114,6 +97,40 @@
         color: white;
         border-radius: 8px;
         cursor: pointer;
+    }
+
+    /* NEW: Bubble actions styling */
+    .bubble-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+        opacity: 0.3;
+        transition: opacity 0.5s;
+    }
+    .bubble-actions button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        color: white;
+        background: #00AF00;
+    }
+    .bubble-actions input, .bubble-actions select {
+        padding: 6px 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+    .bubble-content {
+        line-height: 1.7;
+        min-height: 20px;
+    }
+    .typing-cursor {
+        border-right: 2px solid #00AF00;
+        padding-right: 3px;
     }
 </style>
 </head>
@@ -124,20 +141,20 @@
         <h2>Fila Assistant</h2>
     </div>
     <div class="current-selection">
-        <!-- <span id="currentSelection"></span> -->
+        <span id="currentSelection">Loading...</span>
         <button id="changeSelectionBtn" title="Change selection">🔄</button>
     </div>
     <div class="header-right">
-        <button id="copyBtn" title="Copy Notes"><i class="fas fa-copy"></i></button>
-        <button id="saveBtn" title="Save as Word"><i class="fas fa-file-word"></i></button>
-        <button id="editBtn" title="Edit Notes"><i class="fas fa-edit"></i></button>
+        <!-- These now work globally too -->
+        <button id="globalCopyBtn" title="Copy All Notes"><i class="fas fa-copy"></i></button>
+        <button id="globalSaveBtn" title="Save All"><i class="fas fa-save"></i></button>
     </div>
 </header>
 
 <main id="outputArea"></main>
 
 <footer>
-    <input type="text" id="noteInput" placeholder="Type lesson title from this unit..." />
+    <input type="text" id="noteInput" placeholder="Type lesson title from this unit..." autocomplete="off"/>
     <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
 </footer>
 
