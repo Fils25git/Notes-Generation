@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         outputArea.appendChild(div);
         outputArea.scrollTop = outputArea.scrollHeight;
     }
-   Const notesFileMap = {
+   const notesFileMap = {
 "Primary": {
         "P1": {
             "English": [
