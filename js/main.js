@@ -566,10 +566,86 @@ function createNoteBubble(html) {
 }
 
 /* ===============================
+   SAFE WORD-BY-WORD TYPEWRITER
+   (HTML / TABLE / IMAGE SAFE)
+   - Backspace / Editing Friendly
+=============================== */
+function typeWriterPreserveHTML(element, html, delay = 120, callback) {
+    element.innerHTML = html;
+
+    const walker = document.createTreeWalker(
+        element,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode(node) {
+                return node.nodeValue.trim()
+                    ? NodeFilter.FILTER_ACCEPT
+                    : NodeFilter.FILTER_REJECT;
+            }
+        }
+    );
+
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    const originals = textNodes.map(n => n.nodeValue);
+    textNodes.forEach(n => n.nodeValue = "");
+
+    let nodeIndex = 0;
+    let wordIndex = 0;
+
+    function typeNext() {
+        if (nodeIndex >= textNodes.length) {
+            if (callback) callback(); // unlock buttons after typing
+            return;
+        }
+
+        const words = originals[nodeIndex].split(/(\s+)/);
+
+        if (wordIndex < words.length) {
+            textNodes[nodeIndex].nodeValue += words[wordIndex++];
+            element.scrollTop = element.scrollHeight;
+            setTimeout(typeNext, delay);
+        } else {
+            nodeIndex++;
+            wordIndex = 0;
+            setTimeout(typeNext, delay);
+        }
+    }
+
+    typeNext();
+}
+
+/* ===============================
+   CREATE NOTE BUBBLE
+=============================== */
+function createNoteBubble(html) {
+    const bubble = document.createElement("div");
+    bubble.className = "bubble system";
+
+    const content = document.createElement("div");
+    content.className = "bubble-content";
+
+    const actions = document.createElement("div");
+    actions.className = "bubble-actions";
+
+    bubble.appendChild(content);
+    bubble.appendChild(actions);
+    outputArea.appendChild(bubble);
+    outputArea.scrollTop = outputArea.scrollHeight;
+
+    typeWriterPreserveHTML(content, html, 120, () => {
+        actions.innerHTML = `
+            <button onclick="copyBubble(this.closest('.bubble'), this)">📋 Copy</button>
+            <button onclick="toggleEdit(this.closest('.bubble'))">✏ Edit</button>
+        `;
+    });
+}
+
+/* ===============================
    COPY / EDIT / SAVE
 =============================== */
-window.copyBubble = btn => {
-    const bubble = btn.closest('.bubble');
+window.copyBubble = (bubble, btn) => {
     const text = bubble.querySelector('.bubble-content').innerText.trim();
 
     if (!text) {
@@ -603,7 +679,7 @@ window.toggleEdit = bubble => {
         content.contentEditable = false;
 
         actions.innerHTML = `
-            <button onclick="copyBubble(this)">📋 Copy</button>
+            <button onclick="copyBubble(this.closest('.bubble'), this)">📋 Copy</button>
             <button onclick="toggleEdit(this.closest('.bubble'))">✏ Edit</button>
         `;
     } else {
@@ -642,12 +718,12 @@ window.saveBubble = (bubble, btn) => {
         return;
     }
 
-    // Actual export logic can be added here
+    // (Actual export will be added later)
     btn.textContent = "Saved ✓";
     btn.classList.add("success");
 
     setTimeout(() => {
-        toggleEdit(bubble); // returns to normal bubble view
+        toggleEdit(bubble);
     }, 1200);
 };
 
