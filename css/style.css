@@ -20,7 +20,11 @@ header {
 .logo-img { width: 36px; height: 36px; border-radius: 50%; margin-right: 10px; }
 header h2 { font-size: 18px; color: green; }
 
-.header-left { display: flex; align-items: center; }
+.header-left { display: flex;
+              align-items: center; 
+              gap:2px;
+              width:40%;
+              }
 .header-right button { background: #00AF00; color: #fff; border: none; padding: 6px 10px; margin-left: 5px; border-radius: 5px; cursor: pointer; font-size: 14px; }
 .header-right button:hover { background: #008800; }
 
