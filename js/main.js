@@ -419,59 +419,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 };
-/*       
-   
-/* ===============================
-   SAFE WORD-BY-WORD TYPEWRITER
-   (HTML / TABLE / IMAGE SAFE)
-=============================== 
-function typeWriterPreserveHTML(element, html, delay = 120, callback) {
-    element.innerHTML = html;
-
-    const walker = document.createTreeWalker(
-        element,
-        NodeFilter.SHOW_TEXT,
-        {
-            acceptNode(node) {
-                return node.nodeValue.trim()
-                    ? NodeFilter.FILTER_ACCEPT
-                    : NodeFilter.FILTER_REJECT;
-            }
-        }
-    );
-
-    const textNodes = [];
-    while (walker.nextNode()) textNodes.push(walker.currentNode);
-
-    const originals = textNodes.map(n => n.nodeValue);
-    textNodes.forEach(n => n.nodeValue = "");
-
-    let nodeIndex = 0;
-    let wordIndex = 0;
-
-    function typeNext() {
-        if (nodeIndex >= textNodes.length) {
-            if (callback) callback(); // unlock buttons after typing
-            return;
-        }
-
-        const words = originals[nodeIndex].split(/(\s+)/);
-
-        if (wordIndex < words.length) {
-            textNodes[nodeIndex].nodeValue += words[wordIndex++];
-            element.scrollTop = element.scrollHeight;
-            setTimeout(typeNext, delay);
-        } else {
-            nodeIndex++;
-            wordIndex = 0;
-            setTimeout(typeNext, delay);
-        }
-    }
-
-    typeNext();*/
-}
-
-/* ===============================
+            /* ===============================
    FETCH NOTES
 =============================== */
 function fetchNotes() {
@@ -495,7 +443,7 @@ function fetchNotes() {
             );
         })
         .catch(() =>
-            systemBubble(`❌  ${subject} notes of ${classLevel} are not yet available. Please change selection.`)
+            systemBubble(`❌ ${subject} notes of ${classLevel} are not yet available. Please change selection.`)
         );
 }
 
@@ -531,7 +479,7 @@ function searchNotes(query) {
 }
 
 /* ===============================
-   CREATE NOTE BUBBLE
+   CREATE NOTE BUBBLE (COPY ONLY)
 =============================== */
 function createNoteBubble(html) {
     const bubble = document.createElement("div");
@@ -539,28 +487,20 @@ function createNoteBubble(html) {
 
     const content = document.createElement("div");
     content.className = "bubble-content";
+    content.innerHTML = html;
 
     const actions = document.createElement("div");
-    actions.className = "bubble-actions disabled";
+    actions.className = "bubble-actions";
 
     bubble.appendChild(content);
     bubble.appendChild(actions);
     outputArea.appendChild(bubble);
     outputArea.scrollTop = outputArea.scrollHeight;
 
-    // Disable buttons until typing finishes
+    // Copy button only
     actions.innerHTML = `
-        <button disabled>📋 Copy</button>
-        <button disabled>✏ Edit</button>
+        <button onclick="copyBubble(this)" class="green-btn">📋 Copy</button>
     `;
-
-    typeWriterPreserveHTML(content, html, 15, () => {
-        actions.classList.remove("disabled");
-        actions.innerHTML = `
-            <button onclick="copyBubble(this)">📋 Copy</button>
-            <button onclick="editBubble(this)">✏ Edit</button>
-        `;
-    });
 }
 
 /* ===============================
@@ -588,44 +528,6 @@ window.copyBubble = btn => {
             btn.classList.remove("success");
         }, 1500);
     });
-};
-
-/* ===============================
-   EDIT FUNCTION (isolated editing)
-=============================== */
-window.editBubble = btn => {
-    const bubble = btn.closest('.bubble');
-    const originalContent = bubble.querySelector('.bubble-content').innerHTML;
-
-    // Hide other bubbles
-    [...outputArea.children].forEach(b => {
-        if (b !== bubble) b.style.display = "none";
-    });
-
-    // Create isolated editor
-    const editorContainer = document.createElement("div");
-    editorContainer.className = "bubble-editor";
-
-    const textarea = document.createElement("textarea");
-    textarea.value = originalContent;
-    textarea.style.width = "100%";
-    textarea.style.height = "200px";
-
-    const saveBtn = document.createElement("button");
-    saveBtn.textContent = "💾 Save";
-    saveBtn.onclick = () => {
-        bubble.querySelector('.bubble-content').innerHTML = textarea.value;
-        editorContainer.remove();
-        // Show all bubbles again
-        [...outputArea.children].forEach(b => b.style.display = "block");
-    };
-
-    editorContainer.appendChild(textarea);
-    editorContainer.appendChild(saveBtn);
-    outputArea.appendChild(editorContainer);
-
-    textarea.focus();
-    editorContainer.scrollIntoView({ behavior: "smooth" });
 };
 
 /* ===============================
@@ -659,4 +561,3 @@ changeBtn.onclick = () => {
    START
 =============================== */
 fetchNotes();
-});
