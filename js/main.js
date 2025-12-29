@@ -531,36 +531,45 @@ document.addEventListener("DOMContentLoaded", () => {
         return html;
     }
 
-    /* ===============================
-       CREATE NOTE BUBBLE
-    ================================ */
-    function createNoteBubble(html) {
-        const bubble = document.createElement("div");
-        bubble.className = "bubble system";
+    
+        /* ===============================
+   CREATE NOTE BUBBLE
+=============================== */
+function createNoteBubble(html) {
+    const bubble = document.createElement("div");
+    bubble.className = "bubble system";
 
-        const content = document.createElement("div");
-        content.className = "bubble-content";
+    const content = document.createElement("div");
+    content.className = "bubble-content";
 
-        const actions = document.createElement("div");
-        actions.className = "bubble-actions";
+    const actions = document.createElement("div");
+    actions.className = "bubble-actions disabled";
 
-        bubble.appendChild(content);
-        bubble.appendChild(actions);
-        outputArea.appendChild(bubble);
-        outputArea.scrollTop = outputArea.scrollHeight;
+    bubble.appendChild(content);
+    bubble.appendChild(actions);
+    outputArea.appendChild(bubble);
+    outputArea.scrollTop = outputArea.scrollHeight;
 
-        typeWriterPreserveHTML(content, html);
+    // Buttons disabled until typing finishes
+    actions.innerHTML = `
+        <button disabled>📋 Copy</button>
+        <button disabled>✏ Edit</button>
+    `;
 
+    typeWriterPreserveHTML(content, html, 15, () => {
+        actions.classList.remove("disabled");
         actions.innerHTML = `
-            <button onclick="copyBubble(this.closest('.bubble'))">📋 Copy</button>
+            <button onclick="copyBubble(this)">📋 Copy</button>
             <button onclick="toggleEdit(this.closest('.bubble'))">✏ Edit</button>
         `;
-    }
+    });
+}
 
-    /* ===============================
-       COPY / EDIT / SAVE
-    ================================ */
-    window.copyBubble = (bubble, btn) => {
+/* ===============================
+   COPY / EDIT / SAVE
+=============================== */
+window.copyBubble = btn => {
+    const bubble = btn.closest('.bubble');
     const text = bubble.querySelector('.bubble-content').innerText.trim();
 
     if (!text) {
@@ -585,7 +594,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 };
 
-    window.toggleEdit = bubble => {
+window.toggleEdit = bubble => {
     const content = bubble.querySelector('.bubble-content');
     const actions = bubble.querySelector('.bubble-actions');
 
@@ -594,7 +603,7 @@ document.addEventListener("DOMContentLoaded", () => {
         content.contentEditable = false;
 
         actions.innerHTML = `
-            <button onclick="copyBubble(this.closest('.bubble'), this)">📋 Copy</button>
+            <button onclick="copyBubble(this)">📋 Copy</button>
             <button onclick="toggleEdit(this.closest('.bubble'))">✏ Edit</button>
         `;
     } else {
@@ -613,7 +622,8 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     }
 };
-   window.saveBubble = (bubble, btn) => {
+
+window.saveBubble = (bubble, btn) => {
     const content = bubble.querySelector('.bubble-content').innerText.trim();
     const filenameInput = bubble.querySelector('.filename');
     const formatSelect = bubble.querySelector('.format');
@@ -632,12 +642,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // (Actual export will be added later)
+    // Actual export logic can be added here
     btn.textContent = "Saved ✓";
     btn.classList.add("success");
 
     setTimeout(() => {
-        toggleEdit(bubble);
+        toggleEdit(bubble); // returns to normal bubble view
     }, 1200);
 };
 
