@@ -373,20 +373,32 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentNotesHTML = "";
 
     function fetchNotes(level, classLevel, subject) {
-        const unitFilePath = notesFileMap[level]?.[classLevel]?.[subject];
-        if (!unitFilePath) return systemBubble(`⚠ Error fetching notes of ${classLevel} ${subject}!`);
-
-        systemBubble(`⏳I am  loading your notes of ${subject} ${classLevel}, please wait...`);
-
-        fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${unitFilePath}`)
-            .then(r => r.ok ? r.text() : Promise.reject())
-            .then(html => {
-                currentNotesHTML = html;
-                systemBubble(`Hello and Welcome 👋 <br>I have these Notes of <b>${subject} in <b>${classLevel}</b> for sure😛 and i am ready to pour them🥰 <br>Just give me a <b>lesson or <b>unit title</b>, <br><br><b>N.B:</b>remember i don't intend to discuss i only need lesson title. to change selections tap 🔁`);
-            })
-            .catch(() => systemBubble(`Sorry‼️, I don't have notes of ${subject} for ${classLevel} Yet,<br> <br>you can explore other notes by tapping 🔁 above to change selection.`));
+    const files = notesFileMap[level]?.[classLevel]?.[subject];
+    if (!files || files.length === 0) {
+        return systemBubble(`⚠ Error fetching notes of ${classLevel} ${subject}!`);
     }
 
+    // 🎲 pick random file
+    const randomFile = files[Math.floor(Math.random() * files.length)];
+
+    systemBubble(`⏳I am  loading your notes of ${subject} ${classLevel}, please wait...`);
+
+    fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${randomFile}`)
+        .then(r => r.ok ? r.text() : Promise.reject())
+        .then(html => {
+            currentNotesHTML = html;
+            systemBubble(`Hello and Welcome 👋 <br>
+            I have these Notes of <b>${subject}</b> in <b>${classLevel}</b> for sure 😛
+            and I am ready to pour them 🥰 <br>
+            Just give me a <b>lesson</b> or <b>unit title</b>, <br><br>
+            <b>N.B:</b> remember I don't intend to discuss, I only need lesson title.
+           <br> if you need To change selections tap 🔁`);
+        })
+        .catch(() =>
+            systemBubble(`Sorry‼️, I don't have notes of ${subject} for ${classLevel} Yet,<br><br>
+            You can explore other notes by tapping 🔁 above to change selection.`)
+        );
+}
     /* ===============================
        UTILITIES
 =============================== */
@@ -397,52 +409,59 @@ document.addEventListener("DOMContentLoaded", () => {
         outputArea.appendChild(div);
         outputArea.scrollTop = outputArea.scrollHeight;
     }
-
-     function searchNotes(query) {
+function searchNotes(query) {
     if (!currentNotesHTML) return null;
 
     const container = document.createElement("div");
     container.innerHTML = currentNotesHTML;
+
     const headings = [...container.querySelectorAll("h1,h2,h3,h4,h5,h6")];
 
-    // Find the heading the user is searching for
-    let startIndex = headings.findIndex(h =>
+    const targetHeading = headings.find(h =>
         h.textContent.trim().toLowerCase().includes(query.toLowerCase())
     );
-    if (startIndex === -1) return null; // Not found
 
-    const startHeading = headings[startIndex];
-    const startLevel = parseInt(startHeading.tagName.replace("H", ""));
+    if (!targetHeading) return null;
 
-    let content = "";
+    const startLevel = parseInt(targetHeading.tagName.replace("H", ""));
+    let result = "";
 
-    // 🔼 Collect parent headings above it
-    for (let i = startIndex - 1; i >= 0; i--) {
+    /* 🔼 ADD PARENT HEADINGS (Unit / Topic context) */
+    for (let i = headings.indexOf(targetHeading) - 1; i >= 0; i--) {
         const h = headings[i];
         const level = parseInt(h.tagName.replace("H", ""));
         if (level < startLevel) {
-            content = h.outerHTML + content; 
-            // keep adding until we hit top-level or no more parents
+            result = h.outerHTML + result;
         }
-        if (level === 1) break; // Stop at Unit or H1 top root
+        if (level === 1) break;
     }
 
-    // Add the searched heading itself
-    content += startHeading.outerHTML;
+    /* 🔽 ADD TARGET HEADING */
+    result += targetHeading.outerHTML;
 
-    // 🔽 Collect content below it until same or higher heading appears
-    let node = startHeading.nextElementSibling;
+    /* 🔽 ADD ALL CONTENT UNTIL NEXT SAME OR HIGHER HEADING */
+    let node = targetHeading.nextSibling;
+
     while (node) {
-        // If next heading is same or higher level → stop
-        if (node.tagName && /^H[1-6]$/i.test(node.tagName)) {
-            const level = parseInt(node.tagName.replace("H",""));
-            if (level <= startLevel) break;
+        // Stop if we hit another heading of same or higher level
+        if (
+            node.nodeType === 1 &&
+            /^H[1-6]$/i.test(node.tagName)
+        ) {
+            const lvl = parseInt(node.tagName.replace("H", ""));
+            if (lvl <= startLevel) break;
         }
-        content += node.outerHTML;
-        node = node.nextElementSibling;
+
+        // Add EVERYTHING (divs, tables, images, exercises)
+        if (node.nodeType === 1) {
+            result += node.outerHTML;
+        }
+
+        node = node.nextSibling;
     }
 
-    return content;
+    return result;
+           }
                                             }
 
     /* ===============================
