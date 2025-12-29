@@ -502,14 +502,19 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        TYPEWRITER EFFECT FOR NOTES
     ================================ */
-    function typeWriter(element, fullText, index = 0, delay = 50) {
-        if (index < fullText.length) {
-            element.innerHTML += fullText.charAt(index);
-            element.scrollTop = element.scrollHeight;
-            setTimeout(() => typeWriter(element, fullText, index + 1, delay), delay);
-        } else {
-            element.parentElement.querySelector('.bubble-actions')?.classList.add('show');
-        }
+    /* ===============================
+   TYPEWRITER EFFECT WORD-BY-WORD
+=============================== */
+function typeWriterByWord(element, fullText, words = null, index = 0, delay = 200) {
+    if (!words) words = fullText.split(/(\s+)/); // Split text into words including spaces
+
+    if (index < words.length) {
+        element.innerHTML += words[index];
+        element.scrollTop = element.scrollHeight;
+        setTimeout(() => typeWriterByWord(element, fullText, words, index + 1, delay), delay);
+    } else {
+        element.parentElement.querySelector('.bubble-actions')?.classList.add('show');
+    }
     }
 
     /* ===============================
@@ -532,7 +537,7 @@ document.addEventListener("DOMContentLoaded", () => {
         outputArea.appendChild(div);
         outputArea.scrollTop = outputArea.scrollHeight;
 
-        typeWriter(content, result);
+        typeWriterByWord(content, result);
 
         setTimeout(() => {
             actions.innerHTML = `
