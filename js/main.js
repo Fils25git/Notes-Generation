@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (currentSelectionEl) {
-        currentSelectionEl.textContent = ` ${classLevel} | ${subject}`;
+        currentSelectionEl.textContent = `${level} | ${classLevel} | ${subject}`;
     }
 
     let currentNotesHTML = "";
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         outputArea.appendChild(div);
         outputArea.scrollTop = outputArea.scrollHeight;
     }
-   const notesFileMap = {
+   Const notesFileMap = {
 "Primary": {
         "P1": {
             "English": [
@@ -419,146 +419,210 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 };
-            /* ===============================
-   FETCH NOTES
-=============================== */
-function fetchNotes() {
-    const files = notesFileMap[level]?.[classLevel]?.[subject];
+/* ===============================
+       SAFE WORD-BY-WORD TYPEWRITER
+       (HTML / TABLE / IMAGE SAFE)
+    ================================ */
+    function typeWriterPreserveHTML(element, html, delay = 120) {
 
-    if (!files || !files.length) {
-        systemBubble(`❌ No notes for ${classLevel} ${subject} yet. Try again later.`);
-        return;
-    }
+        element.innerHTML = html;
 
-    const file = files[Math.floor(Math.random() * files.length)];
-    systemBubble(`⏳ Loading ${subject} ${classLevel} notes...`);
-
-    fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${file}`)
-        .then(r => r.ok ? r.text() : Promise.reject())
-        .then(html => {
-            currentNotesHTML = html;
-            systemBubble(
-                `👋 Notes ready for <b>${subject}</b> (${classLevel}).<br>
-                 Type a <b>unit</b> or <b>lesson title</b>.`
-            );
-        })
-        .catch(() =>
-            systemBubble(`❌ ${subject} notes of ${classLevel} are not yet available. Please change selection.`)
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode(node) {
+                    return node.nodeValue.trim()
+                        ? NodeFilter.FILTER_ACCEPT
+                        : NodeFilter.FILTER_REJECT;
+                }
+            }
         );
-}
 
-/* ===============================
-   SEARCH NOTES BY HEADING
-=============================== */
-function searchNotes(query) {
-    if (!currentNotesHTML) return null;
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
 
-    const container = document.createElement("div");
-    container.innerHTML = currentNotesHTML;
+        const originals = textNodes.map(n => n.nodeValue);
+        textNodes.forEach(n => n.nodeValue = "");
 
-    const headings = [...container.querySelectorAll("h1,h2,h3,h4,h5,h6")];
-    const target = headings.find(h =>
-        h.textContent.toLowerCase().includes(query.toLowerCase())
-    );
+        let nodeIndex = 0;
+        let wordIndex = 0;
 
-    if (!target) return null;
+        function typeNext() {
+            if (nodeIndex >= textNodes.length) {
+                element.parentElement
+                    ?.querySelector('.bubble-actions')
+                    ?.classList.add('show');
+                return;
+            }
 
-    const level = parseInt(target.tagName[1]);
-    let html = target.outerHTML;
+            const words = originals[nodeIndex].split(/(\s+)/);
 
-    let node = target.nextSibling;
-    while (node) {
-        if (node.nodeType === 1 && /^H[1-6]$/.test(node.tagName)) {
-            if (parseInt(node.tagName[1]) <= level) break;
+            if (wordIndex < words.length) {
+                textNodes[nodeIndex].nodeValue += words[wordIndex++];
+                element.scrollTop = element.scrollHeight;
+                setTimeout(typeNext, delay);
+            } else {
+                nodeIndex++;
+                wordIndex = 0;
+                setTimeout(typeNext, delay);
+            }
         }
-        if (node.nodeType === 1) html += node.outerHTML;
-        node = node.nextSibling;
+
+        typeNext();
     }
 
-    return html;
-}
+    /* ===============================
+       FETCH NOTES
+    ================================ */
+    function fetchNotes() {
+        const files = notesFileMap[level]?.[classLevel]?.[subject];
 
-/* ===============================
-   CREATE NOTE BUBBLE (COPY ONLY)
-=============================== */
-function createNoteBubble(html) {
-    const bubble = document.createElement("div");
-    bubble.className = "bubble system";
+        if (!files || !files.length) {
+            systemBubble(`❌ No notes found for ${classLevel} ${subject}`);
+            return;
+        }
 
-    const content = document.createElement("div");
-    content.className = "bubble-content";
-    content.innerHTML = html;
+        const file = files[Math.floor(Math.random() * files.length)];
+        systemBubble(`⏳ Loading ${subject} ${classLevel} notes...`);
 
-    const actions = document.createElement("div");
-    actions.className = "bubble-actions";
-
-    bubble.appendChild(content);
-    bubble.appendChild(actions);
-    outputArea.appendChild(bubble);
-    outputArea.scrollTop = outputArea.scrollHeight;
-
-    // Copy button only
-    actions.innerHTML = `
-        <button onclick="copyBubble(this)" class="green-btn">📋 Copy</button>
-    `;
-}
-
-/* ===============================
-   COPY FUNCTION
-=============================== */
-window.copyBubble = btn => {
-    const bubble = btn.closest('.bubble');
-    const text = bubble.querySelector('.bubble-content').innerText.trim();
-
-    if (!text) {
-        btn.textContent = "Nothing to copy";
-        btn.classList.add("error");
-        setTimeout(() => {
-            btn.textContent = "📋 Copy";
-            btn.classList.remove("error");
-        }, 1500);
-        return;
+        fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${file}`)
+            .then(r => r.ok ? r.text() : Promise.reject())
+            .then(html => {
+                currentNotesHTML = html;
+                systemBubble(
+                    `👋 Notes ready for <b>${subject}</b> (${classLevel}).<br>
+                     Type a <b>unit</b> or <b>lesson title</b>.`
+                );
+            })
+            .catch(() =>
+                systemBubble(`❌ Failed to load notes. Please change selection.`)
+            );
     }
 
-    navigator.clipboard.writeText(text).then(() => {
-        btn.textContent = "Copied ✓";
-        btn.classList.add("success");
-        setTimeout(() => {
-            btn.textContent = "📋 Copy";
-            btn.classList.remove("success");
-        }, 1500);
-    });
-};
+    /* ===============================
+       SEARCH NOTES BY HEADING
+    ================================ */
+    function searchNotes(query) {
+        if (!currentNotesHTML) return null;
 
-/* ===============================
-   SEND MESSAGE
-=============================== */
-function sendMessage() {
-    const text = input.value.trim();
-    if (!text) return systemBubble("⚠ Type a lesson or unit title.");
+        const container = document.createElement("div");
+        container.innerHTML = currentNotesHTML;
 
-    userBubble(text);
-    const result = searchNotes(text);
+        const headings = [...container.querySelectorAll("h1,h2,h3,h4,h5,h6")];
+        const target = headings.find(h =>
+            h.textContent.toLowerCase().includes(query.toLowerCase())
+        );
 
-    result
-        ? createNoteBubble(result)
-        : systemBubble(`❌ There is no lesson or unit title called "${text}" in ${subject} notes of ${classLevel}.`);
+        if (!target) return null;
 
-    input.value = "";
-}
+        const level = parseInt(target.tagName[1]);
+        let html = target.outerHTML;
 
-/* ===============================
-   EVENTS
-=============================== */
-sendBtn.onclick = sendMessage;
-input.onkeydown = e => e.key === "Enter" && sendMessage();
-changeBtn.onclick = () => {
-    localStorage.clear();
-    location.href = "selection.html";
-};
+        let node = target.nextSibling;
+        while (node) {
+            if (node.nodeType === 1 && /^H[1-6]$/.test(node.tagName)) {
+                if (parseInt(node.tagName[1]) <= level) break;
+            }
+            if (node.nodeType === 1) html += node.outerHTML;
+            node = node.nextSibling;
+        }
 
-/* ===============================
-   START
-=============================== */
-fetchNotes();
+        return html;
+    }
+
+    /* ===============================
+       CREATE NOTE BUBBLE
+    ================================ */
+    function createNoteBubble(html) {
+        const bubble = document.createElement("div");
+        bubble.className = "bubble system";
+
+        const content = document.createElement("div");
+        content.className = "bubble-content";
+
+        const actions = document.createElement("div");
+        actions.className = "bubble-actions";
+
+        bubble.appendChild(content);
+        bubble.appendChild(actions);
+        outputArea.appendChild(bubble);
+        outputArea.scrollTop = outputArea.scrollHeight;
+
+        typeWriterPreserveHTML(content, html);
+
+        actions.innerHTML = `
+            <button onclick="copyBubble(this.closest('.bubble'))">📋 Copy</button>
+            <button onclick="toggleEdit(this.closest('.bubble'))">✏ Edit</button>
+        `;
+    }
+
+    /* ===============================
+       COPY / EDIT / SAVE
+    ================================ */
+    window.copyBubble = bubble => {
+        const text = bubble.querySelector('.bubble-content').innerText;
+        navigator.clipboard.writeText(text);
+    };
+
+    window.toggleEdit = bubble => {
+        const content = bubble.querySelector('.bubble-content');
+        const actions = bubble.querySelector('.bubble-actions');
+
+        if (content.isContentEditable) {
+            content.contentEditable = false;
+            actions.innerHTML = `
+                <button onclick="copyBubble(this.closest('.bubble'))">📋 Copy</button>
+                <button onclick="toggleEdit(this.closest('.bubble'))">✏ Edit</button>
+            `;
+        } else {
+            content.contentEditable = true;
+            content.focus();
+            actions.innerHTML = `
+                <select>
+                    <option value="txt">TXT</option>
+                    <option value="docx">DOCX</option>
+                    <option value="pdf">PDF</option>
+                </select>
+                <input placeholder="filename">
+                <button onclick="toggleEdit(this.closest('.bubble'))">💾 Save</button>
+            `;
+        }
+    };
+
+    /* ===============================
+       SEND MESSAGE
+    ================================ */
+    function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return systemBubble("⚠ Type a lesson or unit title.");
+
+        userBubble(text);
+        const result = searchNotes(text);
+
+        result
+            ? createNoteBubble(result)
+            : systemBubble(`❌ "${text}" not found.`);
+
+        input.value = "";
+    }
+
+    /* ===============================
+       EVENTS
+    ================================ */
+    document.getElementById("chatForm").addEventListener("submit", e => {
+  e.preventDefault();
+  sendMessage();
+});
+    input.onkeydown = e => e.key === "Enter" && sendMessage();
+    changeBtn.onclick = () => {
+        localStorage.clear();
+        location.href = "selection.html";
+    };
+
+    /* ===============================
+       START
+    ================================ */
+    fetchNotes();
+
 });
