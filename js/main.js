@@ -570,5 +570,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // INITIAL FETCH
-    fetchNotes();
+    fetchNotes(levelSelect.value, classSelect.value, subjectSelect.value);
 });
