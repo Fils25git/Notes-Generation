@@ -1,18 +1,19 @@
 // ===============================
-// INITIAL SETUP & DOM ELEMENTS
+// MAIN.JS FOR INDEX.HTML
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
     // ---- DOM Elements ----
-    const levelSelect = document.getElementById("level");
-    const classSelect = document.getElementById("classLevel");
-    const subjectSelect = document.getElementById("subject");
-    const notesDisplay = document.getElementById("notesDisplay");
-    const input = document.getElementById("input");
+    const levelSelect = document.getElementById("level"); // not used here, kept if needed
+    const classSelect = document.getElementById("classSelect"); // not used here
+    const subjectSelect = document.getElementById("subject"); // not used here
+    const notesDisplay = document.getElementById("notesDisplay"); // optional
+    const input = document.getElementById("noteInput");
     const sendBtn = document.getElementById("sendBtn");
     const outputArea = document.getElementById("outputArea");
-    const changeBtn = document.getElementById("changeBtn");
+    const changeBtn = document.getElementById("changeSelectionBtn");
+    const currentSelection = document.getElementById("currentSelection");
 
-    let currentNotesHTML = ""; // Holds fetched notes content
+    let currentNotesHTML = "";
 
     // ===============================
     // NOTES FILE MAP
@@ -386,48 +387,43 @@ document.addEventListener("DOMContentLoaded", () => {
 };
 
     // ===============================
-    // FETCH NOTES BASED ON SELECTION
+    // LOAD SELECTION FROM LOCALSTORAGE
+    // ===============================
+    const level = localStorage.getItem("level");
+    const classLevel = localStorage.getItem("class");
+    const subject = localStorage.getItem("subject");
+
+    if (!level || !classLevel || !subject) {
+        // No selection, redirect back
+        window.location.href = "selection.html";
+        return;
+    }
+
+    currentSelection.textContent = `${level} - ${classLevel} - ${subject}`;
+
+    // ===============================
+    // FETCH NOTES
     // ===============================
     function fetchNotes(level, classLevel, subject) {
         const unitFiles = notesFileMap[level]?.[classLevel]?.[subject];
         if (!unitFiles || !unitFiles.length) {
-            notesDisplay.innerHTML = "<p>No notes found for this selection.</p>";
+            console.error("No notes found for this selection.");
             return;
         }
 
-        const unitFilePath = unitFiles[0]; // Always load first version
+        const unitFilePath = unitFiles[0]; // first version
         fetch(unitFilePath)
             .then(res => res.text())
             .then(data => {
                 currentNotesHTML = data;
-                notesDisplay.innerHTML = data + `<button class="copy-btn">Copy</button>`;
             })
-            .catch(err => {
-                console.error("Fetch failed:", err);
-                notesDisplay.innerHTML = "<p>Error loading notes.</p>";
-            });
+            .catch(err => console.error("Fetch failed:", err));
     }
 
-    // ---- Dropdown change triggers fetching ----
-    [levelSelect, classSelect, subjectSelect].forEach(el =>
-        el.addEventListener("change", () =>
-            fetchNotes(levelSelect.value, classSelect.value, subjectSelect.value)
-        )
-    );
+    fetchNotes(level, classLevel, subject);
 
     // ===============================
-    // COPY BUTTON (LEAVE AS IS)
-    // ===============================
-    notesDisplay.addEventListener("click", (e) => {
-        if (e.target.classList.contains("copy-btn")) {
-            const text = notesDisplay.innerText;
-            navigator.clipboard.writeText(text);
-            alert("Copied!");
-        }
-    });
-
-    // ===============================
-    // SAFE WORD-BY-WORD TYPEWRITER
+    // TYPEWRITER EFFECT
     // ===============================
     function typeWriterPreserveHTML(element, html, delay = 120) {
         element.innerHTML = html;
@@ -475,9 +471,7 @@ document.addEventListener("DOMContentLoaded", () => {
         container.innerHTML = currentNotesHTML;
 
         const headings = [...container.querySelectorAll("h1,h2,h3,h4,h5,h6")];
-        const target = headings.find(h =>
-            h.textContent.toLowerCase().includes(query.toLowerCase())
-        );
+        const target = headings.find(h => h.textContent.toLowerCase().includes(query.toLowerCase()));
 
         if (!target) return null;
 
@@ -497,13 +491,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ===============================
-    // SEND USER MESSAGE
+    // SEND MESSAGE
     // ===============================
     function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
 
-        // User bubble
         const userDiv = document.createElement("div");
         userDiv.className = "bubble user";
         userDiv.textContent = text;
@@ -521,7 +514,6 @@ document.addEventListener("DOMContentLoaded", () => {
                              </div>`;
             outputArea.appendChild(div);
 
-            // Copy button inside bubble
             div.querySelector(".copy-btn").addEventListener("click", () => {
                 const content = div.querySelector(".note-content").innerText;
                 navigator.clipboard.writeText(content);
@@ -541,16 +533,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===============================
     // EVENT LISTENERS
     // ===============================
-    sendBtn?.addEventListener("click", sendMessage);
-    input?.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
 
-    changeBtn?.addEventListener("click", () => {
+    changeBtn.addEventListener("click", () => {
         localStorage.clear();
-        window.location.replace("selection.html");
+        window.location.href = "selection.html";
     });
-
-    // ===============================
-    // INITIAL FETCH
-    // ===============================
-    fetchNotes(levelSelect.value, classSelect.value, subjectSelect.value);
 });
