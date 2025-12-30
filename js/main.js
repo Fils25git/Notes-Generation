@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (currentSelectionEl) {
-        currentSelectionEl.textContent = `${level} | ${classLevel} | ${subject}`;
+        currentSelectionEl.textContent =` ${classLevel} | ${subject}`;
     }
 
     let currentNotesHTML = "";
