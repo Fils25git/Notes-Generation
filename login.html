@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login to Fila Assistant</title>
+
 <style>
 * { box-sizing: border-box; margin:0; padding:0; }
 body {
@@ -35,11 +36,6 @@ input {
     border:1px solid #ccc;
     border-radius:10px;
     font-size:16px;
-    transition:0.2s;
-}
-input:focus {
-    border-color:#007bff;
-    outline:none;
 }
 button {
     width:100%;
@@ -51,10 +47,6 @@ button {
     border-radius:12px;
     font-size:18px;
     cursor:pointer;
-    transition:0.3s;
-}
-button:hover {
-    background: linear-gradient(to right, #0056b3, #00a0cc);
 }
 .show-pass {
     font-size:14px;
@@ -62,74 +54,60 @@ button:hover {
     display:flex;
     align-items:center;
 }
-.show-pass input { width:auto; margin-right:6px; cursor:pointer; }
-p, .links {
+.show-pass input { width:auto; margin-right:6px; }
+.links {
     font-size:14px;
     margin-top:15px;
     color:#555;
 }
-p a, .links a {
+.links a {
     color:#007bff;
     text-decoration:none;
 }
-p a:hover, .links a:hover { text-decoration:underline; }
-.message { margin-top:12px; font-size:15px; color:green; }
-.error { color:red; }
-@media (max-width:500px){
-    form { padding:30px 20px; border-radius:12px; }
-    h2 { font-size:24px; }
-    button { font-size:16px; padding:12px; }
+.links a:hover { text-decoration:underline; }
+.message {
+    margin-top:12px;
+    font-size:15px;
+    color:red;
 }
 </style>
 </head>
+
 <body>
 
-<form id="loginForm">
+<form>
 <h2>Login to Fila Assistant</h2>
 
-<input type="email" name="email" placeholder="Email" required>
-<input type="password" name="password" placeholder="Password" required>
+<input type="email" placeholder="Email" disabled>
+<input type="password" placeholder="Password" disabled>
 
 <div class="show-pass">
-  <input type="checkbox" id="togglePassword"> Show Password
+  <input type="checkbox" disabled> Show Password
 </div>
 
-<button type="submit">Login</button>
+<button type="button" onclick="netlifyIdentity.open('login')">
+    Login
+</button>
 
-<p><a href="forgot.html">Forgot Password?</a></p>
-<p class="links">Don't have an account? <a href="create.html">Sign Up</a></p>
+<p class="links">
+<a href="#" onclick="netlifyIdentity.open('signup')">Create account</a> |
+<a href="#" onclick="netlifyIdentity.open('login')">Forgot password?</a>
+</p>
 
 <div class="message" id="message"></div>
 </form>
 
+<!-- Netlify Identity -->
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
 <script>
-// Show/hide password
-const toggle = document.getElementById('togglePassword');
-const password = document.querySelector('input[name="password"]');
-toggle.addEventListener('change', () => {
-    password.type = toggle.checked ? 'text' : 'password';
+netlifyIdentity.on('login', user => {
+    console.log('Logged in:', user);
+    window.location.href = "index.html";
 });
 
-// Form submission
-document.getElementById('loginForm').addEventListener('submit', async e=>{
-    e.preventDefault();
-    const email = e.target.email.value.trim();
-    const passwordVal = e.target.password.value;
-    const msg = document.getElementById('message');
-    msg.classList.remove('error');
-    msg.innerText = "";
-
-    try {
-        const res = await fetch('/.netlify/functions/login',{
-            method:'POST',
-            body: JSON.stringify({email,password:passwordVal})
-        });
-        const data = await res.json();
-        msg.innerText = data.message || data;
-    } catch(err){
-        msg.innerText = "Error: " + err.message;
-        msg.classList.add('error');
-    }
+netlifyIdentity.on('error', err => {
+    document.getElementById('message').innerText = err.message;
 });
 </script>
 
