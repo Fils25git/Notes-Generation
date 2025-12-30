@@ -611,11 +611,22 @@ document.addEventListener("DOMContentLoaded", () => {
        EVENTS
     ================================ */
     sendBtn.onclick = sendMessage;
-    input.onkeydown = e => e.key === "Enter" && sendMessage();
-    changeBtn.onclick = () => {
-        localStorage.clear();
-        location.href = "selection.html";
-    };
+
+input.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+input.addEventListener("input", () => {
+    // safe place for word-by-word logic
+});
+
+changeBtn.onclick = () => {
+    localStorage.clear();
+    location.href = "selection.html";
+};
 
     /* ===============================
        START
