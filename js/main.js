@@ -476,7 +476,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        FETCH NOTES
     ================================ */
-    function fetchNotes() {
+    function fetchNotesRandom() {
         const files = notesFileMap[level]?.[classLevel]?.[subject];
 
         if (!files || !files.length) {
