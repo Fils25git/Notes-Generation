@@ -475,7 +475,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ===============================
        FETCH NOTES
-    ================================ */
+    ================================ 
     function fetchNotesRandom() {
         const files = notesFileMap[level]?.[classLevel]?.[subject];
 
@@ -498,8 +498,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .catch(() =>
                 systemBubble(`❌ Failed to load notes. Please change selection.`)
-            );
-    }
+            ); }*/
 
     /* ===============================
        SEARCH NOTES BY HEADING
