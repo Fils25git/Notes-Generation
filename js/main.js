@@ -579,12 +579,7 @@ document.addEventListener("DOMContentLoaded", () => {
             content.contentEditable = true;
             content.focus();
             actions.innerHTML = `
-                <select>
-                    <option value="txt">TXT</option>
-                    <option value="docx">DOCX</option>
-                    <option value="pdf">PDF</option>
-                </select>
-                <input placeholder="filename">
+               
                 <button onclick="toggleEdit(this.closest('.bubble'))">💾 Save</button>
             `;
         }
