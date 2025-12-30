@@ -552,8 +552,14 @@ document.addEventListener("DOMContentLoaded", () => {
         typeWriterPreserveHTML(content, html);
 
         actions.innerHTML = `
-            <button onclick="copyBubble(this.closest('.bubble'))">📋 Copy</button>
-            <button onclick="toggleEdit(this.closest('.bubble'))">✏ Edit</button>
+
+         <button class="copy-btn" onclick="copyBubble(this.closest('.bubble'))">
+    📋 Copy
+</button>
+
+<button class="edit-btn" onclick="toggleEdit(this.closest('.bubble'))">
+    ✏ Edit
+</button>   
         `;
     }
 
