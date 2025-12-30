@@ -1,18 +1,29 @@
 // ===============================
 // MAIN.JS FOR INDEX.HTML
 // ===============================
+// ===============================
+// CHECK USER SELECTION FIRST
+// ===============================
+if (!localStorage.getItem("selectionDone")) {
+    window.location.href = "selection.html";
+}
+
+// ===============================
+// DOM & APP INITIALIZATION
+// ===============================
 document.addEventListener("DOMContentLoaded", () => {
-    // ---- DOM Elements ----
-    const levelSelect = document.getElementById("level"); // not used here, kept if needed
-    const classSelect = document.getElementById("classSelect"); // not used here
-    const subjectSelect = document.getElementById("subject"); // not used here
-    const notesDisplay = document.getElementById("notesDisplay"); // optional
-    const input = document.getElementById("noteInput");
+    const level = localStorage.getItem("level");
+    const classLevel = localStorage.getItem("classLevel");
+    const subject = localStorage.getItem("subject");
+
+    const notesDisplay = document.getElementById("notesDisplay");
+    const input = document.getElementById("input");
     const sendBtn = document.getElementById("sendBtn");
     const outputArea = document.getElementById("outputArea");
-    const changeBtn = document.getElementById("changeSelectionBtn");
-    const currentSelection = document.getElementById("currentSelection");
+    const changeBtn = document.getElementById("changeBtn");
 
+    // Now you can use level, classLevel, subject safely
+});
     let currentNotesHTML = "";
 
     // ===============================
