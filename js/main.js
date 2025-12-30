@@ -473,32 +473,6 @@ document.addEventListener("DOMContentLoaded", () => {
         typeNext();
     }
 
-    /* ===============================
-       FETCH NOTES
-    ================================ 
-    function fetchNotesRandom() {
-        const files = notesFileMap[level]?.[classLevel]?.[subject];
-
-        if (!files || !files.length) {
-            systemBubble(`❌ No notes found for ${classLevel} ${subject}`);
-            return;
-        }
-
-        const file = files[Math.floor(Math.random() * files.length)];
-        systemBubble(`⏳ Loading ${subject} ${classLevel} notes...`);
-
-        fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${file}`)
-            .then(r => r.ok ? r.text() : Promise.reject())
-            .then(html => {
-                currentNotesHTML = html;
-                systemBubble(
-                    `👋 Notes ready for <b>${subject}</b> (${classLevel}).<br>
-                     Type a <b>unit</b> or <b>lesson title</b>.`
-                );
-            })
-            .catch(() =>
-                systemBubble(`❌ Failed to load notes. Please change selection.`)
-            ); }*/
 
     /* ===============================
        SEARCH NOTES BY HEADING
