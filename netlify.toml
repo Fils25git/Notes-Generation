@@ -1,4 +1,6 @@
+
 [build]
+functions = "functions"
 publish = "."    # "." means the root of your repo
 command = ""    # leave empty if no build command is needed
 
