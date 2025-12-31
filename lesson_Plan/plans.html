@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fila Assistant - CBC Lesson Plan Generator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="plans.css">
 </head>
 <body>
     <div class="container">
@@ -114,7 +114,67 @@
     </div>
 
     <!-- External JS -->
-    <script src="plan.js"></script>
-    <script src="script.js"></script>
+    <<script>
+document.getElementById('lessonForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    generateLessonPlan();
+});
+
+function generateLessonPlan() {
+    // Get form values
+    const data = {
+        schoolName: document.getElementById('schoolName').value,
+        teacherName: document.getElementById('teacherName').value,
+        term: document.getElementById('term').value,
+        date: document.getElementById('date').value,
+        subject: document.getElementById('subject').value,
+        class: document.getElementById('class').value,
+        unitNo: document.getElementById('unitNo').value,
+        lessonNo: document.getElementById('lessonNo').value,
+        totalLessons: document.getElementById('totalLessons').value,
+        duration: document.getElementById('duration').value,
+        classSize: document.getElementById('classSize').value,
+        unitTitle: document.getElementById('unitTitle').value,
+        lessonTitle: document.getElementById('lessonTitle').value,
+        specialNeeds: document.getElementById('specialNeeds').value || "No specific special educational needs identified in this class",
+        references: document.getElementById('references').value || `${document.getElementById('subject').value} book for ${document.getElementById('class').value}, Rwanda Education Board curriculum`
+    };
+
+    // Get random plan template from plan.js
+    const planTemplate = getRandomPlan();
+
+    // Replace placeholders
+    let lessonPlanHTML = planTemplate;
+    for (const key in data) {
+        const regex = new RegExp(`{{${key}}}`, "g");
+        lessonPlanHTML = lessonPlanHTML.replace(regex, data[key]);
+    }
+
+    // Display lesson plan
+    const container = document.getElementById('lessonPlanContent');
+    container.innerHTML = lessonPlanHTML;
+    document.getElementById('resultContainer').classList.add('show');
+    document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Copy to Word function
+function copyToWord() {
+    const content = document.getElementById('lessonPlanContent');
+    const range = document.createRange();
+    range.selectNode(content);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+
+    try {
+        document.execCommand('copy');
+        alert('✅ Lesson plan copied!\n\nNow:\n1. Open Microsoft Word\n2. Press Ctrl+V (or Cmd+V on Mac) to paste\n3. Save your file');
+    } catch (err) {
+        alert('Please select the content manually and press Ctrl+C to copy');
+    }
+
+    window.getSelection().removeAllRanges();
+}
+    </script>
+    
 </body>
   </html>
