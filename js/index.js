@@ -1,4 +1,5 @@
 let currentUser = null;
+
 const menuToggle = document.getElementById("menuToggle");
 const appMenu = document.getElementById("appMenu");
 const authBtn = document.getElementById("authBtn");
@@ -11,12 +12,48 @@ const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 let historyData = [];
 let fuse;
 
-// Create overlay dynamically
+// Overlay for mobile menu
 let overlay = document.createElement("div");
 overlay.className = "menu-overlay";
 document.body.appendChild(overlay);
 
-// MENU TOGGLE
+// -------------------------
+// Helper: require auth before action
+// -------------------------
+function requireAuth(actionName = "this action") {
+    if (!currentUser) {
+        showSystemMessage(`Please sign in first to ${actionName}.`);
+        return false;
+    }
+    return true;
+}
+
+// -------------------------
+// History key per user
+// -------------------------
+function getHistoryKey() {
+    if (!currentUser || !currentUser.email) return null;
+    return `history_${currentUser.email}`;
+}
+
+// -------------------------
+// Bubble display
+// -------------------------
+const outputArea = document.getElementById("outputArea");
+
+function showSystemMessage(text) {
+    const bubble = document.createElement("div");
+    bubble.className = "bubble system";
+    bubble.textContent = text;
+    outputArea.appendChild(bubble);
+    outputArea.scrollTop = outputArea.scrollHeight;
+
+    saveHistory(text);
+}
+
+// -------------------------
+// Menu toggle
+// -------------------------
 function openMenu() {
     if (window.innerWidth <= 768) {
         appMenu.classList.add("active");
@@ -45,7 +82,9 @@ window.addEventListener("resize", () => {
     }
 });
 
-// FUSE.js for history search
+// -------------------------
+// Fuse.js for history search
+// -------------------------
 function initFuse() {
     fuse = new Fuse(historyData, { keys: ['text'], threshold: 0.4 });
 }
@@ -59,29 +98,35 @@ function renderHistory(data) {
     });
 }
 
-function addHistory(text) {
-    const item = { text };
-    historyData.unshift(item);
-    renderHistory(historyData);
-    initFuse();
-    saveHistory(text);
-}
-
+// -------------------------
+// Save / Load History (per user)
+// -------------------------
 function saveHistory(text) {
-    let history = JSON.parse(localStorage.getItem("history")) || [];
+    const key = getHistoryKey();
+    if (!key) return; // not signed in → do nothing
+
+    let history = JSON.parse(localStorage.getItem(key)) || [];
     history.unshift(text);
-    localStorage.setItem("history", JSON.stringify(history));
+
+    // Keep latest 7 only
+    history = history.slice(0, 7);
+
+    localStorage.setItem(key, JSON.stringify(history));
 }
 
 function loadHistory() {
-    const stored = JSON.parse(localStorage.getItem("history")) || [];
+    const key = getHistoryKey();
+    if (!key) return;
+
+    const stored = JSON.parse(localStorage.getItem(key)) || [];
     historyData = stored.map(text => ({ text }));
     renderHistory(historyData);
     initFuse();
 }
 
-// Observe user questions
-const outputArea = document.getElementById("outputArea");
+// -------------------------
+// Observe user bubbles
+// -------------------------
 const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
         mutation.addedNodes.forEach(node => {
@@ -93,7 +138,9 @@ const observer = new MutationObserver(mutations => {
 });
 observer.observe(outputArea, { childList: true });
 
+// -------------------------
 // History search
+// -------------------------
 historySearch.addEventListener("input", () => {
     const query = historySearch.value.trim();
     if (!query) {
@@ -104,18 +151,27 @@ historySearch.addEventListener("input", () => {
     renderHistory(results);
 });
 
+// -------------------------
 // Clear history
+// -------------------------
 clearHistoryBtn.onclick = () => {
-    if (confirm("Are you sure you want to clear all history?")) {
-        localStorage.removeItem("history");
+    if (!currentUser) return;
+
+    if (confirm("Are you sure you want to clear your history?")) {
+        const key = getHistoryKey();
+        localStorage.removeItem(key);
         historyData = [];
         renderHistory(historyData);
         initFuse();
     }
 };
 
+// -------------------------
 // Tap history to re-run
+// -------------------------
 historyList.addEventListener("click", (e) => {
+    if (!requireAuth("re-run history")) return;
+
     const li = e.target.closest("li");
     if (li) {
         const text = li.textContent.trim();
@@ -128,19 +184,25 @@ historyList.addEventListener("click", (e) => {
     }
 });
 
+// -------------------------
 // Menu buttons
-document.getElementById("lessonPlanBtn").onclick = () => alert("Generate Lesson Plan clicked");
-document.getElementById("termsBtn").onclick = () => alert("Terms & Privacy");
-document.getElementById("privacyBtn").onclick = () => alert("Privacy Policy");
-function showSystemMessage(text) {
-    const bubble = document.createElement("div");
-    bubble.className = "bubble system";
-    bubble.textContent = text;
-    outputArea.appendChild(bubble);
-    outputArea.scrollTop = outputArea.scrollHeight;
-            }
+// -------------------------
+document.getElementById("lessonPlanBtn").onclick = () => {
+    if (!requireAuth("generate a lesson plan")) return;
+    showSystemMessage("Generate Lesson Plan clicked.");
+};
 
+document.getElementById("termsBtn").onclick = () => {
+    showSystemMessage("Terms & Privacy clicked.");
+};
+
+document.getElementById("privacyBtn").onclick = () => {
+    showSystemMessage("Privacy Policy clicked.");
+};
+
+// -------------------------
 // Auth UI
+// -------------------------
 function updateAuthUI(user) {
     const authIcon = authBtn.querySelector("i");
     const authText = authBtn.querySelector("span");
@@ -168,7 +230,9 @@ function updateAuthUI(user) {
     }
 }
 
+// -------------------------
 // Netlify Identity hooks
+// -------------------------
 netlifyIdentity.on("init", user => {
     currentUser = user;
     updateAuthUI(user);
