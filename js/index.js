@@ -1,3 +1,4 @@
+let currentUser = null;
 const menuToggle = document.getElementById("menuToggle");
 const appMenu = document.getElementById("appMenu");
 const authBtn = document.getElementById("authBtn");
@@ -131,6 +132,13 @@ historyList.addEventListener("click", (e) => {
 document.getElementById("lessonPlanBtn").onclick = () => alert("Generate Lesson Plan clicked");
 document.getElementById("termsBtn").onclick = () => alert("Terms & Privacy");
 document.getElementById("privacyBtn").onclick = () => alert("Privacy Policy");
+function showSystemMessage(text) {
+    const bubble = document.createElement("div");
+    bubble.className = "bubble system";
+    bubble.textContent = text;
+    outputArea.appendChild(bubble);
+    outputArea.scrollTop = outputArea.scrollHeight;
+            }
 
 // Auth UI
 function updateAuthUI(user) {
@@ -161,6 +169,19 @@ function updateAuthUI(user) {
 }
 
 // Netlify Identity hooks
-netlifyIdentity.on("init", user => updateAuthUI(user));
-netlifyIdentity.on("login", user => updateAuthUI(user));
-netlifyIdentity.on("logout", () => updateAuthUI(null));
+netlifyIdentity.on("init", user => {
+    currentUser = user;
+    updateAuthUI(user);
+});
+
+netlifyIdentity.on("login", user => {
+    currentUser = user;
+    updateAuthUI(user);
+    showSystemMessage("You are now signed in. You can continue.");
+});
+
+netlifyIdentity.on("logout", () => {
+    currentUser = null;
+    updateAuthUI(null);
+    showSystemMessage("You signed out. Please sign in to continue.");
+});
