@@ -619,14 +619,21 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        EVENTS
     ================================ */
-    sendBtn.onclick = sendMessage;
+    sendBtn.onclick = () => sendMessageWithAuth();
 
 input.addEventListener("keydown", e => {
     if (e.key === "Enter") {
         e.preventDefault();
-        sendMessage();
+        sendMessageWithAuth();
     }
 });
+
+// New wrapper function
+function sendMessageWithAuth() {
+    if (!requireAuth("send a note")) return; // ✅ Block if not signed in
+
+    sendMessage(); // call your existing function
+}
 
 input.addEventListener("input", () => {
     // safe place for word-by-word logic
