@@ -10,12 +10,14 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h2>Fila Assistant <br>CBC Lesson Plan Generator</h2>
-            <p>Fill in the required fields below and then tap Fetch Lesson Plan</p>
+            <img src="../logo.png">
+            <h2>Fila Assistant <br>Plan Generator</h2>
+            
         </div>
 
         <!-- Form -->
         <div class="form-container">
+            <p>Fill in the required fields below and then tap Fetch Lesson Plan</p>
             <form id="lessonForm">
                 <div class="form-grid">
                     <div class="form-group">
@@ -118,10 +120,10 @@
 // Array of lesson plan files in proposals folder
 const plansArray = [
     "proposals/plan1.html",
-    //"proposals/plan2.html",
-    //"proposals/plan3.html",
-    //"proposals/plan4.html",
-    //"proposals/plan5.html"
+    "proposals/plan2.html",
+    "proposals/plan3.html",
+    "proposals/plan4.html",
+    "proposals/plan5.html"
 ];
 
 // Get random plan file
@@ -152,7 +154,7 @@ function generateLessonPlan() {
         unitTitle: document.getElementById('unitTitle').value,
         lessonTitle: document.getElementById('lessonTitle').value,
         specialNeeds: document.getElementById('specialNeeds').value || "No specific special educational needs identified in this class",
-        references: document.getElementById('references').value || `${document.getElementById('subject').value} book for ${document.getElementById('class').value}, Rwanda Education Board curriculum`
+        references: document.getElementById('references').value || `${document.getElementById('subject').value} Teacher guide and Learner's  book for ${document.getElementById('class').value}, Rwanda Education Board curriculum`
     };
 
     // Fetch a random plan HTML
@@ -160,7 +162,7 @@ function generateLessonPlan() {
 
     fetch(planFile)
     .then(response => {
-        if (!response.ok) throw new Error("Plan file not found");
+        if (!response.ok) throw new Error("Sorry, Try again.");
         return response.text();
     })
     .then(planTemplate => {
@@ -178,7 +180,7 @@ function generateLessonPlan() {
         document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
     })
     .catch(err => {
-        document.getElementById('errorMessage').textContent = "❌ Could not fetch lesson plan. Please check your connection or file path.";
+        document.getElementById('errorMessage').textContent = "❌ Could not fetch lesson plan. Please check your internet connection and try again.";
         console.error(err);
     });
 }
