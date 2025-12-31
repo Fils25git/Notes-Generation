@@ -15,7 +15,7 @@ let overlay = document.createElement("div");
 overlay.className = "menu-overlay";
 document.body.appendChild(overlay);
 
-// Menu toggle
+// MENU TOGGLE
 function openMenu() {
     if (window.innerWidth <= 768) {
         appMenu.classList.add("active");
@@ -44,7 +44,7 @@ window.addEventListener("resize", () => {
     }
 });
 
-// Fuse.js for history search
+// FUSE.js for history search
 function initFuse() {
     fuse = new Fuse(historyData, { keys: ['text'], threshold: 0.4 });
 }
