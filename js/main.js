@@ -15,6 +15,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const changeBtn = document.getElementById("changeSelectionBtn");
     const currentSelectionEl = document.getElementById("currentSelection");
     const globalCopyBtn = document.getElementById("globalCopyBtn");
+   
+   function requireAuth(actionName = "this action") {
+    if (!currentUser) {
+        showSystemMessage(`Please sign in first to ${actionName}.`);
+        return false;
+    }
+    return true;
+   }
 
     /* ===============================
        LOCAL STORAGE CHECK
