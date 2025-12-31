@@ -114,14 +114,29 @@
     </div>
 
     <!-- External JS -->
-    <<script>
+    <script>
+// Array of lesson plan files in proposals folder
+const plansArray = [
+    "proposals/plan1.html",
+    //"proposals/plan2.html",
+    //"proposals/plan3.html",
+    //"proposals/plan4.html",
+    //"proposals/plan5.html"
+];
+
+// Get random plan file
+function getRandomPlanFile() {
+    const index = Math.floor(Math.random() * plansArray.length);
+    return plansArray[index];
+}
+
 document.getElementById('lessonForm').addEventListener('submit', function(e) {
     e.preventDefault();
     generateLessonPlan();
 });
 
 function generateLessonPlan() {
-    // Get form values
+    // Collect form values
     const data = {
         schoolName: document.getElementById('schoolName').value,
         teacherName: document.getElementById('teacherName').value,
@@ -140,21 +155,32 @@ function generateLessonPlan() {
         references: document.getElementById('references').value || `${document.getElementById('subject').value} book for ${document.getElementById('class').value}, Rwanda Education Board curriculum`
     };
 
-    // Get random plan template from plan.js
-    const planTemplate = getRandomPlan();
+    // Fetch a random plan HTML
+    const planFile = getRandomPlanFile();
 
-    // Replace placeholders
-    let lessonPlanHTML = planTemplate;
-    for (const key in data) {
-        const regex = new RegExp(`{{${key}}}`, "g");
-        lessonPlanHTML = lessonPlanHTML.replace(regex, data[key]);
-    }
+    fetch(planFile)
+    .then(response => {
+        if (!response.ok) throw new Error("Plan file not found");
+        return response.text();
+    })
+    .then(planTemplate => {
+        // Replace placeholders {{key}} with form data
+        let lessonPlanHTML = planTemplate;
+        for (const key in data) {
+            const regex = new RegExp(`{{${key}}}`, "g");
+            lessonPlanHTML = lessonPlanHTML.replace(regex, data[key]);
+        }
 
-    // Display lesson plan
-    const container = document.getElementById('lessonPlanContent');
-    container.innerHTML = lessonPlanHTML;
-    document.getElementById('resultContainer').classList.add('show');
-    document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+        // Show lesson plan
+        const container = document.getElementById('lessonPlanContent');
+        container.innerHTML = lessonPlanHTML;
+        document.getElementById('resultContainer').classList.add('show');
+        document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(err => {
+        document.getElementById('errorMessage').textContent = "❌ Could not fetch lesson plan. Please check your connection or file path.";
+        console.error(err);
+    });
 }
 
 // Copy to Word function
@@ -175,6 +201,5 @@ function copyToWord() {
     window.getSelection().removeAllRanges();
 }
     </script>
-    
 </body>
   </html>
