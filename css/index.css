@@ -1,108 +1,177 @@
-/* OUTPUT AREA */
-#outputArea {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
 
-/* BUBBLES */
-.bubble {
-    padding: 12px 15px;
-    border-radius: 12px;
-    line-height: 1.5;
-    word-wrap: break-word;
-    box-sizing: border-box;
-}
 
-/* USER BUBBLES */
-.user {
-    max-width: 50%;
-    align-self: flex-end;
-    background-color: #00AF00;
-    color: white;
-}
 
-/* SYSTEM BUBBLES */
-.system {
-    width: 100%;
-    max-width: 100%;
-    align-self: stretch;
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ccc;
-}
-
-/* WARNING BUBBLES */
-.warning {
-    width: 100%;
-    background-color: #ffefcc;
-    color: #b35d00;
-    border: 1px solid #ffcc80;
-    align-self: stretch;
-}
-
-/* CURRENT SELECTION */
-.current-selection {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #444;
-}
-
-.current-selection button {
-    background: none;
-    border: none;
-    color: #00AF00;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-/* MAIN CONTAINER */
-main {
-    margin-top: 60px;
-    margin-bottom: 60px;
-    flex: 1;
-    display: flex;
-    justify-content: flex-start;
-    width: 100%;
-    padding: 0;
-}
-
-/* FOOTER INPUT */
-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    padding: 10px;
-    background: #f7f7f7;
-    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
-    gap: 10px;
-    box-sizing: border-box;
-}
-
-footer input[type="text"] {
-    flex: 1;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-}
-
-footer button {
-    padding: 0 16px;
-    font-size: 18px;
-    border: none;
-    background-color: #00AF00;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
+    /* PRESERVED ORIGINAL CSS */
+    #outputArea {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
+    .bubble {
+        padding: 12px 15px;
+        border-radius: 12px;
+        line-height: 1.5;
+        word-wrap: break-word;
+        box-sizing: border-box;
+    }
+    .bubble.user {
+        max-width: 50%;
+        align-self: flex-end;
+        background-color: #00AF00;
+        color: white;
+    }
+    .bubble.system {
+        width: 100%;
+        max-width: 100%;
+        align-self: stretch;
+        background-color: #fff;
+        color: #333;
+        border: 1px solid #ccc;
+    }
+    .bubble.warning {
+        width: 100%;
+        background-color: #ffefcc;
+        color: #b35d00;
+        border: 1px solid #ffcc80;
+        align-self: stretch;
+    }
+    .current-selection {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 13px;
+        color: #444;
+        background-color:white;
+        border: 1px solid #ccc;
+        width: 30%;
+        box-sizing: border-box;
+        border-radius: 8px;
+        align-self: stretch;
+    }
+    .current-selection button {
+        background: green;
+        border: none;
+        color: #00AF00;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    main {
+        margin-top: 60px;
+        margin-bottom: 60px;
+        flex: 1;
+        display: flex;
+        justify-content: flex-start;
+    .menu-section {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .menu-section button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        background: #f9f9f9;
+        cursor: pointer;
+    }
+    .menu-section button i {
+        font-size: 14px;
+        color: #00AF00;
+    }
+    .menu-history {
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        padding: 6px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .menu-title {
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #clearHistoryBtn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #f44336;
+        font-size: 12px;
+    }
+    #clearHistoryBtn i {
+        font-size: 14px;
+    }
+    #historyList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    #historyList li {
+        font-size: 12px;
+        padding: 6px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+    #historyList li i {
+        color: #888;
+        margin-right: 6px;
+    }
+    .menu-history input {
+        width: 100%;
+        padding: 6px 8px;
+        font-size: 12px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        margin-bottom: 6px;
+    }
+    .hidden {
+        display: none !important;
+    }
+    .bottom-sheet {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: -100%;
+        width: 100%;
+        max-height: 80vh;
+        border-radius: 15px 15px 0 0;
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+        background: #fff;
+        flex-direction: column;
+        transition: bottom 0.3s ease-in-out;
+        z-index: 2000;
+        padding: 10px;
+        overflow-y: auto;
+    }
+    .bottom-sheet.active {
+        bottom: 0;
+    }
+    .menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.3);
+        z-index: 1500;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-in-out;
+    }
+    .menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+}
