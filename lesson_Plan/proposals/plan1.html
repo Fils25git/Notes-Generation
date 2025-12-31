@@ -1,0 +1,180 @@
+<html>
+  <body>
+<!-- plan1.html -->
+<div class="text-center bold" style="font-size: 12pt; margin-bottom: 10px;">LESSON PLAN</div>
+
+<div style="margin-bottom: 5px; font-size: 10pt;">
+    <span class="bold">School Name:</span> {{schoolName}}
+    <span style="margin-left: 80px;" class="bold">Teacher's name:</span> {{teacherName}}
+</div>
+
+<table>
+    <tr>
+        <td class="bold">Term</td>
+        <td class="bold">Date</td>
+        <td class="bold">Subject</td>
+        <td class="bold">Class</td>
+        <td class="bold">Unit N°</td>
+        <td class="bold">Lesson N°</td>
+        <td class="bold">Duration</td>
+        <td class="bold">Class size</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} of {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}}</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td class="bold" style="width: 33%;">Type of Special Educational Needs</td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Unit title</td>
+        <td>{{unitTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Key Unit Competence</td>
+        <td>Be able to understand and apply {{lessonTitle}} concepts accurately in {{subject}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Title of the lesson</td>
+        <td>{{lessonTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Instructional Objective</td>
+        <td>By the end of this lesson, learners should be able to explain and demonstrate {{lessonTitle}} with accuracy and confidence</td>
+    </tr>
+    <tr>
+        <td class="bold">Plan for this Class</td>
+        <td>Inside the classroom - learners arranged in groups of 5</td>
+    </tr>
+    <tr>
+        <td class="bold">Learning Materials</td>
+        <td>{{subject}} textbook, charts, Manila paper, markers, learner's exercise books, chalk/whiteboard markers, demonstration materials</td>
+    </tr>
+    <tr>
+        <td class="bold">References</td>
+        <td>{{references}}</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td class="bold" style="width: 15%;">Timing for each step</td>
+        <td colspan="2" class="bold text-center">Description of teaching and learning activity</td>
+        <td class="bold" style="width: 30%;">Generic competences and Cross cutting issues to be addressed + a short explanation</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td class="bold" style="width: 27.5%;">Teacher activities</td>
+        <td class="bold" style="width: 27.5%;">Learner activities</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td class="bold">Introduction<br/>5 min</td>
+        <td>
+            <ul>
+                <li>Greets learners and checks attendance</li>
+                <li>Reviews previous lesson related to {{unitTitle}}</li>
+                <li>Asks learners: "What do you remember about {{unitTitle}}?"</li>
+                <li>Introduces today's topic: "{{lessonTitle}}"</li>
+                <li>Shares the lesson objectives with learners</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Respond to greetings and settle down</li>
+                <li>Recall and share what they learned in previous lesson</li>
+                <li>Listen attentively to the new topic</li>
+                <li>Write lesson title in their exercise books</li>
+                <li>Ask questions if they need clarification</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Communication:</strong> Learners express prior knowledge<br/><br/>
+            <strong>Peace and values education:</strong> Respectful participation in class discussions
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Development of the lesson<br/>25 min</td>
+        <td>
+            <ul>
+                <li>Organizes learners into groups of 5</li>
+                <li>Distributes learning materials to each group</li>
+                <li>Explains key concepts of {{lessonTitle}} using examples</li>
+                <li>Demonstrates main concept on the board step-by-step</li>
+                <li>Guides groups to work on practice activities</li>
+                <li>Moves around the classroom observing and assisting learners</li>
+                <li>Asks probing questions to check understanding</li>
+                <li>Invites group representatives to present their work</li>
+                <li>Provides feedback and clarifies misconceptions</li>
+                <li>Gives additional individual practice exercises</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Form groups as instructed by the teacher</li>
+                <li>Collect and handle learning materials carefully</li>
+                <li>Listen and take notes</li>
+                <li>Follow demonstration and ask questions</li>
+                <li>Work collaboratively to complete activities</li>
+                <li>Discuss and share ideas with group members</li>
+                <li>Record findings</li>
+                <li>Present group work</li>
+                <li>Listen to feedback and make corrections</li>
+                <li>Complete individual practice exercises</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Critical thinking:</strong> Analyze concepts and solve problems<br/><br/>
+            <strong>Cooperation:</strong> Teamwork and interpersonal skills<br/><br/>
+            <strong>Inclusive education:</strong> Mixed-ability participation<br/><br/>
+            <strong>Creativity and innovation:</strong> Explore approaches to solve problems
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Conclusion<br/>10 min</td>
+        <td>
+            <ul>
+                <li>Summarizes main points of {{lessonTitle}}</li>
+                <li>Reinforces key concepts through Q&A</li>
+                <li>Quick oral assessment with 2-3 questions</li>
+                <li>Assigns homework: Practice exercises on {{lessonTitle}}</li>
+                <li>Links to next lesson</li>
+                <li>Appreciates learners for participation</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Participate in summarizing</li>
+                <li>Answer teacher's questions</li>
+                <li>Self-assess learning progress</li>
+                <li>Write down homework assignment</li>
+                <li>Ask final questions</li>
+                <li>Pack materials for next lesson</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Self-confidence:</strong> Gain confidence through practice<br/><br/>
+            <strong>Communication:</strong> Summarizing consolidates learning<br/><br/>
+            <strong>Lifelong learning:</strong> Reflection promotes improvement
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Teacher self-evaluation</td>
+        <td colspan="3">
+            <em>To be completed after lesson delivery:</em><br/>
+            This lesson of {{lessonTitle}} is well taught aligning to its contextual unit {{unitTitle}}, and students have understood it perfectly as expected.
+        </td>
+    </tr>
+          </table>
+  </body>
+          <</html>
