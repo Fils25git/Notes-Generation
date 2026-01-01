@@ -1,0 +1,184 @@
+<!-- proposals/plan6.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson Plan</title>
+</head>
+<body>
+
+<div class="text-center bold" style="font-size:12pt; margin-bottom:10px;">
+    LESSON PLAN
+</div>
+
+<div style="margin-bottom:5px; font-size:10pt;">
+    <span class="bold">School Name:</span> {{schoolName}}
+    <span style="margin-left:80px;" class="bold">Teacher's name:</span> {{teacherName}}
+</div>
+
+<table>
+    <tr>
+        <td class="bold">Term</td>
+        <td class="bold">Date</td>
+        <td class="bold">Subject</td>
+        <td class="bold">Class</td>
+        <td class="bold">Unit N°</td>
+        <td class="bold">Lesson N°</td>
+        <td class="bold">Duration</td>
+        <td class="bold">Class size</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} of {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}}</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td class="bold" style="width:33%;">Type of Special Educational Needs</td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Unit title</td>
+        <td>{{unitTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Key Unit Competence</td>
+        <td>
+            Learners will apply ${subject} concepts in practical exercises and real-life examples, mastering skills related to {{lessonTitle}}.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Title of the lesson</td>
+        <td>{{lessonTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Instructional Objective</td>
+        <td>
+            Using different ${subjects} materials and demonstrations, by the end of this lesson learners will be able to: <br>
+            Analyze problems and provide solutions in about ${lessontTitle},
+            reflect on learning and communicate findings effectively.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Plan for this Class</td>
+        <td>Inside the classroom – working in groups of 4–5 learners with ${subject} exercises</td>
+    </tr>
+    <tr>
+        <td class="bold">Learning Materials</td>
+        <td>
+            ${subject} textbook, charts, flashcards, markers, learners’ exercise books, demonstration materials
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">References</td>
+        <td>{{references}}</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td class="bold" style="width:15%;">Timing for each step</td>
+        <td colspan="2" class="bold text-center">
+            <u>Description of teaching and learning activities</u><br>
+            <em>
+                Teacher will use ${subject} examples and teaching aids to guide learners in exploring and understanding {{lessonTitle}}.
+            </em>
+        </td>
+        <td class="bold" style="width:30%;">
+            Generic competences and Cross cutting issues + short explanation
+        </td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold" style="width:27.5%;">Teacher activities</td>
+        <td class="bold" style="width:27.5%;">Learner activities</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Introduction<br>5 min</td>
+        <td>
+            <ul>
+                <li>Greets learners and checks attendance</li>
+                <li>Relates previous ${subject} lesson to {{lessonTitle}}</li>
+                <li>Explains lesson objectives</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Respond to greetings</li>
+                <li>Recall prior ${subject} knowledge</li>
+                <li>Observe and engage with teaching aids</li>
+            </ul>
+            Learners connect previous ${subject} knowledge to the new lesson.
+        </td>
+        <td>
+            <strong>Communication:</strong> Developed through group discussion<br>
+            <strong>Gender equality:</strong> Ensured through balanced participation
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Development of the lesson<br>25 min</td>
+        <td>
+            <ul>
+                <li>Provides ${subject} tasks for group activities</li>
+                <li>Monitors and supports learners during exercises</li>
+                <li>Clarifies doubts and reinforces key points</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Participate in ${subject} group activities</li>
+                <li>Complete exercises and present findings</li>
+                <li>Ask questions for clarification</li>
+            </ul>
+            Learners actively apply ${subject} concepts through group tasks.
+        </td>
+        <td>
+            <strong>Cooperation:</strong> Developed via collaborative tasks<br>
+            <strong>Critical thinking:</strong> Encouraged during problem-solving<br>
+            <strong>Gender equality:</strong> Maintained via mixed-gender grouping
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Conclusion<br>10 min</td>
+        <td>
+            <ul>
+                <li>Summarizes the main ${subject} concepts covered</li>
+                <li>Assigns practice tasks related to ${subject}</li>
+            </ul>
+            Teacher reinforces learning and prepares learners for follow-up exercises.
+        </td>
+        <td>
+            <ul>
+                <li>Answer reflection questions</li>
+                <li>Complete assigned exercises</li>
+            </ul>
+            Learners consolidate understanding of ${subject} concepts.
+        </td>
+        <td>
+            <strong>Self-confidence:</strong> Built through successful participation<br>
+            <strong>Communication:</strong> Strengthened via group discussion
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Teacher self-evaluation</td>
+        <td colspan="3">
+            <!-- To be filled by the teacher after lesson delivery -->
+        </td>
+    </tr>
+</table>
+
+</body>
+  </html>
