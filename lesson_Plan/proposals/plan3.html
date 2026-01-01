@@ -1,0 +1,181 @@
+<!-- proposals/plan8.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson Plan</title>
+</head>
+<body>
+
+<div class="text-center bold" style="font-size:12pt; margin-bottom:10px;">
+    LESSON PLAN
+</div>
+
+<div style="margin-bottom:5px; font-size:10pt;">
+    <span class="bold">School Name:</span> {{schoolName}}
+    <span style="margin-left:80px;" class="bold">Teacher's name:</span> {{teacherName}}
+</div>
+
+<table>
+    <tr>
+        <td class="bold">Term</td>
+        <td class="bold">Date</td>
+        <td class="bold">Subject</td>
+        <td class="bold">Class</td>
+        <td class="bold">Unit N°</td>
+        <td class="bold">Lesson N°</td>
+        <td class="bold">Duration</td>
+        <td class="bold">Class size</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} of {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}}</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td class="bold" style="width:33%;">Type of Special Educational Needs</td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Unit title</td>
+        <td>{{unitTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Key Unit Competence</td>
+        <td>
+            Apply ${subject} knowledge and skills in classroom activities while mastering {{lessonTitle}} concepts.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Title of the lesson</td>
+        <td>{{lessonTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Instructional Objective</td>
+        <td>
+            By the end of the lesson, learners will be able to demonstrate understanding and apply ${subject} concepts in {{lessonTitle}} effectively.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Plan for this Class</td>
+        <td>Inside the classroom – working in groups of 3–4 learners on ${subject} activities</td>
+    </tr>
+    <tr>
+        <td class="bold">Learning Materials</td>
+        <td>
+            ${subject} textbook, charts, flashcards, markers, learners’ exercise books, demonstration materials
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">References</td>
+        <td>{{references}}</td>
+    </tr>
+</table>
+
+<!-- Teaching & learning table -->
+<table>
+    <tr>
+        <td class="bold" style="width:15%;">Timing for each step</td>
+        <td colspan="2" class="bold text-center">
+            <u>Description of teaching and learning activities</u><br>
+            <em>Teacher will use ${subject} examples, teaching aids, and guided exercises to help learners discover {{lessonTitle}}.</em>
+        </td>
+        <td class="bold" style="width:30%;">
+            Generic competences and Cross cutting issues + short explanation
+        </td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold" style="width:27.5%;">Teacher activities</td>
+        <td class="bold" style="width:27.5%;">Learner activities</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Introduction<br>5 min</td>
+        <td>
+            <ul>
+                <li>Greets learners and checks attendance</li>
+                <li>Relates previous ${subject} lesson to {{lessonTitle}}</li>
+                <li>Introduces lesson objectives</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Respond to greetings</li>
+                <li>Recall previous ${subject} knowledge</li>
+                <li>Observe teaching aids</li>
+            </ul>
+            Learners interact with materials and discuss initial ideas on {{lessonTitle}}.
+        </td>
+        <td>
+            <strong>Communication:</strong> Developed through group discussion<br>
+            <strong>Gender equality:</strong> Equal participation of boys and girls
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Development of the lesson<br>25 min</td>
+        <td>
+            <ul>
+                <li>Organizes learners into groups for ${subject} activities</li>
+                <li>Explains step-by-step exercises</li>
+                <li>Provides guidance and clarification</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Work cooperatively in groups</li>
+                <li>Perform assigned ${subject} tasks</li>
+                <li>Present findings to class</li>
+            </ul>
+            Learners practice ${subject} concepts and apply knowledge in exercises.
+        </td>
+        <td>
+            <strong>Cooperation:</strong> Through group work<br>
+            <strong>Critical thinking:</strong> Through problem-solving tasks<br>
+            <strong>Gender equality:</strong> Mixed-gender groups
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Conclusion<br>10 min</td>
+        <td>
+            <ul>
+                <li>Asks oral questions about ${subject}</li>
+                <li>Gives follow-up exercises</li>
+            </ul>
+            Teacher consolidates learning and reinforces ${subject} skills.
+        </td>
+        <td>
+            <ul>
+                <li>Answer questions</li>
+                <li>Complete exercises</li>
+            </ul>
+            Learners reinforce understanding of ${subject} through participation.
+        </td>
+        <td>
+            <strong>Self-confidence:</strong> Built through active participation<br>
+            <strong>Communication:</strong> Developed during Q&A
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Teacher self-evaluation</td>
+        <td colspan="3">
+            <!-- To be filled by teacher after lesson -->
+        </td>
+    </tr>
+</table>
+
+</body>
+  </html>
