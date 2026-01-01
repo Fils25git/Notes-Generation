@@ -43,7 +43,7 @@ const outputArea = document.getElementById("outputArea");
 
 function showSystemMessage(text) {
     const bubble = document.createElement("div");
-    bubble.className = "bubble system";
+    bubble.className = "bubble";
     bubble.textContent = text;
     outputArea.appendChild(bubble);
     outputArea.scrollTop = outputArea.scrollHeight;
