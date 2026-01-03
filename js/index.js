@@ -8,17 +8,21 @@ const historySection = document.getElementById("historySection");
 const historyList = document.getElementById("historyList");
 const historySearch = document.getElementById("historySearch");
 const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+const outputArea = document.getElementById("outputArea");
 
 let historyData = [];
 let fuse;
+let pendingUserText = null;
 
+// -------------------------
 // Overlay for mobile menu
-let overlay = document.createElement("div");
+// -------------------------
+const overlay = document.createElement("div");
 overlay.className = "menu-overlay";
 document.body.appendChild(overlay);
 
 // -------------------------
-// Helper: require auth before action
+// Auth guard
 // -------------------------
 function requireAuth(actionName = "this action") {
     if (!currentUser) {
@@ -32,15 +36,13 @@ function requireAuth(actionName = "this action") {
 // History key per user
 // -------------------------
 function getHistoryKey() {
-    if (!currentUser || !currentUser.email) return null;
+    if (!currentUser?.email) return null;
     return `history_${currentUser.email}`;
 }
 
 // -------------------------
-// Bubble display
+// System bubble
 // -------------------------
-const outputArea = document.getElementById("outputArea");
-
 function showSystemMessage(text) {
     const bubble = document.createElement("div");
     bubble.className = "bubble";
@@ -48,90 +50,72 @@ function showSystemMessage(text) {
     outputArea.appendChild(bubble);
     outputArea.scrollTop = outputArea.scrollHeight;
 
-    saveHistory(text);
+    saveConversation(pendingUserText, text);
+    pendingUserText = null;
 }
 
 // -------------------------
-// Menu toggle
+// Save conversation (user + system)
 // -------------------------
-function openMenu() {
-    if (window.innerWidth <= 768) {
-        appMenu.classList.add("active");
-        overlay.classList.add("active");
-    } else {
-        appMenu.classList.toggle("hidden");
-    }
-}
-
-function closeMenu() {
-    if (window.innerWidth <= 768) {
-        appMenu.classList.remove("active");
-        overlay.classList.remove("active");
-    } else {
-        appMenu.classList.add("hidden");
-    }
-}
-
-menuToggle.addEventListener("click", openMenu);
-overlay.addEventListener("click", closeMenu);
-
-window.addEventListener("resize", () => {
-    if (window.innerWidth > 768) {
-        appMenu.classList.remove("active");
-        overlay.classList.remove("active");
-    }
-});
-
-// -------------------------
-// Fuse.js for history search
-// -------------------------
-function initFuse() {
-    fuse = new Fuse(historyData, { keys: ['text'], threshold: 0.4 });
-}
-
-function renderHistory(data) {
-    historyList.innerHTML = "";
-    data.forEach(item => {
-        const li = document.createElement("li");
-        li.innerHTML = `<i class="fas fa-clock"></i> ${item.text}`;
-        historyList.appendChild(li);
-    });
-}
-
-// -------------------------
-// Save / Load History (per user)
-// -------------------------
-function saveHistory(text) {
+function saveConversation(userText, systemText) {
     const key = getHistoryKey();
-    if (!key) return; // not signed in → do nothing
+    if (!key || !userText || !systemText) return;
 
     let history = JSON.parse(localStorage.getItem(key)) || [];
-    history.unshift(text);
 
-    // Keep latest 7 only
+    history.unshift({
+        user: userText,
+        system: systemText
+    });
+
     history = history.slice(0, 7);
-
     localStorage.setItem(key, JSON.stringify(history));
+
+    loadHistory();
 }
 
+// -------------------------
+// Load history
+// -------------------------
 function loadHistory() {
     const key = getHistoryKey();
     if (!key) return;
 
-    const stored = JSON.parse(localStorage.getItem(key)) || [];
-    historyData = stored.map(text => ({ text }));
+    historyData = JSON.parse(localStorage.getItem(key)) || [];
     renderHistory(historyData);
     initFuse();
 }
 
 // -------------------------
-// Observe user bubbles
+// Render history list
+// -------------------------
+function renderHistory(data) {
+    historyList.innerHTML = "";
+    data.forEach(item => {
+        const li = document.createElement("li");
+        li.innerHTML = `<i class="fas fa-clock"></i> ${item.user}`;
+        historyList.appendChild(li);
+    });
+}
+
+// -------------------------
+// Fuse.js
+// -------------------------
+function initFuse() {
+    fuse = new Fuse(historyData, {
+        keys: ["user"],
+        threshold: 0.4
+    });
+}
+
+// -------------------------
+// Observe bubbles
 // -------------------------
 const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
         mutation.addedNodes.forEach(node => {
-            if (node.classList && node.classList.contains("bubble") && node.classList.contains("user")) {
-                saveHistory(node.innerText.trim());
+            if (node.classList?.contains("bubble") && node.classList.contains("user")) {
+                pendingUserText = node.innerText.trim();
             }
         });
     });
@@ -142,13 +126,9 @@ observer.observe(outputArea, { childList: true });
 // History search
 // -------------------------
 historySearch.addEventListener("input", () => {
-    const query = historySearch.value.trim();
-    if (!query) {
-        renderHistory(historyData);
-        return;
-    }
-    const results = fuse.search(query).map(r => r.item);
-    renderHistory(results);
+    const q = historySearch.value.trim();
+    if (!q) return renderHistory(historyData);
+    renderHistory(fuse.search(q).map(r => r.item));
 });
 
 // -------------------------
@@ -156,52 +136,70 @@ historySearch.addEventListener("input", () => {
 // -------------------------
 clearHistoryBtn.onclick = () => {
     if (!currentUser) return;
+    if (!confirm("Clear your history?")) return;
 
-    if (confirm("Are you sure you want to clear your history?")) {
-        const key = getHistoryKey();
-        localStorage.removeItem(key);
-        historyData = [];
-        renderHistory(historyData);
-        initFuse();
-    }
+    localStorage.removeItem(getHistoryKey());
+    historyData = [];
+    renderHistory(historyData);
 };
 
 // -------------------------
-// Tap history to re-run
+// Click history → restore full conversation
 // -------------------------
-historyList.addEventListener("click", (e) => {
+historyList.addEventListener("click", e => {
     if (!requireAuth("re-run history")) return;
 
     const li = e.target.closest("li");
-    if (li) {
-        const text = li.textContent.trim();
-        const bubble = document.createElement("div");
-        bubble.className = "bubble user";
-        bubble.textContent = text;
-        outputArea.appendChild(bubble);
-        // Optional: trigger main processing function
-        // processUserInput(text);
-    }
+    if (!li) return;
+
+    const index = [...historyList.children].indexOf(li);
+    const item = historyData[index];
+    if (!item) return;
+
+    const userBubble = document.createElement("div");
+    userBubble.className = "bubble user";
+    userBubble.textContent = item.user;
+
+    const systemBubble = document.createElement("div");
+    systemBubble.className = "bubble";
+    systemBubble.textContent = item.system;
+
+    outputArea.append(userBubble, systemBubble);
+    outputArea.scrollTop = outputArea.scrollHeight;
 });
 
 // -------------------------
-// Menu buttons
+// Menu toggle
+// -------------------------
+function openMenu() {
+    if (window.innerWidth <= 768) {
+        appMenu.classList.add("active");
+        overlay.classList.add("active");
+    } else appMenu.classList.toggle("hidden");
+}
+
+function closeMenu() {
+    appMenu.classList.remove("active", "hidden");
+    overlay.classList.remove("active");
+}
+
+menuToggle.onclick = openMenu;
+overlay.onclick = closeMenu;
+
+// -------------------------
+// Menu buttons → REDIRECT
 // -------------------------
 document.getElementById("lessonPlanBtn").onclick = () => {
     if (!requireAuth("generate a lesson plan")) return;
-
-    closeMenu();
-    setTimeout(() => {
-        window.location.href = "lesson_plan/index.html";
-    }, 200);
+    window.location.href = "lesson_plan/index.html";
 };
 
 document.getElementById("termsBtn").onclick = () => {
-    showSystemMessage("Terms & Privacy clicked.");
+    window.location.href = "terms.html";
 };
 
 document.getElementById("privacyBtn").onclick = () => {
-    showSystemMessage("Privacy Policy clicked.");
+    window.location.href = "privacy.html";
 };
 
 // -------------------------
@@ -219,7 +217,6 @@ function updateAuthUI(user) {
         authText.textContent = "Sign Out";
         accountIcon.className = "fas fa-wallet";
         accountText.textContent = "My Balance / Billing";
-
         authBtn.onclick = () => netlifyIdentity.logout();
         loadHistory();
     } else {
@@ -228,14 +225,13 @@ function updateAuthUI(user) {
         authText.textContent = "Sign In";
         accountIcon.className = "fas fa-user-plus";
         accountText.textContent = "Create Account";
-
         authBtn.onclick = () => netlifyIdentity.open("login");
         accountBtn.onclick = () => netlifyIdentity.open("signup");
     }
 }
 
 // -------------------------
-// Netlify Identity hooks
+// Netlify Identity
 // -------------------------
 netlifyIdentity.on("init", user => {
     currentUser = user;
