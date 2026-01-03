@@ -189,7 +189,11 @@ historyList.addEventListener("click", (e) => {
 // -------------------------
 document.getElementById("lessonPlanBtn").onclick = () => {
     if (!requireAuth("generate a lesson plan")) return;
-    showSystemMessage("Generate Lesson Plan clicked.");
+
+    closeMenu();
+    setTimeout(() => {
+        window.location.href = "lesson_plan/index.html";
+    }, 200);
 };
 
 document.getElementById("termsBtn").onclick = () => {
