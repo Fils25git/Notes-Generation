@@ -1,8 +1,9 @@
 import { Client } from 'pg';
 
-// Connect to your Neon/Supabase database using environment variable
+// Connect to Neon/Supabase database
 const client = new Client({
   connectionString: process.env.NEON_DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // required for Neon
 });
 
 export async function handler(event) {
@@ -11,7 +12,8 @@ export async function handler(event) {
   }
 
   try {
-    const { phone, amount, reference, status } = JSON.parse(event.body);
+    // Parse body
+    const { phone, amount, reference, status, email } = JSON.parse(event.body);
 
     if (!phone || !amount || !reference || !status) {
       return { statusCode: 400, body: 'Missing required fields' };
@@ -23,16 +25,18 @@ export async function handler(event) {
 
     await client.connect();
 
-    // Insert user if not exists, update balance
+    // Insert or update user
     const userRes = await client.query(
-      `INSERT INTO users(phone, balance, last_payment_reference, last_payment_time)
-       VALUES($1, $2, $3, NOW())
+      `INSERT INTO users(phone, email, balance, last_payment_reference, last_payment_time)
+       VALUES($1, $2, $3, $4, NOW())
        ON CONFLICT (phone)
-       DO UPDATE SET balance = users.balance + EXCLUDED.balance,
-                     last_payment_reference = EXCLUDED.last_payment_reference,
-                     last_payment_time = NOW()
+       DO UPDATE SET 
+         balance = users.balance + EXCLUDED.balance,
+         last_payment_reference = EXCLUDED.last_payment_reference,
+         last_payment_time = NOW(),
+         email = COALESCE(EXCLUDED.email, users.email)  -- update email if provided
        RETURNING id, balance`,
-      [phone, amount, reference]
+      [phone, email || null, amount, reference]
     );
 
     const userId = userRes.rows[0].id;
@@ -54,6 +58,7 @@ export async function handler(event) {
       }),
     };
   } catch (error) {
+    if (client) await client.end();
     return { statusCode: 500, body: 'Server error: ' + error.message };
   }
-              }
+      }
