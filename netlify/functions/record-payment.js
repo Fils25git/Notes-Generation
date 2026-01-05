@@ -2,7 +2,7 @@ import { Client } from 'pg';
 
 // Connect to your Neon/Supabase database using environment variable
 const client = new Client({
-  connectionString: process.env.psql 'postgresql://neondb_owner:npg_BxK1iZUNn6Sj@ep-small-surf-ab0bou02-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require',
+  connectionString: process.env.NEON_DATABASE_URL,
 });
 
 export async function handler(event) {
@@ -56,4 +56,4 @@ export async function handler(event) {
   } catch (error) {
     return { statusCode: 500, body: 'Server error: ' + error.message };
   }
-}
+              }
