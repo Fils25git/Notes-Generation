@@ -218,6 +218,11 @@ function updateAuthUI(user) {
         accountIcon.className = "fas fa-wallet";
         accountText.textContent = "My Balance / Billing";
         authBtn.onclick = () => netlifyIdentity.logout();
+        // Link “My Balance / Billing” button to balance.html
+accountBtn.onclick = () => {
+    if (!currentUser) return netlifyIdentity.open("login"); // require login first
+    window.location.href = "balance.html";
+};
         loadHistory();
     } else {
         historySection.classList.add("hidden");
