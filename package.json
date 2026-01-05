@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Fila Assistant Netlify Functions",
   "dependencies": {
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "pg": "^8.11.5"
   }
 }
