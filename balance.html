@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fila Assistant Dashboard</title>
+
+<style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #6dd5fa, #2980b9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+  }
+  .dashboard {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 450px;
+  }
+  h2 {
+    margin-bottom: 20px;
+  }
+  #balance {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 15px;
+  }
+  button {
+    padding: 12px 20px;
+    margin-top: 25px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(to right, #007bff, #00c6ff);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+  <h2>Welcome to your Dashboard</h2>
+  <p id="user-info">Loading user info...</p>
+  <p id="balance">Loading balance...</p>
+  <button id="logout-btn">Logout</button>
+</div>
+
+<!-- Netlify Identity -->
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+<script>
+  netlifyIdentity.init();
+
+  // Logout button
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    netlifyIdentity.logout();
+    window.location.href = "login.html"; // redirect to login page
+  });
+
+  // Function to fetch balance from get-balance.js
+  async function fetchBalance(email) {
+    try {
+      const res = await fetch(`/.netlify/functions/get-balance?email=${email}`);
+      if (!res.ok) throw new Error("Failed to fetch balance");
+      const data = await res.json();
+
+      document.getElementById('user-info').innerText = `Hello ${data.email}, phone: ${data.phone}`;
+      document.getElementById('balance').innerText = `Balance: ${data.balance} RWF`;
+    } catch (err) {
+      document.getElementById('balance').innerText = 'Error loading balance';
+      console.error(err);
+    }
+  }
+
+  // Check if user is already logged in
+  const currentUser = netlifyIdentity.currentUser();
+  if (currentUser) {
+    fetchBalance(currentUser.email);
+  }
+
+  // Listen for login events (if user logs in without refreshing)
+  netlifyIdentity.on('login', user => {
+    fetchBalance(user.email);
+  });
+</script>
+
+</body>
+    </html>
