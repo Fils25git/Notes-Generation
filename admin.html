@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Payments</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+  h2 { text-align:center; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #fff; border-radius: 12px; overflow: hidden; }
+  th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
+  th { background: #007bff; color: #fff; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  button { padding: 6px 12px; margin: 2px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+  .approve { background: #28a745; color: #fff; }
+  .reject { background: #dc3545; color: #fff; }
+  #message { font-weight: bold; margin-bottom: 15px; color: green; }
+</style>
+</head>
+<body>
+
+<h2>Admin Dashboard - Pending Payments</h2>
+<p id="message"></p>
+<table id="paymentsTable">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>User Phone</th>
+      <th>Amount (RWF)</th>
+      <th>Status</th>
+      <th>Time</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Payments will be loaded here -->
+  </tbody>
+</table>
+
+<script>
+// --- Fetch pending payments ---
+async function loadPayments() {
+    const tbody = document.querySelector('#paymentsTable tbody');
+    tbody.innerHTML = '';
+    try {
+        const res = await fetch('/.netlify/functions/get-payments?status=pending');
+        const payments = await res.json();
+
+        payments.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${p.id}</td>
+                <td>${p.phone}</td>
+                <td>${p.amount}</td>
+                <td>${p.status}</td>
+                <td>${new Date(p.created_at).toLocaleString()}</td>
+                <td>
+                    <button class="approve" data-id="${p.id}" data-phone="${p.phone}" data-amount="${p.amount}">Approve</button>
+                    <button class="reject" data-id="${p.id}">Reject</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        attachButtons();
+    } catch(err) {
+        document.getElementById('message').innerText = 'Error loading payments: ' + err.message;
+    }
+}
+
+// --- Approve / Reject buttons ---
+function attachButtons() {
+    document.querySelectorAll('.approve').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            const phone = btn.dataset.phone;
+            const amount = parseInt(btn.dataset.amount);
+
+            try {
+                const res = await fetch('/.netlify/functions/approve-payment', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id, phone, amount})
+                });
+                const text = await res.text();
+                document.getElementById('message').innerText = text;
+                loadPayments(); // refresh table
+            } catch(err) {
+                document.getElementById('message').innerText = 'Error: ' + err.message;
+            }
+        });
+    });
+
+    document.querySelectorAll('.reject').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            try {
+                const res = await fetch('/.netlify/functions/reject-payment', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id})
+                });
+                const text = await res.text();
+                document.getElementById('message').innerText = text;
+                loadPayments(); // refresh table
+            } catch(err) {
+                document.getElementById('message').innerText = 'Error: ' + err.message;
+            }
+        });
+    });
+}
+
+// --- Initial load ---
+loadPayments();
+</script>
+
+</body>
+  </html>
