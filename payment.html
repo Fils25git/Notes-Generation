@@ -5,74 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Buy Lesson Plans - Fila Assistant</title>
 <style>
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #6dd5fa, #2980b9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    color: #333;
-  }
-  .container {
-    background: #fff;
-    padding: 30px 40px;
-    border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    text-align: center;
-    width: 100%;
-    max-width: 450px;
-  }
-  h2 {
-    margin-bottom: 20px;
-  }
-  .packages button {
-    padding: 12px 20px;
-    margin: 8px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(to right, #007bff, #00c6ff);
-    color: #fff;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  input[type="number"] {
-    width: 80%;
-    padding: 10px;
-    margin: 12px 0;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-  }
-  #ussd a {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 10px 15px;
-    background: #28a745;
-    color: #fff;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  #result {
-    margin-top: 15px;
-    font-weight: bold;
-  }
-  #message {
-    margin-top: 12px;
-    color: red;
-    font-weight: bold;
-  }
-  #backBtn {
-    margin-top: 20px;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 12px;
-    background: #007bff;
-    color: #fff;
-    font-size: 14px;
-    cursor: pointer;
-  }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #6dd5fa, #2980b9); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+  .container { background: #fff; padding: 30px 40px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); text-align: center; width: 100%; max-width: 450px; }
+  h2 { margin-bottom: 20px; }
+  .packages button { padding: 12px 20px; margin: 8px; border: none; border-radius: 12px; background: linear-gradient(to right, #007bff, #00c6ff); color: #fff; font-size: 16px; cursor: pointer; }
+  input[type="number"] { width: 80%; padding: 10px; margin: 12px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+  #ussd a { display: inline-block; margin-top: 10px; padding: 10px 15px; background: #28a745; color: #fff; border-radius: 12px; text-decoration: none; font-weight: bold; }
+  #result { margin-top: 15px; font-weight: bold; }
+  #message { margin-top: 12px; color: red; font-weight: bold; }
+  #backBtn { margin-top: 20px; padding: 10px 15px; border: none; border-radius: 12px; background: #007bff; color: #fff; font-size: 14px; cursor: pointer; }
+  #confirmPayment { margin-top: 12px; padding: 10px 15px; border: none; border-radius: 12px; background: #ffc107; color: #333; font-size: 14px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -94,6 +36,7 @@
   <p id="ussd"></p>
   <p id="message"></p>
 
+  <button id="confirmPayment" disabled>I have paid</button>
   <button id="backBtn">⬅ Back</button>
 </div>
 
@@ -105,20 +48,28 @@ const resultEl = document.getElementById('result');
 const ussdEl = document.getElementById('ussd');
 const messageEl = document.getElementById('message');
 const backBtn = document.getElementById('backBtn');
+const confirmPaymentBtn = document.getElementById('confirmPayment');
 
 // USSD base
 const USSD_BASE = "*182*8*1*290400*"; 
 
+// Example: fixed phone per user (fetch from DB in real scenario)
+const userPhone = "0788123456"; 
+
+let selectedAmount = null;
+let pageLoadTime = Date.now();
+
+// --- Calculate lessons ---
 function calculateLessons(amount) {
     let lessons;
     if(amount >= 1000){
-        lessons = Math.floor(amount / 10); // 1000 ÷ 100 = 10 RWF per lesson
+        lessons = Math.floor(amount / 10); 
     } else if(amount >= 500){
-        lessons = Math.floor(amount / (500/45)); // 500 ÷ 45 ≈ 11.11 RWF per lesson
+        lessons = Math.floor(amount / (500/45)); 
     } else if(amount >= 250){
-        lessons = Math.floor(amount / (250/20)); // 250 ÷ 20 = 12.5 RWF per lesson
+        lessons = Math.floor(amount / (250/20)); 
     } else if(amount >= 20){
-        lessons = Math.floor(amount / 20); // manual small amounts
+        lessons = Math.floor(amount / 20); 
     } else {
         return null;
     }
@@ -129,44 +80,84 @@ function generateUSSD(amount) {
     return USSD_BASE + amount + "#";
 }
 
-// Handle preset packages
+// --- Handle package buttons ---
 packages.forEach(btn => {
     btn.addEventListener('click', () => {
-        const amount = parseInt(btn.dataset.amount);
-        const lessons = calculateLessons(amount);
+        selectedAmount = parseInt(btn.dataset.amount);
+        const lessons = calculateLessons(selectedAmount);
 
         if(!lessons){
             messageEl.innerText = "Amount too low. Minimum is 20 RWF.";
             resultEl.innerText = "";
             ussdEl.innerHTML = "";
+            confirmPaymentBtn.disabled = true;
             return;
         }
+
         messageEl.innerText = "";
         resultEl.innerText = `You will get ${lessons} lesson plans.`;
-        ussdEl.innerHTML = `<a href="tel:${generateUSSD(amount)}">Tap here to pay: ${generateUSSD(amount)}</a>`;
+        ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
+
+        // Enable confirm button after 30 sec delay
+        confirmPaymentBtn.disabled = true;
+        setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
     });
 });
 
-// Handle custom amount
+// --- Handle custom amount ---
 customPayBtn.addEventListener('click', () => {
-    const amount = parseInt(customAmountInput.value);
-    const lessons = calculateLessons(amount);
+    selectedAmount = parseInt(customAmountInput.value);
+    const lessons = calculateLessons(selectedAmount);
 
     if(!lessons){
         messageEl.innerText = "Amount too low. Minimum is 20 RWF.";
         resultEl.innerText = "";
         ussdEl.innerHTML = "";
+        confirmPaymentBtn.disabled = true;
         return;
     }
+
     messageEl.innerText = "";
     resultEl.innerText = `You will get ${lessons} lesson plans.`;
-    ussdEl.innerHTML = `<a href="tel:${generateUSSD(amount)}">Tap here to pay: ${generateUSSD(amount)}</a>`;
+    ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
+
+    // Enable confirm button after 30 sec delay
+    confirmPaymentBtn.disabled = true;
+    setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
 });
 
-// Back button
-backBtn.addEventListener('click', () => {
-    window.location.href = "index.html";
+// --- Confirm payment (pending admin approval) ---
+confirmPaymentBtn.addEventListener('click', async () => {
+    const now = Date.now();
+    if(now - pageLoadTime < 20000){ 
+        messageEl.innerText = "Wait a bit before confirming payment";
+        return;
+    }
+    if(!selectedAmount){
+        messageEl.innerText = "Select a package or enter an amount first";
+        return;
+    }
+
+    try {
+        const res = await fetch('/.netlify/functions/record-payment', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                phone: userPhone,
+                amount: selectedAmount,
+                status: "pending"
+            })
+        });
+        const text = await res.text();
+        messageEl.innerText = text;
+        confirmPaymentBtn.disabled = true;
+    } catch(err){
+        messageEl.innerText = "Error: " + err.message;
+    }
 });
+
+// --- Back button ---
+backBtn.addEventListener('click', () => window.location.href = "index.html");
 </script>
 
 </body>
