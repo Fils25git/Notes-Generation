@@ -5,203 +5,271 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fila Assistant - CBC Lesson Plan Generator</title>
     <link rel="stylesheet" href="plans.css">
+
+    <style>
+      .floating-message {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #e74c3c;
+        color: #fff;
+        padding: 18px 22px;
+        border-radius: 14px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 9999;
+        animation: slideIn 0.6s ease;
+        max-width: 300px;
+        line-height: 1.6;
+      }
+
+      @keyframes slideIn {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .floating-message a {
+        color: #fff;
+        text-decoration: underline;
+        font-weight: bold;
+      }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <img src="../logo.png">
-            <h2>Fila Assistant </h2>
-            
-        </div>
 
-        <!-- Form -->
-        <div class="form-container">
-            <p><b>Fill in the required fields below To Fetch Lesson Plan</b></p><br>
-            <form id="lessonForm">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="required">School Name</label>
-                        <input type="text" id="schoolName" placeholder="e.g., G.S. Nyakaliro , TTC BICUMBI" required>
-                    </div>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <img src="../logo.png">
+        <h2>Fila Assistant</h2>
+    </div>
 
-                    <div class="form-group">
-                        <label class="required">Teacher's Name</label>
-                        <input type="text" id="teacherName" placeholder="e.g., IRATURINZE Fils Lambert" required>
-                    </div>
+    <!-- Form -->
+    <div class="form-container">
+        <p><b>Fill in the required fields below To Fetch Lesson Plan</b></p><br>
+        <form id="lessonForm">
+            <div class="form-grid">
 
-                    <div class="form-group">
-                        <label class="required">Term</label>
-                        <select id="term" required>
-                            <option value="">Select Term</option>
-                            <option value="I">Term I</option>
-                            <option value="II">Term II</option>
-                            <option value="III">Term III</option>
-                        </select>
-                    </div>
+                <!-- ✅ Language selection -->
+                <div class="form-group">
+                    <label class="required">Language</label>
+                    <select id="language" required>
+                        <option value="">Select Language</option>
+                        <option value="english">English</option>
+                        <option value="kinyarwanda">Kinyarwanda</option>
+                        <option value="kiswahili">Kiswahili</option>
+                        <option value="french">French</option>
+                    </select>
+                </div>
 
-                    <div class="form-group">
-                        <label class="required">Date</label>
-                        <input type="date" id="date" required>
-                    </div>
+                <div class="form-group">
+                    <label class="required">School Name</label>
+                    <input type="text" id="schoolName" required>
+                </div>
 
-                    <div class="form-group">
-                        <label class="required">Subject</label>
-                        <input type="text" id="subject" placeholder="e.g., Mathematics, ENGLISH" required>
-                    </div>
+                <div class="form-group">
+                    <label class="required">Teacher's Name</label>
+                    <input type="text" id="teacherName" required>
+                </div>
 
-                    <div class="form-group">
-                        <label class="required">Class</label>
-                        <input type="text" id="class" placeholder="e.g., P4, S1, S2, L3, L4, Y2 LE" required>
-                    </div>
+                <div class="form-group">
+                    <label class="required">Term</label>
+                    <select id="term" required>
+                        <option value="">Select Term</option>
+                        <option value="I">Term I</option>
+                        <option value="II">Term II</option>
+                        <option value="III">Term III</option>
+                    </select>
+                </div>
 
-                    <div class="form-group">
-                        <label class="required">Unit No</label>
-                        <input type="number" id="unitNo" placeholder="e.g., 7" required>
-                    </div>
+                <div class="form-group">
+                    <label class="required">Date</label>
+                    <input type="date" id="date" required>
+                </div>
 
-                    <div class="form-group">
-                        <label class="required">Lesson No / Total</label>
-                        <div class="double-input">
-                            <input type="number" id="lessonNo" placeholder="2" required>
-                            <input type="number" id="totalLessons" placeholder="10" required>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label class="required">Subject</label>
+                    <input type="text" id="subject" required>
+                </div>
 
-                    <div class="form-group">
-                        <label class="required">Duration (minutes)</label>
-                        <input type="number" id="duration" placeholder="e.g., 40" required>
-                    </div>
+                <div class="form-group">
+                    <label class="required">Class</label>
+                    <input type="text" id="class" required>
+                </div>
 
-                    <div class="form-group">
-                        <label class="required">Class Size</label>
-                        <input type="number" id="classSize" placeholder="e.g., 35" required>
-                    </div>
+                <div class="form-group">
+                    <label class="required">Unit No</label>
+                    <input type="number" id="unitNo" required>
+                </div>
 
-                    <div class="form-group full-width">
-                        <label class="required">Unit Title</label>
-                        <input type="text" id="unitTitle" placeholder="e.g., LEISURE AND SPORTS" required>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label class="required">Lesson Title</label>
-                        <input type="text" id="lessonTitle" placeholder="e.g., DESCRIBING WHAT YOU LIKE" required>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label class="optional">Special Educational Needs (Optional)</label>
-                        <input type="text" id="specialNeeds" placeholder="Leave blank if none">
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label class="optional">References (Optional)</label>
-                        <input type="text" id="references" placeholder="e.g., Mathematics book for primary 4">
+                <div class="form-group">
+                    <label class="required">Lesson No / Total</label>
+                    <div class="double-input">
+                        <input type="number" id="lessonNo" required>
+                        <input type="number" id="totalLessons" required>
                     </div>
                 </div>
 
-                <button type="submit" class="generate-btn">Fetch Lesson Plan</button>
-                <div id="errorMessage" class="error-message"></div>
-            </form>
-        </div>
+                <div class="form-group">
+                    <label class="required">Duration (minutes)</label>
+                    <input type="number" id="duration" required>
+                </div>
 
-        <!-- Result Container -->
-        <div id="resultContainer" class="result-container">
-            <div class="download-buttons">
-                <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
-                <button class="download-btn btn-pdf" onclick="window.print()">📑 Print / Save as PDF</button>
+                <div class="form-group">
+                    <label class="required">Class Size</label>
+                    <input type="number" id="classSize" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="required">Unit Title</label>
+                    <input type="text" id="unitTitle" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="required">Lesson Title</label>
+                    <input type="text" id="lessonTitle" required>
+                </div>
+
+                <!-- ✅ Teaching materials optional -->
+                <div class="form-group full-width">
+                    <label class="optional">Teaching Materials (Optional)</label>
+                    <input type="text" id="teachingMaterials" placeholder="E.g., Textbook, Flashcards, Worksheets">
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="optional">Special Educational Needs</label>
+                    <input type="text" id="specialNeeds">
+                </div>
+
+                <div class="form-group full-width">
+                    <label class="optional">References</label>
+                    <input type="text" id="references">
+                </div>
+
             </div>
 
-            <div id="lessonPlanContent" class="lesson-plan"></div>
-        </div>
+            <button type="submit" class="generate-btn">Fetch Lesson Plan</button>
+            <div id="errorMessage" class="error-message"></div>
+        </form>
     </div>
 
-    <!-- External JS -->
-    <script>
-// Array of lesson plan files in proposals folder
-const plansArray = [
-    "proposals/plan1.html",
-    "proposals/plan2.html",
-    "proposals/plan3.html",
-    "proposals/plan4.html",
-    "proposals/plan5.html"
-];
+    <!-- Result -->
+    <div id="resultContainer" class="result-container">
+        <div class="download-buttons">
+            <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
+            <button class="download-btn btn-pdf" onclick="window.print()">📑 Print / Save as PDF</button>
+        </div>
+        <div id="lessonPlanContent" class="lesson-plan"></div>
+    </div>
+</div>
 
-// Get random plan file
-function getRandomPlanFile() {
-    const index = Math.floor(Math.random() * plansArray.length);
-    return plansArray[index];
+<div id="floatingMessage" class="floating-message"></div>
+
+<!-- Netlify Identity -->
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+<script>
+netlifyIdentity.init();
+
+const user = netlifyIdentity.currentUser();
+if (!user) {
+    window.location.href = "../login.html";
 }
 
-document.getElementById('lessonForm').addEventListener('submit', function(e) {
+// Floating message
+function showFloatingMessage(msg) {
+    const box = document.getElementById("floatingMessage");
+    box.innerHTML = msg;
+    box.style.display = "block";
+    setTimeout(() => box.style.display = "none", 15000);
+}
+
+// Plan folders per language
+const planFolders = {
+    english: "proposals",
+    kinyarwanda: "kinyarwanda_plans",
+    kiswahili: "kiswahili_plans",
+    french: "french_plans"
+};
+
+function getRandomPlanFile(language) {
+    const folder = planFolders[language] || "proposals";
+    const index = Math.floor(Math.random() * 5) + 1; // plan1.html to plan5.html
+    return `${folder}/plan${index}.html`;
+}
+
+document.getElementById('lessonForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+
+    // 1️⃣ Check balance
+    const res = await fetch(`/.netlify/functions/get-balance?email=${user.email}`);
+    const data = await res.json();
+
+    if (data.balance <= 0) {
+        showFloatingMessage(`
+          ❌ No lesson plans available.<br><br>
+          👉 <a href="../payment.html">Buy lesson plans</a><br>
+          👉 <a href="../balance.html">View balance</a>
+        `);
+        return;
+    }
+
+    // 2️⃣ Deduct 1 lesson plan
+    await fetch('/.netlify/functions/use-lesson-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email })
+    });
+
     generateLessonPlan();
 });
 
 function generateLessonPlan() {
-    // Collect form values
+    const language = document.getElementById('language').value || 'english';
     const data = {
-        schoolName: document.getElementById('schoolName').value,
-        teacherName: document.getElementById('teacherName').value,
-        term: document.getElementById('term').value,
-        date: document.getElementById('date').value,
-        subject: document.getElementById('subject').value,
+        schoolName: schoolName.value,
+        teacherName: teacherName.value,
+        term: term.value,
+        date: date.value,
+        subject: subject.value,
         class: document.getElementById('class').value,
-        unitNo: document.getElementById('unitNo').value,
-        lessonNo: document.getElementById('lessonNo').value,
-        totalLessons: document.getElementById('totalLessons').value,
-        duration: document.getElementById('duration').value,
-        classSize: document.getElementById('classSize').value,
-        unitTitle: document.getElementById('unitTitle').value,
-        lessonTitle: document.getElementById('lessonTitle').value,
-        specialNeeds: document.getElementById('specialNeeds').value || "No specific special educational needs identified in this class",
-        references: document.getElementById('references').value || `${document.getElementById('subject').value} Teacher guide and Learner's  book for ${document.getElementById('class').value}, Rwanda Education Board curriculum`
+        unitNo: unitNo.value,
+        lessonNo: lessonNo.value,
+        totalLessons: totalLessons.value,
+        duration: duration.value,
+        classSize: classSize.value,
+        unitTitle: unitTitle.value,
+        lessonTitle: lessonTitle.value,
+        teachingMaterials: teachingMaterials.value || "No specific teaching materials provided",
+        specialNeeds: specialNeeds.value || "No special needs identified",
+        references: references.value || "REB Curriculum Guide"
     };
 
-    // Fetch a random plan HTML
-    const planFile = getRandomPlanFile();
-
-    fetch(planFile)
-    .then(response => {
-        if (!response.ok) throw new Error("Sorry, Try again.");
-        return response.text();
-    })
-    .then(planTemplate => {
-        // Replace placeholders {{key}} with form data
-        let lessonPlanHTML = planTemplate;
-        for (const key in data) {
-            const regex = new RegExp(`{{${key}}}`, "g");
-            lessonPlanHTML = lessonPlanHTML.replace(regex, data[key]);
+    fetch(getRandomPlanFile(language))
+    .then(r => r.text())
+    .then(tpl => {
+        for (const k in data) {
+            tpl = tpl.replace(new RegExp(`{{${k}}}`, "g"), data[k]);
         }
-
-        // Show lesson plan
-        const container = document.getElementById('lessonPlanContent');
-        container.innerHTML = lessonPlanHTML;
-        document.getElementById('resultContainer').classList.add('show');
-        document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+        lessonPlanContent.innerHTML = tpl;
+        resultContainer.classList.add('show');
+        resultContainer.scrollIntoView({ behavior: 'smooth' });
     })
-    .catch(err => {
-        document.getElementById('errorMessage').textContent = "❌ Could not fetch lesson plan. Please check your internet connection and try again.";
-        console.error(err);
+    .catch(() => {
+        errorMessage.textContent = "❌ Failed to fetch lesson plan.";
     });
 }
 
-// Copy to Word function
 function copyToWord() {
-    const content = document.getElementById('lessonPlanContent');
     const range = document.createRange();
-    range.selectNode(content);
+    range.selectNode(lessonPlanContent);
     window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
-
-    try {
-        document.execCommand('copy');
-        alert('✅ Lesson plan copied!\n\nNow:\n1. Open Microsoft Word\n2. Press Ctrl+V (or Cmd+V on Mac) to paste\n3. Save your file');
-    } catch (err) {
-        alert('Please select the content manually and press Ctrl+C to copy');
-    }
-
+    document.execCommand('copy');
     window.getSelection().removeAllRanges();
+    alert("Lesson plan copied to clipboard.");
 }
-    </script>
+</script>
+
 </body>
-  </html>
+                        </html>
