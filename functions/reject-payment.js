@@ -1,9 +1,13 @@
 import { Client } from "pg";
 
-export async function handler(event, context) {
-  if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
+export async function handler(event) {
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: "Method not allowed" };
+  }
 
-  const { payment_id, reason } = JSON.parse(event.body);
+  const body = JSON.parse(event.body || "{}");
+  const payment_id = body.payment_id || body.id; // ✅ FIX
+  const reason = body.reason || null;
 
   if (!payment_id) {
     return { statusCode: 400, body: "Missing payment ID" };
@@ -17,7 +21,6 @@ export async function handler(event, context) {
   try {
     await client.connect();
 
-    // Check if payment exists and is pending
     const paymentRes = await client.query(
       "SELECT * FROM payments WHERE id=$1 AND status='pending'",
       [payment_id]
@@ -27,7 +30,6 @@ export async function handler(event, context) {
       return { statusCode: 404, body: "Pending payment not found" };
     }
 
-    // Mark payment as rejected
     await client.query(
       "UPDATE payments SET status='rejected', approved_at=NOW() WHERE id=$1",
       [payment_id]
@@ -37,6 +39,7 @@ export async function handler(event, context) {
       statusCode: 200,
       body: `Payment rejected${reason ? ": " + reason : ""}`
     };
+
   } catch (err) {
     console.error(err);
     return { statusCode: 500, body: "Server error" };
