@@ -15,6 +15,41 @@
   #message { margin-top: 12px; color: red; font-weight: bold; }
   #backBtn { margin-top: 20px; padding: 10px 15px; border: none; border-radius: 12px; background: #007bff; color: #fff; font-size: 14px; cursor: pointer; }
   #confirmPayment { margin-top: 12px; padding: 10px 15px; border: none; border-radius: 12px; background: #ffc107; color: #333; font-size: 14px; cursor: pointer; }
+
+  /* Floating Message Box */
+  #floatingMessageBox {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background-color: #28a745; /* default success */
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-weight: bold;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s ease;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+  }
+
+  #floatingMessageBox.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+
+  #floatingMessageBox.success { background-color: #28a745; }
+  #floatingMessageBox.error { background-color: #dc3545; }
+
+  #closeMsgBox {
+    margin-left: 15px;
+    cursor: pointer;
+    font-weight: bold;
+  }
 </style>
 </head>
 <body>
@@ -23,9 +58,9 @@
   <h2>Buy Lesson Plans</h2>
 
   <div class="packages">
-    <button data-amount="250">250 RWF → 20 lessons</button>
-    <button data-amount="500">500 RWF → 45 lessons</button>
-    <button data-amount="1000">1000 RWF → 100 lessons</button>
+    <button data-amount="250">250 RWF → 20 lesson plans</button>
+    <button data-amount="500">500 RWF → 45 lesson plans</button>
+    <button data-amount="1000">1000 RWF → 100 lesson plans</button>
   </div>
 
   <p>Or enter custom amount:</p>
@@ -40,6 +75,12 @@
   <button id="backBtn">⬅ Back</button>
 </div>
 
+<!-- Floating Message Box -->
+<div id="floatingMessageBox">
+  <span id="floatingMsgText"></span>
+  <span id="closeMsgBox">&times;</span>
+</div>
+
 <script>
 const packages = document.querySelectorAll('.packages button');
 const customPayBtn = document.getElementById('customPayBtn');
@@ -50,6 +91,12 @@ const messageEl = document.getElementById('message');
 const backBtn = document.getElementById('backBtn');
 const confirmPaymentBtn = document.getElementById('confirmPayment');
 
+// Floating box elements
+const floatingBox = document.getElementById('floatingMessageBox');
+const floatingMsgText = document.getElementById('floatingMsgText');
+const closeMsgBox = document.getElementById('closeMsgBox');
+let msgTimeout;
+
 // USSD base
 const USSD_BASE = "*182*8*1*290400*"; 
 
@@ -59,7 +106,24 @@ const userPhone = "0788123456";
 let selectedAmount = null;
 let pageLoadTime = Date.now();
 
-// --- Calculate lessons ---
+// --- Floating Message Box ---
+function showFloatingMessage(text, type='success') {
+    floatingMsgText.textContent = text;
+    floatingBox.className = ''; 
+    floatingBox.classList.add(type, 'show');
+
+    if(msgTimeout) clearTimeout(msgTimeout);
+    msgTimeout = setTimeout(() => {
+        floatingBox.classList.remove('show');
+    }, 10000);
+}
+
+closeMsgBox.addEventListener('click', () => {
+    floatingBox.classList.remove('show');
+    if(msgTimeout) clearTimeout(msgTimeout);
+});
+
+// --- Calculate lesson plans ---
 function calculateLessons(amount) {
     let lessons;
     if(amount >= 1000){
@@ -87,14 +151,13 @@ packages.forEach(btn => {
         const lessons = calculateLessons(selectedAmount);
 
         if(!lessons){
-            messageEl.innerText = "Amount too low. Minimum is 20 RWF.";
+            showFloatingMessage("Amount too low. Minimum is 20 RWF.", 'error');
             resultEl.innerText = "";
             ussdEl.innerHTML = "";
             confirmPaymentBtn.disabled = true;
             return;
         }
 
-        messageEl.innerText = "";
         resultEl.innerText = `You will get ${lessons} lesson plans.`;
         ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
 
@@ -110,18 +173,16 @@ customPayBtn.addEventListener('click', () => {
     const lessons = calculateLessons(selectedAmount);
 
     if(!lessons){
-        messageEl.innerText = "Amount too low. Minimum is 20 RWF.";
+        showFloatingMessage("Amount too low. Minimum is 20 RWF.", 'error');
         resultEl.innerText = "";
         ussdEl.innerHTML = "";
         confirmPaymentBtn.disabled = true;
         return;
     }
 
-    messageEl.innerText = "";
     resultEl.innerText = `You will get ${lessons} lesson plans.`;
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
 
-    // Enable confirm button after 30 sec delay
     confirmPaymentBtn.disabled = true;
     setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
 });
@@ -130,11 +191,11 @@ customPayBtn.addEventListener('click', () => {
 confirmPaymentBtn.addEventListener('click', async () => {
     const now = Date.now();
     if(now - pageLoadTime < 20000){ 
-        messageEl.innerText = "Wait a bit before confirming payment";
+        showFloatingMessage("Wait a bit before confirming payment", 'error');
         return;
     }
     if(!selectedAmount){
-        messageEl.innerText = "Select a package or enter an amount first";
+        showFloatingMessage("Select a package or enter an amount first", 'error');
         return;
     }
 
@@ -149,10 +210,10 @@ confirmPaymentBtn.addEventListener('click', async () => {
             })
         });
         const text = await res.text();
-        messageEl.innerText = text;
+        showFloatingMessage(text, 'success');
         confirmPaymentBtn.disabled = true;
     } catch(err){
-        messageEl.innerText = "Error: " + err.message;
+        showFloatingMessage("Error: " + err.message, 'error');
     }
 });
 
