@@ -69,29 +69,6 @@
     text-decoration: none;
     cursor: pointer;
   }
-
-  /* Floating notification */
-  #notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #28a745;
-    color: white;
-    padding: 15px 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    font-weight: bold;
-    display: none;
-    z-index: 1000;
-    animation: fadeInOut 15s forwards;
-  }
-
-  @keyframes fadeInOut {
-    0% { opacity: 0; transform: translateY(-20px); }
-    10% { opacity: 1; transform: translateY(0); }
-    90% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-20px); }
-  }
 </style>
 </head>
 <body>
@@ -102,98 +79,85 @@
 <div class="dashboard">
   <h2>Your Dashboard</h2>
 
-  <p id="user-info">Checking login...</p>
+  <p id="user-info">Loading user info...</p>
   <p id="balance">Loading balance...</p>
 
-  <!-- Explanation -->
   <p id="explanation">
     These lesson plans allow you to generate and download teaching materials.
     When they are finished, you can buy more lesson plans below.
   </p>
 
-  <!-- Link to payment page -->
   <a href="payment.html" class="buy-btn">
     Buy More Lesson Plans
   </a>
 </div>
 
-<!-- Floating notification -->
-<div id="notification">🎉 New lesson plans available!</div>
-
 <!-- Netlify Identity -->
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <script>
-  netlifyIdentity.init();
+netlifyIdentity.init();
 
-  // Convert balance → lesson plans (DISPLAY ONLY)
-  function calculateLessonPlans(amount) {
-    if (amount >= 1000) return Math.floor(amount / 10);
-    if (amount >= 500) return Math.floor(amount / (500 / 45));
-    if (amount >= 250) return Math.floor(amount / (250 / 20));
-    if (amount >= 20) return Math.floor(amount / 20);
-    return 0;
+// Convert balance → lesson plans (DISPLAY ONLY)
+function calculateLessonPlans(amount) {
+  if (amount >= 1000) return Math.floor(amount / 10);
+  if (amount >= 500) return Math.floor(amount / (500 / 45));
+  if (amount >= 250) return Math.floor(amount / (250 / 20));
+  if (amount >= 20) return Math.floor(amount / 20);
+  return 0;
+}
+
+// Fetch balance by email OR phone
+async function fetchBalance(identifier) {
+  try {
+    const isEmail = identifier.includes("@");
+    const url = isEmail
+      ? `/.netlify/functions/get-balance?email=${identifier}`
+      : `/.netlify/functions/get-balance?phone=${identifier}`;
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to fetch balance");
+    const data = await res.json();
+
+    const lessonPlans = calculateLessonPlans(Number(data.balance));
+
+    document.getElementById('user-info').innerText =
+      `Hello ${data.email || data.phone}`;
+
+    document.getElementById('balance').innerText =
+      `Available: ${lessonPlans} lesson plans`;
+
+  } catch (err) {
+    document.getElementById('balance').innerText = 'Error loading balance';
+    console.error(err);
+  }
+}
+
+// Auto-fetch balance for logged-in users
+function updateBalance() {
+  const currentUser = netlifyIdentity.currentUser();
+  if (!currentUser) {
+    document.getElementById('user-info').innerText = 'Please log in to see your balance';
+    document.getElementById('balance').innerText = '';
+    return;
   }
 
-  let previousLessonPlans = 0;
+  const identifier = currentUser.email || currentUser.phone;
+  fetchBalance(identifier);
+}
 
-  async function fetchBalance(email) {
-    try {
-      const res = await fetch(`/.netlify/functions/get-balance?email=${email}`);
-      if (!res.ok) throw new Error("Failed to fetch balance");
-      const data = await res.json();
+// Initial balance fetch
+updateBalance();
 
-      const lessonPlans = calculateLessonPlans(Number(data.balance));
+// Listen for login events
+netlifyIdentity.on('login', user => {
+  const identifier = user.email || user.phone;
+  fetchBalance(identifier);
+});
 
-      document.getElementById('user-info').innerText =
-        `Hello ${data.email}, phone: ${data.phone}`;
+// Optional: auto-refresh every 10s to reflect admin approvals
+setInterval(updateBalance, 10000);
 
-      document.getElementById('balance').innerText =
-        `Available: ${lessonPlans} lesson plans`;
-
-      // Show notification if new lesson plans are added
-      if (lessonPlans > previousLessonPlans && previousLessonPlans !== 0) {
-        showNotification();
-      }
-      previousLessonPlans = lessonPlans;
-
-    } catch (err) {
-      document.getElementById('balance').innerText = 'Error loading balance';
-      console.error(err);
-    }
-  }
-
-  function showNotification() {
-    const notif = document.getElementById('notification');
-    notif.style.display = 'block';
-    // Remove after 15 seconds automatically
-    setTimeout(() => {
-      notif.style.display = 'none';
-    }, 15000);
-  }
-
-  function initDashboard() {
-    const currentUser = netlifyIdentity.currentUser();
-    if (!currentUser) {
-      window.location.href = 'login.html';
-      return;
-    }
-
-    // Initial fetch
-    fetchBalance(currentUser.email);
-
-    // Auto-refresh balance every 10 seconds
-    setInterval(() => {
-      fetchBalance(currentUser.email);
-    }, 10000);
-
-    // Listen for login events (if user logs in without refresh)
-    netlifyIdentity.on('login', user => {
-      fetchBalance(user.email);
-    });
-  }
-
-  initDashboard();
 </script>
 
 </body>
