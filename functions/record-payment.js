@@ -15,11 +15,12 @@ export async function handler(event) {
     // Parse body
     const { phone, amount, reference, status, email, lessons } = JSON.parse(event.body);
 
-    if (!phone || !amount || !reference || !status) {
+    if (!phone || !amount || !status) {
       return { statusCode: 400, body: 'Missing required fields' };
     }
 
-    if (status !== 'SUCCESS') {
+    // ✅ Allow pending from frontend
+    if (status !== 'SUCCESS' && status !== 'pending') {
       return { statusCode: 400, body: 'Payment not successful' };
     }
 
@@ -48,11 +49,11 @@ export async function handler(event) {
       [userId, amount, reference, status]
     );
 
-    // --- NEW: Record pending payment for admin approval ---
+    // --- Record payment for admin approval ---
     await client.query(
       `INSERT INTO payments(user_id, phone, amount, lessons, status, reference, created_at)
-       VALUES($1, $2, $3, $4, 'pending', $5, NOW())`,
-      [userId, phone, amount, lessons || 0, reference]
+       VALUES($1, $2, $3, $4, $5, $6, NOW())`,
+      [userId, phone, amount, lessons || 0, status, reference]
     );
 
     await client.end();
@@ -60,7 +61,9 @@ export async function handler(event) {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'Payment recorded successfully. Await admin approval.',
+        message: status === 'pending' 
+          ? 'Payment recorded as pending. Admin will approve shortly.' 
+          : 'Payment recorded successfully',
         balance: userRes.rows[0].balance
       }),
     };
