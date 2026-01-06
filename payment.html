@@ -5,54 +5,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Buy Lesson Plans - Fila Assistant</title>
 <style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #6dd5fa, #2980b9); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
-  .container { background: #fff; padding: 30px 40px; border-radius: 16px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); text-align: center; width: 100%; max-width: 450px; }
+  body { 
+    font-family: 'Segoe UI', Arial, sans-serif; 
+    background: linear-gradient(135deg, #6dd5fa, #2980b9); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    color: #333; 
+    position: relative;
+  }
+  .container { 
+    background: #fff; 
+    padding: 30px 40px; 
+    border-radius: 16px; 
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2); 
+    text-align: center; 
+    width: 100%; 
+    max-width: 450px; 
+    position: relative;
+  }
   h2 { margin-bottom: 20px; }
-  .packages button { padding: 12px 20px; margin: 8px; border: none; border-radius: 12px; background: linear-gradient(to right, #007bff, #00c6ff); color: #fff; font-size: 16px; cursor: pointer; }
-  input[type="number"] { width: 80%; padding: 10px; margin: 12px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
-  #ussd a { display: inline-block; margin-top: 10px; padding: 10px 15px; background: #28a745; color: #fff; border-radius: 12px; text-decoration: none; font-weight: bold; }
+  .packages button { 
+    padding: 12px 20px; 
+    margin: 8px; 
+    border: none; 
+    border-radius: 12px; 
+    background: linear-gradient(to right, #007bff, #00c6ff); 
+    color: #fff; 
+    font-size: 16px; 
+    cursor: pointer; 
+  }
+  input[type="number"] { 
+    width: 80%; 
+    padding: 10px; 
+    margin: 12px 0; 
+    border-radius: 8px; 
+    border: 1px solid #ccc; 
+    font-size: 16px; 
+  }
+  #ussd a { 
+    display: inline-block; 
+    margin-top: 10px; 
+    padding: 10px 15px; 
+    background: #28a745; 
+    color: #fff; 
+    border-radius: 12px; 
+    text-decoration: none; 
+    font-weight: bold; 
+  }
   #result { margin-top: 15px; font-weight: bold; }
-  #message { margin-top: 12px; color: red; font-weight: bold; }
-  #backBtn { margin-top: 20px; padding: 10px 15px; border: none; border-radius: 12px; background: #007bff; color: #fff; font-size: 14px; cursor: pointer; }
-  #confirmPayment { margin-top: 12px; padding: 10px 15px; border: none; border-radius: 12px; background: #ffc107; color: #333; font-size: 14px; cursor: pointer; }
-
-  /* Floating Message Box */
-  #floatingMessageBox {
+  #confirmPayment { 
+    margin-top: 12px; 
+    padding: 10px 15px; 
+    border: none; 
+    border-radius: 12px; 
+    background: #ffc107; 
+    color: #333; 
+    font-size: 14px; 
+    cursor: pointer; 
+  }
+  /* Back button top-left */
+  #backBtn { 
+    position: absolute; 
+    top: 20px; 
+    left: 20px; 
+    padding: 10px 15px; 
+    border: none; 
+    border-radius: 12px; 
+    background: #007bff; 
+    color: #fff; 
+    font-size: 14px; 
+    cursor: pointer; 
+  }
+  /* Floating message box */
+  .floating-msg {
     position: fixed;
     top: 20px;
     left: 50%;
-    transform: translateX(-50%) translateY(-20px);
-    background-color: #28a745; /* default success */
-    color: #fff;
-    padding: 15px 25px;
+    transform: translateX(-50%) translateY(-50px);
+    padding: 15px 20px;
     border-radius: 12px;
     font-weight: bold;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    color: #fff;
+    min-width: 250px;
+    text-align: center;
+    z-index: 9999;
     opacity: 0;
     pointer-events: none;
     transition: all 0.5s ease;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
   }
-
-  #floatingMessageBox.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-    pointer-events: auto;
+  .floating-msg.show { 
+    transform: translateX(-50%) translateY(0); 
+    opacity: 1; 
+    pointer-events: auto; 
   }
-
-  #floatingMessageBox.success { background-color: #28a745; }
-  #floatingMessageBox.error { background-color: #dc3545; }
-
-  #closeMsgBox {
-    margin-left: 15px;
+  .floating-msg.success { background: #28a745; }
+  .floating-msg.error { background: #dc3545; }
+  .floating-msg .close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
     cursor: pointer;
     font-weight: bold;
+    color: #fff;
   }
 </style>
 </head>
 <body>
+
+<button id="backBtn">⬅ Back</button>
 
 <div class="container">
   <h2>Buy Lesson Plans</h2>
@@ -69,16 +131,14 @@
 
   <p id="result"></p>
   <p id="ussd"></p>
-  <p id="message"></p>
 
   <button id="confirmPayment" disabled>I have paid</button>
-  <button id="backBtn">⬅ Back</button>
 </div>
 
-<!-- Floating Message Box -->
-<div id="floatingMessageBox">
-  <span id="floatingMsgText"></span>
-  <span id="closeMsgBox">&times;</span>
+<!-- Floating message box -->
+<div id="floatingMsg" class="floating-msg">
+  <span id="msgText"></span>
+  <span class="close" onclick="closeMsg()">✖</span>
 </div>
 
 <script>
@@ -87,44 +147,33 @@ const customPayBtn = document.getElementById('customPayBtn');
 const customAmountInput = document.getElementById('customAmount');
 const resultEl = document.getElementById('result');
 const ussdEl = document.getElementById('ussd');
-const messageEl = document.getElementById('message');
-const backBtn = document.getElementById('backBtn');
 const confirmPaymentBtn = document.getElementById('confirmPayment');
+const backBtn = document.getElementById('backBtn');
 
-// Floating box elements
-const floatingBox = document.getElementById('floatingMessageBox');
-const floatingMsgText = document.getElementById('floatingMsgText');
-const closeMsgBox = document.getElementById('closeMsgBox');
-let msgTimeout;
+// Floating message elements
+const floatingMsg = document.getElementById('floatingMsg');
+const msgText = document.getElementById('msgText');
 
-// USSD base
 const USSD_BASE = "*182*8*1*290400*"; 
-
-// Example: fixed phone per user (fetch from DB in real scenario)
 const userPhone = "0788123456"; 
-
 let selectedAmount = null;
 let pageLoadTime = Date.now();
 
-// --- Floating Message Box ---
-function showFloatingMessage(text, type='success') {
-    floatingMsgText.textContent = text;
-    floatingBox.className = ''; 
-    floatingBox.classList.add(type, 'show');
-
-    if(msgTimeout) clearTimeout(msgTimeout);
-    msgTimeout = setTimeout(() => {
-        floatingBox.classList.remove('show');
+// --- Floating message functions ---
+function showFloatingMessage(msg, type='success'){
+    msgText.innerText = msg;
+    floatingMsg.className = `floating-msg ${type} show`;
+    // Hide after 10 sec
+    setTimeout(() => {
+        floatingMsg.classList.remove('show');
     }, 10000);
 }
-
-closeMsgBox.addEventListener('click', () => {
-    floatingBox.classList.remove('show');
-    if(msgTimeout) clearTimeout(msgTimeout);
-});
+function closeMsg(){
+    floatingMsg.classList.remove('show');
+}
 
 // --- Calculate lesson plans ---
-function calculateLessons(amount) {
+function calculateLessons(amount){
     let lessons;
     if(amount >= 1000){
         lessons = Math.floor(amount / 10); 
@@ -139,8 +188,7 @@ function calculateLessons(amount) {
     }
     return lessons;
 }
-
-function generateUSSD(amount) {
+function generateUSSD(amount){
     return USSD_BASE + amount + "#";
 }
 
@@ -151,7 +199,7 @@ packages.forEach(btn => {
         const lessons = calculateLessons(selectedAmount);
 
         if(!lessons){
-            showFloatingMessage("Amount too low. Minimum is 20 RWF.", 'error');
+            showFloatingMessage("Amount too low. Minimum is 20 RWF", 'error');
             resultEl.innerText = "";
             ussdEl.innerHTML = "";
             confirmPaymentBtn.disabled = true;
@@ -160,8 +208,6 @@ packages.forEach(btn => {
 
         resultEl.innerText = `You will get ${lessons} lesson plans.`;
         ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
-
-        // Enable confirm button after 30 sec delay
         confirmPaymentBtn.disabled = true;
         setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
     });
@@ -173,7 +219,7 @@ customPayBtn.addEventListener('click', () => {
     const lessons = calculateLessons(selectedAmount);
 
     if(!lessons){
-        showFloatingMessage("Amount too low. Minimum is 20 RWF.", 'error');
+        showFloatingMessage("Amount too low. Minimum is 20 RWF", 'error');
         resultEl.innerText = "";
         ussdEl.innerHTML = "";
         confirmPaymentBtn.disabled = true;
@@ -182,12 +228,11 @@ customPayBtn.addEventListener('click', () => {
 
     resultEl.innerText = `You will get ${lessons} lesson plans.`;
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
-
     confirmPaymentBtn.disabled = true;
     setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
 });
 
-// --- Confirm payment (pending admin approval) ---
+// --- Confirm payment ---
 confirmPaymentBtn.addEventListener('click', async () => {
     const now = Date.now();
     if(now - pageLoadTime < 20000){ 
@@ -199,6 +244,8 @@ confirmPaymentBtn.addEventListener('click', async () => {
         return;
     }
 
+    const reference = 'LP' + Date.now(); // generate unique reference
+
     try {
         const res = await fetch('/.netlify/functions/record-payment', {
             method: 'POST',
@@ -206,7 +253,8 @@ confirmPaymentBtn.addEventListener('click', async () => {
             body: JSON.stringify({
                 phone: userPhone,
                 amount: selectedAmount,
-                status: "pending"
+                status: "pending",
+                reference: reference
             })
         });
         const text = await res.text();
