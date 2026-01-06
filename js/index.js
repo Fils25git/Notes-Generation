@@ -243,10 +243,27 @@ netlifyIdentity.on("init", user => {
     updateAuthUI(user);
 });
 
-netlifyIdentity.on("login", user => {
+netlifyIdentity.on('login', async user => {
     currentUser = user;
     updateAuthUI(user);
     showSystemMessage("You are now signed in. You can continue.");
+
+    // Auto-create user in Neon
+    try {
+        const res = await fetch('/.netlify/functions/create-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: user.email,
+                phone: user.user_metadata?.phone || null
+            })
+        });
+
+        const text = await res.text();
+        console.log('Create user response:', text);
+    } catch (err) {
+        console.error('Error creating user in DB:', err);
+    }
 });
 
 netlifyIdentity.on("logout", () => {
