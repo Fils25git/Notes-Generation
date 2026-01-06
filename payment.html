@@ -44,7 +44,17 @@
     border: 1px solid #ccc;
     font-size: 16px;
   }
-  #ussd {
+  #ussd a {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 15px;
+    background: #28a745;
+    color: #fff;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  #result {
     margin-top: 15px;
     font-weight: bold;
   }
@@ -52,6 +62,16 @@
     margin-top: 12px;
     color: red;
     font-weight: bold;
+  }
+  #backBtn {
+    margin-top: 20px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 12px;
+    background: #007bff;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
   }
 </style>
 </head>
@@ -73,6 +93,8 @@
   <p id="result"></p>
   <p id="ussd"></p>
   <p id="message"></p>
+
+  <button id="backBtn">⬅ Back</button>
 </div>
 
 <script>
@@ -82,8 +104,9 @@ const customAmountInput = document.getElementById('customAmount');
 const resultEl = document.getElementById('result');
 const ussdEl = document.getElementById('ussd');
 const messageEl = document.getElementById('message');
+const backBtn = document.getElementById('backBtn');
 
-// USSD base (example)
+// USSD base
 const USSD_BASE = "*182*8*1*290400*"; 
 
 function calculateLessons(amount) {
@@ -115,12 +138,12 @@ packages.forEach(btn => {
         if(!lessons){
             messageEl.innerText = "Amount too low. Minimum is 20 RWF.";
             resultEl.innerText = "";
-            ussdEl.innerText = "";
+            ussdEl.innerHTML = "";
             return;
         }
         messageEl.innerText = "";
         resultEl.innerText = `You will get ${lessons} lesson plans.`;
-        ussdEl.innerHTML = `Dial to pay: <strong>${generateUSSD(amount)}</strong>`;
+        ussdEl.innerHTML = `<a href="tel:${generateUSSD(amount)}">Tap here to pay: ${generateUSSD(amount)}</a>`;
     });
 });
 
@@ -132,12 +155,17 @@ customPayBtn.addEventListener('click', () => {
     if(!lessons){
         messageEl.innerText = "Amount too low. Minimum is 20 RWF.";
         resultEl.innerText = "";
-        ussdEl.innerText = "";
+        ussdEl.innerHTML = "";
         return;
     }
     messageEl.innerText = "";
     resultEl.innerText = `You will get ${lessons} lesson plans.`;
-    ussdEl.innerHTML = `Dial to pay: <strong>${generateUSSD(amount)}</strong>`;
+    ussdEl.innerHTML = `<a href="tel:${generateUSSD(amount)}">Tap here to pay: ${generateUSSD(amount)}</a>`;
+});
+
+// Back button
+backBtn.addEventListener('click', () => {
+    window.location.href = "index.html";
 });
 </script>
 
