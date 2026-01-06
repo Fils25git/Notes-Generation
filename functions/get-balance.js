@@ -1,14 +1,18 @@
 import { Client } from "pg";
 
-// Function to fetch user balance by email
+// Function to fetch user balance by email or phone
 export async function handler(event) {
   if (event.httpMethod !== "GET") {
     return { statusCode: 405, body: "Method not allowed" };
   }
 
-  // Get email from query parameters
+  // Get email or phone from query parameters
   const email = event.queryStringParameters?.email;
-  if (!email) return { statusCode: 400, body: "Missing email" };
+  const phone = event.queryStringParameters?.phone;
+
+  if (!email && !phone) {
+    return { statusCode: 400, body: "Missing email or phone" };
+  }
 
   const client = new Client({
     connectionString: process.env.NEON_DATABASE_URL,
@@ -18,11 +22,18 @@ export async function handler(event) {
   try {
     await client.connect();
 
-    // Find user by email
-    const res = await client.query(
-      "SELECT phone, email, balance FROM users WHERE email = $1",
-      [email]
-    );
+    let res;
+    if (email) {
+      res = await client.query(
+        "SELECT phone, email, balance FROM users WHERE email = $1",
+        [email]
+      );
+    } else {
+      res = await client.query(
+        "SELECT phone, email, balance FROM users WHERE phone = $1",
+        [phone]
+      );
+    }
 
     await client.end();
 
@@ -43,4 +54,4 @@ export async function handler(event) {
     if (client) await client.end();
     return { statusCode: 500, body: "Server error: " + err.message };
   }
-        }
+}
