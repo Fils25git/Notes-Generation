@@ -1,7 +1,8 @@
-import { Client } from 'pg';
+import pkg from 'pg';
+const { Pool } = pkg;
 
 // Connect to Neon/Supabase database
-const client = new Client({
+const pool = new Pool({
   connectionString: process.env.NEON_DATABASE_URL,
   ssl: { rejectUnauthorized: false } // required for Neon
 });
@@ -24,10 +25,8 @@ export async function handler(event) {
       return { statusCode: 400, body: 'Payment not successful' };
     }
 
-    await client.connect();
-
     // --- Insert or update user ---
-    const userRes = await client.query(
+    const userRes = await pool.query(
       `INSERT INTO users(phone, email, balance, last_payment_reference, last_payment_time)
        VALUES($1, $2, $3, $4, NOW())
        ON CONFLICT (phone)
@@ -43,20 +42,18 @@ export async function handler(event) {
     const userId = userRes.rows[0].id;
 
     // --- Record transaction (existing) ---
-    await client.query(
+    await pool.query(
       `INSERT INTO transactions(user_id, amount, reference, status)
        VALUES($1, $2, $3, $4)`,
       [userId, amount, reference, status]
     );
 
     // --- Record payment for admin approval ---
-    await client.query(
+    await pool.query(
       `INSERT INTO payments(user_id, phone, amount, lessons, status, reference, created_at)
        VALUES($1, $2, $3, $4, $5, $6, NOW())`,
       [userId, phone, amount, lessons || 0, status, reference]
     );
-
-    await client.end();
 
     return {
       statusCode: 200,
@@ -68,7 +65,6 @@ export async function handler(event) {
       }),
     };
   } catch (error) {
-    if (client) await client.end();
     return { statusCode: 500, body: 'Server error: ' + error.message };
   }
       }
