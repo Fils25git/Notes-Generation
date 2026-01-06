@@ -69,6 +69,29 @@
     text-decoration: none;
     cursor: pointer;
   }
+
+  /* Floating notification */
+  #notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-weight: bold;
+    display: none;
+    z-index: 1000;
+    animation: fadeInOut 15s forwards;
+  }
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+  }
 </style>
 </head>
 <body>
@@ -79,20 +102,23 @@
 <div class="dashboard">
   <h2>Your Dashboard</h2>
 
-  <p id="user-info">Loading user info...</p>
+  <p id="user-info">Checking login...</p>
   <p id="balance">Loading balance...</p>
 
-  <!-- ✅ Explanation replaces logout -->
+  <!-- Explanation -->
   <p id="explanation">
     These lesson plans allow you to generate and download teaching materials.
     When they are finished, you can buy more lesson plans below.
   </p>
 
-  <!-- ✅ Link to payment page -->
+  <!-- Link to payment page -->
   <a href="payment.html" class="buy-btn">
     Buy More Lesson Plans
   </a>
 </div>
+
+<!-- Floating notification -->
+<div id="notification">🎉 New lesson plans available!</div>
 
 <!-- Netlify Identity -->
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
@@ -109,6 +135,8 @@
     return 0;
   }
 
+  let previousLessonPlans = 0;
+
   async function fetchBalance(email) {
     try {
       const res = await fetch(`/.netlify/functions/get-balance?email=${email}`);
@@ -123,21 +151,50 @@
       document.getElementById('balance').innerText =
         `Available: ${lessonPlans} lesson plans`;
 
+      // Show notification if new lesson plans are added
+      if (lessonPlans > previousLessonPlans && previousLessonPlans !== 0) {
+        showNotification();
+      }
+      previousLessonPlans = lessonPlans;
+
     } catch (err) {
       document.getElementById('balance').innerText = 'Error loading balance';
       console.error(err);
     }
   }
 
-  const currentUser = netlifyIdentity.currentUser();
-  if (currentUser) {
-    fetchBalance(currentUser.email);
+  function showNotification() {
+    const notif = document.getElementById('notification');
+    notif.style.display = 'block';
+    // Remove after 15 seconds automatically
+    setTimeout(() => {
+      notif.style.display = 'none';
+    }, 15000);
   }
 
-  netlifyIdentity.on('login', user => {
-    fetchBalance(user.email);
-  });
+  function initDashboard() {
+    const currentUser = netlifyIdentity.currentUser();
+    if (!currentUser) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // Initial fetch
+    fetchBalance(currentUser.email);
+
+    // Auto-refresh balance every 10 seconds
+    setInterval(() => {
+      fetchBalance(currentUser.email);
+    }, 10000);
+
+    // Listen for login events (if user logs in without refresh)
+    netlifyIdentity.on('login', user => {
+      fetchBalance(user.email);
+    });
+  }
+
+  initDashboard();
 </script>
 
 </body>
-</html>
+  </html>
