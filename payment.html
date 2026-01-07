@@ -114,11 +114,13 @@
 </head>
 <body>
 
-
 <div class="container">
   <button id="backBtn"> ◀️Back</button>
   
   <h2>Buy Lesson Plans</h2>
+
+  <!-- Current balance display -->
+  <p>Current Lesson Plans: <span id="currentBalance">Loading...</span></p>
 
   <div class="packages">
     <button data-amount="250">250 RWF → 20 lesson plans</button>
@@ -135,7 +137,7 @@
 
   <button id="confirmPayment" disabled>I have paid</button>
   <button onclick="window.location.href='balance.html'">
-  View My Lesson Plans
+    View My Lesson Plans
   </button>
 </div>
 
@@ -144,26 +146,20 @@
   <span id="msgText"></span>
   <span class="close" onclick="closeMsg()">✖</span>
 </div>
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-  <script>
-  // Initialize Netlify Identity
-  netlifyIdentity.init();
 
-  // 🚫 Block non-logged-in users
-  document.addEventListener("DOMContentLoaded", () => {
-    const user = netlifyIdentity.currentUser();
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script>
+netlifyIdentity.init();
 
-    if (!user) {
-      // Redirect immediately if not logged in
-      window.location.replace("index.html");
-    }
-  });
+// Block non-logged-in users
+document.addEventListener("DOMContentLoaded", () => {
+  const user = netlifyIdentity.currentUser();
+  if (!user) window.location.replace("index.html");
+});
 
-  // Extra safety: if user logs out while on page
-  netlifyIdentity.on("logout", () => {
-    window.location.replace("index.html");
-  });
-  </script>
+// Redirect on logout
+netlifyIdentity.on("logout", () => window.location.replace("index.html"));
+</script>
 
 <script>
 const packages = document.querySelectorAll('.packages button');
@@ -173,47 +169,54 @@ const resultEl = document.getElementById('result');
 const ussdEl = document.getElementById('ussd');
 const confirmPaymentBtn = document.getElementById('confirmPayment');
 const backBtn = document.getElementById('backBtn');
+const currentBalanceEl = document.getElementById('currentBalance');
 
-// Floating message elements
 const floatingMsg = document.getElementById('floatingMsg');
 const msgText = document.getElementById('msgText');
 
 const USSD_BASE = "*182*8*1*290400*"; 
-const userPhone = "0788123456"; 
 let selectedAmount = null;
+let pollInterval = null;
 let pageLoadTime = Date.now();
 
 // --- Floating message functions ---
 function showFloatingMessage(msg, type='success'){
     msgText.innerText = msg;
     floatingMsg.className = `floating-msg ${type} show`;
-    // Hide after 10 sec
-    setTimeout(() => {
-        floatingMsg.classList.remove('show');
-    }, 10000);
+    setTimeout(() => floatingMsg.classList.remove('show'), 10000);
 }
-function closeMsg(){
-    floatingMsg.classList.remove('show');
-}
+function closeMsg(){ floatingMsg.classList.remove('show'); }
 
 // --- Calculate lesson plans ---
 function calculateLessons(amount){
-    let lessons;
-    if(amount >= 1000){
-        lessons = Math.floor(amount / 10); 
-    } else if(amount >= 500){
-        lessons = Math.floor(amount / (500/45)); 
-    } else if(amount >= 250){
-        lessons = Math.floor(amount / (250/20)); 
-    } else if(amount >= 20){
-        lessons = Math.floor(amount / 20); 
-    } else {
-        return null;
-    }
-    return lessons;
+    if(amount >= 1000) return Math.floor(amount / 10);
+    if(amount >= 500) return Math.floor(amount / (500/45));
+    if(amount >= 250) return Math.floor(amount / (250/20));
+    if(amount >= 20) return Math.floor(amount / 20);
+    return null;
 }
-function generateUSSD(amount){
-    return USSD_BASE + amount + "#";
+function generateUSSD(amount){ return USSD_BASE + amount + "#"; }
+
+// --- Fetch current balance ---
+async function refreshBalance() {
+    const user = netlifyIdentity.currentUser();
+    if (!user) return;
+    const identifier = user.email || user.phone;
+
+    try {
+        const url = identifier.includes('@') 
+            ? `/.netlify/functions/use-lesson-plan?email=${identifier}` 
+            : `/.netlify/functions/use-lesson-plan?phone=${identifier}`;
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to fetch balance");
+        const data = await res.json();
+
+        currentBalanceEl.innerText = `${data.balance} lesson plan${data.balance === 1 ? '' : 's'}`;
+    } catch(err){
+        console.error("Error refreshing balance:", err);
+        currentBalanceEl.innerText = "Error loading";
+    }
 }
 
 // --- Handle package buttons ---
@@ -259,8 +262,8 @@ customPayBtn.addEventListener('click', () => {
 // --- Confirm payment ---
 confirmPaymentBtn.addEventListener('click', async () => {
     const now = Date.now();
-    if(now - pageLoadTime < 20000){ 
-        showFloatingMessage("Wait a bit before confirming payment", 'error');
+    if(now - pageLoadTime < 30000){ 
+        showFloatingMessage("Wait 30 seconds before confirming payment", 'error');
         return;
     }
     if(!selectedAmount){
@@ -268,22 +271,32 @@ confirmPaymentBtn.addEventListener('click', async () => {
         return;
     }
 
-    const reference = 'LP' + Date.now(); // generate unique reference
+    const user = netlifyIdentity.currentUser();
+    const phone = user.phone || "unknown";
+    const email = user.email || null;
+    const reference = 'LP' + Date.now();
 
     try {
         const res = await fetch('/.netlify/functions/record-payment', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-                phone: userPhone,
+                phone,
+                email,
                 amount: selectedAmount,
+                lessons: calculateLessons(selectedAmount),
                 status: "pending",
-                reference: reference
+                reference
             })
         });
         const text = await res.text();
         showFloatingMessage(text, 'success');
         confirmPaymentBtn.disabled = true;
+
+        // Start polling balance every 10s
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(refreshBalance, 10000);
+
     } catch(err){
         showFloatingMessage("Error: " + err.message, 'error');
     }
@@ -291,7 +304,10 @@ confirmPaymentBtn.addEventListener('click', async () => {
 
 // --- Back button ---
 backBtn.addEventListener('click', () => window.location.href = "index.html");
+
+// --- Initial balance fetch ---
+refreshBalance();
 </script>
 
 </body>
-  </html>
+    </html>
