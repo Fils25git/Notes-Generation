@@ -38,19 +38,16 @@
 <body>
 
 <div class="container">
-    <!-- Header -->
     <div class="header">
         <img src="../logo.png">
         <h2>Fila Assistant</h2>
     </div>
 
-    <!-- Form -->
     <div class="form-container">
         <p><b>Fill in the required fields below To Fetch Lesson Plan</b></p><br>
         <form id="lessonForm">
             <div class="form-grid">
 
-                <!-- ✅ Language selection -->
                 <div class="form-group">
                     <label class="required">Language</label>
                     <select id="language" required>
@@ -64,12 +61,12 @@
 
                 <div class="form-group">
                     <label class="required">School Name</label>
-                    <input type="text" id="schoolName" required>
+                    <input type="text" id="schoolName" placeholder="e.g: TTC BICUMBI" required>
                 </div>
 
                 <div class="form-group">
                     <label class="required">Teacher's Name</label>
-                    <input type="text" id="teacherName" required>
+                    <input type="text" id="teacherName" placeholder="e.g: IRATURINZE Fils Lambert" required>
                 </div>
 
                 <div class="form-group">
@@ -130,7 +127,6 @@
                     <input type="text" id="lessonTitle" required>
                 </div>
 
-                <!-- ✅ Teaching materials optional -->
                 <div class="form-group full-width">
                     <label class="optional">Teaching Materials (Optional)</label>
                     <input type="text" id="teachingMaterials" placeholder="E.g., Textbook, Flashcards, Worksheets">
@@ -149,15 +145,17 @@
             </div>
 
             <button type="submit" class="generate-btn">Fetch Lesson Plan</button>
-            <div id="errorMessage" class="error-message"></div>
         </form>
     </div>
 
-    <!-- Result -->
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
-            <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
-            <button class="download-btn btn-pdf" onclick="window.print()">📑 Print / Save as PDF</button>
+    <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
+    <button class="download-btn btn-pdf" onclick="window.print()">📑 Print / Save as PDF</button>
+
+    <!-- NEW -->
+    <button class="download-btn" id="editBtn" onclick="enableEdit()">✏️ Edit</button>
+    <button class="download-btn" id="saveBtn" onclick="saveEdit()" style="display:none;">💾 Save</button>
         </div>
         <div id="lessonPlanContent" class="lesson-plan"></div>
     </div>
@@ -165,18 +163,14 @@
 
 <div id="floatingMessage" class="floating-message"></div>
 
-<!-- Netlify Identity -->
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <script>
 netlifyIdentity.init();
 
 const user = netlifyIdentity.currentUser();
-if (!user) {
-    window.location.href = "../login.html";
-}
+if (!user) window.location.href = "../login.html";
 
-// Floating message
 function showFloatingMessage(msg) {
     const box = document.getElementById("floatingMessage");
     box.innerHTML = msg;
@@ -184,7 +178,6 @@ function showFloatingMessage(msg) {
     setTimeout(() => box.style.display = "none", 15000);
 }
 
-// Plan folders per language
 const planFolders = {
     english: "proposals",
     kinyarwanda: "kinyarwanda_plans",
@@ -193,39 +186,44 @@ const planFolders = {
 };
 
 function getRandomPlanFile(language) {
-    const folder = planFolders[language] || "proposals";
-    const index = Math.floor(Math.random() * 5) + 1; // plan1.html to plan5.html
-    return `${folder}/plan${index}.html`;
+    const index = Math.floor(Math.random() * 5) + 1;
+    return `${planFolders[language]}/plan${index}.html`;
 }
 
-document.getElementById('lessonForm').addEventListener('submit', async function(e) {
+document.getElementById('lessonForm').addEventListener('submit', async e => {
     e.preventDefault();
 
-    // 1️⃣ Check balance
-    const res = await fetch(`/.netlify/functions/get-balance?email=${user.email}`);
-    const data = await res.json();
+    try {
+        const res = await fetch(`/.netlify/functions/get-balance?email=${user.email}`);
+        const data = await res.json();
 
-    if (data.balance <= 0) {
-        showFloatingMessage(`
-          ❌ No lesson plans available.<br><br>
-          👉 <a href="../payment.html">Buy lesson plans</a><br>
-          👉 <a href="../balance.html">View balance</a>
-        `);
-        return;
+        if (!res.ok || data.balance < 1) {
+            showFloatingMessage(`❌ No lesson plans available.<br><br>
+            👉 <a href="../payment.html">Buy lesson plans</a><br>
+            👉 <a href="../balance.html">View balance</a>`);
+            return;
+        }
+
+        const deduct = await fetch('/.netlify/functions/use-lesson-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email })
+        });
+
+        const deductData = await deduct.json();
+        if (!deduct.ok || !deductData.success) {
+            showFloatingMessage("❌ Failed to deduct lesson plan.");
+            return;
+        }
+
+        generateLessonPlan();
+    } catch {
+        showFloatingMessage("❌ Server error. Try again.");
     }
-
-    // 2️⃣ Deduct 1 lesson plan
-    await fetch('/.netlify/functions/use-lesson-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: user.email })
-    });
-
-    generateLessonPlan();
 });
 
 function generateLessonPlan() {
-    const language = document.getElementById('language').value || 'english';
+    const language = document.getElementById('language').value;
     const data = {
         schoolName: schoolName.value,
         teacherName: teacherName.value,
@@ -240,24 +238,18 @@ function generateLessonPlan() {
         classSize: classSize.value,
         unitTitle: unitTitle.value,
         lessonTitle: lessonTitle.value,
-        teachingMaterials: teachingMaterials.value || "No specific teaching materials provided",
-        specialNeeds: specialNeeds.value || "No special needs identified",
+        teachingMaterials: teachingMaterials.value || "Not specified",
+        specialNeeds: specialNeeds.value || "None",
         references: references.value || "REB Curriculum Guide"
     };
 
     fetch(getRandomPlanFile(language))
-    .then(r => r.text())
-    .then(tpl => {
-        for (const k in data) {
-            tpl = tpl.replace(new RegExp(`{{${k}}}`, "g"), data[k]);
-        }
-        lessonPlanContent.innerHTML = tpl;
-        resultContainer.classList.add('show');
-        resultContainer.scrollIntoView({ behavior: 'smooth' });
-    })
-    .catch(() => {
-        errorMessage.textContent = "❌ Failed to fetch lesson plan.";
-    });
+        .then(r => r.text())
+        .then(tpl => {
+            for (let k in data) tpl = tpl.replaceAll(`{{${k}}}`, data[k]);
+            lessonPlanContent.innerHTML = tpl;
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        });
 }
 
 function copyToWord() {
@@ -266,10 +258,31 @@ function copyToWord() {
     window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
     document.execCommand('copy');
-    window.getSelection().removeAllRanges();
-    alert("Lesson plan copied to clipboard.");
+    alert("Lesson plan copied.");
 }
+    <script>
+function enableEdit() {
+    const content = document.getElementById("lessonPlanContent");
+    content.contentEditable = "true";
+    content.style.border = "2px dashed #3498db";
+    content.style.padding = "10px";
+
+    document.getElementById("editBtn").style.display = "none";
+    document.getElementById("saveBtn").style.display = "inline-block";
+}
+
+function saveEdit() {
+    const content = document.getElementById("lessonPlanContent");
+    content.contentEditable = "false";
+    content.style.border = "none";
+
+    document.getElementById("editBtn").style.display = "inline-block";
+    document.getElementById("saveBtn").style.display = "none";
+
+    showFloatingMessage("✅ Lesson plan saved successfully.");
+}
+</script>
 </script>
 
 </body>
-                        </html>
+    </html>
