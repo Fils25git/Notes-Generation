@@ -11,20 +11,31 @@ export async function handler(event) {
     const phone = event.queryStringParameters?.phone;
 
     if (!email && !phone) {
-      return { statusCode: 400, body: 'Missing user identifier' };
+      return { statusCode: 400, body: JSON.stringify({ balance: 0 }) };
     }
 
     // 1️⃣ Get user id
-    const userRes = await pool.query(
-      'SELECT id FROM users WHERE email=$1 OR phone=$2',
-      [email || '', phone || '']
+    let userRes = await pool.query(
+      'SELECT id FROM users WHERE email=$1 OR phone IS NOT DISTINCT FROM $2',
+      [email || '', phone]
     );
 
-    if (userRes.rows.length === 0) {
+    let userId;
+    if (userRes.rows.length === 0 && phone) {
+      // fallback to phone only
+      const fallbackRes = await pool.query(
+        'SELECT id FROM users WHERE phone=$1',
+        [phone]
+      );
+      if (fallbackRes.rows.length === 0) {
+        return { statusCode: 404, body: JSON.stringify({ balance: 0 }) };
+      }
+      userId = fallbackRes.rows[0].id;
+    } else if (userRes.rows.length === 0) {
       return { statusCode: 404, body: JSON.stringify({ balance: 0 }) };
+    } else {
+      userId = userRes.rows[0].id;
     }
-
-    const userId = userRes.rows[0].id;
 
     // 2️⃣ Sum approved lesson plans
     const paymentRes = await pool.query(
@@ -32,7 +43,7 @@ export async function handler(event) {
       [userId, 'approved']
     );
 
-    const balance = parseInt(paymentRes.rows[0].balance);
+    const balance = Number(paymentRes.rows[0].balance) || 0;
 
     return {
       statusCode: 200,
@@ -41,6 +52,6 @@ export async function handler(event) {
 
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: 'Server error' };
+    return { statusCode: 500, body: JSON.stringify({ balance: 0 }) };
   }
-      }
+  }
