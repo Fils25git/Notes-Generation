@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fila Assistant Dashboard</title>
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <style>
   body {
@@ -18,7 +18,6 @@
     position: relative;
   }
 
-  /* Back button */
   .back-btn {
     position: absolute;
     top: 20px;
@@ -42,23 +41,9 @@
     max-width: 450px;
   }
 
-  h2 {
-    margin-bottom: 20px;
-  }
-
-  #balance {
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 15px;
-  }
-
-  #explanation {
-    margin-top: 18px;
-    font-size: 15px;
-    line-height: 1.5;
-    color: #444;
-  }
-
+  h2 { margin-bottom: 20px; }
+  #balance { font-size: 24px; font-weight: bold; margin-top: 15px; }
+  #explanation { margin-top: 18px; font-size: 15px; line-height: 1.5; color: #444; }
   .buy-btn {
     display: inline-block;
     margin-top: 22px;
@@ -74,7 +59,6 @@
 </head>
 <body>
 
-<!-- Back Button -->
 <button class="back-btn" onclick="window.location.href='index.html'">⬅ Back</button>
 
 <div class="dashboard">
@@ -93,13 +77,11 @@
   </a>
 </div>
 
-<!-- Netlify Identity -->
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-
 <script>
 netlifyIdentity.init();
 
-// Convert balance → lesson plans (DISPLAY ONLY)
+// Convert balance → lesson plans
 function calculateLessonPlans(amount) {
   if (amount >= 1000) return Math.floor(amount / 10);
   if (amount >= 500) return Math.floor(amount / (500 / 45));
@@ -108,33 +90,31 @@ function calculateLessonPlans(amount) {
   return 0;
 }
 
-// Fetch balance by email OR phone
-async function fetchBalance(identifier) {
+// Fetch balance by email OR phone from backend
+async function fetchBalance(user) {
   try {
-    const isEmail = identifier.includes("@");
+    const identifier = user.email || user.user_metadata.phone;
+    const isEmail = !!user.email;
+
     const url = isEmail
-      ? `/.netlify/functions/get-balance?email=${identifier}`
-      : `/.netlify/functions/get-balance?phone=${identifier}`;
+      ? `/.netlify/functions/use-lesson-plan?email=${encodeURIComponent(user.email)}`
+      : `/.netlify/functions/use-lesson-plan?phone=${encodeURIComponent(user.user_metadata.phone)}`;
 
     const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch balance");
-    const data = await res.json();
 
+    const data = await res.json();
     const lessonPlans = calculateLessonPlans(Number(data.balance));
 
-    document.getElementById('user-info').innerText =
-      `Hello ${data.email || data.phone}`;
-
-    document.getElementById('balance').innerText =
-      `Available: ${lessonPlans} lesson plans`;
-
+    document.getElementById('user-info').innerText = `Hello ${data.email || data.phone}`;
+    document.getElementById('balance').innerText = `Available: ${lessonPlans} lesson plans`;
   } catch (err) {
     document.getElementById('balance').innerText = 'Error loading balance';
     console.error(err);
   }
 }
 
-// Auto-fetch balance for logged-in users
+// Update balance for current user
 function updateBalance() {
   const currentUser = netlifyIdentity.currentUser();
   if (!currentUser) {
@@ -142,43 +122,26 @@ function updateBalance() {
     document.getElementById('balance').innerText = '';
     return;
   }
-
-  const identifier = currentUser.email || currentUser.phone;
-  fetchBalance(identifier);
+  fetchBalance(currentUser);
 }
 
-// Initial balance fetch
+// Initial fetch
 updateBalance();
 
-// Listen for login events
-netlifyIdentity.on('login', user => {
-  const identifier = user.email || user.phone;
-  fetchBalance(identifier);
-});
-
-// Optional: auto-refresh every 10s to reflect admin approvals
+// Auto-refresh every 10s
 setInterval(updateBalance, 10000);
 
-</script>
-  <script>
-  // Initialize Netlify Identity
-  netlifyIdentity.init();
+// Listen for login
+netlifyIdentity.on('login', user => fetchBalance(user));
 
-  // 🚫 Block non-logged-in users
-  document.addEventListener("DOMContentLoaded", () => {
-    const user = netlifyIdentity.currentUser();
-
-    if (!user) {
-      // Redirect immediately if not logged in
-      window.location.replace("index.html");
-    }
-  });
-
-  // Extra safety: if user logs out while on page
-  netlifyIdentity.on("logout", () => {
+// Redirect if logged out
+document.addEventListener("DOMContentLoaded", () => {
+  if (!netlifyIdentity.currentUser()) {
     window.location.replace("index.html");
-  });
-  </script>
+  }
+});
+netlifyIdentity.on("logout", () => window.location.replace("index.html"));
 
+</script>
 </body>
   </html>
