@@ -93,12 +93,14 @@ function calculateLessonPlans(amount) {
 // Fetch balance by email OR phone from backend
 async function fetchBalance(user) {
   try {
-    const identifier = user.email || user.user_metadata.phone;
-    const isEmail = !!user.email;
-
-    const url = isEmail
-      ? `/.netlify/functions/use-lesson-plan?email=${encodeURIComponent(user.email)}`
-      : `/.netlify/functions/use-lesson-plan?phone=${encodeURIComponent(user.user_metadata.phone)}`;
+    let url;
+    if (user.email) {
+      url = `/.netlify/functions/use-lesson-plan?email=${encodeURIComponent(user.email)}`;
+    } else if (user.user_metadata?.phone) {
+      url = `/.netlify/functions/use-lesson-plan?phone=${encodeURIComponent(user.user_metadata.phone)}`;
+    } else {
+      throw new Error("No email or phone found for user");
+    }
 
     const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch balance");
@@ -112,7 +114,7 @@ async function fetchBalance(user) {
     document.getElementById('balance').innerText = 'Error loading balance';
     console.error(err);
   }
-}
+  }
 
 // Update balance for current user
 function updateBalance() {
