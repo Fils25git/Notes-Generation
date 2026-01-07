@@ -1,37 +1,46 @@
-import { Client } from "pg";
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.NEON_DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 export async function handler(event) {
-  const email = event.queryStringParameters?.email;
-
-  if (!email) {
-    return { statusCode: 400, body: "Missing email" };
-  }
-
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
-
   try {
-    await client.connect();
+    const email = event.queryStringParameters?.email;
+    const phone = event.queryStringParameters?.phone;
 
-    const res = await client.query(
-      "SELECT balance FROM users WHERE email=$1",
-      [email]
+    if (!email && !phone) {
+      return { statusCode: 400, body: 'Missing user identifier' };
+    }
+
+    // 1️⃣ Get user id
+    const userRes = await pool.query(
+      'SELECT id FROM users WHERE email=$1 OR phone=$2',
+      [email || '', phone || '']
     );
 
-    if (res.rowCount === 0) {
-      return { statusCode: 404, body: "User not found" };
+    if (userRes.rows.length === 0) {
+      return { statusCode: 404, body: JSON.stringify({ balance: 0 }) };
     }
+
+    const userId = userRes.rows[0].id;
+
+    // 2️⃣ Sum approved lesson plans
+    const paymentRes = await pool.query(
+      'SELECT COALESCE(SUM(lessons),0) AS balance FROM payments WHERE user_id=$1 AND status=$2',
+      [userId, 'approved']
+    );
+
+    const balance = parseInt(paymentRes.rows[0].balance);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ balance: res.rows[0].balance })
+      body: JSON.stringify({ balance })
     };
 
   } catch (err) {
-    return { statusCode: 500, body: err.message };
-  } finally {
-    await client.end();
+    console.error(err);
+    return { statusCode: 500, body: 'Server error' };
   }
       }
