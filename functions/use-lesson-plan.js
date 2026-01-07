@@ -5,10 +5,10 @@ export async function handler(event) {
     return { statusCode: 405, body: "Method not allowed" };
   }
 
-  const { email, phone } = JSON.parse(event.body);
+  const { email } = JSON.parse(event.body || "{}");
 
-  if (!email && !phone) {
-    return { statusCode: 400, body: "Missing user identifier" };
+  if (!email) {
+    return { statusCode: 400, body: "Missing email" };
   }
 
   const client = new Client({
@@ -19,31 +19,22 @@ export async function handler(event) {
   try {
     await client.connect();
 
-    // 1️⃣ Get user
-    const res = email
-      ? await client.query("SELECT id, balance FROM users WHERE email=$1", [email])
-      : await client.query("SELECT id, balance FROM users WHERE phone=$1", [phone]);
+    const res = await client.query(
+      "SELECT balance FROM users WHERE email=$1",
+      [email]
+    );
 
-    if (res.rows.length === 0) {
+    if (res.rowCount === 0) {
       return { statusCode: 404, body: "User not found" };
     }
 
-    const user = res.rows[0];
-
-    // 2️⃣ Check balance
-    if (user.balance < 1) {
-      return {
-        statusCode: 403,
-        body: JSON.stringify({
-          error: "NO_BALANCE"
-        })
-      };
+    if (res.rows[0].balance < 1) {
+      return { statusCode: 403, body: "No lesson plans left" };
     }
 
-    // 3️⃣ Deduct ONE lesson plan
     await client.query(
-      "UPDATE users SET balance = balance - 1 WHERE id = $1",
-      [user.id]
+      "UPDATE users SET balance = balance - 1 WHERE email=$1",
+      [email]
     );
 
     return {
@@ -52,9 +43,8 @@ export async function handler(event) {
     };
 
   } catch (err) {
-    console.error(err);
-    return { statusCode: 500, body: "Server error" };
+    return { statusCode: 500, body: err.message };
   } finally {
     await client.end();
   }
-}
+  }
