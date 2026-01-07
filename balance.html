@@ -18,6 +18,7 @@
     position: relative;
   }
 
+  /* Back button */
   .back-btn {
     position: absolute;
     top: 20px;
@@ -41,9 +42,23 @@
     max-width: 450px;
   }
 
-  h2 { margin-bottom: 20px; }
-  #balance { font-size: 24px; font-weight: bold; margin-top: 15px; }
-  #explanation { margin-top: 18px; font-size: 15px; line-height: 1.5; color: #444; }
+  h2 {
+    margin-bottom: 20px;
+  }
+
+  #balance {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 15px;
+  }
+
+  #explanation {
+    margin-top: 18px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #444;
+  }
+
   .buy-btn {
     display: inline-block;
     margin-top: 22px;
@@ -59,6 +74,7 @@
 </head>
 <body>
 
+<!-- Back Button -->
 <button class="back-btn" onclick="window.location.href='index.html'">⬅ Back</button>
 
 <div class="dashboard">
@@ -77,7 +93,6 @@
   </a>
 </div>
 
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script>
 netlifyIdentity.init();
 
@@ -90,14 +105,17 @@ function calculateLessonPlans(amount) {
   return 0;
 }
 
-// Fetch balance by email OR phone from backend
+// Fetch balance by email OR phone
 async function fetchBalance(user) {
   try {
-    let url;
+    let identifier, url;
+
     if (user.email) {
-      url = `/.netlify/functions/use-lesson-plan?email=${encodeURIComponent(user.email)}`;
+      identifier = user.email;
+      url = `/.netlify/functions/use-lesson-plan?email=${encodeURIComponent(identifier)}`;
     } else if (user.user_metadata?.phone) {
-      url = `/.netlify/functions/use-lesson-plan?phone=${encodeURIComponent(user.user_metadata.phone)}`;
+      identifier = user.user_metadata.phone;
+      url = `/.netlify/functions/use-lesson-plan?phone=${encodeURIComponent(identifier)}`;
     } else {
       throw new Error("No email or phone found for user");
     }
@@ -114,9 +132,9 @@ async function fetchBalance(user) {
     document.getElementById('balance').innerText = 'Error loading balance';
     console.error(err);
   }
-  }
+}
 
-// Update balance for current user
+// Auto-fetch balance for logged-in users
 function updateBalance() {
   const currentUser = netlifyIdentity.currentUser();
   if (!currentUser) {
@@ -127,23 +145,29 @@ function updateBalance() {
   fetchBalance(currentUser);
 }
 
-// Initial fetch
-updateBalance();
+// Wait until Netlify Identity finishes initializing
+netlifyIdentity.on('init', user => {
+  if (!user) {
+    document.getElementById('user-info').innerText = 'Please log in to see your balance';
+    document.getElementById('balance').innerText = '';
+    return;
+  }
+  updateBalance();
+});
 
-// Auto-refresh every 10s
+// Listen for login events
+netlifyIdentity.on('login', user => {
+  fetchBalance(user);
+});
+
+// Optional: auto-refresh every 10s
 setInterval(updateBalance, 10000);
 
-// Listen for login
-netlifyIdentity.on('login', user => fetchBalance(user));
-
-// Redirect if logged out
-document.addEventListener("DOMContentLoaded", () => {
-  if (!netlifyIdentity.currentUser()) {
-    window.location.replace("index.html");
-  }
+// Extra safety: if user logs out
+netlifyIdentity.on("logout", () => {
+  window.location.replace("index.html");
 });
-netlifyIdentity.on("logout", () => window.location.replace("index.html"));
-
 </script>
+
 </body>
   </html>
