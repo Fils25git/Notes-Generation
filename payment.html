@@ -144,6 +144,26 @@
   <span id="msgText"></span>
   <span class="close" onclick="closeMsg()">✖</span>
 </div>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+  // Initialize Netlify Identity
+  netlifyIdentity.init();
+
+  // 🚫 Block non-logged-in users
+  document.addEventListener("DOMContentLoaded", () => {
+    const user = netlifyIdentity.currentUser();
+
+    if (!user) {
+      // Redirect immediately if not logged in
+      window.location.replace("index.html");
+    }
+  });
+
+  // Extra safety: if user logs out while on page
+  netlifyIdentity.on("logout", () => {
+    window.location.replace("index.html");
+  });
+  </script>
 
 <script>
 const packages = document.querySelectorAll('.packages button');
