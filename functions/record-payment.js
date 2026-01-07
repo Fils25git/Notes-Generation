@@ -24,15 +24,9 @@ export async function handler(event) {
 
     // --- Insert or update user ---
     const userRes = await pool.query(
-      `INSERT INTO users(phone, email, balance, last_payment_reference, last_payment_time)
-       VALUES($1, $2, $3, $4, NOW())
-       ON CONFLICT (phone)
-       DO UPDATE SET 
-         balance = users.balance + EXCLUDED.balance,
-         last_payment_reference = EXCLUDED.last_payment_reference,
-         last_payment_time = NOW(),
-         email = COALESCE(EXCLUDED.email, users.email)
-       RETURNING id, balance`,
+      `INSERT INTO users(phone, email)
+VALUES($1, $2)
+ON CONFLICT (phone) DO NOTHING,
       [phone, email || null, amount, reference]
     );
 
