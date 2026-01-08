@@ -165,25 +165,17 @@
 <div id="floatingMessage" class="floating-message"></div>
 
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-<script>
-/* ---------------------------
-   Netlify Identity Init
----------------------------- */
+      <script>
 netlifyIdentity.init();
 
-let currentUser = null;
-
+/* ---------- AUTH ---------- */
 netlifyIdentity.on('init', user => {
   if (!user) {
     window.location.href = "../login.html";
-    return;
   }
-  currentUser = user;
 });
 
-/* ---------------------------
-   Floating Message Helper
----------------------------- */
+/* ---------- UI ---------- */
 function showFloatingMessage(msg) {
   const box = document.getElementById("floatingMessage");
   box.innerHTML = msg;
@@ -191,9 +183,7 @@ function showFloatingMessage(msg) {
   setTimeout(() => box.style.display = "none", 15000);
 }
 
-/* ---------------------------
-   Lesson Plan Templates
----------------------------- */
+/* ---------- PLAN CONFIG ---------- */
 const planFolders = {
   english: "proposals",
   kinyarwanda: "kinyarwanda_plans",
@@ -202,69 +192,65 @@ const planFolders = {
 };
 
 function getRandomPlanFile(language) {
+  if (!planFolders[language]) {
+    throw new Error("Language not selected");
+  }
   const index = Math.floor(Math.random() * 5) + 1;
-  return `${planFolders[language]}/plan${index}.html`;
+  return `${planFolders[language]}/plan${index}.html?nocache=${Date.now()}`;
 }
 
-/* ---------------------------
-   Form Submit Handler
----------------------------- */
+/* ---------- FORM SUBMIT ---------- */
 document.getElementById("lessonForm").addEventListener("submit", async e => {
   e.preventDefault();
 
-  if (!currentUser || !currentUser.email) {
-    showFloatingMessage("❌ You must be logged in.");
+  const user = netlifyIdentity.currentUser();
+  if (!user) return;
+
+  const language = document.getElementById("language").value;
+  if (!language) {
+    showFloatingMessage("❌ Please select a language.");
     return;
   }
 
   try {
     /* 1️⃣ Check balance */
-    const balanceRes = await fetch(
-      `/.netlify/functions/get-balance?email=${encodeURIComponent(currentUser.email)}`
-    );
+    const res = await fetch(`/.netlify/functions/get-balance?email=${user.email}`);
+    const data = await res.json();
 
-    if (!balanceRes.ok) throw new Error("Balance fetch failed");
-
-    const balanceData = await balanceRes.json();
-
-    if (balanceData.balance < 1) {
-      showFloatingMessage(`❌ No lesson plans available.<br><br>
+    if (!res.ok || data.balance < 1) {
+      showFloatingMessage(`
+        ❌ No lesson plans available.<br><br>
         👉 <a href="../payment.html">Buy lesson plans</a><br>
-        👉 <a href="../balance.html">View balance</a>`);
+        👉 <a href="../balance.html">View balance</a>
+      `);
       return;
     }
 
-    /* 2️⃣ Deduct lesson plan */
-    const deductRes = await fetch("/.netlify/functions/use-lesson-plan", {
+    /* 2️⃣ Deduct lesson */
+    const deduct = await fetch("/.netlify/functions/use-lesson-plan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: currentUser.email })
+      body: JSON.stringify({ email: user.email })
     });
 
-    if (!deductRes.ok) {
+    if (!deduct.ok) {
       showFloatingMessage("❌ Failed to deduct lesson plan.");
       return;
     }
 
     /* 3️⃣ Generate lesson plan */
-    generateLessonPlan();
+    generateLessonPlan(language);
 
   } catch (err) {
     console.error(err);
-    showFloatingMessage("❌ Server error. Please try again.");
+    showFloatingMessage("❌ Server error. Try again.");
   }
 });
 
-/* ---------------------------
-   Generate Lesson Plan
----------------------------- */
-function generateLessonPlan() {
-  const language = document.getElementById("language").value;
-
-  if (!language) {
-    showFloatingMessage("❌ Please select a language.");
-    return;
-  }
+/* ---------- GENERATE PLAN ---------- */
+function generateLessonPlan(language) {
+  const lessonPlanContent = document.getElementById("lessonPlanContent");
+  const resultContainer = document.getElementById("resultContainer");
 
   const data = {
     schoolName: schoolName.value,
@@ -285,42 +271,29 @@ function generateLessonPlan() {
     references: references.value || "REB Curriculum Guide"
   };
 
-  fetch(getRandomPlanFile(language))
-    .then(res => res.text())
+  fetch(getRandomPlanFile(language), { cache: "no-store" })
+    .then(res => {
+      if (!res.ok) throw new Error("Lesson template not found");
+      return res.text();
+    })
     .then(template => {
       for (const key in data) {
         template = template.replaceAll(`{{${key}}}`, data[key]);
       }
-
       lessonPlanContent.innerHTML = template;
       resultContainer.scrollIntoView({ behavior: "smooth" });
     })
-    .catch(() => {
+    .catch(err => {
+      console.error(err);
       showFloatingMessage("❌ Failed to load lesson plan template.");
     });
 }
 
-/* ---------------------------
-   Copy to Word
----------------------------- */
-function copyToWord() {
-  const range = document.createRange();
-  range.selectNode(lessonPlanContent);
-  window.getSelection().removeAllRanges();
-  window.getSelection().addRange(range);
-  document.execCommand("copy");
-  alert("Lesson plan copied.");
-}
-
-/* ---------------------------
-   Edit / Save Lesson Plan
----------------------------- */
+/* ---------- EDIT ---------- */
 function enableEdit() {
   const content = document.getElementById("lessonPlanContent");
   content.contentEditable = "true";
   content.style.border = "2px dashed #3498db";
-  content.style.padding = "10px";
-
   document.getElementById("editBtn").style.display = "none";
   document.getElementById("saveBtn").style.display = "inline-block";
 }
@@ -329,13 +302,10 @@ function saveEdit() {
   const content = document.getElementById("lessonPlanContent");
   content.contentEditable = "false";
   content.style.border = "none";
-
   document.getElementById("editBtn").style.display = "inline-block";
   document.getElementById("saveBtn").style.display = "none";
-
-  showFloatingMessage("✅ Lesson plan saved successfully.");
+  showFloatingMessage("✅ Lesson plan saved.");
 }
-</script>
-        
+      </script>
 </body>
     </html>
