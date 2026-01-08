@@ -152,6 +152,7 @@ input:focus, select:focus, textarea:focus {
     display: flex;
     gap: 5px;
     flex-wrap: wrap;  
+   flex: column;
 }
 
 .double-input input {
