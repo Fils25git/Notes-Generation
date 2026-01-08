@@ -2,76 +2,96 @@ import { Client } from "pg";
 
 export async function handler(event) {
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method not allowed" };
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ success: false, message: "Method not allowed" })
+    };
   }
 
   const { email, phone } = JSON.parse(event.body || "{}");
 
   if (!email && !phone) {
-    return { statusCode: 400, body: "Missing email or phone" };
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ success: false, message: "Missing email or phone" })
+    };
   }
 
   const client = new Client({
     connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
+    ssl: { rejectUnauthorized: false }
   });
 
   try {
     await client.connect();
 
-    // 1️⃣ Find user
-    let userRes;
-    if (email) {
-      userRes = await client.query("SELECT id FROM users WHERE email=$1", [email]);
-    } else {
-      userRes = await client.query("SELECT id FROM users WHERE phone=$1", [phone]);
-    }
+    /* ===============================
+       1️⃣ FIND USER
+    =============================== */
+    const userRes = await client.query(
+      email
+        ? "SELECT id FROM users WHERE email=$1"
+        : "SELECT id FROM users WHERE phone=$1",
+      [email || phone]
+    );
 
     if (userRes.rows.length === 0) {
       await client.end();
-      return { statusCode: 404, body: JSON.stringify({ message: "User not found", success: false }) };
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ success: false, message: "User not found" })
+      };
     }
 
     const userId = userRes.rows[0].id;
 
-    // 2️⃣ Total approved lessons purchased
-    // 🎁 GIVE 2 FREE LESSON PLANS ONCE
-const freeCheck = await client.query(
-  `SELECT COUNT(*) FROM payments
-   WHERE user_id=$1 AND reference='FREE_SIGNUP'`,
-  [user.id]
-);
-
-if (parseInt(freeCheck.rows[0].count, 10) === 0) {
-  await client.query(
-    `INSERT INTO payments (user_id, lessons, status, reference)
-     VALUES ($1, 2, 'approved', 'FREE_SIGNUP')`,
-    [user.id]
-  );
-  }
-    const paymentRes = await client.query(
-      "SELECT COALESCE(SUM(lessons),0) AS total_purchased FROM payments WHERE user_id=$1 AND status='approved'",
+    /* ===============================
+       2️⃣ TOTAL PURCHASED LESSON PLANS
+    =============================== */
+    const purchasedRes = await client.query(
+      `SELECT COALESCE(SUM(lessons), 0) AS total_purchased
+       FROM payments
+       WHERE user_id=$1 AND status='approved'`,
       [userId]
     );
-    const totalPurchased = parseInt(paymentRes.rows[0].total_purchased, 10);
 
-    // 3️⃣ Total lessons used
-    const usageRes = await client.query(
-      "SELECT COALESCE(SUM(lessons_used),0) AS total_used FROM lesson_usage WHERE user_id=$1",
+    const totalPurchased = parseInt(purchasedRes.rows[0].total_purchased, 10);
+
+    /* ===============================
+       3️⃣ TOTAL USED LESSON PLANS
+    =============================== */
+    const usedRes = await client.query(
+      `SELECT COALESCE(SUM(lessons_used), 0) AS total_used
+       FROM lesson_usage
+       WHERE user_id=$1`,
       [userId]
     );
-    const totalUsed = parseInt(usageRes.rows[0].total_used, 10);
 
-    // 4️⃣ Check balance
+    const totalUsed = parseInt(usedRes.rows[0].total_used, 10);
+
+    /* ===============================
+       4️⃣ CHECK AVAILABLE BALANCE
+    =============================== */
     const available = totalPurchased - totalUsed;
+
     if (available < 1) {
       await client.end();
-      return { statusCode: 400, body: JSON.stringify({ message: "Insufficient lesson plans", balance: 0, success: false }) };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          success: false,
+          message: "No lesson plans available",
+          balance: 0
+        })
+      };
     }
 
-    // 5️⃣ Deduct 1 lesson plan
+    /* ===============================
+       5️⃣ DEDUCT ONE LESSON PLAN
+    =============================== */
     await client.query(
-      "INSERT INTO lesson_usage(user_id, used_at, lessons_used) VALUES($1, NOW(), 1)",
+      `INSERT INTO lesson_usage (user_id, lessons_used, used_at)
+       VALUES ($1, 1, NOW())`,
       [userId]
     );
 
@@ -82,14 +102,22 @@ if (parseInt(freeCheck.rows[0].count, 10) === 0) {
     return {
       statusCode: 200,
       body: JSON.stringify({
+        success: true,
         message: "Lesson plan used successfully",
-        balance: newBalance >= 0 ? newBalance : 0,
-        success: true
-      }),
+        balance: newBalance
+      })
     };
+
   } catch (err) {
-    if (client) await client.end();
-    console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ message: "Server error", success: false }) };
+    console.error("use-lesson-plan error:", err);
+    try { await client.end(); } catch {}
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        success: false,
+        message: "Server error"
+      })
+    };
   }
-};
+          }
