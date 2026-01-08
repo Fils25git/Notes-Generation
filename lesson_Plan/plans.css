@@ -208,10 +208,16 @@ input:focus, select:focus, textarea:focus {
 .double-input {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;  
 }
 
 .double-input input {
-    flex: 1;
+    flex: 1 1 100%;   
+   }
+@media (max-width: 480px) {
+    .double-input {
+        flex-direction: column;
+    }
 }
 
 /* ==========================
