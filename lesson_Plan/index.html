@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fila Assistant - CBC Lesson Plan Generator</title>
+
+  <link rel="stylesheet" href="plans.css">
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+  <style>
+    .floating-message {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #e74c3c;
+      color: #fff;
+      padding: 18px 22px;
+      border-radius: 14px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 9999;
+      max-width: 300px;
+      line-height: 1.6;
+    }
+    .floating-message a {
+      color: #fff;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="header">
+    <img src="../logo.png">
+    <h2>Fila Assistant</h2>
+  </div>
+
+  <div class="form-container">
+    <p><b>Fill in the required fields below to fetch a lesson plan</b></p><br>
+
+    <form id="lessonForm">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="required">Language</label>
+          <select id="language" required>
+            <option value="">Select Language</option>
+            <option value="english">English</option>
+            <option value="kinyarwanda">Kinyarwanda</option>
+            <option value="kiswahili">Kiswahili</option>
+            <option value="french">French</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="required">School Name</label>
+          <input type="text" id="schoolName" required>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Teacher's Name</label>
+          <input type="text" id="teacherName" required>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Term</label>
+          <select id="term" required>
+            <option value="">Select Term</option>
+            <option value="I">Term I</option>
+            <option value="II">Term II</option>
+            <option value="III">Term III</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Date</label>
+          <input type="date" id="date" required>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Subject</label>
+          <input type="text" id="subject" required>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Class</label>
+          <input type="text" id="class" required>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Unit No</label>
+          <input type="number" id="unitNo" required>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Lesson No / Total</label>
+          <input type="number" id="lessonNo" required>
+          <input type="number" id="totalLessons" required>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Duration (minutes)</label>
+          <input type="number" id="duration" required>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Class Size</label>
+          <input type="number" id="classSize" required>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="required">Unit Title</label>
+          <input type="text" id="unitTitle" required>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="required">Lesson Title</label>
+          <input type="text" id="lessonTitle" required>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Teaching Materials</label>
+          <input type="text" id="teachingMaterials">
+        </div>
+
+        <div class="form-group full-width">
+          <label>Special Educational Needs</label>
+          <input type="text" id="specialNeeds">
+        </div>
+
+        <div class="form-group full-width">
+          <label>References</label>
+          <input type="text" id="references">
+        </div>
+
+      </div>
+
+      <button type="submit" class="generate-btn">Fetch Lesson Plan</button>
+    </form>
+  </div>
+
+  <div id="resultContainer" class="result-container">
+    <div class="download-buttons">
+      <button onclick="copyToWord()">📄 Copy to Word</button>
+      <button onclick="window.print()">📑 Print / Save as PDF</button>
+      <button id="editBtn" onclick="enableEdit()">✏️ Edit</button>
+      <button id="saveBtn" onclick="saveEdit()" style="display:none;">💾 Save</button>
+    </div>
+    <div id="lessonPlanContent"></div>
+  </div>
+</div>
+
+<div id="floatingMessage" class="floating-message"></div>
+
+<script>
+/* ================= AUTH ================= */
+netlifyIdentity.init();
+netlifyIdentity.on("init", user => {
+  if (!user) {
+    window.location.href = "../login.html";
+  }
+});
+
+/* ================= GLOBAL ELEMENTS ================= */
+const lessonPlanContent = document.getElementById("lessonPlanContent");
+const resultContainer = document.getElementById("resultContainer");
+
+/* ================= UI ================= */
+function showFloatingMessage(msg) {
+  const box = document.getElementById("floatingMessage");
+  box.innerHTML = msg;
+  box.style.display = "block";
+  setTimeout(() => box.style.display = "none", 15000);
+}
+
+/* ================= PLAN CONFIG ================= */
+const planFolders = {
+  english: "proposals",
+  kinyarwanda: "kinyarwanda_plans",
+  kiswahili: "kiswahili_plans",
+  french: "french_plans"
+};
+
+function getRandomPlanFile(language) {
+  const index = Math.floor(Math.random() * 5) + 1;
+  return `/${planFolders[language]}/plan${index}.html?nocache=${Date.now()}`;
+}
+
+/* ================= FORM SUBMIT ================= */
+document.getElementById("lessonForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const user = netlifyIdentity.currentUser();
+  if (!user) {
+    window.location.href = "../login.html";
+    return;
+  }
+
+  const language = document.getElementById("language").value;
+  if (!language) {
+    showFloatingMessage("❌ Please select a language.");
+    return;
+  }
+
+  try {
+    const balanceRes = await fetch(
+      `/.netlify/functions/get-balance?email=${encodeURIComponent(user.email)}`
+    );
+    const balanceData = await balanceRes.json();
+
+    if (!balanceRes.ok || balanceData.balance < 1) {
+      showFloatingMessage(`❌ No lesson plans available.<br>
+        <a href="../payment.html">Buy lesson plans</a>`);
+      return;
+    }
+
+    const deduct = await fetch("/.netlify/functions/use-lesson-plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user.email })
+    });
+
+    if (!deduct.ok) {
+      showFloatingMessage("❌ Failed to deduct lesson plan.");
+      return;
+    }
+
+    generateLessonPlan(language);
+
+  } catch (err) {
+    console.error(err);
+    showFloatingMessage("❌ Server error. Try again.");
+  }
+});
+
+/* ================= GENERATE PLAN ================= */
+function generateLessonPlan(language) {
+  const data = {
+    schoolName: schoolName.value,
+    teacherName: teacherName.value,
+    term: term.value,
+    date: date.value,
+    subject: subject.value,
+    class: document.getElementById("class").value,
+    unitNo: unitNo.value,
+    lessonNo: lessonNo.value,
+    totalLessons: totalLessons.value,
+    duration: duration.value,
+    classSize: classSize.value,
+    unitTitle: unitTitle.value,
+    lessonTitle: lessonTitle.value,
+    teachingMaterials: teachingMaterials.value || "Not specified",
+    specialNeeds: specialNeeds.value || "None",
+    references: references.value || "REB Curriculum Guide"
+  };
+
+  fetch(getRandomPlanFile(language))
+    .then(res => res.text())
+    .then(template => {
+      for (const key in data) {
+        template = template.replaceAll(`{{${key}}}`, data[key]);
+      }
+      lessonPlanContent.innerHTML = template;
+      resultContainer.scrollIntoView({ behavior: "smooth" });
+    })
+    .catch(() => showFloatingMessage("❌ Failed to load lesson template."));
+}
+
+/* ================= EDIT ================= */
+function enableEdit() {
+  lessonPlanContent.contentEditable = "true";
+  editBtn.style.display = "none";
+  saveBtn.style.display = "inline-block";
+}
+
+function saveEdit() {
+  lessonPlanContent.contentEditable = "false";
+  editBtn.style.display = "inline-block";
+  saveBtn.style.display = "none";
+  showFloatingMessage("✅ Lesson plan saved.");
+}
+
+/* ================= COPY ================= */
+function copyToWord() {
+  const range = document.createRange();
+  range.selectNode(lessonPlanContent);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+  document.execCommand("copy");
+}
+</script>
+
+</body>
+  </html>
