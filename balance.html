@@ -90,9 +90,19 @@
     Buy More Lesson Plans
   </a>
 </div>
-  <script>
+<script>
 netlifyIdentity.init();
 
+// Extract first name from Netlify Identity
+function getFirstName(user) {
+  const fullName = user?.user_metadata?.full_name;
+  if (fullName) {
+    return fullName.trim().split(/\s+/)[0];
+  }
+  return user?.email?.split("@")[0] || "there";
+}
+
+// Fetch balance ONLY
 async function fetchBalance(identifier) {
   try {
     const isEmail = identifier.includes("@");
@@ -105,9 +115,6 @@ async function fetchBalance(identifier) {
 
     const data = await res.json();
 
-    document.getElementById('user-info').innerText =
-      `Hello ${data.email || data.phone}`;
-
     document.getElementById('balance').innerText =
       `Available: ${data.balance} lesson plan${data.balance === 1 ? '' : 's'}`;
   } catch (err) {
@@ -119,11 +126,17 @@ async function fetchBalance(identifier) {
 function updateBalance() {
   const currentUser = netlifyIdentity.currentUser();
   if (!currentUser) {
-    document.getElementById('user-info').innerText = 'Please log in to see your balance';
+    document.getElementById('user-info').innerText =
+      'Please log in to see your balance';
     document.getElementById('balance').innerText = '';
     return;
   }
 
+  // Greeting from Netlify Identity
+  const firstName = getFirstName(currentUser);
+  document.getElementById('user-info').innerText = `Hello ${firstName}`;
+
+  // Balance from backend
   const identifier = currentUser.email || currentUser.phone;
   fetchBalance(identifier);
 }
@@ -138,7 +151,6 @@ netlifyIdentity.on('logout', () => {
 
 // Optional polling (safe)
 setInterval(updateBalance, 10000);
-                                                                             </script>
-
+  </script>
 </body>
 </html>
