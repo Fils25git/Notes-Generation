@@ -201,27 +201,50 @@ function getRandomPlanFile(language) {
 document.getElementById('lessonForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    // 1️⃣ Check balance
-    const res = await fetch(`/.netlify/functions/get-balance?email=${user.email}`);
-    const data = await res.json();
+    const btn = document.querySelector(".generate-btn");
+    btn.disabled = true;
+    btn.textContent = "Fetching...";
 
-    if (data.balance <= 0) {
-        showFloatingMessage(`
-          ❌ No lesson plans available.<br><br>
-          👉 <a href="../payment.html">Buy lesson plans</a><br>
-          👉 <a href="../balance.html">View balance</a>
-        `);
-        return;
+    try {
+        // 1️⃣ Check balance
+        const res = await fetch(`/.netlify/functions/get-balance?email=${user.email}`);
+        const data = await res.json();
+
+        if (data.balance <= 0) {
+            showFloatingMessage(`
+              ❌ No lesson plans available.<br><br>
+              👉 <a href="../payment.html">Buy lesson plans</a><br>
+              👉 <a href="../balance.html">View balance</a>
+            `);
+            btn.disabled = false;
+            btn.textContent = "Fetch Lesson Plan";
+            return;
+        }
+
+        // 2️⃣ Deduct lesson plan (SAFE CHECK)
+        const deductRes = await fetch('/.netlify/functions/use-lesson-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email })
+        });
+
+        const deductData = await deductRes.json();
+
+        if (!deductRes.ok || deductData.success !== true) {
+            showFloatingMessage("❌ Lesson plan balance exhausted.");
+            btn.disabled = false;
+            btn.textContent = "Fetch Lesson Plan";
+            return;
+        }
+
+        // 3️⃣ Generate lesson plan ONLY after success
+        generateLessonPlan();
+
+    } catch (err) {
+        showFloatingMessage("❌ Network error. Please try again.");
+        btn.disabled = false;
+        btn.textContent = "Fetch Lesson Plan";
     }
-
-    // 2️⃣ Deduct 1 lesson plan
-    await fetch('/.netlify/functions/use-lesson-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: user.email })
-    });
-
-    generateLessonPlan();
 });
 
 function generateLessonPlan() {
