@@ -90,20 +90,19 @@
     Buy More Lesson Plans
   </a>
 </div>
-
-<script>
+  <script>
 netlifyIdentity.init();
 
-// Function to fetch lesson plan balance from backend
 async function fetchBalance(identifier) {
   try {
     const isEmail = identifier.includes("@");
     const url = isEmail
-      ? `/.netlify/functions/use-lesson-plan?email=${identifier}`
-      : `/.netlify/functions/use-lesson-plan?phone=${identifier}`;
+      ? `/.netlify/functions/get-balance?email=${identifier}`
+      : `/.netlify/functions/get-balance?phone=${identifier}`;
 
     const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch balance");
+
     const data = await res.json();
 
     document.getElementById('user-info').innerText =
@@ -111,14 +110,12 @@ async function fetchBalance(identifier) {
 
     document.getElementById('balance').innerText =
       `Available: ${data.balance} lesson plan${data.balance === 1 ? '' : 's'}`;
-
   } catch (err) {
     document.getElementById('balance').innerText = 'Error loading balance';
     console.error(err);
   }
 }
 
-// Update balance every time page loads or user changes
 function updateBalance() {
   const currentUser = netlifyIdentity.currentUser();
   if (!currentUser) {
@@ -131,23 +128,17 @@ function updateBalance() {
   fetchBalance(identifier);
 }
 
-// Initial fetch
+// Run once on page load
 updateBalance();
 
-// Listen for login event
-netlifyIdentity.on('login', user => {
-  const identifier = user.email || user.phone;
-  fetchBalance(identifier);
-});
-
-// Listen for logout event
+// Logout handler
 netlifyIdentity.on('logout', () => {
   window.location.replace("index.html");
 });
 
-// Optional: refresh balance every 10 seconds
+// Optional polling (safe)
 setInterval(updateBalance, 10000);
-</script>
+                                                                             </script>
 
 </body>
 </html>
