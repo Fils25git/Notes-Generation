@@ -1,0 +1,181 @@
+<!-- proposals/plan6_fr_v4.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Fiche de leçon</title>
+    <link rel="stylesheet" href="plan.css">
+</head>
+<body>
+
+<div class="text-center bold" style="font-size:12pt; margin-bottom:10px;">
+    FICHE DE LEÇON
+</div>
+
+<div style="margin-bottom:5px; font-size:10pt;">
+    <span class="bold">Nom de l'école :</span> {{schoolName}}
+    <span style="margin-left:80px;" class="bold">Nom de l'enseignant :</span> {{teacherName}}
+</div>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold">Trimestre</td>
+        <td class="bold">Date</td>
+        <td class="bold">Matière</td>
+        <td class="bold">Classe</td>
+        <td class="bold">Unité N°</td>
+        <td class="bold">Leçon N°</td>
+        <td class="bold">Durée</td>
+        <td class="bold">Effectif</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} sur {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}} élèves</td>
+    </tr>
+</table>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold" style="width:33%;">Type de besoins éducatifs particuliers</td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Titre de l'unité</td>
+        <td>{{unitTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Compétence clé de l'unité</td>
+        <td>
+            Les apprenants utiliseront les connaissances de {{subject}} pour accomplir des activités concrètes et résoudre des problèmes relatifs à {{lessonTitle}}.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Titre de la leçon</td>
+        <td>{{lessonTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Objectif pédagogique</td>
+        <td>
+            À la fin de cette leçon, les apprenants seront capables de comprendre {{lessonTitle}}, participer activement aux activités, résoudre des exercices simples et communiquer leurs résultats de façon claire.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Plan de la classe</td>
+        <td>À l'intérieur</td>
+    </tr>
+    <tr>
+        <td class="bold">Matériel pédagogique</td>
+        <td>{{teachingMaterials}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Références</td>
+        <td>{{references}}</td>
+    </tr>
+</table>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold" style="width:15%;">Temps</td>
+        <td colspan="2" class="bold text-center">
+            <u>Description des activités d’enseignement et d’apprentissage</u><br>
+            <em>L'enseignant utilise {{subject}} et des exemples concrets pour permettre aux apprenants de comprendre et pratiquer {{lessonTitle}}.</em>
+        </td>
+        <td class="bold" style="width:30%;">Compétences génériques et thèmes transversaux</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold" style="width:27.5%;">Activités de l'enseignant</td>
+        <td class="bold" style="width:27.5%;">Activités des apprenants</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Introduction<br>5 min</td>
+        <td>
+            <ul>
+                <li>Saluer les élèves et vérifier la présence</li>
+                <li>Présenter le thème de {{lessonTitle}}</li>
+                <li>Faire un rappel rapide de la leçon précédente</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Répondre aux salutations</li>
+                <li>Rappeler ce qui a été appris précédemment</li>
+                <li>Observer et écouter attentivement l’enseignant</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Communication :</strong> Échange oral<br>
+            <strong>Égalité des genres :</strong> Participation de tous
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Développement<br>25 min</td>
+        <td>
+            <ul>
+                <li>Expliquer les notions principales de {{lessonTitle}}</li>
+                <li>Distribuer des exercices individuels et collectifs</li>
+                <li>Guider les élèves pour former des phrases correctes</li>
+                <li>Encourager les discussions et la coopération dans les groupes</li>
+                <li>Faire présenter le travail de différents groupes</li>
+                <li>Corriger les erreurs et clarifier les incompréhensions</li>
+                <li>Proposer des questions supplémentaires pour approfondir la compréhension</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Participer aux activités individuelles et en groupe</li>
+                <li>Écrire et dire des phrases correctes en rapport avec {{lessonTitle}}</li>
+                <li>Présenter les résultats du groupe</li>
+                <li>Écouter et comparer avec les autres groupes</li>
+                <li>Répondre aux questions pour améliorer la compréhension</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Coopération :</strong> Travail collectif<br>
+            <strong>Pensée critique :</strong> Analyse et synthèse<br>
+            <strong>Égalité des genres :</strong> Participation équilibrée
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Conclusion<br>10 min</td>
+        <td>
+            <ul>
+                <li>Faire un résumé des notions apprises</li>
+                <li>Poser des questions orales et écrites pour vérifier la compréhension</li>
+                <li>Attribuer les devoirs à réaliser à la maison</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Répondre aux questions</li>
+                <li>Noter les devoirs et clarifier les instructions</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Responsabilité :</strong> Réalisation des devoirs<br>
+            <strong>Confiance en soi :</strong> Participation réussie
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Auto-évaluation de l'enseignant</td>
+        <td colspan="3">
+            <!-- À remplir par l'enseignant après la leçon -->
+        </td>
+    </tr>
+
+</table>
+
+</body>
+                                   </html>
