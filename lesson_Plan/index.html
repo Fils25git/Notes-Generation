@@ -272,8 +272,8 @@ function generateLessonPlan() {
         unitTitle: unitTitle.value,
         lessonTitle: lessonTitle.value,
         teachingMaterials: teachingMaterials.value ||"${subject} Textbooks,Flashcards and lesson related charts",
-        specialNeeds: specialNeeds.value || "There is no pupil with Special educational getRandomPlanFileculumculumulum",
-        references: references.value || " ${subject} Student book by REB, ${subject} teacher's guide book by REB, REB Curriculum Guide"
+        specialNeeds: specialNeeds.value || `There is no pupil with Special educational Needs`,
+        references: references.value || `${subject} Student book by REB, ${subject} teacher's guide book by REB, REB Curriculum Guide`
     };
 
     fetch(getRandomPlanFile(language))
