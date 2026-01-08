@@ -27,7 +27,7 @@
   }
   h2 { margin-bottom: 20px; }
   .packages button { 
-    padding: 12px 20px; 
+    padding: 10px 15px; 
     margin: 8px; 
     border: none; 
     border-radius: 12px; 
@@ -66,8 +66,9 @@
   }
   #result { margin-top: 15px; font-weight: bold; }
   #confirmPayment { 
+    position:fixed;
     margin-top: 12px; 
-    padding: 10px 15px; 
+    padding: 15px 20px; 
     border: none; 
     border-radius: 12px; 
     background: #ffc107; 
@@ -138,7 +139,7 @@
     <button data-amount="1000">1000 RWF → 100 lesson plans</button>
   </div>
 
-  <p>Or enter custom amount:</p>
+  <p>OR enter custom amount:</p>
   <input type="number" id="customAmount" placeholder="Enter amount in RWF" min="20">
   <button id="customPayBtn">Calculate & Generate USSD</button>
 
