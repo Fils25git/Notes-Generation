@@ -1,0 +1,179 @@
+<!-- proposals/plan6_fr_v10.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Fiche de leçon</title>
+    <link rel="stylesheet" href="plan.css">
+</head>
+<body>
+
+<div class="text-center bold" style="font-size:12pt; margin-bottom:10px;">
+    FICHE DE LEÇON
+</div>
+
+<div style="margin-bottom:5px; font-size:10pt;">
+    <span class="bold">Nom de l'école :</span> {{schoolName}}
+    <span style="margin-left:80px;" class="bold">Nom de l'enseignant :</span> {{teacherName}}
+</div>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold">Trimestre</td>
+        <td class="bold">Date</td>
+        <td class="bold">Matière</td>
+        <td class="bold">Classe</td>
+        <td class="bold">Unité N°</td>
+        <td class="bold">Leçon N°</td>
+        <td class="bold">Durée</td>
+        <td class="bold">Effectif</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} sur {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}} élèves</td>
+    </tr>
+</table>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold" style="width:33%;">Type de besoins éducatifs particuliers</td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Titre de l'unité</td>
+        <td>{{unitTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Compétence clé de l'unité</td>
+        <td>
+            Les élèves seront capables d'utiliser les notions de {{subject}} dans des situations pratiques et de résoudre des exercices liés à {{lessonTitle}}.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Titre de la leçon</td>
+        <td>{{lessonTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Objectif pédagogique</td>
+        <td>
+            Les apprenants identifieront, comprendront et appliqueront les notions de {{lessonTitle}} et sauront présenter leurs résultats de manière claire.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Plan de la classe</td>
+        <td>À l'intérieur</td>
+    </tr>
+    <tr>
+        <td class="bold">Matériel pédagogique</td>
+        <td>{{teachingMaterials}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Références</td>
+        <td>{{references}}</td>
+    </tr>
+</table>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold" style="width:15%;">Temps</td>
+        <td colspan="2" class="bold text-center">
+            <u>Description des activités d’enseignement et d’apprentissage</u><br>
+            <em>L’enseignant utilise {{subject}} et différents supports pour guider les élèves dans la compréhension et l’application de {{lessonTitle}}.</em>
+        </td>
+        <td class="bold" style="width:30%;">Compétences génériques et thèmes transversaux</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold" style="width:27.5%;">Activités de l'enseignant</td>
+        <td class="bold" style="width:27.5%;">Activités des apprenants</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Introduction<br>5 min</td>
+        <td>
+            <ul>
+                <li>Accueillir les élèves et vérifier la présence</li>
+                <li>Présenter la leçon {{lessonTitle}}</li>
+                <li>Rappeler les notions vues précédemment pour faire le lien</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Répondre aux salutations</li>
+                <li>Se souvenir des connaissances antérieures</li>
+                <li>Observer les supports présentés</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Communication :</strong> Expression orale<br>
+            <strong>Égalité des genres :</strong> Participation équilibrée
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Développement<br>25 min</td>
+        <td>
+            <ul>
+                <li>Expliquer les principaux points de {{lessonTitle}}</li>
+                <li>Proposer des exercices individuels et en groupes</li>
+                <li>Accompagner et corriger les élèves pendant les activités</li>
+                <li>Encourager la collaboration et l’échange d’idées</li>
+                <li>Faire présenter les réponses et solutions des groupes</li>
+                <li>Poser des questions pour approfondir la compréhension</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Participer activement aux exercices proposés</li>
+                <li>Rédiger et présenter des réponses correctes sur {{lessonTitle}}</li>
+                <li>Présenter le travail du groupe aux autres</li>
+                <li>Observer et apprendre des autres groupes</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Coopération :</strong> Travail en groupe<br>
+            <strong>Pensée critique :</strong> Analyse et synthèse<br>
+            <strong>Égalité des genres :</strong> Participation de tous
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Conclusion<br>10 min</td>
+        <td>
+            <ul>
+                <li>Résumer ce qui a été appris</li>
+                <li>Poser des questions orales et écrites pour vérifier la compréhension</li>
+                <li>Attribuer les devoirs à faire à la maison</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Répondre aux questions</li>
+                <li>Noter les devoirs et clarifier ce qui est attendu</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Responsabilité :</strong> Devoirs<br>
+            <strong>Confiance en soi :</strong> Participation active
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Auto-évaluation de l'enseignant</td>
+        <td colspan="3">
+            <!-- À remplir par l'enseignant après la leçon -->
+        </td>
+    </tr>
+
+</table>
+
+</body>
+          </html>
