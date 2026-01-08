@@ -6,6 +6,7 @@ export async function handler(event) {
   }
 
   const { email, phone } = JSON.parse(event.body || "{}");
+
   if (!email && !phone) {
     return { statusCode: 400, body: "Missing email or phone" };
   }
@@ -17,76 +18,64 @@ export async function handler(event) {
 
   try {
     await client.connect();
-    await client.query("BEGIN");
 
     // 1️⃣ Find user
-    const userRes = email
-      ? await client.query("SELECT id FROM users WHERE email=$1 FOR UPDATE", [email])
-      : await client.query("SELECT id FROM users WHERE phone=$1 FOR UPDATE", [phone]);
+    let userRes;
+    if (email) {
+      userRes = await client.query("SELECT id FROM users WHERE email=$1", [email]);
+    } else {
+      userRes = await client.query("SELECT id FROM users WHERE phone=$1", [phone]);
+    }
 
     if (userRes.rows.length === 0) {
-      await client.query("ROLLBACK");
-      return { statusCode: 404, body: "User not found" };
+      await client.end();
+      return { statusCode: 404, body: JSON.stringify({ message: "User not found", success: false }) };
     }
 
     const userId = userRes.rows[0].id;
 
-    // 2️⃣ Get total purchased lessons
+    // 2️⃣ Total approved lessons purchased
     const paymentRes = await client.query(
-      `SELECT COALESCE(SUM(lessons),0) AS total
-       FROM payments
-       WHERE user_id=$1 AND status='approved'`,
+      "SELECT COALESCE(SUM(lessons),0) AS total_purchased FROM payments WHERE user_id=$1 AND status='approved'",
       [userId]
     );
+    const totalPurchased = parseInt(paymentRes.rows[0].total_purchased, 10);
 
-    const totalPurchased = parseInt(paymentRes.rows[0].total, 10);
-
-    // 3️⃣ Get total used lessons
+    // 3️⃣ Total lessons used
     const usageRes = await client.query(
-      `SELECT COALESCE(SUM(lessons_used),0) AS used
-       FROM lesson_usage
-       WHERE user_id=$1`,
+      "SELECT COALESCE(SUM(lessons_used),0) AS total_used FROM lesson_usage WHERE user_id=$1",
       [userId]
     );
-
-    const totalUsed = parseInt(usageRes.rows[0].used, 10);
-    const available = totalPurchased - totalUsed;
+    const totalUsed = parseInt(usageRes.rows[0].total_used, 10);
 
     // 4️⃣ Check balance
+    const available = totalPurchased - totalUsed;
     if (available < 1) {
-      await client.query("ROLLBACK");
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ success: false, balance: 0 }),
-      };
+      await client.end();
+      return { statusCode: 400, body: JSON.stringify({ message: "Insufficient lesson plans", balance: 0, success: false }) };
     }
 
-    // 5️⃣ Deduct exactly 1 lesson
+    // 5️⃣ Deduct 1 lesson plan
     await client.query(
-      `INSERT INTO lesson_usage (user_id, lessons_used, used_at)
-       VALUES ($1, 1, NOW())`,
+      "INSERT INTO lesson_usage(user_id, used_at, lessons_used) VALUES($1, NOW(), 1)",
       [userId]
     );
 
-    await client.query("COMMIT");
+    const newBalance = available - 1;
+
     await client.end();
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        success: true,
-        balance: available - 1,
+        message: "Lesson plan used successfully",
+        balance: newBalance >= 0 ? newBalance : 0,
+        success: true
       }),
     };
-
   } catch (err) {
-    await client.query("ROLLBACK");
-    await client.end();
+    if (client) await client.end();
     console.error(err);
-
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ success: false, error: err.message }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ message: "Server error", success: false }) };
   }
-      }
+};
