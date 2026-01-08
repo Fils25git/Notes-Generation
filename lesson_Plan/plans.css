@@ -197,7 +197,7 @@ input:focus, select:focus, textarea:focus {
     }
 
     .double-input {
-        flex-direction: column;
+        flex-direction: row;
     }
        }
 
