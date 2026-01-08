@@ -69,12 +69,12 @@
 
                 <div class="form-group">
                     <label class="required">School Name</label>
-                    <input type="text" id="schoolName" required>
+                    <input type="text" id="schoolName" placeholder="e.g:,TTC BICUMBI"  required>
                 </div>
 
                 <div class="form-group">
                     <label class="required">Teacher's Name</label>
-                    <input type="text" id="teacherName" required>
+                    <input type="text" id="teacherName" placeholder="e.g:, IRATURINZE Fils Lambert" required>
                 </div>
 
                 <div class="form-group">
@@ -94,61 +94,60 @@
 
                 <div class="form-group">
                     <label class="required">Subject</label>
-                    <input type="text" id="subject" required>
+                    <input type="text" id="subject" placeholder="e.g:, English" required>
                 </div>
 
                 <div class="form-group">
                     <label class="required">Class</label>
-                    <input type="text" id="class" required>
+                    <input type="text" id="class" placeholder="e.g:, P6, S2" required>
                 </div>
 
                 <div class="form-group">
                     <label class="required">Unit No</label>
-                    <input type="number" id="unitNo" required>
-                </div>
+                    <input type="number" id="unitNo" placeholder="e.g:, 4" required>              </div>
 
                 <div class="form-group">
                     <label class="required">Lesson No / Total</label>
                     <div class="double-input">
-                        <input type="number" id="lessonNo" required>
-                        <input type="number" id="totalLessons" required>
+                        <input type="number" id="lessonNo" placeholder="e.g:, 4" required>
+                        <input type="number" id="totalLessons" placeholder="e.g:, 10" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="required">Duration (minutes)</label>
-                    <input type="number" id="duration" required>
+                    <input type="number" id="duration" placeholder=" e.g:, 40" required>
                 </div>
 
                 <div class="form-group">
                     <label class="required">Class Size</label>
-                    <input type="number" id="classSize" required>
+                    <input type="number" id="classSize" placeholder="e.g:, 35" required>
                 </div>
 
                 <div class="form-group full-width">
                     <label class="required">Unit Title</label>
-                    <input type="text" id="unitTitle" required>
+                    <input type="text" id="unitTitle" placeholder="e.g:, Leisure and Sports" required>
                 </div>
 
                 <div class="form-group full-width">
                     <label class="required">Lesson Title</label>
-                    <input type="text" id="lessonTitle" required>
+                    <input type="text" id="lessonTitle" placeholder="e.g:, Describing what you like doing" required>
                 </div>
 
                 <!-- ✅ Teaching materials optional -->
                 <div class="form-group full-width">
                     <label class="optional">Teaching Materials (Optional)</label>
-                    <input type="text" id="teachingMaterials" placeholder="E.g., Textbook, Flashcards, Worksheets">
+                    <input type="text" id="teachingMaterials" placeholder="E.g., Flashcards, Worksheets">
                 </div>
 
                 <div class="form-group full-width">
-                    <label class="optional">Special Educational Needs</label>
-                    <input type="text" id="specialNeeds">
+                    <label class="optional">Special Educational Needs (If available)</label>
+                    <input type="text" id="specialNeeds" placeholder="e.g:, 3 slow learners">
                 </div>
 
                 <div class="form-group full-width">
-                    <label class="optional">References</label>
-                    <input type="text" id="references">
+                    <label class="optional">References (Optional)</label>
+                    <input type="text" id="references" placeholder="e.g:, Mathematics students book for S4">
                 </div>
 
             </div>
@@ -272,16 +271,18 @@ function generateLessonPlan() {
         classSize: classSize.value,
         unitTitle: unitTitle.value,
         lessonTitle: lessonTitle.value,
-        teachingMaterials: teachingMaterials.value || "No specific teaching materials provided",
-        specialNeeds: specialNeeds.value || "No special needs identified",
-        references: references.value || "REB Curriculum Guide"
+        teachingMaterials: teachingMaterials.value ||"${subject} Textbooks,Flashcards and lesson related charts",
+        specialNeeds: specialNeeds.value || "There is no pupil with Special educational getRandomPlanFileculumculumulum",
+        references: references.value || " ${subject} Student book by REB, ${subject} teacher's guide book by REB, REB Curriculum Guide"
     };
 
     fetch(getRandomPlanFile(language))
     .then(r => r.text())
     .then(tpl => {
         for (const k in data) {
-            tpl = tpl.replace(new RegExp(`{{${k}}}`, "g"), data[k]);
+            tpl = tpl
+  .replace(new RegExp(`{{\\s*${k}\\s*}}`, "g"), data[k])
+  .replace(new RegExp(`\\$\\{\\s*${k}\\s*\\}`, "g"), data[k]);
         }
         lessonPlanContent.innerHTML = tpl;
         resultContainer.classList.add('show');
