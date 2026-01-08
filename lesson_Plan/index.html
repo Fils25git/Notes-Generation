@@ -189,7 +189,7 @@ function showFloatingMessage(msg) {
     const box = document.getElementById("floatingMessage");
     box.innerHTML = msg;
     box.style.display = "block";
-    setTimeout(() => box.style.display = "none", 15000);
+    setTimeout(() => box.style.display = "none", 10000);
 }
 
 // Plan folders per language
@@ -316,7 +316,7 @@ function copyToWord() {
     window.getSelection().addRange(range);
     document.execCommand('copy');
     window.getSelection().removeAllRanges();
-    alert("Lesson plan copied to clipboard.");
+    ShowFloatingMessage("Lesson plan copied to clipboard.");
 }
 </script>
 
