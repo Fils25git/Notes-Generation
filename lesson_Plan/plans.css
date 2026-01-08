@@ -155,7 +155,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .double-input input {
-    flex: 1 1 100%;   
+    flex: 1;   
 }
 
 /* Result Container / Lesson Plan */
@@ -207,20 +207,10 @@ input:focus, select:focus, textarea:focus {
 
 .double-input {
     display: flex;
-    gap: 10px;
+    gap: 5px;
     flex-wrap: wrap;  
 }
 
-@media (max-width: 480px) {
-    .double-input {
-        flex-direction: column;
-    }
-}
-@media (max-width: 480px) {
-    .double-input {
-        flex-direction: column;
-    }
-   }
 
 /* ==========================
    BUTTONS
@@ -285,6 +275,7 @@ input:focus, select:focus, textarea:focus {
     border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
+   background: #10b981;
     transition: transform 0.2s;
 }
 
