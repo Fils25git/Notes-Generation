@@ -44,6 +44,16 @@
     border: 1px solid #ccc; 
     font-size: 16px; 
   }
+  button {
+    padding: 10px 15px; 
+    border: none; 
+    border-radius: 12px; 
+    background: #007bff; 
+    color: #fff; 
+    font-size: 14px; 
+    cursor: pointer; 
+    
+  }
   #ussd a { 
     display: inline-block; 
     margin-top: 10px; 
@@ -205,8 +215,8 @@ async function refreshBalance() {
 
     try {
         const url = identifier.includes('@') 
-            ? `/.netlify/functions/use-lesson-plan?email=${identifier}` 
-            : `/.netlify/functions/use-lesson-plan?phone=${identifier}`;
+            ? `/.netlify/functions/get-balance?email=${identifier}` 
+            : `/.netlify/functions/get-balance?phone=${identifier}`;
 
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch balance");
