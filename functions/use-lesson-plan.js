@@ -35,6 +35,20 @@ export async function handler(event) {
     const userId = userRes.rows[0].id;
 
     // 2️⃣ Total approved lessons purchased
+    // 🎁 GIVE 2 FREE LESSON PLANS ONCE
+const freeCheck = await client.query(
+  `SELECT COUNT(*) FROM payments
+   WHERE user_id=$1 AND reference='FREE_SIGNUP'`,
+  [user.id]
+);
+
+if (parseInt(freeCheck.rows[0].count, 10) === 0) {
+  await client.query(
+    `INSERT INTO payments (user_id, lessons, status, reference)
+     VALUES ($1, 2, 'approved', 'FREE_SIGNUP')`,
+    [user.id]
+  );
+  }
     const paymentRes = await client.query(
       "SELECT COALESCE(SUM(lessons),0) AS total_purchased FROM payments WHERE user_id=$1 AND status='approved'",
       [userId]
