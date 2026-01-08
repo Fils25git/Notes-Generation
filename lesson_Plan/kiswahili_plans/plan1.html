@@ -1,0 +1,179 @@
+<!-- proposals/plan6_sw_fillable.html -->
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <title>Mpango wa somo</title>
+    <link rel="stylesheet" href="plan.css">
+</head>
+<body>
+
+<div class="text-center bold" style="font-size:12pt; margin-bottom:10px;">
+    MPANGO WA SOMO
+</div>
+
+<div style="margin-bottom:5px; font-size:10pt;">
+    <span class="bold">Jina la shule:</span> {{schoolName}}
+    <span style="margin-left:80px;" class="bold">Jina la mwalimu:</span> {{teacherName}}
+</div>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold">Muhula</td>
+        <td class="bold">Tarehe</td>
+        <td class="bold">Somo</td>
+        <td class="bold">Darasa</td>
+        <td class="bold">Nambari ya Uniti</td>
+        <td class="bold">Somo Nambari</td>
+        <td class="bold">Muda</td>
+        <td class="bold">Idadi ya wanafunzi</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} kati ya {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}} wanafunzi</td>
+    </tr>
+</table>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold" style="width:33%;">Aina ya mahitaji maalum</td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Kichwa cha uniti</td>
+        <td>{{unitTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Ujuzi muhimu wa uniti</td>
+        <td>
+            Wanafunzi wataweza kutumia maarifa ya {{subject}} katika shughuli halisi na kuelewa {{lessonTitle}}.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Kichwa cha somo</td>
+        <td>{{lessonTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Malengo ya kufundishia</td>
+        <td>
+            Wanafunzi wataweza kuelewa na kutumia {{lessonTitle}}, kujibu mazoezi, na kuelezea matokeo yao kwa uwazi.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Mpango wa darasa</td>
+        <td>Ndani ya darasa</td>
+    </tr>
+    <tr>
+        <td class="bold">Vifaa vya kujifunzia</td>
+        <td>{{teachingMaterials}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Marejeleo</td>
+        <td>{{references}}</td>
+    </tr>
+</table>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold" style="width:15%;">Muda</td>
+        <td colspan="2" class="bold text-center">
+            <u>Maelezo ya shughuli za kufundisha na kujifunza</u><br>
+            <em>Mwalimu atatumia {{subject}} na vifaa mbalimbali ili kueleza {{lessonTitle}} kwa wanafunzi.</em>
+        </td>
+        <td class="bold" style="width:30%;">Ujuzi wa jumla na masuala ya kuvuka</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold" style="width:27.5%;">Shughuli za mwalimu</td>
+        <td class="bold" style="width:27.5%;">Shughuli za wanafunzi</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Utangulizi<br>5 min</td>
+        <td>
+            <ul>
+                <li>Salimu na hakiki uwepo wa wanafunzi</li>
+                <li>Tambulisha {{lessonTitle}}</li>
+                <li>Eleza jinsi somo linavyohusiana na maarifa ya awali</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Jibu salamu</li>
+                <li>Kumbuka maarifa ya awali</li>
+                <li>Angalia na ushiriki katika maelezo</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Mawasiliano:</strong> Kuzungumza kwa uwazi<br>
+            <strong>Usawa wa kijinsia:</strong> Kushiriki kwa usawa
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Maendeleo<br>25 min</td>
+        <td>
+            <ul>
+                <li>Eleza vipengele muhimu vya {{lessonTitle}}</li>
+                <li>Toa mazoezi ya kikundi na binafsi</li>
+                <li>Fuata maendeleo ya wanafunzi na toa msaada</li>
+                <li>Hamasisha ushirikiano na kubadilishana mawazo</li>
+                <li>Omba vikundi kuonyesha matokeo yao</li>
+                <li>Fanya marekebisho na ufafanuzi wa matokeo</li>
+                <li>Weka maswali ya kuimarisha uelewa</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Kushiriki kikamilifu katika shughuli</li>
+                <li>Kutengeneza na kuwasilisha majibu sahihi kuhusu {{lessonTitle}}</li>
+                <li>Kutoa maoni na kujifunza kutoka kwa vikundi vingine</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Ushirikiano:</strong> Kufanya kazi pamoja<br>
+            <strong>Kufikiri kwa kina:</strong> Kutatua matatizo<br>
+            <strong>Usawa wa kijinsia:</strong> Washiriki wote
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Hitimisho<br>10 min</td>
+        <td>
+            <ul>
+                <li>Fupisha kile kilichojifunzwa</li>
+                <li>Weka maswali ya mdomo na maandishi kwa uelewa</li>
+                <li>Weka kazi za nyumbani</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Jibu maswali</li>
+                <li>Andika kazi za nyumbani na elewa matarajio</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Uwajibikaji:</strong> Kazi za nyumbani<br>
+            <strong>Kujiamini:</strong> Ushiriki wa wanafunzi
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Tathmini ya mwalimu</td>
+        <td colspan="3">
+            <!-- Ijazwe na mwalimu baada ya somo -->
+        </td>
+    </tr>
+
+</table>
+
+</body>
+  </html>
