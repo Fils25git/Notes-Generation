@@ -161,6 +161,10 @@
         </div>
         <div id="lessonPlanContent" class="lesson-plan"></div>
     </div>
+    <div class="lesson-plan-controls">
+    <button id="editBtn">✏️ Edit</button>
+    <button id="saveBtn" disabled>💾 Save</button>
+    </div>
 </div>
 
 <div id="floatingMessage" class="floating-message"></div>
@@ -282,7 +286,23 @@ function generateLessonPlan() {
         errorMessage.textContent = "❌ Failed to fetch lesson plan.";
     });
 }
+const editBtn = document.getElementById('editBtn');
+const saveBtn = document.getElementById('saveBtn');
 
+editBtn.addEventListener('click', () => {
+    lessonPlanContent.contentEditable = true;  // Make editable
+    lessonPlanContent.focus();
+    editBtn.disabled = true;
+    saveBtn.disabled = false;
+});
+
+saveBtn.addEventListener('click', () => {
+    lessonPlanContent.contentEditable = false; // Lock editing
+    editBtn.disabled = false;
+    saveBtn.disabled = true;
+    showFloatingMessage("Lesson plan saved successfully! ✅");
+});
+    
 function copyToWord() {
     const range = document.createRange();
     range.selectNode(lessonPlanContent);
