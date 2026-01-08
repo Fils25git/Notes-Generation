@@ -211,14 +211,16 @@ input:focus, select:focus, textarea:focus {
     flex-wrap: wrap;  
 }
 
-.double-input input {
-    flex: 1 1 100%;   
-   }
 @media (max-width: 480px) {
     .double-input {
         flex-direction: column;
     }
 }
+@media (max-width: 480px) {
+    .double-input {
+        flex-direction: column;
+    }
+   }
 
 /* ==========================
    BUTTONS
@@ -278,9 +280,9 @@ input:focus, select:focus, textarea:focus {
 }
 
 .download-btn {
-    padding: 10px 25px;
+    padding: 8px 13px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
     transition: transform 0.2s;
