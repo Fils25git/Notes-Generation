@@ -26,21 +26,30 @@ export async function handler(event) {
 
     const userId = userRes.rows[0].id;
 
-    // 2️⃣ Sum approved lesson plans
+    // 2️⃣ Total approved lessons purchased
     const paymentRes = await pool.query(
-      'SELECT COALESCE(SUM(lessons),0) AS balance FROM payments WHERE user_id=$1 AND status=$2',
+      'SELECT COALESCE(SUM(lessons),0) AS total_purchased FROM payments WHERE user_id=$1 AND status=$2',
       [userId, 'approved']
     );
+    const totalPurchased = parseInt(paymentRes.rows[0].total_purchased, 10);
 
-    const balance = parseInt(paymentRes.rows[0].balance);
+    // 3️⃣ Total used lessons
+    const usageRes = await pool.query(
+      'SELECT COALESCE(SUM(lessons_used),0) AS total_used FROM lesson_usage WHERE user_id=$1',
+      [userId]
+    );
+    const totalUsed = parseInt(usageRes.rows[0].total_used, 10);
+
+    // 4️⃣ Available balance
+    const balance = totalPurchased - totalUsed;
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ balance })
+      body: JSON.stringify({ balance: balance >= 0 ? balance : 0 })
     };
 
   } catch (err) {
     console.error(err);
     return { statusCode: 500, body: 'Server error' };
   }
-      }
+                                                      }
