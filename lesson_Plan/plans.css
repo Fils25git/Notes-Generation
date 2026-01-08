@@ -156,7 +156,6 @@ input:focus, select:focus, textarea:focus {
 }
 
 .double-input input {
-    flex: 1;
    width: 45%
 }
 
