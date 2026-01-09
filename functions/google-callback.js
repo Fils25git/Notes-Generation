@@ -4,11 +4,9 @@ import { Client } from "pg";
 export async function handler(event) {
   try {
     const code = event.queryStringParameters?.code;
-    if (!code) {
-      return { statusCode: 400, body: "Missing authorization code" };
-    }
+    if (!code) return { statusCode: 400, body: "Missing code" };
 
-    // Exchange code for access token
+    // Exchange code
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -21,22 +19,14 @@ export async function handler(event) {
       })
     });
 
-    const tokenData = await tokenRes.json();
-    if (!tokenData.access_token) {
-      console.error("TOKEN ERROR:", tokenData);
-      return { statusCode: 400, body: "Token exchange failed" };
-    }
+    const token = await tokenRes.json();
 
-    // Get Google user info
     const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-      headers: {
-        Authorization: `Bearer ${tokenData.access_token}`
-      }
+      headers: { Authorization: `Bearer ${token.access_token}` }
     });
 
-    const user = await userRes.json();
+    const googleUser = await userRes.json();
 
-    // Connect to database
     const client = new Client({
       connectionString: process.env.NEON_DATABASE_URL,
       ssl: { rejectUnauthorized: false }
@@ -44,25 +34,39 @@ export async function handler(event) {
 
     await client.connect();
 
-    await client.query(
-      `INSERT INTO users (email, name, email_verified, balance)
-       VALUES ($1, $2, true, 0)
-       ON CONFLICT (email) DO NOTHING`,
-      [user.email, user.name]
+    // Insert if not exists
+    const result = await client.query(
+      `INSERT INTO users (email, name, email_verified, signup_complete, balance)
+       VALUES ($1,$2,true,false,0)
+       ON CONFLICT (email) DO NOTHING
+       RETURNING signup_complete`,
+      [googleUser.email, googleUser.name]
     );
+
+    // If user already existed, fetch signup_complete
+    let signupComplete = result.rows[0]?.signup_complete;
+
+    if (signupComplete === undefined) {
+      const existing = await client.query(
+        `SELECT signup_complete FROM users WHERE email=$1`,
+        [googleUser.email]
+      );
+      signupComplete = existing.rows[0].signup_complete;
+    }
 
     await client.end();
 
-    // Redirect to app
     return {
       statusCode: 302,
       headers: {
-        Location: "/index.html"
+        Location: signupComplete
+          ? "/index.html"
+          : "/complete-signup.html"
       }
     };
 
   } catch (err) {
     console.error("GOOGLE CALLBACK ERROR:", err);
-    return { statusCode: 500, body: "Server error" };
+    return { statusCode: 500, body: "OAuth failed" };
   }
-              }
+}
