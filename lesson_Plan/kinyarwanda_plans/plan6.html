@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+    <meta charset="UTF-8">
+    <title>Imbata y’Isomo V12</title>
+    <link rel="stylesheet" href="plan.css">
+</head>
+<body>
+
+<div class="text-center bold" style="font-size:12pt; margin-bottom:10px;">
+    URUPAPURO RW’IMBATA Y’ISOMO
+</div>
+
+<div style="margin-bottom:5px; font-size:10pt;">
+    <span class="bold">Izina ry’ishuri:</span> {{schoolName}}
+    <span style="margin-left:80px;" class="bold">Umwarimu wigisha:</span> {{teacherName}}
+</div>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold">Igihembwe</td>
+        <td class="bold">Itariki</td>
+        <td class="bold">Inyigisho</td>
+        <td class="bold">Icyiciro</td>
+        <td class="bold">Nomero y’Umutwe</td>
+        <td class="bold">Nomero y’Isomo</td>
+        <td class="bold">Igihe</td>
+        <td class="bold">Abanyeshuri</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} out of {{totalLessons}}</td>
+        <td>{{duration}} iminota</td>
+        <td>{{classSize}}</td>
+    </tr>
+</table>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold" style="width:33%;">
+            Abanyeshuri bafite ibisabwa byihariye
+        </td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Umutwe w’inyigisho</td>
+        <td>{{unitTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Ubushobozi bw’ingenzi bugamijwe</td>
+        <td>
+            Abanyeshuri bazashobora gukoresha ubumenyi bungutse
+            mu mutwe wa {{unitTitle}} bifashishije {{lessonTitle}}
+            mu bikorwa by’ishuri n’ubuzima busanzwe.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Umutwe w’Isomo</td>
+        <td>{{lessonTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Intego ngenamukoro</td>
+        <td>
+            Hifashishijwe ibiganiro, infashanyigisho n’imyitozo itandukanye,
+            abanyeshuri bazashobora gusobanura no gukoresha {{lessonTitle}},
+            bagaragaza ubumenyi n’ubushobozi binyuze mu gusubiza ibibazo,
+            gukora imyitozo no gufatanya n’abandi.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Aho isomo rizabera</td>
+        <td>Mu ishuri</td>
+    </tr>
+    <tr>
+        <td class="bold">Imfashanyigisho</td>
+        <td>{{teachingMaterials}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Inyandiko zifashishijwe</td>
+        <td>{{references}}</td>
+    </tr>
+</table>
+
+<table border="1" cellspacing="0" cellpadding="5">
+    <tr>
+        <td class="bold" style="width:15%;">Igihe</td>
+        <td colspan="2" class="bold text-center">
+            <u>Ibikorwa byo kwigisha no kwiga</u><br>
+            <em>Isomo rishingiye ku mutwe {{unitTitle}} n’insanganyigisho {{lessonTitle}}</em>
+        </td>
+        <td class="bold" style="width:30%;">Ubushobozi rusange n’indangagaciro</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold">Ibikorwa by’Umwarimu</td>
+        <td class="bold">Ibikorwa by’Abanyeshuri</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Intangiriro<br>5 min</td>
+        <td>
+            <ul>
+                <li>Gusuhuza abanyeshuri no kugenzura abitabiriye</li>
+                <li>Kwerekana no gusobanura insanganyigisho ya {{lessonTitle}}</li>
+                <li>Gusobanura intego z’isomo hashingiwe ku {{unitTitle}}</li>
+                <li>Kubaza ibibazo byinjiza abanyeshuri mu {{lessonTitle}}</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Gusubiza indamutso no kwitabira isomo</li>
+                <li>Kwitondera ibisobanuro ku {{lessonTitle}}</li>
+                <li>Gutanga ibitekerezo ku byo bazi kuri {{lessonTitle}}</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Itumanaho:</strong> Ikiganiro<br>
+            <strong>Uruhare:</strong> Abanyeshuri bose
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Iterambere<br>25 min</td>
+        <td>
+            <ul>
+                <li>Gusobanura mu buryo burambuye {{lessonTitle}}</li>
+                <li>Gutanga ingero zishingiye ku {{unitTitle}}</li>
+                <li>Gutegura imyitozo ku {{lessonTitle}}</li>
+                <li>Gukurikirana imikorere y’abanyeshuri</li>
+                <li>Gusaba abanyeshuri kugaragaza ibisubizo</li>
+                <li>Gukosora no kunganira aho bikenewe</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Gukora imyitozo ijyanye na {{lessonTitle}}</li>
+                <li>Gufatanya mu matsinda baganira ku {{unitTitle}}</li>
+                <li>Kugaragaza ibisubizo byabo</li>
+                <li>Gusubiza ibibazo by’umwarimu</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Gufatanya:</strong> Akazi k’amatsinda<br>
+            <strong>Gutekereza:</strong> Isesengura
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Umusozo<br>10 min</td>
+        <td>
+            <ul>
+                <li>Gufasha abanyeshuri gusubiramo {{lessonTitle}}</li>
+                <li>Gutanga isuzumabumenyi rishingiye ku {{lessonTitle}}</li>
+                <li>Gutanga umukoro ujyanye na {{unitTitle}}</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Gusubiza ibibazo by’isuzumabumenyi</li>
+                <li>Kwakira no gusobanukirwa umukoro</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Kwigenga:</strong> Umukoro<br>
+            <strong>Kwigenzura:</strong> Isuzuma
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Isesengura ry’Umwarimu</td>
+        <td colspan="3">
+            <!-- Umwarimu asobanura uko isomo ryagenze n’ibyakwitonderwa -->
+        </td>
+    </tr>
+</table>
+
+</body>
+  </html>
