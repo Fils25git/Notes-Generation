@@ -6,258 +6,172 @@
 <title>Admin Dashboard - Payments</title>
 
 <style>
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f5f5f5;
-    padding: 20px;
-  }
-
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  th, td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
-  }
-
-  th {
-    background: #007bff;
-    color: #fff;
-  }
-
-  tr:nth-child(even) {
-    background: #f9f9f9;
-  }
-
-  button {
-    padding: 6px 12px;
-    margin: 2px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-
-  .approve {
-    background: #28a745;
-    color: #fff;
-  }
-
-  .reject {
-    background: #dc3545;
-    color: #fff;
-  }
-
-  button.disabled {
-    background: #6c757d !important;
-    cursor: not-allowed;
-  }
-
-  /* ===== Toast Notification ===== */
-  #toastContainer {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-  }
-
-  .toast {
-    min-width: 280px;
-    max-width: 360px;
-    margin-bottom: 10px;
-    padding: 15px 18px;
-    border-radius: 12px;
-    color: #fff;
-    font-weight: 600;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    animation: slideIn 0.4s ease, fadeOut 0.4s ease 9.6s forwards;
-  }
-
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 15px; }
+  h2 { text-align: center; margin-bottom: 15px; }
+  .table-wrapper { overflow-x: auto; background: #fff; border-radius: 12px; padding: 10px; }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
+  th { background: #007bff; color: #fff; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  button { padding: 6px 12px; margin: 3px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
+  .approve { background: #28a745; color: #fff; }
+  .reject { background: #dc3545; color: #fff; }
+  button.disabled { background: #6c757d !important; cursor: not-allowed; }
+  #bulkActions { display: none; text-align: center; margin-bottom: 10px; }
+  #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+  .toast { min-width: 260px; margin-bottom: 10px; padding: 14px 18px; border-radius: 12px; color: #fff; font-weight: 600; display: flex; justify-content: space-between; animation: slideIn 0.4s ease, fadeOut 0.4s ease 9.6s forwards; }
   .toast.success { background: #28a745; }
   .toast.error { background: #dc3545; }
-
-  .toast .close {
-    margin-left: 15px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-  }
-
-  @keyframes slideIn {
-    from { transform: translateX(120%); opacity: 0; }
-    to   { transform: translateX(0); opacity: 1; }
-  }
-
-  @keyframes fadeOut {
-    to { opacity: 0; transform: translateX(120%); }
-  }
+  .toast .close { cursor: pointer; font-size: 18px; }
+  @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { to { opacity: 0; transform: translateX(120%); } }
+  @media (max-width: 600px) { button { font-size: 12px; padding: 6px 10px; } }
 </style>
 </head>
 
 <body>
 
-<h2>Admin Dashboard - Pending Payments</h2>
+<h2>Admin Dashboard – Pending Payments</h2>
 
+<div id="bulkActions">
+  <button id="bulkApprove" class="approve">Approve Selected</button>
+  <button id="bulkReject" class="reject">Reject Selected</button>
+</div>
+
+<div class="table-wrapper">
 <table id="paymentsTable">
   <thead>
     <tr>
+      <th><input type="checkbox" id="selectAll"></th>
       <th>ID</th>
-      <th>User Phone</th>
+      <th>Full Name</th>
+      <th>Email</th>
+      <th>Phone</th>
       <th>Amount (RWF)</th>
       <th>Status</th>
       <th>Time</th>
       <th>Actions</th>
     </tr>
   </thead>
-  <tbody>
-    <!-- Payments will be loaded here -->
-  </tbody>
+  <tbody></tbody>
 </table>
+</div>
 
 <div id="toastContainer"></div>
 
 <script>
-/* =============================
-   TOAST NOTIFICATION
-============================= */
-function showToast(message, type = "success") {
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `
-        <span>${message}</span>
-        <span class="close">&times;</span>
-    `;
-
-    document.getElementById("toastContainer").appendChild(toast);
-
-    toast.querySelector(".close").onclick = () => toast.remove();
-
-    setTimeout(() => {
-        toast.remove();
-    }, 10000);
+/* ============================= TOAST ============================= */
+function showToast(msg, type = "success") {
+  const t = document.createElement("div");
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${msg}</span><span class="close">&times;</span>`;
+  document.getElementById("toastContainer").appendChild(t);
+  t.querySelector(".close").onclick = () => t.remove();
+  setTimeout(() => t.remove(), 10000);
 }
 
-/* =============================
-   LOAD PAYMENTS
-============================= */
+/* ============================= LOAD PAYMENTS ============================= */
 async function loadPayments() {
-    const tbody = document.querySelector('#paymentsTable tbody');
-    tbody.innerHTML = '';
+  const tbody = document.querySelector("#paymentsTable tbody");
+  tbody.innerHTML = "";
 
-    try {
-        const res = await fetch('/.netlify/functions/get-payments?status=pending');
-        const payments = await res.json();
+  try {
+    const res = await fetch("/.netlify/functions/get-payments?status=pending");
+    const payments = await res.json();
 
-        payments.forEach(p => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${p.id}</td>
-                <td>${p.phone}</td>
-                <td>${p.amount}</td>
-                <td>${p.status}</td>
-                <td>${new Date(p.created_at).toLocaleString()}</td>
-                <td>
-                    <button class="approve" data-id="${p.id}" data-phone="${p.phone}" data-amount="${p.amount}">
-                        Approve
-                    </button>
-                    <button class="reject" data-id="${p.id}">
-                        Reject
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+    payments.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input type="checkbox" class="rowCheck" data-id="${p.id}"></td>
+        <td>${p.id}</td>
+        <td>${p.full_name || "-"}</td>
+        <td>${p.email || "-"}</td>
+        <td>${p.phone}</td>
+        <td>${p.amount}</td>
+        <td>${p.status}</td>
+        <td>${new Date(p.created_at).toLocaleString()}</td>
+        <td>
+          <button class="approve" data-id="${p.id}">Approve</button>
+          <button class="reject" data-id="${p.id}">Reject</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
 
-        attachButtons();
-    } catch (err) {
-        showToast("Error loading payments", "error");
-    }
+    attachButtons();
+    document.getElementById("selectAll").checked = false;
+    document.getElementById("bulkActions").style.display = "none";
+
+  } catch {
+    showToast("Failed to load payments", "error");
+  }
 }
 
-/* =============================
-   APPROVE / REJECT LOGIC
-============================= */
+/* ============================= SINGLE ACTIONS ============================= */
 function attachButtons() {
+  document.querySelectorAll(".approve").forEach(btn => {
+    btn.onclick = async () => {
+      btn.classList.add("disabled");
+      btn.textContent = "Approving...";
+      await fetch("/.netlify/functions/approve-payment", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ ids: [btn.dataset.id] })
+      });
+      showToast("Payment approved");
+      loadPayments();
+    };
+  });
 
-    document.querySelectorAll('.approve').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            if (btn.classList.contains("disabled")) return;
-
-            const id = btn.dataset.id;
-            const phone = btn.dataset.phone;
-            const amount = parseInt(btn.dataset.amount);
-
-            btn.textContent = "Approving...";
-            btn.classList.add("disabled");
-
-            try {
-                const res = await fetch('/.netlify/functions/approve-payment', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ id, phone, amount })
-                });
-
-                if (!res.ok) throw new Error("Approval failed");
-
-                btn.textContent = "Approved ✅";
-                btn.closest("tr").querySelector(".reject")?.remove();
-
-                showToast("Payment approved successfully", "success");
-            } catch (err) {
-                btn.textContent = "Approve";
-                btn.classList.remove("disabled");
-                showToast(err.message, "error");
-            }
-        });
-    });
-
-    document.querySelectorAll('.reject').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            if (btn.classList.contains("disabled")) return;
-
-            const id = btn.dataset.id;
-
-            btn.textContent = "Rejecting...";
-            btn.classList.add("disabled");
-
-            try {
-                const res = await fetch('/.netlify/functions/reject-payment', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ id })
-                });
-
-                if (!res.ok) throw new Error("Rejection failed");
-
-                btn.textContent = "Rejected ❌";
-                btn.closest("tr").querySelector(".approve")?.remove();
-
-                showToast("Payment rejected", "success");
-            } catch (err) {
-                btn.textContent = "Reject";
-                btn.classList.remove("disabled");
-                showToast(err.message, "error");
-            }
-        });
-    });
+  document.querySelectorAll(".reject").forEach(btn => {
+    btn.onclick = async () => {
+      btn.classList.add("disabled");
+      btn.textContent = "Rejecting...";
+      await fetch("/.netlify/functions/reject-payment", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ ids: [btn.dataset.id] })
+      });
+      showToast("Payment rejected");
+      loadPayments();
+    };
+  });
 }
 
-/* =============================
-   INITIAL LOAD
-============================= */
+/* ============================= BULK SELECTION ============================= */
+document.getElementById("selectAll").addEventListener("change", e => {
+  document.querySelectorAll(".rowCheck").forEach(cb => cb.checked = e.target.checked);
+  document.getElementById("bulkActions").style.display =
+    document.querySelectorAll(".rowCheck:checked").length ? "block" : "none";
+});
+
+document.addEventListener("change", e => {
+  if (e.target.classList.contains("rowCheck")) {
+    document.getElementById("bulkActions").style.display =
+      document.querySelectorAll(".rowCheck:checked").length ? "block" : "none";
+  }
+});
+
+/* ============================= BULK ACTIONS ============================= */
+async function bulkAction(action) {
+  const ids = [...document.querySelectorAll(".rowCheck:checked")].map(cb => cb.dataset.id);
+  if (!ids.length) return;
+  const endpoint = action === "approve" ? "/.netlify/functions/approve-payment" : "/.netlify/functions/reject-payment";
+
+  await fetch(endpoint, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ ids })
+  });
+
+  showToast(`Selected payments ${action}d`);
+  loadPayments();
+}
+
+document.getElementById("bulkApprove").onclick = () => bulkAction("approve");
+document.getElementById("bulkReject").onclick = () => bulkAction("reject");
+
+/* ============================= INIT ============================= */
 loadPayments();
 </script>
 
