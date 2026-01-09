@@ -202,49 +202,12 @@ const planFolders = {
 
 function getRandomPlanFile(language) {
     const folder = planFolders[language] || "proposals";
-    const index = Math.floor(Math.random() * 10) + 1; // plan1.html to plan5.html
+    const index = Math.floor(Math.random() * 10) + 1;
     return `${folder}/plan${index}.html`;
 }
 
-document.getElementById('lessonForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const btn = document.querySelector(".generate-btn");
-    btn.disabled = true;
-    btn.textContent = "Fetching...";
-
-    try {
-        // 1️⃣ Check balance
-        const res = await fetch(`/.netlify/functions/get-balance?email=${user.email}`);
-        const data = await res.json();
-
-        if (data.balance <= 0) {
-            showFloatingMessage(`
-              ❌ No lesson plans available.<br><br>
-              👉 <a href="../payment.html">Buy lesson plans</a><br>
-              👉 <a href="../balance.html">View balance</a>
-            `);
-            btn.disabled = false;
-            btn.textContent = "Fetch Lesson Plan";
-            return;
-        }
-
-        // 2️⃣ Deduct lesson plan (SAFE CHECK)
-        const deductRes = await fetch('/.netlify/functions/use-lesson-plan', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: user.email })
-        });
-
-        const deductData = await deductRes.json();
-
-        if (!deductRes.ok || deductData.success !== true) {
-            showFloatingMessage("❌ Lesson plan balance exhausted.");
-            btn.disabled = false;
-            btn.textContent = "Fetch Lesson Plan";
-            return;
-        }
-        function getLanguageDefaults(language, subject, classLevel) {
+/* ✅ MUST BE GLOBAL (THIS WAS THE BUG FIX) */
+function getLanguageDefaults(language, subject, classLevel) {
     return {
         specialNeeds: {
             kinyarwanda: "Nta munyeshuri ufite ibyo agenerwa by'ihariye.",
@@ -265,19 +228,55 @@ document.getElementById('lessonForm').addEventListener('submit', async function(
             english: `${subject} learner’s book, teacher’s guide, REB curriculum guide.`
         }
     };
-    }
+}
 
-        // 3️⃣ Generate lesson plan ONLY after success
+document.getElementById('lessonForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn = document.querySelector(".generate-btn");
+    btn.disabled = true;
+    btn.textContent = "Fetching...";
+
+    try {
+        const res = await fetch(`/.netlify/functions/get-balance?email=${user.email}`);
+        const data = await res.json();
+
+        if (data.balance <= 0) {
+            showFloatingMessage(`
+              ❌ No lesson plans available.<br><br>
+              👉 <a href="../payment.html">Buy lesson plans</a><br>
+              👉 <a href="../balance.html">View balance</a>
+            `);
+            btn.disabled = false;
+            btn.textContent = "Fetch Lesson Plan";
+            return;
+        }
+
+        const deductRes = await fetch('/.netlify/functions/use-lesson-plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: user.email })
+        });
+
+        const deductData = await deductRes.json();
+
+        if (!deductRes.ok || deductData.success !== true) {
+            showFloatingMessage("❌ Lesson plan balance exhausted.");
+            btn.disabled = false;
+            btn.textContent = "Fetch Lesson Plan";
+            return;
+        }
+
         generateLessonPlan();
 
     } catch (err) {
+        console.error(err);
         showFloatingMessage("❌ Network error. Please try again.");
         btn.disabled = false;
         btn.textContent = "Fetch Lesson Plan";
     }
 });
 
-// 2️⃣ Replace your old generateLessonPlan() function with this corrected one
 function generateLessonPlan() {
     const language = document.getElementById('language').value || 'english';
     const subjectVal = subject.value;
@@ -304,38 +303,39 @@ function generateLessonPlan() {
     };
 
     fetch(getRandomPlanFile(language))
-    .then(r => r.text())
-    .then(tpl => {
-        for (const k in data) {
-            tpl = tpl
-                .replace(new RegExp(`{{\\s*${k}\\s*}}`, "g"), data[k])
-                .replace(new RegExp(`\\$\\{\\s*${k}\\s*\\}`, "g"), data[k]);
-        }
-        lessonPlanContent.innerHTML = tpl;
-        resultContainer.classList.add('show');
-        resultContainer.scrollIntoView({ behavior: 'smooth' });
-    })
-    .catch(() => {
-        errorMessage.textContent = "❌ Failed to fetch lesson plan.";
-    });
-    }
+        .then(r => r.text())
+        .then(tpl => {
+            for (const k in data) {
+                tpl = tpl
+                    .replace(new RegExp(`{{\\s*${k}\\s*}}`, "g"), data[k])
+                    .replace(new RegExp(`\\$\\{\\s*${k}\\s*\\}`, "g"), data[k]);
+            }
+            lessonPlanContent.innerHTML = tpl;
+            resultContainer.classList.add('show');
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(() => {
+            errorMessage.textContent = "❌ Failed to fetch lesson plan.";
+        });
+}
+
 const editBtn = document.getElementById('editBtn');
 const saveBtn = document.getElementById('saveBtn');
 
 editBtn.addEventListener('click', () => {
-    lessonPlanContent.contentEditable = true;  // Make editable
+    lessonPlanContent.contentEditable = true;
     lessonPlanContent.focus();
     editBtn.disabled = true;
     saveBtn.disabled = false;
 });
 
 saveBtn.addEventListener('click', () => {
-    lessonPlanContent.contentEditable = false; // Lock editing
+    lessonPlanContent.contentEditable = false;
     editBtn.disabled = false;
     saveBtn.disabled = true;
     showFloatingMessage("Lesson plan saved successfully! ✅");
 });
-    
+
 function copyToWord() {
     const range = document.createRange();
     range.selectNode(lessonPlanContent);
