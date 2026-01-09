@@ -4,8 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Create an account to Fila Assistant</title>
+
 <style>
 * { box-sizing: border-box; margin:0; padding:0; }
+
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: linear-gradient(135deg, #6dd5fa, #2980b9);
@@ -14,6 +16,7 @@ body {
     align-items:center;
     min-height:100vh;
 }
+
 form {
     background:#fff;
     padding:40px 30px;
@@ -21,65 +24,80 @@ form {
     box-shadow:0 8px 25px rgba(0,0,0,0.2);
     width:100%;
     max-width:480px;
-    text-align:center;
 }
+
 h2 {
-    color:#333;
+    text-align:center;
     margin-bottom:25px;
     font-size:28px;
+    color:#333;
 }
+
+label {
+    display:block;
+    text-align:left;
+    font-weight:600;
+    margin-top:15px;
+    margin-bottom:5px;
+    color:#333;
+}
+
+label span {
+    color:red;
+}
+
 input, select {
     width:100%;
     padding:14px 12px;
-    margin:10px 0;
     border:1px solid #ccc;
     border-radius:10px;
     font-size:16px;
-    transition: 0.2s;
 }
+
 input:focus, select:focus {
     border-color:#007bff;
     outline:none;
 }
+
 button {
     width:100%;
     padding:15px;
-    margin-top:20px;
+    margin-top:25px;
     background: linear-gradient(to right, #007bff, #00c6ff);
     color:#fff;
     border:none;
     border-radius:12px;
     font-size:18px;
     cursor:pointer;
-    transition:0.3s;
 }
+
 button:hover {
     background: linear-gradient(to right, #0056b3, #00a0cc);
 }
+
 .show-pass {
+    margin-top:8px;
     font-size:14px;
-    margin-top:5px;
     display:flex;
     align-items:center;
 }
-.show-pass input { width:auto; margin-right:6px; cursor:pointer; }
+
+.show-pass input {
+    width:auto;
+    margin-right:6px;
+}
+
 p, .terms {
     font-size:14px;
     margin-top:15px;
-    color:#555;
+    text-align:center;
 }
+
 p a, .terms a {
     color:#007bff;
     text-decoration:none;
 }
-p a:hover, .terms a:hover { text-decoration:underline; }
-@media (max-width:500px){
-    form { padding:30px 20px; border-radius:12px; }
-    h2 { font-size:24px; }
-    button { font-size:16px; padding:12px; }
-}
 
-/* ===== Floating message ===== */
 #floatingMessage {
     position: fixed;
     top: 20px;
@@ -88,60 +106,64 @@ p a:hover, .terms a:hover { text-decoration:underline; }
     color: #fff;
     padding: 15px 20px;
     border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
     display: none;
-    z-index: 9999;
     font-weight: bold;
-    max-width: 300px;
-    line-height: 1.5;
-    text-align: center;
-    animation: slideIn 0.5s ease forwards;
-}
-@keyframes slideIn {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
 }
 </style>
 </head>
+
 <body>
 
 <form id="signupForm">
-<h2>Create an account to Fila Assistant</h2>
+<h2>Create an account</h2>
 
-<input type="text" name="name" placeholder="Full Name" required>
-<input type="email" name="email" placeholder="Email (required)" required>
-<input type="password" name="password" placeholder="Password" required>
-<input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+<label>Full Name <span>*</span></label>
+<input type="text" name="name" required>
+
+<label>Email Address <span>*</span></label>
+<input type="email" name="email" required>
+
+<label>Password <span>*</span></label>
+<input type="password" name="password" minlength="6" required>
+
+<label>Confirm Password <span>*</span></label>
+<input type="password" name="confirmPassword" minlength="6" required>
 
 <div class="show-pass">
-  <input type="checkbox" id="togglePassword"> Show Password
+    <input type="checkbox" id="togglePassword">
+    <label for="togglePassword">Show Password</label>
 </div>
 
+<label>Are you a teacher? <span>*</span></label>
 <select name="role" required>
-    <option value="">Are you a teacher?</option>
+    <option value="">Select</option>
     <option value="teacher">Yes</option>
     <option value="student">No</option>
 </select>
 
-<input type="tel" name="phone" placeholder="Phone Number" required>
-<input type="email" name="recoveryEmail" placeholder="Recovery Email (optional)">
+<label>Phone Number <span>*</span></label>
+<input type="tel" name="phone" required>
+
+<label>Recovery Email</label>
+<input type="email" name="recoveryEmail">
 
 <button type="submit">Sign Up</button>
 
 <p>Already have an account? <a href="login.html">Login</a></p>
-<p class="terms">
-By signing up, you agree to our <a href="terms.html" target="_blank">Terms</a> & <a href="privacy.html" target="_blank">Privacy Policy</a>.
-</p>
 
+<p class="terms">
+By signing up, you agree to our
+<a href="terms.html" target="_blank">Terms</a> &
+<a href="privacy.html" target="_blank">Privacy Policy</a>.
+</p>
 </form>
 
 <div id="floatingMessage"></div>
 
 <script>
-// Show/hide password
 const toggle = document.getElementById('togglePassword');
-const password = document.querySelector('input[name="password"]');
-const confirmPassword = document.querySelector('input[name="confirmPassword"]');
+const password = document.querySelector('[name="password"]');
+const confirmPassword = document.querySelector('[name="confirmPassword"]');
 
 toggle.addEventListener('change', () => {
     const type = toggle.checked ? 'text' : 'password';
@@ -149,61 +171,62 @@ toggle.addEventListener('change', () => {
     confirmPassword.type = type;
 });
 
-// Floating message function
 const floatingMsg = document.getElementById('floatingMessage');
+
 function showFloatingMessage(message, type = "success") {
-    floatingMsg.innerText = message;
+    floatingMsg.textContent = message;
     floatingMsg.style.background = type === "success" ? "#28a745" : "#dc3545";
     floatingMsg.style.display = "block";
-
-    setTimeout(() => {
-        floatingMsg.style.display = "none";
-    }, 5000); // 5 seconds
+    setTimeout(() => floatingMsg.style.display = "none", 4000);
 }
 
-// Form submission
 document.getElementById('signupForm').addEventListener('submit', async e => {
     e.preventDefault();
-    
-    const name = e.target.name.value.trim();
-    const email = e.target.email.value.trim();
-    const passwordVal = e.target.password.value;
-    const confirmPasswordVal = e.target.confirmPassword.value;
-    const role = e.target.role.value;
-    const phone = e.target.phone.value.trim();
-    const recoveryEmail = e.target.recoveryEmail.value.trim();
 
-    // Validation
-    if(passwordVal !== confirmPasswordVal){
-        showFloatingMessage("Passwords do not match!", "error");
+    const form = e.target;
+    const passwordVal = form.password.value;
+    const confirmPasswordVal = form.confirmPassword.value;
+
+    if (passwordVal.length < 6) {
+        showFloatingMessage("Password must be at least 6 characters", "error");
         return;
     }
-    if(!role){
-        showFloatingMessage("Please select if you are a teacher.", "error");
+
+    if (passwordVal !== confirmPasswordVal) {
+        showFloatingMessage("Passwords do not match", "error");
         return;
     }
 
     try {
-        const res = await fetch('/.netlify/functions/create-user',{
-            method:'POST',
+        const res = await fetch('/.netlify/functions/create-user', {
+            method: 'POST',
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name,email,password:passwordVal,role,phone,recoveryEmail })
+            body: JSON.stringify({
+                name: form.name.value.trim(),
+                email: form.email.value.trim(),
+                password: passwordVal,
+                role: form.role.value,
+                phone: form.phone.value.trim(),
+                recoveryEmail: form.recoveryEmail.value.trim()
+            })
         });
 
-        const data = await res.text();
+        const text = await res.text();
 
-        if(res.ok){
-            showFloatingMessage("✅ Account created successfully!", "success");
-            e.target.reset();
+        if (res.ok) {
+            showFloatingMessage("Account created! Redirecting...", "success");
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
         } else {
-            showFloatingMessage("❌ " + data, "error");
+            showFloatingMessage(text, "error");
         }
 
-    } catch(err){
-        showFloatingMessage("❌ Error: " + err.message, "error");
+    } catch (err) {
+        showFloatingMessage(err.message, "error");
     }
 });
 </script>
 
 </body>
-    </html>
+                                </html>
