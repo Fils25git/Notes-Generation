@@ -1,49 +1,30 @@
 import { Client } from "pg";
 
 export async function handler(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method not allowed" };
-  }
+  if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
 
   const body = JSON.parse(event.body || "{}");
-  const payment_id = body.payment_id || body.id; // ✅ FIX
-  const reason = body.reason || null;
+  const ids = body.ids || [];
 
-  if (!payment_id) {
-    return { statusCode: 400, body: "Missing payment ID" };
-  }
+  if (!ids.length) return { statusCode: 400, body: "No IDs provided" };
 
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
+  const client = new Client({ connectionString: process.env.NEON_DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
   try {
     await client.connect();
 
-    const paymentRes = await client.query(
-      "SELECT * FROM payments WHERE id=$1 AND status='pending'",
-      [payment_id]
-    );
-
-    if (paymentRes.rowCount === 0) {
-      return { statusCode: 404, body: "Pending payment not found" };
+    for (const id of ids) {
+      await client.query(
+        "UPDATE payments SET status='rejected', approved_at=NOW() WHERE id=$1 AND status='pending'",
+        [id]
+      );
     }
 
-    await client.query(
-      "UPDATE payments SET status='rejected', approved_at=NOW() WHERE id=$1",
-      [payment_id]
-    );
-
-    return {
-      statusCode: 200,
-      body: `Payment rejected${reason ? ": " + reason : ""}`
-    };
-
+    return { statusCode: 200, body: "Payments rejected successfully." };
   } catch (err) {
     console.error(err);
     return { statusCode: 500, body: "Server error" };
   } finally {
     await client.end();
   }
-      }
+    }
