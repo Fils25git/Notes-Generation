@@ -73,12 +73,33 @@ p a, .terms a {
     text-decoration:none;
 }
 p a:hover, .terms a:hover { text-decoration:underline; }
-.message { margin-top:12px; font-size:15px; color:green; }
-.error { color:red; }
 @media (max-width:500px){
     form { padding:30px 20px; border-radius:12px; }
     h2 { font-size:24px; }
     button { font-size:16px; padding:12px; }
+}
+
+/* ===== Floating message ===== */
+#floatingMessage {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 9999;
+    font-weight: bold;
+    max-width: 300px;
+    line-height: 1.5;
+    text-align: center;
+    animation: slideIn 0.5s ease forwards;
+}
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 </style>
 </head>
@@ -112,8 +133,9 @@ p a:hover, .terms a:hover { text-decoration:underline; }
 By signing up, you agree to our <a href="terms.html" target="_blank">Terms</a> & <a href="privacy.html" target="_blank">Privacy Policy</a>.
 </p>
 
-<div class="message" id="message"></div>
 </form>
+
+<div id="floatingMessage"></div>
 
 <script>
 // Show/hide password
@@ -127,8 +149,20 @@ toggle.addEventListener('change', () => {
     confirmPassword.type = type;
 });
 
+// Floating message function
+const floatingMsg = document.getElementById('floatingMessage');
+function showFloatingMessage(message, type = "success") {
+    floatingMsg.innerText = message;
+    floatingMsg.style.background = type === "success" ? "#28a745" : "#dc3545";
+    floatingMsg.style.display = "block";
+
+    setTimeout(() => {
+        floatingMsg.style.display = "none";
+    }, 5000); // 5 seconds
+}
+
 // Form submission
-document.getElementById('signupForm').addEventListener('submit', async e=>{
+document.getElementById('signupForm').addEventListener('submit', async e => {
     e.preventDefault();
     
     const name = e.target.name.value.trim();
@@ -138,46 +172,38 @@ document.getElementById('signupForm').addEventListener('submit', async e=>{
     const role = e.target.role.value;
     const phone = e.target.phone.value.trim();
     const recoveryEmail = e.target.recoveryEmail.value.trim();
-    
-    const msg = document.getElementById('message');
-    msg.classList.remove('error');
-    msg.innerText = "";
 
     // Validation
     if(passwordVal !== confirmPasswordVal){
-        msg.innerText = "Passwords do not match!";
-        msg.classList.add('error');
+        showFloatingMessage("Passwords do not match!", "error");
         return;
     }
     if(!role){
-        msg.innerText = "Please select if you are a teacher.";
-        msg.classList.add('error');
+        showFloatingMessage("Please select if you are a teacher.", "error");
         return;
     }
 
     try {
         const res = await fetch('/.netlify/functions/signup',{
             method:'POST',
-            body: JSON.stringify({name,email,password:passwordVal,role,phone,recoveryEmail})
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name,email,password:passwordVal,role,phone,recoveryEmail })
         });
+
         const data = await res.text();
-        msg.innerText = data;
+
+        if(res.ok){
+            showFloatingMessage("✅ Account created successfully!", "success");
+            e.target.reset();
+        } else {
+            showFloatingMessage("❌ " + data, "error");
+        }
+
     } catch(err){
-        msg.innerText = "Error: " + err.message;
-        msg.classList.add('error');
+        showFloatingMessage("❌ Error: " + err.message, "error");
     }
 });
 </script>
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-<script>
-  netlifyIdentity.on('login', user => {
-    console.log('Logged in:', user);
-    window.location.href = "index.html"; // redirect after login
-  });
 
-  netlifyIdentity.on('logout', () => {
-    console.log('Logged out');
-  });
-</script>
 </body>
-</html>
+    </html>
