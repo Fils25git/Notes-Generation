@@ -293,9 +293,13 @@ function generateLessonPlan() {
         classSize: classSize.value,
         unitTitle: unitTitle.value,
         lessonTitle: lessonTitle.value,
-        teachingMaterials: teachingMaterials.value ||`${subject.value} Textbooks,Flashcards and lesson related charts`,
-        specialNeeds: specialNeeds.value || `There is no Student with Special educational Needs`,
-        references: references.value || `${subject.value} Student book by REB, ${subject.value} teacher's guide book by REB, REB Curriculum Guide`
+        const subjectVal = subject.value;
+const classVal = document.getElementById('class').value;
+const defaults = getLanguageDefaults(language, subjectVal, classVal);
+
+teachingMaterials: teachingMaterials.value || defaults.teachingMaterials[language],
+specialNeeds: specialNeeds.value || defaults.specialNeeds[language],
+references: references.value || defaults.references[language]
     };
 
     fetch(getRandomPlanFile(language))
