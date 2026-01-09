@@ -1,53 +1,36 @@
 import { Client } from "pg";
 
 export async function handler(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method not allowed" };
-  }
+  if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
 
   const body = JSON.parse(event.body || "{}");
-  const payment_id = body.payment_id || body.id; // ✅ FIX
+  const ids = body.ids || [];
 
-  if (!payment_id) {
-    return { statusCode: 400, body: "Missing payment ID" };
-  }
+  if (!ids.length) return { statusCode: 400, body: "No IDs provided" };
 
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
+  const client = new Client({ connectionString: process.env.NEON_DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
   try {
     await client.connect();
 
-    const paymentRes = await client.query(
-      "SELECT * FROM payments WHERE id=$1 AND status='pending'",
-      [payment_id]
-    );
+    for (const id of ids) {
+      const res = await client.query("SELECT * FROM payments WHERE id=$1 AND status='pending'", [id]);
+      if (!res.rowCount) continue;
 
-    if (paymentRes.rowCount === 0) {
-      return { statusCode: 404, body: "Pending payment not found" };
+      const payment = res.rows[0];
+
+      await client.query(
+        "UPDATE users SET balance = balance + $1 WHERE id=$2",
+        [payment.lessons, payment.user_id]
+      );
+
+      await client.query(
+        "UPDATE payments SET status='approved', approved_at=NOW() WHERE id=$1",
+        [id]
+      );
     }
 
-    const payment = paymentRes.rows[0];
-
-    // ✅ Add lesson plans to user
-    await client.query(
-      "UPDATE users SET balance = balance + $1, phone_locked = true WHERE id=$2",
-      [payment.lessons, payment.user_id]
-    );
-
-    // ✅ Approve payment
-    await client.query(
-      "UPDATE payments SET status='approved', approved_at=NOW() WHERE id=$1",
-      [payment_id]
-    );
-
-    return {
-      statusCode: 200,
-      body: "Payment approved and lesson plans added."
-    };
-
+    return { statusCode: 200, body: "Payments approved successfully." };
   } catch (err) {
     console.error(err);
     return { statusCode: 500, body: "Server error" };
