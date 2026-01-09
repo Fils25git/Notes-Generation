@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Create an account | Fila Assistant</title>
+<title>Create an account to Fila Assistant</title>
 
 <style>
 * { box-sizing: border-box; margin:0; padding:0; }
@@ -35,13 +35,16 @@ h2 {
 
 label {
     display:block;
+    text-align:left;
     font-weight:600;
     margin-top:15px;
     margin-bottom:5px;
     color:#333;
 }
 
-label span { color:red; }
+label span {
+    color:red;
+}
 
 input, select {
     width:100%;
@@ -59,7 +62,7 @@ input:focus, select:focus {
 button {
     width:100%;
     padding:15px;
-    margin-top:20px;
+    margin-top:25px;
     background: linear-gradient(to right, #007bff, #00c6ff);
     color:#fff;
     border:none;
@@ -69,57 +72,9 @@ button {
 }
 
 button:hover {
-    opacity:0.95;
+    background: linear-gradient(to right, #0056b3, #00a0cc);
 }
 
-/* Google Button */
-.google-btn {
-    background:#fff;
-    color:#444;
-    border:1px solid #ccc;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    font-weight:600;
-}
-
-.google-btn img {
-    width:20px;
-    height:20px;
-}
-
-.google-btn:hover {
-    background:#f5f5f5;
-}
-
-/* Divider */
-.divider {
-    margin:20px 0;
-    text-align:center;
-    position:relative;
-}
-
-.divider span {
-    background:#fff;
-    padding:0 12px;
-    color:#777;
-    font-size:14px;
-    position:relative;
-    z-index:2;
-}
-
-.divider::before {
-    content:"";
-    position:absolute;
-    top:50%;
-    left:0;
-    right:0;
-    height:1px;
-    background:#ddd;
-}
-
-/* Show password */
 .show-pass {
     margin-top:8px;
     font-size:14px;
@@ -143,7 +98,6 @@ p a, .terms a {
     text-decoration:none;
 }
 
-/* Floating Message */
 #floatingMessage {
     position: fixed;
     top: 20px;
@@ -154,7 +108,6 @@ p a, .terms a {
     border-radius: 12px;
     display: none;
     font-weight: bold;
-    z-index: 9999;
 }
 </style>
 </head>
@@ -164,25 +117,17 @@ p a, .terms a {
 <form id="signupForm">
 <h2>Create an account</h2>
 
-<!-- Google signup -->
-<button type="button" class="google-btn" id="googleSignup">
-    <img src="https://developers.google.com/identity/images/g-logo.png">
-    Sign up with Google
-</button>
-
-<div class="divider"><span>OR</span></div>
-
 <label>Full Name <span>*</span></label>
-<input type="text" name="name" required>
+<input type="text" name="name" placeholder="Enter your full name" required>
 
 <label>Email Address <span>*</span></label>
-<input type="email" name="email" required>
+<input type="email" name="email" placeholder="Enter your email address" required>
 
 <label>Password <span>*</span></label>
-<input type="password" name="password" minlength="6" required>
+<input type="password" name="password" placeholder="Create a password (min 6 characters)" minlength="6" required>
 
 <label>Confirm Password <span>*</span></label>
-<input type="password" name="confirmPassword" minlength="6" required>
+<input type="password" name="confirmPassword" placeholder="Re-enter your password" minlength="6" required>
 
 <div class="show-pass">
     <input type="checkbox" id="togglePassword">
@@ -191,16 +136,16 @@ p a, .terms a {
 
 <label>Are you a teacher? <span>*</span></label>
 <select name="role" required>
-    <option value="">Select</option>
+    <option value="">Are you a teacher ?</option>
     <option value="teacher">Yes</option>
     <option value="student">No</option>
 </select>
 
 <label>Phone Number <span>*</span></label>
-<input type="tel" name="phone" required>
+<input type="tel" name="phone" placeholder="e.g. 078xxxxxxx" required>
 
 <label>Recovery Email</label>
-<input type="email" name="recoveryEmail">
+<input type="email" name="recoveryEmail" placeholder="Optional recovery email">
 
 <button type="submit">Sign Up</button>
 
@@ -216,7 +161,6 @@ By signing up, you agree to our
 <div id="floatingMessage"></div>
 
 <script>
-/* Toggle password */
 const toggle = document.getElementById('togglePassword');
 const password = document.querySelector('[name="password"]');
 const confirmPassword = document.querySelector('[name="confirmPassword"]');
@@ -227,7 +171,6 @@ toggle.addEventListener('change', () => {
     confirmPassword.type = type;
 });
 
-/* Floating message */
 const floatingMsg = document.getElementById('floatingMessage');
 
 function showFloatingMessage(message, type = "success") {
@@ -237,16 +180,19 @@ function showFloatingMessage(message, type = "success") {
     setTimeout(() => floatingMsg.style.display = "none", 4000);
 }
 
-/* Normal signup */
 document.getElementById('signupForm').addEventListener('submit', async e => {
     e.preventDefault();
 
-    if (password.value.length < 6) {
+    const form = e.target;
+    const passwordVal = form.password.value;
+    const confirmPasswordVal = form.confirmPassword.value;
+
+    if (passwordVal.length < 6) {
         showFloatingMessage("Password must be at least 6 characters", "error");
         return;
     }
 
-    if (password.value !== confirmPassword.value) {
+    if (passwordVal !== confirmPasswordVal) {
         showFloatingMessage("Passwords do not match", "error");
         return;
     }
@@ -256,42 +202,31 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                name: e.target.name.value.trim(),
-                email: e.target.email.value.trim(),
-                password: password.value,
-                role: e.target.role.value,
-                phone: e.target.phone.value.trim(),
-                recoveryEmail: e.target.recoveryEmail.value.trim()
+                name: form.name.value.trim(),
+                email: form.email.value.trim(),
+                password: passwordVal,
+                role: form.role.value,
+                phone: form.phone.value.trim(),
+                recoveryEmail: form.recoveryEmail.value.trim()
             })
         });
 
         const text = await res.text();
 
         if (res.ok) {
-            showFloatingMessage("Account created! Redirecting to Log in ...", "success");
-            setTimeout(() => location.href = "login.html", 1500);
+            showFloatingMessage("Account created! Redirecting...", "success");
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
         } else {
             showFloatingMessage(text, "error");
         }
+
     } catch (err) {
         showFloatingMessage(err.message, "error");
     }
 });
-
-/* Google signup */
-document.getElementById("googleSignup").addEventListener("click", () => {
-    const params = new URLSearchParams({
-        client_id: "YOUR_GOOGLE_CLIENT_ID",
-        redirect_uri: `${window.location.origin}/.netlify/functions/google-callback`,
-        response_type: "code",
-        scope: "openid email profile",
-        prompt: "select_account"
-    });
-
-    window.location.href =
-      "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString();
-});
 </script>
 
 </body>
-    </html>
+</html>
