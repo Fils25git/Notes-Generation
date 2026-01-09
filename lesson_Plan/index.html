@@ -244,6 +244,28 @@ document.getElementById('lessonForm').addEventListener('submit', async function(
             btn.textContent = "Fetch Lesson Plan";
             return;
         }
+        function getLanguageDefaults(language, subject, classLevel) {
+    return {
+        specialNeeds: {
+            kinyarwanda: "Nta munyeshuri ufite ibyo agenerwa by'ihariye.",
+            kiswahili: "Hakuna mwanafunzi yeyote mwenye hitaji maalum.",
+            french: "Il n'y a aucun élève ayant des besoins spéciaux.",
+            english: "There is no learner with special educational needs."
+        },
+        teachingMaterials: {
+            kinyarwanda: `Amashusho ari mu gitabo cy'umunyeshuri, ${subject} ${classLevel}, Igitabo cy'umwarimu (Inyoborabarezi).`,
+            kiswahili: `${classLevel} kitabu cha kiswahili kwa shule za Rwanda, Kitabu cha mwanafunzi na Kitabu cha mwalimu, Picha kutoka kwa kitabu cha mwanafunzi.`,
+            french: `${classLevel} livre de français, Livre de l'élève et guide de l'enseignant, Images tirées du livre de l'élève.`,
+            english: `${subject} textbook, learner's book, teacher's guide, charts and flashcards.`
+        },
+        references: {
+            kinyarwanda: `${subject} igitabo cy'umunyeshuri ${classLevel} n'Inyoborabarezi.`,
+            kiswahili: `${subject} kitabu cha mwanafunzi ${classLevel} na Kitabu cha mwalimu.`,
+            french: `${classLevel} livre de ${subject}, Livre de l'élève et guide de l'enseignant.`,
+            english: `${subject} learner’s book, teacher’s guide, REB curriculum guide.`
+        }
+    };
+    }
 
         // 3️⃣ Generate lesson plan ONLY after success
         generateLessonPlan();
