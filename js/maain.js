@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById("sendBtn");
     const changeBtn = document.getElementById("changeSelectionBtn");
     const currentSelectionEl = document.getElementById("currentSelection");
-    const globalCopyBtn = document.getElementById("globalCopyBtn");
+    
 
     /* ===============================
        LOCAL STORAGE CHECK
@@ -357,47 +357,47 @@ document.addEventListener("DOMContentLoaded", () => {
             ],
             "Physics": [
                 "ordinary/s2/physicss2v1.html",
-                "ordinary/s2/physicss2v2.html",
+               /* "ordinary/s2/physicss2v2.html",
                 "ordinary/s2/physicss2v3.html",
                 "ordinary/s2/physicss2v4.html",
-                "ordinary/s2/physicss2v5.html"
+                "ordinary/s2/physicss2v5.html"*/
             ]
         },
         "S3": {
             "English": [
                 "ordinary/s3/englishs3v1.html",
-                "ordinary/s3/englishs3v2.html",
+               /* "ordinary/s3/englishs3v2.html",
                 "ordinary/s3/englishs3v3.html",
                 "ordinary/s3/englishs3v4.html",
-                "ordinary/s3/englishs3v5.html"
+                "ordinary/s3/englishs3v5.html"*/
             ],
             "Mathematics": [
                 "ordinary/s3/mathematicss3v1.html",
-                "ordinary/s3/mathematicss3v2.html",
+               /* "ordinary/s3/mathematicss3v2.html",
                 "ordinary/s3/mathematicss3v3.html",
                 "ordinary/s3/mathematicss3v4.html",
-                "ordinary/s3/mathematicss3v5.html"
+                "ordinary/s3/mathematicss3v5.html"*/
             ],
             "Biology": [
                 "ordinary/s3/biologys3v1.html",
-                "ordinary/s3/biologys3v2.html",
+              /*  "ordinary/s3/biologys3v2.html",
                 "ordinary/s3/biologys3v3.html",
                 "ordinary/s3/biologys3v4.html",
-                "ordinary/s3/biologys3v5.html"
+                "ordinary/s3/biologys3v5.html"*/
             ],
             "Chemistry": [
                 "ordinary/s3/chemistrys3v1.html",
-                "ordinary/s3/chemistrys3v2.html",
+                /*"ordinary/s3/chemistrys3v2.html",
                 "ordinary/s3/chemistrys3v3.html",
                 "ordinary/s3/chemistrys3v4.html",
-                "ordinary/s3/chemistrys3v5.html"
+                "ordinary/s3/chemistrys3v5.html"*/
             ],
             "Physics": [
                 "ordinary/s3/physicss3v1.html",
-                "ordinary/s3/physicss3v2.html",
+               /* "ordinary/s3/physicss3v2.html",
                 "ordinary/s3/physicss3v3.html",
                 "ordinary/s3/physicss3v4.html",
-                "ordinary/s3/physicss3v5.html"
+                "ordinary/s3/physicss3v5.html"*/
             ]
         }
     }
@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ===============================
        SYSTEM BUBBLE FUNCTION
     ================================ */
-    function systemBubble(text, delay = 80) {
+    function systemBubble(text, delay = 40) {
         const div = document.createElement("div");
         div.className = "bubble warning";
         outputArea.appendChild(div);
@@ -416,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
         outputArea.scrollTop = outputArea.scrollHeight;
     }
 
-    function typeWriterSimple(element, text, index = 0, delay = 80) {
+    function typeWriterSimple(element, text, index = 0, delay = 40) {
         if (index < text.length) {
             element.innerHTML += text.charAt(index);
             setTimeout(() => typeWriterSimple(element, text, index + 1, delay), delay);
@@ -640,19 +640,6 @@ function typeWriterByWord(element, fullText, words = null, index = 0, delay = 20
         }
     };
 
-    /* ===============================
-       GLOBAL COPY ALL BUBBLES
-    ================================ */
-    if (globalCopyBtn) {
-        globalCopyBtn.onclick = () => {
-            const allContent = Array.from(document.querySelectorAll('.bubble.system .bubble-content'))
-                .map(el => el.innerText).join('\n=== ' + subject + ' ' + classLevel + ' ===\n');
-            navigator.clipboard.writeText(allContent).then(() => {
-                globalCopyBtn.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => globalCopyBtn.innerHTML = '<i class="fas fa-copy"></i>', 1500);
-            });
-        };
-    }
 
     /* ===============================
        SEND MESSAGE FUNCTION
