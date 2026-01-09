@@ -2,8 +2,6 @@ import { Client } from "pg";
 import bcrypt from "bcryptjs";
 
 export async function handler(event) {
-  console.log("CREATE USER FUNCTION HIT");
-
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: "Method not allowed" };
   }
@@ -11,12 +9,10 @@ export async function handler(event) {
   try {
     const { name, email, phone, role, password, recoveryEmail } = JSON.parse(event.body || "{}");
 
-    // Basic validation
     if (!name || !email || !phone || !role || !password) {
       return { statusCode: 400, body: "Missing required fields" };
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const client = new Client({
@@ -25,8 +21,8 @@ export async function handler(event) {
     });
 
     await client.connect();
-    console.log("DB connected");
 
+    // Attempt insert
     const result = await client.query(
       `INSERT INTO users(name, email, phone, role, password, recovery_email, balance)
        VALUES($1,$2,$3,$4,$5,$6,0)
@@ -37,24 +33,15 @@ export async function handler(event) {
 
     await client.end();
 
+    // Only success if a new row was inserted
     if (result.rows.length > 0) {
-      console.log("User created:", email);
-      return {
-        statusCode: 200,
-        body: "Account created successfully!"
-      };
+      return { statusCode: 200, body: "Account created successfully!" };
     } else {
-      return {
-        statusCode: 409,
-        body: "Email already exists"
-      };
+      return { statusCode: 409, body: "Email already exists" };
     }
 
   } catch (err) {
     console.error("CREATE USER ERROR:", err);
-    return {
-      statusCode: 500,
-      body: "Server error: " + err.message
-    };
+    return { statusCode: 500, body: "Server error: " + err.message };
   }
-  }
+      }
