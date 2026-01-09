@@ -277,15 +277,20 @@ document.getElementById('lessonForm').addEventListener('submit', async function(
     }
 });
 
+// 2️⃣ Replace your old generateLessonPlan() function with this corrected one
 function generateLessonPlan() {
     const language = document.getElementById('language').value || 'english';
+    const subjectVal = subject.value;
+    const classVal = document.getElementById('class').value;
+    const defaults = getLanguageDefaults(language, subjectVal, classVal);
+
     const data = {
         schoolName: schoolName.value,
         teacherName: teacherName.value,
         term: term.value,
         date: date.value,
-        subject: subject.value,
-        class: document.getElementById('class').value,
+        subject: subjectVal,
+        class: classVal,
         unitNo: unitNo.value,
         lessonNo: lessonNo.value,
         totalLessons: totalLessons.value,
@@ -293,13 +298,9 @@ function generateLessonPlan() {
         classSize: classSize.value,
         unitTitle: unitTitle.value,
         lessonTitle: lessonTitle.value,
-        const subjectVal = subject.value;
-const classVal = document.getElementById('class').value;
-const defaults = getLanguageDefaults(language, subjectVal, classVal);
-
-teachingMaterials: teachingMaterials.value || defaults.teachingMaterials[language],
-specialNeeds: specialNeeds.value || defaults.specialNeeds[language],
-references: references.value || defaults.references[language]
+        teachingMaterials: teachingMaterials.value || defaults.teachingMaterials[language],
+        specialNeeds: specialNeeds.value || defaults.specialNeeds[language],
+        references: references.value || defaults.references[language]
     };
 
     fetch(getRandomPlanFile(language))
@@ -307,8 +308,8 @@ references: references.value || defaults.references[language]
     .then(tpl => {
         for (const k in data) {
             tpl = tpl
-  .replace(new RegExp(`{{\\s*${k}\\s*}}`, "g"), data[k])
-  .replace(new RegExp(`\\$\\{\\s*${k}\\s*\\}`, "g"), data[k]);
+                .replace(new RegExp(`{{\\s*${k}\\s*}}`, "g"), data[k])
+                .replace(new RegExp(`\\$\\{\\s*${k}\\s*\\}`, "g"), data[k]);
         }
         lessonPlanContent.innerHTML = tpl;
         resultContainer.classList.add('show');
@@ -317,7 +318,7 @@ references: references.value || defaults.references[language]
     .catch(() => {
         errorMessage.textContent = "❌ Failed to fetch lesson plan.";
     });
-}
+    }
 const editBtn = document.getElementById('editBtn');
 const saveBtn = document.getElementById('saveBtn');
 
