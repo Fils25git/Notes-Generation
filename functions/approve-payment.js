@@ -1,40 +1,53 @@
 import { Client } from "pg";
 
 export async function handler(event) {
-  if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method not allowed" };
+  if (event.httpMethod !== "POST") 
+    return { statusCode: 405, body: JSON.stringify({ success: false, message: "Method not allowed" }) };
 
   const body = JSON.parse(event.body || "{}");
   const ids = body.ids || [];
 
-  if (!ids.length) return { statusCode: 400, body: "No IDs provided" };
+  if (!ids.length) 
+    return { statusCode: 400, body: JSON.stringify({ success: false, message: "No IDs provided" }) };
 
-  const client = new Client({ connectionString: process.env.NEON_DATABASE_URL, ssl: { rejectUnauthorized: false } });
+  const client = new Client({ 
+    connectionString: process.env.NEON_DATABASE_URL, 
+    ssl: { rejectUnauthorized: false } 
+  });
 
   try {
     await client.connect();
 
-    for (const id of ids) {
-      const res = await client.query("SELECT * FROM payments WHERE id=$1 AND status='pending'", [id]);
-      if (!res.rowCount) continue;
+    // Fetch all pending payments for the selected IDs
+    const res = await client.query(
+      "SELECT * FROM payments WHERE id = ANY($1::int[]) AND status='pending'",
+      [ids]
+    );
 
-      const payment = res.rows[0];
+    if (!res.rowCount) {
+      return { statusCode: 400, body: JSON.stringify({ success: false, message: "No pending payments found for selected IDs" }) };
+    }
 
+    // Update user balances and payments
+    for (const payment of res.rows) {
       await client.query(
         "UPDATE users SET balance = balance + $1 WHERE id=$2",
         [payment.lessons, payment.user_id]
       );
-
-      await client.query(
-        "UPDATE payments SET status='approved', approved_at=NOW() WHERE id=$1",
-        [id]
-      );
     }
 
-    return { statusCode: 200, body: "Payments approved successfully." };
+    // Update payments to approved
+    await client.query(
+      "UPDATE payments SET status='approved', approved_at=NOW() WHERE id = ANY($1::int[])",
+      [ids]
+    );
+
+    return { statusCode: 200, body: JSON.stringify({ success: true, message: "Payments approved successfully." }) };
+
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: "Server error" };
+    return { statusCode: 500, body: JSON.stringify({ success: false, message: "Server error" }) };
   } finally {
     await client.end();
   }
-    }
+}
