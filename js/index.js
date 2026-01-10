@@ -20,10 +20,10 @@ const accountBtn = document.getElementById("accountBtn");
 const outputArea = document.getElementById("outputArea");
 
 /* =========================
-   OVERLAY (MOBILE)
+   OVERLAY (MOBILE ONLY)
 ========================= */
 const overlay = document.createElement("div");
-overlay.className = "menu-overlay";
+overlay.className = "menu-overlay hidden";
 document.body.appendChild(overlay);
 
 /* =========================
@@ -41,6 +41,8 @@ function requireAuth(action = "continue") {
    SYSTEM MESSAGE
 ========================= */
 function showSystemMessage(text) {
+    if (!outputArea) return;
+
     const bubble = document.createElement("div");
     bubble.className = "bubble system";
     bubble.textContent = text;
@@ -49,27 +51,39 @@ function showSystemMessage(text) {
 }
 
 /* =========================
-   MENU CONTROL
+   MENU CONTROL (FIXED)
 ========================= */
 function openMenu() {
+    appMenu.classList.remove("hidden");
+    appMenu.classList.add("active");
+
     if (window.innerWidth <= 768) {
-        appMenu.classList.add("active");
+        overlay.classList.remove("hidden");
         overlay.classList.add("active");
-    } else {
-        appMenu.classList.toggle("hidden");
     }
 }
 
 function closeMenu() {
-    appMenu.classList.remove("active", "hidden");
+    appMenu.classList.remove("active");
+    appMenu.classList.add("hidden");
+
     overlay.classList.remove("active");
+    overlay.classList.add("hidden");
 }
 
-menuToggle.onclick = openMenu;
-overlay.onclick = closeMenu;
+function toggleMenu() {
+    if (appMenu.classList.contains("active")) {
+        closeMenu();
+    } else {
+        openMenu();
+    }
+}
+
+menuToggle.addEventListener("click", toggleMenu);
+overlay.addEventListener("click", closeMenu);
 
 /* =========================
-   SAFE REDIRECT (CLOSE MENU FIRST)
+   SAFE REDIRECT
 ========================= */
 function closeMenuAndRedirect(url) {
     closeMenu();
@@ -95,7 +109,7 @@ document.getElementById("privacyBtn").onclick = () => {
 };
 
 /* =========================
-   AUTH UI
+   AUTH UI (OWN SYSTEM)
 ========================= */
 function updateAuthUI() {
     const authIcon = authBtn.querySelector("i");
@@ -111,7 +125,8 @@ function updateAuthUI() {
         accountText.textContent = "My Balance / Billing";
 
         authBtn.onclick = () => {
-            localStorage.clear();
+            localStorage.removeItem("auth_token");
+            localStorage.removeItem("user_email");
             currentUser = null;
             updateAuthUI();
             showSystemMessage("You signed out.");
@@ -140,3 +155,8 @@ function updateAuthUI() {
 }
 
 updateAuthUI();
+
+/* =========================
+   START WITH MENU CLOSED
+========================= */
+closeMenu();
