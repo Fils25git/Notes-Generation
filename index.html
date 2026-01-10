@@ -8,77 +8,6 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/index.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-<style>
-/* ===============================
-   APP MENU – MOBILE FIRST
-================================ */
-#appMenu {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    max-height: 85vh;
-    background: #fff;
-    border-radius: 18px 18px 0 0;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-    z-index: 2000;
-}
-
-#appMenu.active {
-    transform: translateY(0);
-}
-
-#appMenu.hidden {
-    transform: translateY(100%);
-}
-
-/* ===============================
-   DESKTOP BEHAVIOR
-================================ */
-@media (min-width: 1024px) {
-
-    #appMenu {
-        top: 0;
-        bottom: 0;
-        width: 280px;
-        height: 100vh;
-        max-height: none;
-        border-radius: 0;
-        transform: translateX(-100%);
-    }
-
-    #appMenu.active {
-        transform: translateX(0);
-    }
-
-    #appMenu.hidden {
-        transform: translateX(-100%);
-    }
-
-    .menu-toggle {
-        display: inline-flex;
-    }
-}
-
-/* ===============================
-   CURRENT SELECTION ENHANCED
-================================ */
-.current-selection {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 12px;
-    border-radius: 12px;
-}
-
-#changeSelectionBtn {
-    padding: 10px 12px;
-    font-size: 18px;
-}
-</style>
 </head>
 
 <body>
@@ -120,6 +49,9 @@
     </button>
 </footer>
 
+<!-- OVERLAY -->
+<div class="menu-overlay"></div>
+
 <!-- APP MENU -->
 <div id="appMenu" class="app-menu hidden">
 
@@ -154,7 +86,7 @@
 
 </div>
 
-<!-- APP SCRIPTS -->
+<!-- SCRIPTS -->
 <script src="js/main.js"></script>
 <script src="js/index.js"></script>
 
