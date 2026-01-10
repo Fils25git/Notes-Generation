@@ -70,7 +70,7 @@ function showToast(msg, type = "success") {
   setTimeout(() => t.remove(), 10000);
 }
 
-/* ============================= LOAD PAYMENTS (TEMP DEBUG CODE) ============================= */
+/* ============================= LOAD PAYMENTS (TEMP DEBUG) ============================= */
 async function loadPayments() {
   const tbody = document.querySelector("#paymentsTable tbody");
   tbody.innerHTML = "";
@@ -78,27 +78,31 @@ async function loadPayments() {
   try {
     const res = await fetch("/.netlify/functions/get-payments?status=pending");
 
-    // TEMP DEBUG: log HTTP response
-    console.log("HTTP status:", res.status, res.statusText);
+    console.log("HTTP response:", res);
 
+    // TEMP: Show exact server response in alert if failed
     if (!res.ok) {
       const text = await res.text();
       console.error("Server returned error:", text);
-      showToast(`Failed to load payments: ${res.status} ${res.statusText}`, "error");
+      alert(`Failed to load payments!\nHTTP ${res.status}: ${res.statusText}\n${text}`);
       return;
     }
 
     const payments = await res.json();
+    console.log("Payments JSON:", payments);
 
-    // TEMP DEBUG: log returned JSON
-    console.log("Payments data:", payments);
+    // TEMP: Alert if payments JSON has error
+    if (!payments.success) {
+      alert(`Server returned error: ${payments.error || "Unknown error"}`);
+      return;
+    }
 
-    if (!payments || !payments.length) {
+    if (!payments.data || !payments.data.length) {
       showToast("No payments found", "error");
       return;
     }
 
-    payments.forEach(p => {
+    payments.data.forEach(p => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><input type="checkbox" class="rowCheck" data-id="${p.id}"></td>
@@ -122,9 +126,8 @@ async function loadPayments() {
     document.getElementById("bulkActions").style.display = "none";
 
   } catch (err) {
-    // TEMP DEBUG: log network/JS errors
-    console.error("Network or JS error:", err);
-    showToast("Failed to load payments: see console", "error");
+    console.error("Network/JS error:", err);
+    alert("Failed to load payments due to network or JS error. See console for details.");
   }
 }
 
