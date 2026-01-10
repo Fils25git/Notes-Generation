@@ -13,7 +13,8 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    /* remove overflow:hidden */
+    
 }
 
 /* =========================
@@ -94,14 +95,15 @@ body {
    MAIN CONTENT
 ========================= */
 main {
-    margin-top: 60px;
-    margin-bottom: 60px;
+    main {
+    flex: 1;                 /* fill remaining vertical space */
+    overflow-y: auto;        /* enable vertical scroll */
     padding: 12px;
-    flex: 1;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-top: 60px;        /* same as header height */
+    margin-bottom: 60px;     /* same as footer height */
 }
 
 /* =========================
