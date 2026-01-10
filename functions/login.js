@@ -11,23 +11,22 @@ export async function handler(event) {
     };
   }
 
-  let client;
+  const { email, password } = JSON.parse(event.body || "{}");
+
+  if (!email || !password) {
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Email and password required" })
+    };
+  }
+
+  const client = new Client({
+    connectionString: process.env.NEON_DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+
   try {
-    const { email, password } = JSON.parse(event.body || "{}");
-
-    if (!email || !password) {
-      return {
-        statusCode: 400,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Email and password required" })
-      };
-    }
-
-    client = new Client({
-      connectionString: process.env.NEON_DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
-    });
-
     await client.connect();
 
     const result = await client.query(
@@ -39,7 +38,7 @@ export async function handler(event) {
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Invalid email or password", debug: "No user found with that email" })
+        body: JSON.stringify({ error: "Invalid email or password" })
       };
     }
 
@@ -50,15 +49,7 @@ export async function handler(event) {
       return {
         statusCode: 401,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Invalid email or password", debug: "Password did not match hash" })
-      };
-    }
-
-    if (!process.env.JWT_SECRET) {
-      return {
-        statusCode: 500,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "JWT_SECRET missing" })
+        body: JSON.stringify({ error: "Invalid email or password" })
       };
     }
 
@@ -71,16 +62,16 @@ export async function handler(event) {
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, email, debug: "Login success" })
+      body: JSON.stringify({ token, email })
     };
 
   } catch (err) {
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: err.message, debug: "Server error" })
+      body: JSON.stringify({ error: err.message })
     };
   } finally {
-    if (client) await client.end();
+    await client.end();
   }
       }
