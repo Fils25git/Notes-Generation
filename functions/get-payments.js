@@ -11,9 +11,18 @@ export async function handler(event) {
   try {
     await client.connect();
 
-    // Build query dynamically
+    // Build query dynamically with alias
     let query = `
-      SELECT p.id, u.name, u.email, u.phone, p.amount, p.lessons, p.status, p.created_at, p.user_id
+      SELECT 
+        p.id, 
+        u.name AS full_name, 
+        u.email, 
+        u.phone, 
+        p.amount, 
+        p.lessons, 
+        p.status, 
+        p.created_at, 
+        p.user_id
       FROM payments p
       JOIN users u ON p.user_id = u.id
     `;
@@ -43,9 +52,9 @@ export async function handler(event) {
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ success: false, error: "Server error" })
+      body: JSON.stringify({ success: false, error: err.message })
     };
   } finally {
     await client.end();
   }
-}
+        }
