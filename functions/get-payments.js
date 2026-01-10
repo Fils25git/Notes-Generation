@@ -9,6 +9,7 @@ export async function handler(event) {
   const status = event.queryStringParameters?.status;
 
   try {
+    console.log("Connecting to database...");
     await client.connect();
 
     // Build query dynamically
@@ -26,13 +27,20 @@ export async function handler(event) {
 
     query += " ORDER BY p.created_at DESC";
 
+    console.log("Executing query:", query, "with params:", params);
+
     const res = await client.query(query, params);
 
-    // ✅ Return only the array of rows (what your dashboard expects)
+    console.log("Query result rows:", res.rows);
+
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(res.rows)
+      body: JSON.stringify({
+        success: true,
+        data: res.rows,
+        message: res.rows.length ? "Payments loaded successfully." : "No payments found."
+      })
     };
 
   } catch (err) {
@@ -40,9 +48,9 @@ export async function handler(event) {
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: "Server error" })
+      body: JSON.stringify({ success: false, error: err.message })
     };
   } finally {
     await client.end();
   }
-                  }
+}
