@@ -6,11 +6,80 @@
 <title>Fila Assistant - Notes</title>
 
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/index.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<!-- RESPONSIVE ENHANCEMENT ONLY -->
+<style>
+/* ===============================
+   DESKTOP LAYOUT
+================================ */
+@media (min-width: 1024px) {
+
+    body {
+        flex-direction: row;
+    }
+
+    .app-header {
+        position: fixed;
+        top: 0;
+        left: 280px;
+        width: calc(100% - 280px);
+        z-index: 1000;
+    }
+
+    #appMenu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        border-radius: 0;
+        box-shadow: 2px 0 15px rgba(0,0,0,0.15);
+        transform: none;
+        bottom: 0;
+    }
+
+    #appMenu.active {
+        bottom: 0;
+    }
+
+    main {
+        margin-left: 280px;
+        margin-top: 60px;
+    }
+
+    footer {
+        width: calc(100% - 280px);
+        left: 280px;
+    }
+
+    .menu-toggle {
+        display: none;
+    }
+}
+
+/* ===============================
+   CURRENT SELECTION ENHANCED
+================================ */
+.current-selection {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 10px;
+}
+
+#changeSelectionBtn {
+    font-size: 16px;
+    padding: 6px 10px;
+}
+</style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header class="app-header">
     <div class="header-left">
         <img src="logo.png" alt="Logo" class="logo-img">
@@ -18,76 +87,72 @@
     </div>
 
     <div class="current-selection">
-        <span id="currentSelection">S1 Mathematics • Algebra</span>
-        <button id="changeSelectionBtn" title="Change">🔄</button>
+        <span id="currentSelection">Loading...</span>
+        <button id="changeSelectionBtn" title="Change selection">
+            <i class="fas fa-arrows-rotate"></i>
+        </button>
     </div>
 
     <div class="header-right">
-        <button id="menuToggle"><i class="fas fa-ellipsis-v"></i></button>
+        <button id="menuToggle" class="menu-toggle" title="Menu">
+            <i class="fas fa-ellipsis-v"></i>
+        </button>
     </div>
 </header>
 
-<!-- DESKTOP SIDEBAR -->
-<aside class="desktop-menu">
-    <button onclick="location.href='login.html'">
-        <i class="fas fa-sign-in-alt"></i> Sign In
-    </button>
-    <button onclick="location.href='create.html'">
-        <i class="fas fa-user-plus"></i> Create Account
-    </button>
-    <button>
-        <i class="fas fa-file-alt"></i> Lesson Plan
-    </button>
-    <button>
-        <i class="fas fa-file-contract"></i> Terms
-    </button>
-    <button>
-        <i class="fas fa-shield-alt"></i> Privacy
-    </button>
-</aside>
+<!-- MAIN OUTPUT -->
+<main id="outputArea"></main>
 
-<!-- MAIN CONTENT -->
-<main id="outputArea">
-    <div class="bubble system">
-        Welcome to Fila Assistant. Start by typing a lesson title below.
-    </div>
-</main>
-
-<!-- FOOTER INPUT -->
+<!-- FOOTER -->
 <footer>
-    <input type="text" id="noteInput"
-           placeholder="Type lesson title from this unit..." />
-    <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+    <input
+        type="text"
+        id="noteInput"
+        placeholder="Type lesson title from this unit..."
+        autocomplete="off"
+    />
+    <button id="sendBtn">
+        <i class="fas fa-paper-plane"></i>
+    </button>
 </footer>
 
-<!-- MOBILE BOTTOM MENU -->
-<div id="appMenu" class="app-menu">
-    <button onclick="location.href='login.html'">
-        <i class="fas fa-sign-in-alt"></i> Sign In
-    </button>
-    <button onclick="location.href='create.html'">
-        <i class="fas fa-user-plus"></i> Create Account
-    </button>
-    <button>
-        <i class="fas fa-file-alt"></i> Lesson Plan
-    </button>
-    <button>
-        <i class="fas fa-file-contract"></i> Terms
-    </button>
-    <button>
-        <i class="fas fa-shield-alt"></i> Privacy
-    </button>
+<!-- APP MENU (MOBILE + DESKTOP) -->
+<div id="appMenu" class="app-menu active">
+
+    <div class="menu-section">
+        <button id="authBtn">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Sign In</span>
+        </button>
+
+        <button id="accountBtn">
+            <i class="fas fa-user-plus"></i>
+            <span>Create Account</span>
+        </button>
+
+        <button id="lessonPlanBtn">
+            <i class="fas fa-file-alt"></i>
+            <span>Generate Lesson Plan</span>
+        </button>
+    </div>
+
+    <div class="menu-section">
+        <button id="termsBtn">
+            <i class="fas fa-file-contract"></i>
+            <span>Terms & Privacy</span>
+        </button>
+
+        <button id="privacyBtn">
+            <i class="fas fa-shield-alt"></i>
+            <span>Privacy Policy</span>
+        </button>
+    </div>
+
 </div>
 
-<script>
-const menuToggle = document.getElementById("menuToggle");
-const appMenu = document.getElementById("appMenu");
-
-menuToggle.onclick = () => {
-    appMenu.classList.toggle("active");
-};
-</script>
-    <script src="js/main.js"></script>
+<!-- APP SCRIPTS -->
+<script src="js/main.js"></script>
+<script src="js/index.js"></script>
 
 </body>
-            </html>
+                          </html>
