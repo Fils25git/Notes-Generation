@@ -10,7 +10,10 @@ export async function handler(event) {
   const { email, password } = JSON.parse(event.body || "{}");
 
   if (!email || !password) {
-    return { statusCode: 400, body: "Email and password required" };
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Email and password required" })
+    };
   }
 
   const client = new Client({
@@ -27,24 +30,28 @@ export async function handler(event) {
     );
 
     if (result.rows.length === 0) {
-      return { statusCode: 401, body: "Invalid email or password" };
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: "Invalid email or password" })
+      };
     }
 
     const user = result.rows[0];
+
     const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
-      return { statusCode: 401, body: "Invalid email or password" };
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ error: "Invalid email or password" })
+      };
     }
 
-    // ✅ CREATE JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
-
-    await client.end();
 
     return {
       statusCode: 200,
@@ -55,7 +62,11 @@ export async function handler(event) {
     };
 
   } catch (err) {
-    if (client) await client.end();
-    return { statusCode: 500, body: err.message };
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: err.message })
+    };
+  } finally {
+    await client.end();
   }
       }
