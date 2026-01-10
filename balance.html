@@ -82,8 +82,7 @@
   <p id="balance">Loading balance...</p>
 
   <p id="explanation">
-    These lesson plans allow you to generate and download teaching materials.
-    When they are finished, you can buy more lesson plans below.
+    You can buy more lesson plans below.
   </p>
 
   <a href="payment.html" class="buy-btn">
@@ -91,15 +90,18 @@
   </a>
 </div>
 <script>
-netlifyIdentity.init();
+// ✅ JWT-based login check
+const token = localStorage.getItem("auth_token");
+const userEmail = localStorage.getItem("user_email");
 
-// Extract first name from Netlify Identity
-function getFirstName(user) {
-  const fullName = user?.user_metadata?.full_name;
-  if (fullName) {
-    return fullName.trim().split(/\s+/)[0];
-  }
-  return user?.email?.split("@")[0] || "there";
+if (!token) {
+    // Not logged in → redirect
+    window.location.href = "index.html";
+}
+
+// Extract first name from email
+function getFirstName(email) {
+    return email?.split("@")[0] || "there";
 }
 
 // Fetch balance ONLY
@@ -124,33 +126,26 @@ async function fetchBalance(identifier) {
 }
 
 function updateBalance() {
-  const currentUser = netlifyIdentity.currentUser();
-  if (!currentUser) {
-    document.getElementById('user-info').innerText =
-      'Please log in to see your balance';
-    document.getElementById('balance').innerText = '';
-    return;
-  }
+    if (!userEmail) {
+        document.getElementById('user-info').innerText =
+          'Please log in to see your balance';
+        document.getElementById('balance').innerText = '';
+        return;
+    }
 
-  // Greeting from Netlify Identity
-  const firstName = getFirstName(currentUser);
-  document.getElementById('user-info').innerText = `Hello ${firstName}`;
+    // Greeting from email
+    const firstName = getFirstName(userEmail);
+    document.getElementById('user-info').innerText = `Hello ${firstName}`;
 
-  // Balance from backend
-  const identifier = currentUser.email || currentUser.phone;
-  fetchBalance(identifier);
+    // Balance from backend
+    fetchBalance(userEmail);
 }
 
 // Run once on page load
 updateBalance();
 
-// Logout handler
-netlifyIdentity.on('logout', () => {
-  window.location.replace("index.html");
-});
-
 // Optional polling (safe)
 setInterval(updateBalance, 10000);
-  </script>
+</script>
 </body>
 </html>
