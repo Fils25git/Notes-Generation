@@ -2,38 +2,35 @@ import { Client } from "pg";
 import bcrypt from "bcryptjs";
 
 export async function handler(event) {
-  console.log("🔥 FUNCTION HIT");
-
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method not allowed" };
+    return {
+      statusCode: 405,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Method not allowed" })
+    };
   }
 
   let client;
 
   try {
-    console.log("📥 RAW BODY:", event.body);
-
-    const body = JSON.parse(event.body || "{}");
-    console.log("📦 PARSED BODY:", body);
-
-    const { name, email, phone, role, password } = body;
+    const { name, email, phone, role, password } = JSON.parse(event.body || "{}");
 
     if (!name || !email || !password || !role) {
-      console.log("❌ VALIDATION FAILED");
-      return { statusCode: 400, body: "Missing required fields" };
+      return {
+        statusCode: 400,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Missing required fields" })
+      };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("🔐 PASSWORD HASHED");
 
     client = new Client({
       connectionString: process.env.NEON_DATABASE_URL,
       ssl: { rejectUnauthorized: false }
     });
 
-    console.log("🔌 CONNECTING TO DB");
     await client.connect();
-    console.log("✅ DB CONNECTED");
 
     const result = await client.query(
       `INSERT INTO users (name, email, phone, role, password)
@@ -48,21 +45,19 @@ export async function handler(event) {
       ]
     );
 
-    console.log("🟢 INSERT RESULT:", result.rows);
-
-    await client.end();
-
     return {
       statusCode: 201,
-      body: JSON.stringify({
-        success: true,
-        userId: result.rows[0].id
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ success: true, userId: result.rows[0].id })
     };
 
   } catch (err) {
-    console.error("💥 CREATE USER ERROR FULL:", err);
+    return {
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: err.message })
+    };
+  } finally {
     if (client) await client.end();
-    return { statusCode: 500, body: err.message };
   }
 }
