@@ -281,7 +281,75 @@ document.getElementById('lessonForm').addEventListener('submit', async function(
     }
 });
 
-// ... rest of your script stays exactly the same ...
+// ... rest of  script stays exactly the same ...
+    function generateLessonPlan() {
+    const language = document.getElementById('language').value || 'english';
+    const subjectVal = subject.value;
+    const classVal = document.getElementById('class').value;
+    const defaults = getLanguageDefaults(language, subjectVal, classVal);
+
+    const data = {
+        schoolName: schoolName.value,
+        teacherName: teacherName.value,
+        term: term.value,
+        date: date.value,
+        subject: subjectVal,
+        class: classVal,
+        unitNo: unitNo.value,
+        lessonNo: lessonNo.value,
+        totalLessons: totalLessons.value,
+        duration: duration.value,
+        classSize: classSize.value,
+        unitTitle: unitTitle.value,
+        lessonTitle: lessonTitle.value,
+        teachingMaterials: teachingMaterials.value || defaults.teachingMaterials[language],
+        specialNeeds: specialNeeds.value || defaults.specialNeeds[language],
+        references: references.value || defaults.references[language]
+    };
+
+    fetch(getRandomPlanFile(language))
+        .then(r => r.text())
+        .then(tpl => {
+            for (const k in data) {
+                tpl = tpl
+                    .replace(new RegExp(`{{\\s*${k}\\s*}}`, "g"), data[k])
+                    .replace(new RegExp(`\\$\\{\\s*${k}\\s*\\}`, "g"), data[k]);
+            }
+            lessonPlanContent.innerHTML = tpl;
+            resultContainer.classList.add('show');
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(() => {
+            errorMessage.textContent = "❌ Failed to fetch lesson plan.";
+        });
+}
+
+const editBtn = document.getElementById('editBtn');
+const saveBtn = document.getElementById('saveBtn');
+
+editBtn.addEventListener('click', () => {
+    lessonPlanContent.contentEditable = true;
+    lessonPlanContent.focus();
+    editBtn.disabled = true;
+    saveBtn.disabled = false;
+});
+
+saveBtn.addEventListener('click', () => {
+    lessonPlanContent.contentEditable = false;
+    editBtn.disabled = false;
+    saveBtn.disabled = true;
+    showFloatingMessage("Lesson plan saved successfully! ✅");
+});
+
+function copyToWord() {
+    const range = document.createRange();
+    range.selectNode(lessonPlanContent);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges();
+    showFloatingMessage("Lesson plan copied to clipboard.");
+        }
             
 </body>
   </html>
