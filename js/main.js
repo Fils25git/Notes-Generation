@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
    
    function requireAuth(actionName = "this action") {
     if (!currentUser) {
-        showSystemMessage(`Please sign in first to ${actionName}.`);
+        showSystemMessage(`Sign in first to ${actionName}.`);
         return false;
     }
     return true;
@@ -431,7 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
        SAFE WORD-BY-WORD TYPEWRITER
        (HTML / TABLE / IMAGE SAFE)
     ================================ */
-    function typeWriterPreserveHTML(element, html, delay = 60) {
+    function typeWriterPreserveHTML(element, html, delay = 30) {
 
         element.innerHTML = html;
 
@@ -492,7 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const file = files[Math.floor(Math.random() * files.length)];
-        systemBubble(`⏳ Loading ${subject} ${classLevel} notes...`);
+        systemBubble(` Welcome to Fila Assistant🙋‍♂️⏳ Loading ${subject} ${classLevel} notes...`);
 
         fetch(`https://raw.githubusercontent.com/Fils25git/Notes-Generation/main/${file}`)
             .then(r => r.ok ? r.text() : Promise.reject())
