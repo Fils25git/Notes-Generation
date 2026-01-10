@@ -94,27 +94,25 @@ body {
    MAIN CONTENT
 ========================= */
 main {
-    position: absolute;
-    margin:0;
-   top:0;
-   bottom: 0;
-   right: 0;
-   left:0;
-    padding: 0;
+    margin-top: 60px;
+    margin-bottom: 60px;
+    padding: 0 12px;
     flex: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 /* =========================
    CHAT BUBBLES
 ========================= */
 .bubble {
-    padding: 12px;
+   padding: 12px;
     border-radius: 14px;
-    max-width: 70%;
+    max-width: 100%;      /* allow full width */
+    width: 100%;          /* stretch to full container width */
+    box-sizing: border-box; /* ensure padding is included in width */
 }
 
 .bubble.system {
