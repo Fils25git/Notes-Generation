@@ -70,39 +70,16 @@ function showToast(msg, type = "success") {
   setTimeout(() => t.remove(), 10000);
 }
 
-/* ============================= LOAD PAYMENTS (TEMP DEBUG) ============================= */
+/* ============================= LOAD PAYMENTS ============================= */
 async function loadPayments() {
   const tbody = document.querySelector("#paymentsTable tbody");
   tbody.innerHTML = "";
 
   try {
     const res = await fetch("/.netlify/functions/get-payments?status=pending");
-
-    console.log("HTTP response:", res);
-
-    // TEMP: Show exact server response in alert if failed
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("Server returned error:", text);
-      alert(`Failed to load payments!\nHTTP ${res.status}: ${res.statusText}\n${text}`);
-      return;
-    }
-
     const payments = await res.json();
-    console.log("Payments JSON:", payments);
 
-    // TEMP: Alert if payments JSON has error
-    if (!payments.success) {
-      alert(`Server returned error: ${payments.error || "Unknown error"}`);
-      return;
-    }
-
-    if (!payments.data || !payments.data.length) {
-      showToast("No payments found", "error");
-      return;
-    }
-
-    payments.data.forEach(p => {
+    payments.forEach(p => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><input type="checkbox" class="rowCheck" data-id="${p.id}"></td>
@@ -125,9 +102,8 @@ async function loadPayments() {
     document.getElementById("selectAll").checked = false;
     document.getElementById("bulkActions").style.display = "none";
 
-  } catch (err) {
-    console.error("Network/JS error:", err);
-    alert("Failed to load payments due to network or JS error. See console for details.");
+  } catch {
+    showToast("Failed to load payments", "error");
   }
 }
 
