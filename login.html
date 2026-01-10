@@ -90,6 +90,7 @@ button {
     color: white;
     display: none;
     font-weight: bold;
+    z-index: 9999;
 }
 </style>
 </head>
@@ -97,33 +98,35 @@ button {
 <body>
 
 <form id="loginForm">
-<h2>Login to Fila Assistant</h2>
+    <h2>Login to Fila Assistant</h2>
 
-<input type="email" name="email" placeholder="Enter your email" required>
-<input type="password" name="password" placeholder="Enter your password" required>
+    <input type="email" name="email" placeholder="Enter your email" required>
+    <input type="password" name="password" placeholder="Enter your password" required>
 
-<div class="show-pass">
-    <input type="checkbox" id="togglePassword">
-    <label for="togglePassword">Show Password</label>
-</div>
+    <div class="show-pass">
+        <input type="checkbox" id="togglePassword">
+        <label for="togglePassword">Show Password</label>
+    </div>
 
-<button type="submit">Login</button>
+    <button type="submit">Login</button>
 
-<p class="links">
-<a href="create.html">Create account</a>
-</p>
+    <p class="links">
+        <a href="create.html">Create account</a>
+    </p>
 </form>
 
 <div id="floatingMessage"></div>
 
 <script>
+/* SHOW / HIDE PASSWORD */
 const toggle = document.getElementById("togglePassword");
-const password = document.querySelector('[name="password"]');
+const passwordInput = document.querySelector('[name="password"]');
 
 toggle.addEventListener("change", () => {
-    password.type = toggle.checked ? "text" : "password";
+    passwordInput.type = toggle.checked ? "text" : "password";
 });
 
+/* FLOATING MESSAGE */
 const floatingMsg = document.getElementById("floatingMessage");
 
 function showFloatingMessage(msg, type="success") {
@@ -133,6 +136,7 @@ function showFloatingMessage(msg, type="success") {
     setTimeout(() => floatingMsg.style.display = "none", 4000);
 }
 
+/* LOGIN */
 document.getElementById("loginForm").addEventListener("submit", async e => {
     e.preventDefault();
 
@@ -146,15 +150,20 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
             body: JSON.stringify({ email, password })
         });
 
-        const text = await res.text();
+        const data = await res.json(); // ✅ IMPORTANT
 
         if (res.ok) {
+            // ✅ SAVE AUTH STATE
+            localStorage.setItem("auth_token", data.token);
+            localStorage.setItem("user_email", data.email);
+
             showFloatingMessage("Login successful!");
+
             setTimeout(() => {
                 window.location.href = "index.html";
-            }, 1200);
+            }, 1000);
         } else {
-            showFloatingMessage(text, "error");
+            showFloatingMessage(data || "Login failed", "error");
         }
     } catch (err) {
         showFloatingMessage(err.message, "error");
