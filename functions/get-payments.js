@@ -9,12 +9,11 @@ export async function handler(event) {
   const status = event.queryStringParameters?.status;
 
   try {
-    console.log("Connecting to database...");
     await client.connect();
 
     // Build query dynamically
     let query = `
-      SELECT p.id, u.full_name, u.email, u.phone, p.amount, p.lessons, p.status, p.created_at, p.user_id
+      SELECT p.id, u.name, u.email, u.phone, p.amount, p.lessons, p.status, p.created_at, p.user_id
       FROM payments p
       JOIN users u ON p.user_id = u.id
     `;
@@ -27,11 +26,7 @@ export async function handler(event) {
 
     query += " ORDER BY p.created_at DESC";
 
-    console.log("Executing query:", query, "with params:", params);
-
     const res = await client.query(query, params);
-
-    console.log("Query result rows:", res.rows);
 
     return {
       statusCode: 200,
@@ -45,16 +40,10 @@ export async function handler(event) {
 
   } catch (err) {
     console.error("Database error:", err);
-
-    // TEMP: Send the exact error to frontend for debugging
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        success: false,
-        error: err.message,       // exact error message
-        stack: err.stack          // optional: full stack trace
-      })
+      body: JSON.stringify({ success: false, error: "Server error" })
     };
   } finally {
     await client.end();
