@@ -431,7 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
        SAFE WORD-BY-WORD TYPEWRITER
        (HTML / TABLE / IMAGE SAFE)
     ================================ */
-    function typeWriterPreserveHTML(element, html, delay = 30) {
+    function typeWriterPreserveHTML(element, html, delay = 20) {
 
         element.innerHTML = html;
 
