@@ -163,7 +163,7 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
                 window.location.href = "index.html";
             }, 1000);
         } else {
-            showFloatingMessage(data || "Login failed", "error");
+            showFloatingMessage(data.error || "Login failed", "error");
         }
     } catch (err) {
         showFloatingMessage(err.message, "error");
