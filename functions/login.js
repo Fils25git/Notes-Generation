@@ -25,7 +25,7 @@ export async function handler(event) {
     await client.connect();
 
     const result = await client.query(
-      "SELECT id, email, password FROM users WHERE email = $1",
+      `SELECT id, password FROM users WHERE email = $1`,
       [email.toLowerCase()]
     );
 
@@ -37,7 +37,6 @@ export async function handler(event) {
     }
 
     const user = result.rows[0];
-
     const match = await bcrypt.compare(password, user.password);
 
     if (!match) {
@@ -47,26 +46,29 @@ export async function handler(event) {
       };
     }
 
+    // ✅ CREATE JWT
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
+    await client.end();
+
     return {
       statusCode: 200,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
-        email: user.email
+        email
       })
     };
 
   } catch (err) {
+    if (client) await client.end();
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message })
+      body: JSON.stringify({ error: "Server error" })
     };
-  } finally {
-    await client.end();
   }
       }
