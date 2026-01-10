@@ -71,13 +71,26 @@ function showToast(msg, type = "success") {
 }
 
 /* ============================= LOAD PAYMENTS ============================= */
+/* ============================= LOAD PAYMENTS (TEMP DEBUG) ============================= */
 async function loadPayments() {
   const tbody = document.querySelector("#paymentsTable tbody");
   tbody.innerHTML = "";
 
   try {
     const res = await fetch("/.netlify/functions/get-payments?status=pending");
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      alert("Failed to load payments!\n" + JSON.stringify(errorData, null, 2));
+      return;
+    }
+
     const payments = await res.json();
+
+    if (!payments.length) {
+      alert("No payments found.");
+      return;
+    }
 
     payments.forEach(p => {
       const tr = document.createElement("tr");
@@ -102,10 +115,10 @@ async function loadPayments() {
     document.getElementById("selectAll").checked = false;
     document.getElementById("bulkActions").style.display = "none";
 
-  } catch {
-    showToast("Failed to load payments", "error");
+  } catch (err) {
+    alert("Network or JS error:\n" + err);
   }
-}
+  }
 
 /* ============================= SINGLE ACTIONS ============================= */
 function attachButtons() {
