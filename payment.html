@@ -144,7 +144,7 @@
 <body>
 
 <div class="container">
-  <button id="backBtn"> < Back</button>
+  <button id="backBtn"> 《《 Back</button>
   
   <h2>Buy Lesson Plans</h2>
   
@@ -258,7 +258,7 @@ packages.forEach(btn => {
 
         showFloatingMessage(`You will get ${lessons} lesson plans`);
         ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a><br>
-        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:290400<br>Account Name:Fils Lambert`;
+        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>290400<b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
         confirmPaymentBtn.disabled = true;
         setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
     });
