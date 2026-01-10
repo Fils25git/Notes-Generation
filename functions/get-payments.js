@@ -31,7 +31,11 @@ export async function handler(event) {
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(res.rows)
+      body: JSON.stringify({
+        success: true,
+        data: res.rows,
+        message: res.rows.length ? "Payments loaded successfully." : "No payments found."
+      })
     };
 
   } catch (err) {
@@ -39,9 +43,9 @@ export async function handler(event) {
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: "Server error" })
+      body: JSON.stringify({ success: false, error: "Server error" })
     };
   } finally {
     await client.end();
   }
-      }
+}
