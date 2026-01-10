@@ -116,12 +116,14 @@ main {
 }
 
 .bubble.system {
-    background: #ffffff;
+    background: #aaffff;
     border: 1px solid #ccc;
     align-self: flex-start;
 }
 
 .bubble.user {
+   max-width: 50%;      /* allow full width */
+    width: 50%;
     background: #00AF00;
     color: white;
     align-self: flex-end;
