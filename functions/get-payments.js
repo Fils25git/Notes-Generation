@@ -11,8 +11,7 @@ export async function handler(event) {
   try {
     await client.connect();
 
-    // Build query dynamically with alias
-    let query = `
+    const query = `
       SELECT 
         p.id, 
         u.name AS full_name, 
@@ -25,36 +24,26 @@ export async function handler(event) {
         p.user_id
       FROM payments p
       JOIN users u ON p.user_id = u.id
+      ${status ? "WHERE p.status = $1" : ""}
+      ORDER BY p.created_at DESC
     `;
-    const params = [];
 
-    if (status) {
-      query += " WHERE p.status = $1";
-      params.push(status);
-    }
-
-    query += " ORDER BY p.created_at DESC";
-
-    const res = await client.query(query, params);
+    const res = await client.query(query, status ? [status] : []);
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        success: true,
-        data: res.rows,
-        message: res.rows.length ? "Payments loaded successfully." : "No payments found."
-      })
+      body: JSON.stringify(res.rows)
     };
 
   } catch (err) {
-    console.error("Database error:", err);
+    // Return full error to browser for temporary debug
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ success: false, error: err.message })
+      body: JSON.stringify({ error: err.message, stack: err.stack })
     };
   } finally {
     await client.end();
   }
-        }
+};
