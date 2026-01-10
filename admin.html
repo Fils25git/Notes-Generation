@@ -70,14 +70,33 @@ function showToast(msg, type = "success") {
   setTimeout(() => t.remove(), 10000);
 }
 
-/* ============================= LOAD PAYMENTS ============================= */
+/* ============================= LOAD PAYMENTS (TEMP DEBUG CODE) ============================= */
 async function loadPayments() {
   const tbody = document.querySelector("#paymentsTable tbody");
   tbody.innerHTML = "";
 
   try {
     const res = await fetch("/.netlify/functions/get-payments?status=pending");
+
+    // TEMP DEBUG: log HTTP response
+    console.log("HTTP status:", res.status, res.statusText);
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Server returned error:", text);
+      showToast(`Failed to load payments: ${res.status} ${res.statusText}`, "error");
+      return;
+    }
+
     const payments = await res.json();
+
+    // TEMP DEBUG: log returned JSON
+    console.log("Payments data:", payments);
+
+    if (!payments || !payments.length) {
+      showToast("No payments found", "error");
+      return;
+    }
 
     payments.forEach(p => {
       const tr = document.createElement("tr");
@@ -102,8 +121,10 @@ async function loadPayments() {
     document.getElementById("selectAll").checked = false;
     document.getElementById("bulkActions").style.display = "none";
 
-  } catch {
-    showToast("Failed to load payments", "error");
+  } catch (err) {
+    // TEMP DEBUG: log network/JS errors
+    console.error("Network or JS error:", err);
+    showToast("Failed to load payments: see console", "error");
   }
 }
 
@@ -176,4 +197,4 @@ loadPayments();
 </script>
 
 </body>
-  </html>
+</html>
