@@ -45,10 +45,16 @@ export async function handler(event) {
 
   } catch (err) {
     console.error("Database error:", err);
+
+    // TEMP: Send the exact error to frontend for debugging
     return {
       statusCode: 500,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ success: false, error: err.message })
+      body: JSON.stringify({
+        success: false,
+        error: err.message,       // exact error message
+        stack: err.stack          // optional: full stack trace
+      })
     };
   } finally {
     await client.end();
