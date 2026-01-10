@@ -94,7 +94,7 @@ body {
    MAIN CONTENT
 ========================= */
 main {
-    
+    position: absolute;
     margin:0;
    top:0;
    bottom: 0;
