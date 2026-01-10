@@ -9,53 +9,57 @@
 <link rel="stylesheet" href="css/index.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-<!-- RESPONSIVE ENHANCEMENT ONLY -->
 <style>
 /* ===============================
-   DESKTOP LAYOUT
+   APP MENU – MOBILE FIRST
+================================ */
+#appMenu {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: 85vh;
+    background: #fff;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.2);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    z-index: 2000;
+}
+
+#appMenu.active {
+    transform: translateY(0);
+}
+
+#appMenu.hidden {
+    transform: translateY(100%);
+}
+
+/* ===============================
+   DESKTOP BEHAVIOR
 ================================ */
 @media (min-width: 1024px) {
 
-    body {
-        flex-direction: row;
-    }
-
-    .app-header {
-        position: fixed;
-        top: 0;
-        left: 280px;
-        width: calc(100% - 280px);
-        z-index: 1000;
-    }
-
     #appMenu {
-        position: fixed;
         top: 0;
-        left: 0;
+        bottom: 0;
         width: 280px;
         height: 100vh;
+        max-height: none;
         border-radius: 0;
-        box-shadow: 2px 0 15px rgba(0,0,0,0.15);
-        transform: none;
-        bottom: 0;
+        transform: translateX(-100%);
     }
 
     #appMenu.active {
-        bottom: 0;
+        transform: translateX(0);
     }
 
-    main {
-        margin-left: 280px;
-        margin-top: 60px;
-    }
-
-    footer {
-        width: calc(100% - 280px);
-        left: 280px;
+    #appMenu.hidden {
+        transform: translateX(-100%);
     }
 
     .menu-toggle {
-        display: none;
+        display: inline-flex;
     }
 }
 
@@ -65,14 +69,14 @@
 .current-selection {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border-radius: 10px;
+    gap: 10px;
+    padding: 6px 12px;
+    border-radius: 12px;
 }
 
 #changeSelectionBtn {
-    font-size: 16px;
-    padding: 6px 10px;
+    padding: 10px 12px;
+    font-size: 18px;
 }
 </style>
 </head>
@@ -100,7 +104,7 @@
     </div>
 </header>
 
-<!-- MAIN OUTPUT -->
+<!-- MAIN -->
 <main id="outputArea"></main>
 
 <!-- FOOTER -->
@@ -116,8 +120,8 @@
     </button>
 </footer>
 
-<!-- APP MENU (MOBILE + DESKTOP) -->
-<div id="appMenu" class="app-menu active">
+<!-- APP MENU -->
+<div id="appMenu" class="app-menu hidden">
 
     <div class="menu-section">
         <button id="authBtn">
@@ -155,4 +159,4 @@
 <script src="js/index.js"></script>
 
 </body>
-                          </html>
+</html>
