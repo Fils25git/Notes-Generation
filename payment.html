@@ -147,10 +147,11 @@
   <button id="backBtn"> < Back</button>
   
   <h2>Buy Lesson Plans</h2>
+  
 
   <!-- Current balance display -->
   <div>
-    <p><u>BALANCE:</u> <span id="currentBalance">Loading...</span></p>
+    <p><b>BALANCE:</b> <span id="currentBalance">Loading...</span></p>
   </div>
   <div class="packages">
     <button data-amount="250">250 RWF → 20 lesson plans</button>
@@ -165,7 +166,7 @@
   <p id="result"></p>
   <p id="ussd"></p>
   <div>
-    <button id="confirmPayment" disabled style="padding: 15px 20px;">Confirm Payment</button>
+    <button id="confirmPayment" disabled style="padding: 15px 20px;">I have paid</button>
   </div>
 
   <!-- Floating message box -->
@@ -256,7 +257,8 @@ packages.forEach(btn => {
         }
 
         showFloatingMessage(`You will get ${lessons} lesson plans`);
-        ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
+        ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a><br>
+        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:290400<br>Account Name:Fils Lambert`;
         confirmPaymentBtn.disabled = true;
         setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
     });
