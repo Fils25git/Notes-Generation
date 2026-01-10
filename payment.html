@@ -14,6 +14,7 @@
     min-height: 100vh; 
     color: #333; 
     position: relative;
+    flex-direction: column;
   }
   .container { 
     background: #fff; 
@@ -52,7 +53,6 @@
     color: #fff; 
     font-size: 14px; 
     cursor: pointer; 
-    
   }
   #ussd a { 
     display: inline-block; 
@@ -66,7 +66,7 @@
   }
   #result { margin-top: 15px; font-weight: bold; }
   #confirmPayment { 
-display: inline-block; 
+    display: inline-block; 
     margin-top: 10px; 
     padding: 10px 15px; 
     background: #28a745; 
@@ -120,6 +120,25 @@ display: inline-block;
     font-weight: bold;
     color: #fff;
   }
+
+  /* Responsive footer */
+  footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+    width: 100%;
+  }
+  footer a {
+    color: #fff;
+    text-decoration: underline;
+    margin: 0 5px;
+  }
+  @media (max-width: 480px){
+    .container { padding: 20px 20px; }
+    .packages button { width: 100%; margin: 5px 0; }
+    input[type="number"] { width: 100%; }
+  }
 </style>
 </head>
 <body>
@@ -131,10 +150,10 @@ display: inline-block;
 
   <!-- Current balance display -->
   <div>
-  <p><u>BALANCE:</u> <span id="currentBalance">Loading...</span></p>
+    <p><u>BALANCE:</u> <span id="currentBalance">Loading...</span></p>
   </div>
   <div class="packages">
-    <button fixed;="250">250 RWF → 20 lesson plans</button>
+    <button data-amount="250">250 RWF → 20 lesson plans</button>
     <button data-amount="500">500 RWF → 45 lesson plans</button>
     <button data-amount="1000">1000 RWF → 100 lesson plans</button>
   </div>
@@ -145,31 +164,41 @@ display: inline-block;
 
   <p id="result"></p>
   <p id="ussd"></p>
-<div>
-  <button id="confirmPayment" disableshowFloatingMessageton style="padding: 15px 20px;">
+  <div>
+    <button id="confirmPayment" disabled style="padding: 15px 20px;">Confirm Payment</button>
+  </div>
+
+  <!-- Floating message box -->
+  <div id="floatingMsg" class="floating-msg">
+    <span id="msgText"></span>
+    <span class="close" onclick="closeMsg()">✖</span>
+  </div>
 </div>
 
-<!-- Floating message box -->
-<div id="floatingMsg" class="floating-msg">
-  <span id="msgText"></span>
-  <span class="close" onclick="closeMsg()">✖</span>
-</div>
+<footer>
+  &copy; 2026 Fila Assistant | <a href="privacy.html">Privacy</a> | <a href="terms.html">Terms</a>
+</footer>
 
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 <script>
-netlifyIdentity.init();
+// --- USER SETUP (without Netlify Identity) ---
+const userEmail = localStorage.getItem("user_email");
+const userPhone = localStorage.getItem("user_phone");
 
 // Block non-logged-in users
-document.addEventListener("DOMContentLoaded", () => {
-  const user = netlifyIdentity.currentUser();
-  if (!user) window.location.replace("index.html");
-});
+if (!userEmail && !userPhone) {
+    window.location.href = "index.html";
+}
 
-// Redirect on logout
-netlifyIdentity.on("logout", () => window.location.replace("index.html"));
-</script>
+// --- Floating message functions ---
+const floatingMsg = document.getElementById('floatingMsg');
+const msgText = document.getElementById('msgText');
+function showFloatingMessage(msg, type='success'){
+    msgText.innerText = msg;
+    floatingMsg.className = `floating-msg ${type} show`;
+}
+function closeMsg(){ floatingMsg.classList.remove('show'); }
 
-<script>
+// --- Elements ---
 const packages = document.querySelectorAll('.packages button');
 const customPayBtn = document.getElementById('customPayBtn');
 const customAmountInput = document.getElementById('customAmount');
@@ -179,21 +208,10 @@ const confirmPaymentBtn = document.getElementById('confirmPayment');
 const backBtn = document.getElementById('backBtn');
 const currentBalanceEl = document.getElementById('currentBalance');
 
-const floatingMsg = document.getElementById('floatingMsg');
-const msgText = document.getElementById('msgText');
-
 const USSD_BASE = "*182*8*1*290400*"; 
 let selectedAmount = null;
 let pollInterval = null;
 let pageLoadTime = Date.now();
-
-// --- Floating message functions ---
-function showFloatingMessage(msg, type='success'){
-    msgText.innerText = msg;
-    floatingMsg.className = `floating-msg ${type} show`;
-    setTimeout(() => floatingMsg.classList.remove('show'), 10000);
-}
-function closeMsg(){ floatingMsg.classList.remove('show'); }
 
 // --- Calculate lesson plans ---
 function calculateLessons(amount){
@@ -203,14 +221,11 @@ function calculateLessons(amount){
     if(amount >= 20) return Math.floor(amount / 20);
     return null;
 }
-function generateUSSD(amount){ return USSD_BASE + amount + "#"; }
+function generateUSSD(amount){ return USSD_BASE + amount + "%23"; } // encoded # to fix dialer
 
 // --- Fetch current balance ---
 async function refreshBalance() {
-    const user = netlifyIdentity.currentUser();
-    if (!user) return;
-    const identifier = user.email || user.phone;
-
+    const identifier = userEmail || userPhone;
     try {
         const url = identifier.includes('@') 
             ? `/.netlify/functions/get-balance?email=${identifier}` 
@@ -219,7 +234,6 @@ async function refreshBalance() {
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch balance");
         const data = await res.json();
-
         currentBalanceEl.innerText = `${data.balance} lesson plan${data.balance === 1 ? '' : 's'}`;
     } catch(err){
         console.error("Error refreshing balance:", err);
@@ -241,7 +255,7 @@ packages.forEach(btn => {
             return;
         }
 
-        resultEl.innerText = `You will get ${lessons} lesson plans.`;
+        showFloatingMessage(`You will get ${lessons} lesson plans`);
         ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
         confirmPaymentBtn.disabled = true;
         setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
@@ -261,7 +275,7 @@ customPayBtn.addEventListener('click', () => {
         return;
     }
 
-    resultEl.innerText = `You will get ${lessons} lesson plans.`;
+    showFloatingMessage(`You will get ${lessons} lesson plans`);
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
     confirmPaymentBtn.disabled = true;
     setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
@@ -279,9 +293,8 @@ confirmPaymentBtn.addEventListener('click', async () => {
         return;
     }
 
-    const user = netlifyIdentity.currentUser();
-    const phone = user.phone || "unknown";
-    const email = user.email || null;
+    const phone = userPhone || "unknown";
+    const email = userEmail || null;
     const reference = 'LP' + Date.now();
 
     try {
