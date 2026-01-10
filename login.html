@@ -136,7 +136,7 @@ function showFloatingMessage(msg, type="success") {
     setTimeout(() => floatingMsg.style.display = "none", 4000);
 }
 
-/* LOGIN - TEMPORARY PHONE-FRIENDLY DEBUG */
+/* LOGIN */
 document.getElementById("loginForm").addEventListener("submit", async e => {
     e.preventDefault();
 
@@ -150,12 +150,23 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
             body: JSON.stringify({ email, password })
         });
 
-        // TEMP: show exact server response for debugging
-        const text = await res.text();
-        alert(text); // shows the real error or success message in a popup
+        const data = await res.json(); // ✅ IMPORTANT
 
+        if (res.ok) {
+            // ✅ SAVE AUTH STATE
+            localStorage.setItem("auth_token", data.token);
+            localStorage.setItem("user_email", data.email);
+
+            showFloatingMessage("Login successful!");
+
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 1000);
+        } else {
+            showFloatingMessage(data.error || "Login failed", "error");
+        }
     } catch (err) {
-        alert("Fetch error: " + err.message);
+        showFloatingMessage(err.message, "error");
     }
 });
 </script>
