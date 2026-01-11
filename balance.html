@@ -15,97 +15,68 @@
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <style>
-/* Body layout */
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #6dd5fa, #2980b9);
-  color: #333;
-  min-height: 100vh;        /* Full viewport height */
-  margin: 0;                /* Remove default margin */
-  display: flex;
-  flex-direction: column;   /* Stack dashboard and footer vertically */
-}
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #6dd5fa, #2980b9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+    position: relative;
+  }
 
-/* Center the dashboard in remaining space */
-.dashboard {
-  background: #fff;
-  padding: 30px 40px;
-  border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-  text-align: center;
-  width: 100%;
-  max-width: 450px;
-  margin: auto;             /* Centers vertically and horizontally */
-  flex-grow: 1;             /* Pushes footer to bottom if screen is tall */
-}
+  .back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
 
-/* Headings */
-h2 {
-  margin-bottom: 20px;
-}
+  .dashboard {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 100%;
+    max-width: 450px;
+  }
 
-/* Balance display */
-#balance {
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 15px;
-}
+  h2 {
+    margin-bottom: 20px;
+  }
 
-/* Explanation text */
-#explanation {
-  margin-top: 18px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: #444;
-}
+  #balance {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 15px;
+  }
 
-/* Buy button */
-.buy-btn {
-  display: inline-block;
-  margin-top: 22px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  background: linear-gradient(to right, #007bff, #00c6ff);
-  color: #fff;
-  font-size: 16px;
-  text-decoration: none;
-  cursor: pointer;
-}
+  #explanation {
+    margin-top: 18px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #444;
+  }
 
-/* Back button */
-.back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 8px 14px;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-/* Footer */
-footer {
-  background: linear-gradient(135deg, #6dd5fa, #2980b9);
-  padding: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #fff;
-  width: 100%;
-  box-shadow: 0 -2px 6px rgba(0,0,0,0.15);
-}
-
-/* Footer links */
-footer a {
-  color: #fff;
-  text-decoration: underline;
-  margin: 0 5px;
-}
+  .buy-btn {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: linear-gradient(to right, #007bff, #00c6ff);
+    color: #fff;
+    font-size: 16px;
+    text-decoration: none;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -126,9 +97,6 @@ footer a {
     Buy More Lesson Plans
   </a>
 </div>
-  <footer>
-  &copy; 2026 Fila Assistant | <a href="privacy.html">Privacy</a> | <a href="terms.html">Terms</a>
-  </footer>
 <script>
 // ✅ JWT-based login check
 const token = localStorage.getItem("auth_token");
