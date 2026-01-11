@@ -646,7 +646,10 @@ input.addEventListener("keydown", e => {
 // New wrapper function
 function sendMessageWithAuth() {
     if (!requireAuth("send a note")) return; // ✅ Block if not signed in
-
+if (sendBtn.disabled) {
+        systemBubble("⚠ Notes are not available yet.");
+        return;
+                                                  }
     sendMessage(); // call your existing function
 }
 
