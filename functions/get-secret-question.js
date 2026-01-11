@@ -46,7 +46,7 @@ export async function handler(event) {
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ success: true, question: result.rows[0].secret_question_1 })
+      body: JSON.stringify({ success: true, question: result.rows[0].secret_question})
     };
 
   } catch (err) {
