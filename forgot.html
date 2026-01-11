@@ -56,6 +56,9 @@ p a, .links a { color:#007bff; text-decoration:none; }
 p a:hover, .links a:hover { text-decoration:underline; }
 .message { margin-top:12px; font-size:15px; color:green; }
 .error { color:red; }
+.hidden { display:none; }
+.show-pass { font-size:14px; margin-top:5px; display:flex; align-items:center; }
+.show-pass input { width:auto; margin-right:6px; }
 @media (max-width:500px){
     form { padding:30px 20px; border-radius:12px; }
     h2 { font-size:24px; }
@@ -68,8 +71,23 @@ p a:hover, .links a:hover { text-decoration:underline; }
 <form id="forgotForm">
 <h2>Reset Password</h2>
 
+<!-- Step 1: Email & Secret Question -->
 <input type="email" name="email" placeholder="Enter your email" required>
-<button type="submit">Send Reset Link</button>
+<input type="text" name="secretAnswer" placeholder="Answer your secret question" required>
+<button type="button" id="checkAnswerBtn">Verify Answer</button>
+
+<!-- Step 2: New Password Fields (Hidden Initially) -->
+<div id="passwordFields" class="hidden">
+    <input type="password" name="newPassword" placeholder="Enter new password" required>
+    <input type="password" name="confirmNewPassword" placeholder="Confirm new password" required>
+
+    <div class="show-pass">
+        <input type="checkbox" id="toggleNewPassword">
+        <label for="toggleNewPassword">Show Password</label>
+    </div>
+
+    <button type="submit">Reset Password</button>
+</div>
 
 <p class="links"><a href="login.html">Back to Login</a></p>
 
@@ -77,26 +95,90 @@ p a:hover, .links a:hover { text-decoration:underline; }
 </form>
 
 <script>
-document.getElementById('forgotForm').addEventListener('submit', async e=>{
-    e.preventDefault();
-    const email = e.target.email.value.trim();
-    const msg = document.getElementById('message');
+const msg = document.getElementById('message');
+const passwordFields = document.getElementById('passwordFields');
+
+// Toggle view for new password fields
+document.getElementById('toggleNewPassword').addEventListener('change', (e) => {
+    const type = e.target.checked ? 'text' : 'password';
+    document.querySelector('[name="newPassword"]').type = type;
+    document.querySelector('[name="confirmNewPassword"]').type = type;
+});
+
+// Step 1: Verify secret answer
+document.getElementById('checkAnswerBtn').addEventListener('click', async () => {
     msg.classList.remove('error');
-    msg.innerText = "";
+    msg.textContent = "";
+
+    const email = document.querySelector('[name="email"]').value.trim();
+    const answer = document.querySelector('[name="secretAnswer"]').value.trim();
+
+    if (!email || !answer) {
+        msg.textContent = "Please enter email and secret answer";
+        msg.classList.add('error');
+        return;
+    }
 
     try {
-        const res = await fetch('/.netlify/functions/forgotPassword',{
-            method:'POST',
-            body: JSON.stringify({email})
+        const res = await fetch('/.netlify/functions/reset-password', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, answer })
         });
+
+        if (res.status === 200) {
+            msg.textContent = "Answer correct! Enter your new password";
+            msg.classList.remove('error');
+            passwordFields.classList.remove('hidden');
+        } else {
+            const text = await res.text();
+            msg.textContent = text;
+            msg.classList.add('error');
+        }
+    } catch (err) {
+        msg.textContent = "Error: " + err.message;
+        msg.classList.add('error');
+    }
+});
+
+// Step 2: Submit new password
+document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = document.querySelector('[name="email"]').value.trim();
+    const answer = document.querySelector('[name="secretAnswer"]').value.trim();
+    const newPassword = document.querySelector('[name="newPassword"]').value;
+    const confirmNewPassword = document.querySelector('[name="confirmNewPassword"]').value;
+
+    if (newPassword !== confirmNewPassword) {
+        msg.textContent = "Passwords do not match";
+        msg.classList.add('error');
+        return;
+    }
+
+    try {
+        const res = await fetch('/.netlify/functions/reset-password', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, answer, newPassword })
+        });
+
         const text = await res.text();
-        msg.innerText = text;
-    } catch(err){
-        msg.innerText = "Error: " + err.message;
+
+        if (res.status === 200) {
+            msg.textContent = text;
+            msg.classList.remove('error');
+            setTimeout(() => window.location.href = "login.html", 1500);
+        } else {
+            msg.textContent = text;
+            msg.classList.add('error');
+        }
+    } catch (err) {
+        msg.textContent = "Error: " + err.message;
         msg.classList.add('error');
     }
 });
 </script>
 
 </body>
-</html>
+    </html>
