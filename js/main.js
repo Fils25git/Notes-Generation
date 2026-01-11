@@ -487,7 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const files = notesFileMap[level]?.[classLevel]?.[subject];
 
         if (!files || !files.length) {
-            systemBubble(`❌ No notes found for ${classLevel} ${subject}`);
+            systemBubble(`I have not given  ${classLevel} ${subject} Yet, I hope i shall be updated very soon`);
             return;
         }
 
@@ -499,12 +499,12 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(html => {
                 currentNotesHTML = html;
                 systemBubble(
-                    `👋 Notes ready for <b>${subject}</b> (${classLevel}).<br>
+                    `Yup! Notes ready for <b>${subject}</b> (${classLevel}).
                      Type a <b>unit</b> or <b>lesson title</b>.`
                 );
             })
             .catch(() =>
-                systemBubble(`❌ Failed to load notes. Please change selection.`)
+                systemBubble(`Not Yet Ready for ${classLevel} ${subject}. Please change selection.`)
             );
     }
 
@@ -561,11 +561,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         actions.innerHTML = `
 
-         <button class="copy-btn" onclick="copyBubble(this.closest('.bubble'))">
+         <button class="copy-btn" style="color:green;margin-top:3px; onclick="copyBubble(this.closest('.bubble'))">
     📋 Copy
 </button>
 
-<button class="edit-btn" onclick="toggleEdit(this.closest('.bubble'))">
+<button class="edit-btn" style="color:green;margin-top:3px; onclick="toggleEdit(this.closest('.bubble'))">
     ✏ Edit
 </button>   
         `;
