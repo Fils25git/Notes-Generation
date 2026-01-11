@@ -211,14 +211,15 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                name: form.name.value.trim(),
-                email: form.email.value.trim(),
-                password: passwordVal,
-                role: form.role.value,
-                phone: form.phone.value.trim(),
-                recoveryEmail: form.recoveryEmail.value.trim()
-            })
-        });
+    name: form.name.value.trim(),
+    email: form.email.value.trim(),
+    password: passwordVal,
+    role: form.role.value,
+    phone: form.phone.value.trim(),
+    recoveryEmail: form.recoveryEmail.value.trim(),
+    secretQuestion: form.secretQuestion.value,
+    secretAnswer: form.secretAnswer.value.trim()
+});
 
         const text = await res.text();
 
@@ -236,6 +237,18 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
     }
 });
 </script>
+    <script>
+/* Disable remaining secret question after selection */
+const secretSelect = document.getElementById('secretQuestion');
+
+secretSelect.addEventListener('change', () => {
+    [...secretSelect.options].forEach(opt => {
+        if (opt.value && opt.value !== secretSelect.value) {
+            opt.disabled = true;
+        }
+    });
+});
+    </script>
 
 </body>
 </html>
