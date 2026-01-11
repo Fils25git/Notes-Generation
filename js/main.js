@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const outputArea = document.getElementById("outputArea");
     const input = document.getElementById("noteInput");
     const sendBtn = document.getElementById("sendBtn");
+   sendBtn.disabled = true; 
     const changeBtn = document.getElementById("changeSelectionBtn");
     const currentSelectionEl = document.getElementById("currentSelection");
     const globalCopyBtn = document.getElementById("globalCopyBtn");
@@ -24,6 +25,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
    }
 
+   function disableSend(reason = "") {
+    sendBtn.disabled = true;
+    sendBtn.title = reason;
+}
+
+function enableSend() {
+    sendBtn.disabled = false;
+    sendBtn.title = "";
+      }
     /* ===============================
        LOCAL STORAGE CHECK
     ================================ */
@@ -488,7 +498,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!files || !files.length) {
             systemBubble(`I have not given  ${classLevel} ${subject} Yet, I hope i shall be updated very soon`);
-            return;
+            disableSend("No notes available");
+         sendBtn.disabled = true; //
+           return;
         }
 
         const file = files[Math.floor(Math.random() * files.length)];
@@ -502,10 +514,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     `Yup! Notes ready for <b>${subject}</b> (${classLevel}).
                      Type a <b>unit</b> or <b>lesson title</b>.`
                 );
+               enableSend(); // ✅ enable send button
+      
             })
             .catch(() =>
                 systemBubble(`Not Yet Ready for ${classLevel} ${subject}. Please change selection.`)
             );
+       disableSend("No notes available");
     }
 
     /* ===============================
@@ -561,11 +576,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         actions.innerHTML = `
 
-         <button class="copy-btn" style="color:green;margin-top:3px; onclick="copyBubble(this.closest('.bubble'))">
+         <button class="copy-btn" style="background:green; margin-top:8px; onclick="copyBubble(this.closest('.bubble'))">
     📋 Copy
 </button>
 
-<button class="edit-btn" style="color:green;margin-top:3px; onclick="toggleEdit(this.closest('.bubble'))">
+<button class="edit-btn" style="background:green; margin-top:8px; onclick="toggleEdit(this.closest('.bubble'))">
     ✏ Edit
 </button>   
         `;
