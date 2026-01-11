@@ -72,25 +72,27 @@ p a:hover, .links a:hover { text-decoration:underline; }
 <h2>Reset Password</h2>
 
 <!-- Step 1: Enter Email -->
-<input type="email" name="email" placeholder="Enter your email" required>
-<button type="button" id="fetchQuestionBtn">Next</button>
+<div id="emailStep">
+    <input type="email" name="email" placeholder="Enter your email" required>
+    <button type="button" id="fetchQuestionBtn">Fetch Secret Question</button>
+</div>
 
-<!-- Step 2: Show Question -->
-<div id="questionSection" class="hidden">
-    <p id="secretQuestionText"></p>
+<!-- Step 2: Secret Question & Answer -->
+<div id="questionStep" class="hidden">
+    <label id="secretQuestionLabel"></label>
     <input type="text" name="secretAnswer" placeholder="Enter your answer" required>
     <button type="button" id="verifyAnswerBtn">Verify Answer</button>
 </div>
 
-<!-- Step 3: New Password -->
-<div id="passwordFields" class="hidden">
+<!-- Step 3: New Password Fields -->
+<div id="passwordStep" class="hidden">
     <input type="password" name="newPassword" placeholder="Enter new password" required>
     <input type="password" name="confirmNewPassword" placeholder="Confirm new password" required>
     <div class="show-pass">
         <input type="checkbox" id="toggleNewPassword">
         <label for="toggleNewPassword">Show Password</label>
     </div>
-    <button type="submit">Reset Password</button>
+    <button type="submit">Change Password</button>
 </div>
 
 <p class="links"><a href="login.html">Back to Login</a></p>
@@ -99,11 +101,12 @@ p a:hover, .links a:hover { text-decoration:underline; }
 
 <script>
 const msg = document.getElementById('message');
-const questionSection = document.getElementById('questionSection');
-const passwordFields = document.getElementById('passwordFields');
+const questionStep = document.getElementById('questionStep');
+const passwordStep = document.getElementById('passwordStep');
+const secretQuestionLabel = document.getElementById('secretQuestionLabel');
 
-// Toggle view for new password
-document.getElementById('toggleNewPassword').addEventListener('change', (e) => {
+// Step 0: Toggle view for new password fields
+document.getElementById('toggleNewPassword').addEventListener('change', e=>{
     const type = e.target.checked ? 'text' : 'password';
     document.querySelector('[name="newPassword"]').type = type;
     document.querySelector('[name="confirmNewPassword"]').type = type;
@@ -111,10 +114,8 @@ document.getElementById('toggleNewPassword').addEventListener('change', (e) => {
 
 // Step 1: Fetch secret question
 document.getElementById('fetchQuestionBtn').addEventListener('click', async () => {
-    msg.classList.remove('error');
     msg.textContent = "";
     const email = document.querySelector('[name="email"]').value.trim();
-
     if (!email) {
         msg.textContent = "Please enter your email";
         msg.classList.add('error');
@@ -128,16 +129,17 @@ document.getElementById('fetchQuestionBtn').addEventListener('click', async () =
             body: JSON.stringify({ email })
         });
 
-        if (res.status === 200) {
-            const data = await res.json();
-            document.getElementById('secretQuestionText').textContent = data.question;
-            questionSection.classList.remove('hidden');
+        const data = await res.json();
+
+        if (res.status === 200 && data.secretQuestion) {
+            secretQuestionLabel.textContent = data.secretQuestion;
+            questionStep.classList.remove('hidden');
+            msg.textContent = "";
         } else {
-            const text = await res.text();
-            msg.textContent = text;
+            msg.textContent = data.error || "User not found";
             msg.classList.add('error');
         }
-    } catch (err) {
+    } catch(err) {
         msg.textContent = "Error: " + err.message;
         msg.classList.add('error');
     }
@@ -145,7 +147,6 @@ document.getElementById('fetchQuestionBtn').addEventListener('click', async () =
 
 // Step 2: Verify secret answer
 document.getElementById('verifyAnswerBtn').addEventListener('click', async () => {
-    msg.classList.remove('error');
     msg.textContent = "";
     const email = document.querySelector('[name="email"]').value.trim();
     const answer = document.querySelector('[name="secretAnswer"]').value.trim();
@@ -163,29 +164,34 @@ document.getElementById('verifyAnswerBtn').addEventListener('click', async () =>
             body: JSON.stringify({ email, answer })
         });
 
-        if (res.status === 200) {
-            msg.textContent = "Answer correct! Enter your new password";
-            questionSection.classList.add('hidden');
-            passwordFields.classList.remove('hidden');
+        const data = await res.json();
+
+        if (res.status === 200 && data.success) {
+            msg.textContent = "Answer correct! Set your new password.";
+            passwordStep.classList.remove('hidden');
         } else {
-            const text = await res.text();
-            msg.textContent = text;
+            msg.textContent = data.error || "Incorrect answer";
             msg.classList.add('error');
         }
-    } catch (err) {
+    } catch(err) {
         msg.textContent = "Error: " + err.message;
         msg.classList.add('error');
     }
 });
 
-// Step 3: Reset password
-document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+// Step 3: Submit new password
+document.getElementById('forgotForm').addEventListener('submit', async e => {
     e.preventDefault();
-
     const email = document.querySelector('[name="email"]').value.trim();
     const answer = document.querySelector('[name="secretAnswer"]').value.trim();
     const newPassword = document.querySelector('[name="newPassword"]').value;
     const confirmNewPassword = document.querySelector('[name="confirmNewPassword"]').value;
+
+    if (!newPassword || !confirmNewPassword) {
+        msg.textContent = "Please fill in all password fields";
+        msg.classList.add('error');
+        return;
+    }
 
     if (newPassword !== confirmNewPassword) {
         msg.textContent = "Passwords do not match";
@@ -201,15 +207,16 @@ document.getElementById('forgotForm').addEventListener('submit', async (e) => {
         });
 
         const text = await res.text();
+
         if (res.status === 200) {
             msg.textContent = text;
-            msg.classList.remove('error');
-            setTimeout(() => window.location.href = "login.html", 1500);
+            setTimeout(()=>window.location.href="login.html", 1500);
         } else {
             msg.textContent = text;
             msg.classList.add('error');
         }
-    } catch (err) {
+
+    } catch(err) {
         msg.textContent = "Error: " + err.message;
         msg.classList.add('error');
     }
@@ -217,4 +224,4 @@ document.getElementById('forgotForm').addEventListener('submit', async (e) => {
 </script>
 
 </body>
-                                                           </html>
+    </html>
