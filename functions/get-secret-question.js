@@ -1,48 +1,61 @@
 import { Client } from "pg";
-import bcrypt from "bcryptjs";
 
 export async function handler(event) {
-  const { email, answer, newPassword } = JSON.parse(event.body || "{}");
-
-  if (!email || !answer || !newPassword) {
-    return { statusCode: 400, body: "Missing fields" };
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Method not allowed" })
+    };
   }
 
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
+  let client;
 
-  await client.connect();
+  try {
+    const { email } = JSON.parse(event.body || "{}");
 
-  const res = await client.query(
-    "SELECT secret_answer_hash FROM users WHERE email=$1",
-    [email]
-  );
+    if (!email) {
+      return {
+        statusCode: 400,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Missing email" })
+      };
+    }
 
-  if (res.rowCount === 0) {
-    await client.end();
-    return { statusCode: 404, body: "User not found" };
+    client = new Client({
+      connectionString: process.env.NEON_DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
+
+    await client.connect();
+
+    // Fetch the secret question for the given email
+    const result = await client.query(
+      "SELECT secret_question_1 FROM users WHERE email=$1",
+      [email.toLowerCase().trim()]
+    );
+
+    if (result.rowCount === 0) {
+      return {
+        statusCode: 404,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "User not found" })
+      };
+    }
+
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ success: true, question: result.rows[0].secret_question_1 })
+    };
+
+  } catch (err) {
+    return {
+      statusCode: 500,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Server error: " + err.message })
+    };
+  } finally {
+    if (client) await client.end();
   }
-
-  const isCorrect = await bcrypt.compare(
-    answer.toLowerCase(),
-    res.rows[0].secret_answer_hash
-  );
-
-  if (!isCorrect) {
-    await client.end();
-    return { statusCode: 401, body: "Incorrect answer" };
-  }
-
-  const newHash = await bcrypt.hash(newPassword, 10);
-
-  await client.query(
-    "UPDATE users SET password=$1 WHERE email=$2",
-    [newHash, email]
-  );
-
-  await client.end();
-
-  return { statusCode: 200, body: "Password reset successful" };
-            }
+      }
