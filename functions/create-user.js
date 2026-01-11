@@ -60,6 +60,6 @@ export async function handler(event) {
 
   } catch (err) {
     console.error(err);
-    return { statusCode: 500, body: "Server error" };
+    return { statusCode: 500, body: "Phone number or Email already registered" };
   }
             }
