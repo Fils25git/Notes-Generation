@@ -29,12 +29,14 @@ export async function handler(event) {
 
     await client.connect();
 
-    // Fetch the secret question for the given email
     const result = await client.query(
-      "SELECT secret_question FROM users WHERE email=$1",
-      [email.toLowerCase().trim()]
+      `SELECT secret_question
+       FROM users
+       WHERE LOWER(TRIM(email)) = LOWER(TRIM($1))`,
+      [email]
     );
 
+    // ✅ User truly not found
     if (result.rowCount === 0) {
       return {
         statusCode: 404,
@@ -43,10 +45,23 @@ export async function handler(event) {
       };
     }
 
+    // ✅ User exists but secret question missing
+    if (!result.rows[0].secret_question) {
+      return {
+        statusCode: 400,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Secret question not set" })
+      };
+    }
+
+    // ✅ Success
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ success: true, question: result.rows[0].secret_question})
+      body: JSON.stringify({
+        success: true,
+        question: result.rows[0].secret_question
+      })
     };
 
   } catch (err) {
