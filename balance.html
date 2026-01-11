@@ -15,90 +15,97 @@
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <style>
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #6dd5fa, #2980b9);
-    
-    
-    align-items: center;
-    min-height: 100vh;
-    color: #333;
-    
-  }
-/*Responsive footer */
-  footer {
-    position:fixed;
-    bottom: 0;
-    background: linear-gradient(135deg, #6dd5fa, #2980b9);
-    
-    padding: 8px;
-    display: flex;
-    gap: 8px;
-    box-shadow: 0 -2px 6px rgba(0,0,0,0.15);
-    text-align: center;
-    font-size: 14px;
-    color: #fff;
-    width: 100%;
-  }
-  footer a {
-    color: #fff;
-    text-decoration: underline;
-    margin: 0 5px;
-  }
-  .back-btn {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: #ffffff;
-    border-radius: 10px;
-    padding: 8px 14px;
-    font-size: 14px;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  }
+/* Body layout */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #6dd5fa, #2980b9);
+  color: #333;
+  min-height: 100vh;        /* Full viewport height */
+  margin: 0;                /* Remove default margin */
+  display: flex;
+  flex-direction: column;   /* Stack dashboard and footer vertically */
+}
 
-  .dashboard {
-    justify-content: center;
-    display: flex;
-    position: relative;
-    background: #fff;
-    padding: 30px 40px;
-    border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    text-align: center;
-    width: 100%;
-    max-width: 450px;
-  }
+/* Center the dashboard in remaining space */
+.dashboard {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  text-align: center;
+  width: 100%;
+  max-width: 450px;
+  margin: auto;             /* Centers vertically and horizontally */
+  flex-grow: 1;             /* Pushes footer to bottom if screen is tall */
+}
 
-  h2 {
-    margin-bottom: 20px;
-  }
+/* Headings */
+h2 {
+  margin-bottom: 20px;
+}
 
-  #balance {
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 15px;
-  }
+/* Balance display */
+#balance {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 15px;
+}
 
-  #explanation {
-    margin-top: 18px;
-    font-size: 15px;
-    line-height: 1.5;
-    color: #444;
-  }
+/* Explanation text */
+#explanation {
+  margin-top: 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #444;
+}
 
-  .buy-btn {
-    display: inline-block;
-    margin-top: 22px;
-    padding: 12px 20px;
-    border-radius: 12px;
-    background: linear-gradient(to right, #007bff, #00c6ff);
-    color: #fff;
-    font-size: 16px;
-    text-decoration: none;
-    cursor: pointer;
-  }
+/* Buy button */
+.buy-btn {
+  display: inline-block;
+  margin-top: 22px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: linear-gradient(to right, #007bff, #00c6ff);
+  color: #fff;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Back button */
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Footer */
+footer {
+  background: linear-gradient(135deg, #6dd5fa, #2980b9);
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #fff;
+  width: 100%;
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.15);
+}
+
+/* Footer links */
+footer a {
+  color: #fff;
+  text-decoration: underline;
+  margin: 0 5px;
+}
 </style>
 </head>
 <body>
