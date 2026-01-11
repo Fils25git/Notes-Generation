@@ -146,6 +146,15 @@ p a, .terms a {
 
 <label>Recovery Email</label>
 <input type="email" name="recoveryEmail" placeholder="Optional recovery email">
+    <label>Secret Question <span>*</span></label>
+<select name="secretQuestion" id="secretQuestion" required>
+    <option value="">Select a question</option>
+    <option value="pet">What was the name of your first pet?</option>
+    <option value="school">What is the name of your first school?</option>
+</select>
+
+<label>Secret Answer <span>*</span></label>
+<input type="text" name="secretAnswer" placeholder="Your answer" required>
 
 <button type="submit">Sign Up</button>
 
