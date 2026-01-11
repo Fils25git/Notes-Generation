@@ -31,7 +31,7 @@ export async function handler(event) {
 
     // Fetch the secret question for the given email
     const result = await client.query(
-      "SELECT secret_question_1 FROM users WHERE email=$1",
+      "SELECT secret_question FROM users WHERE email=$1",
       [email.toLowerCase().trim()]
     );
 
