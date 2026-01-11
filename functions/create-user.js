@@ -3,61 +3,63 @@ import bcrypt from "bcryptjs";
 
 export async function handler(event) {
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: "Method not allowed" })
-    };
+    return { statusCode: 405, body: "Method not allowed" };
   }
 
-  let client;
-
   try {
-    const { name, email, phone, role, password } = JSON.parse(event.body || "{}");
+    const {
+      name,
+      email,
+      password,
+      role,
+      phone,
+      recoveryEmail,
+      secretQuestion,
+      secretAnswer
+    } = JSON.parse(event.body);
 
-    if (!name || !email || !password || !role) {
-      return {
-        statusCode: 400,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing required fields" })
-      };
+    if (!email || !password || !secretQuestion || !secretAnswer) {
+      return { statusCode: 400, body: "Missing required fields" };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedAnswer = await bcrypt.hash(secretAnswer.toLowerCase(), 10);
 
-    client = new Client({
+    const client = new Client({
       connectionString: process.env.NEON_DATABASE_URL,
       ssl: { rejectUnauthorized: false }
     });
 
     await client.connect();
 
-    const result = await client.query(
-      `INSERT INTO users (name, email, phone, role, password)
-       VALUES ($1,$2,$3,$4,$5)
-       RETURNING id`,
+    const res = await client.query(
+      `INSERT INTO users
+      (name, email, password, role, phone, recovery_email, balance, secret_question, secret_answer_hash)
+      VALUES ($1,$2,$3,$4,$5,$6,0,$7,$8)
+      ON CONFLICT(email) DO NOTHING
+      RETURNING id`,
       [
-        name.trim(),
-        email.trim().toLowerCase(),
-        phone || null,
+        name,
+        email,
+        hashedPassword,
         role,
-        hashedPassword
+        phone,
+        recoveryEmail || null,
+        secretQuestion,
+        hashedAnswer
       ]
     );
 
-    return {
-      statusCode: 201,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ success: true, userId: result.rows[0].id })
-    };
+    await client.end();
+
+    if (res.rowCount === 0) {
+      return { statusCode: 409, body: "Account already exists" };
+    }
+
+    return { statusCode: 200, body: "Account created successfully" };
 
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: err.message })
-    };
-  } finally {
-    if (client) await client.end();
+    console.error(err);
+    return { statusCode: 500, body: "Server error" };
   }
-}
+            }
