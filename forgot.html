@@ -71,50 +71,87 @@ p a:hover, .links a:hover { text-decoration:underline; }
 <form id="forgotForm">
 <h2>Reset Password</h2>
 
-<!-- Step 1: Email & Secret Question -->
+<!-- Step 1: Enter Email -->
 <input type="email" name="email" placeholder="Enter your email" required>
-<input type="text" name="secretAnswer" placeholder="Answer your secret question" required>
-<button type="button" id="checkAnswerBtn">Verify Answer</button>
+<button type="button" id="fetchQuestionBtn">Next</button>
 
-<!-- Step 2: New Password Fields (Hidden Initially) -->
+<!-- Step 2: Show Question -->
+<div id="questionSection" class="hidden">
+    <p id="secretQuestionText"></p>
+    <input type="text" name="secretAnswer" placeholder="Enter your answer" required>
+    <button type="button" id="verifyAnswerBtn">Verify Answer</button>
+</div>
+
+<!-- Step 3: New Password -->
 <div id="passwordFields" class="hidden">
     <input type="password" name="newPassword" placeholder="Enter new password" required>
     <input type="password" name="confirmNewPassword" placeholder="Confirm new password" required>
-
     <div class="show-pass">
         <input type="checkbox" id="toggleNewPassword">
         <label for="toggleNewPassword">Show Password</label>
     </div>
-
     <button type="submit">Reset Password</button>
 </div>
 
 <p class="links"><a href="login.html">Back to Login</a></p>
-
 <div class="message" id="message"></div>
 </form>
 
 <script>
 const msg = document.getElementById('message');
+const questionSection = document.getElementById('questionSection');
 const passwordFields = document.getElementById('passwordFields');
 
-// Toggle view for new password fields
+// Toggle view for new password
 document.getElementById('toggleNewPassword').addEventListener('change', (e) => {
     const type = e.target.checked ? 'text' : 'password';
     document.querySelector('[name="newPassword"]').type = type;
     document.querySelector('[name="confirmNewPassword"]').type = type;
 });
 
-// Step 1: Verify secret answer
-document.getElementById('checkAnswerBtn').addEventListener('click', async () => {
+// Step 1: Fetch secret question
+document.getElementById('fetchQuestionBtn').addEventListener('click', async () => {
     msg.classList.remove('error');
     msg.textContent = "";
+    const email = document.querySelector('[name="email"]').value.trim();
 
+    if (!email) {
+        msg.textContent = "Please enter your email";
+        msg.classList.add('error');
+        return;
+    }
+
+    try {
+        const res = await fetch('/.netlify/functions/get-secret-question', {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        if (res.status === 200) {
+            const data = await res.json();
+            document.getElementById('secretQuestionText').textContent = data.question;
+            questionSection.classList.remove('hidden');
+        } else {
+            const text = await res.text();
+            msg.textContent = text;
+            msg.classList.add('error');
+        }
+    } catch (err) {
+        msg.textContent = "Error: " + err.message;
+        msg.classList.add('error');
+    }
+});
+
+// Step 2: Verify secret answer
+document.getElementById('verifyAnswerBtn').addEventListener('click', async () => {
+    msg.classList.remove('error');
+    msg.textContent = "";
     const email = document.querySelector('[name="email"]').value.trim();
     const answer = document.querySelector('[name="secretAnswer"]').value.trim();
 
-    if (!email || !answer) {
-        msg.textContent = "Please enter email and secret answer";
+    if (!answer) {
+        msg.textContent = "Please enter your answer";
         msg.classList.add('error');
         return;
     }
@@ -128,7 +165,7 @@ document.getElementById('checkAnswerBtn').addEventListener('click', async () => 
 
         if (res.status === 200) {
             msg.textContent = "Answer correct! Enter your new password";
-            msg.classList.remove('error');
+            questionSection.classList.add('hidden');
             passwordFields.classList.remove('hidden');
         } else {
             const text = await res.text();
@@ -141,7 +178,7 @@ document.getElementById('checkAnswerBtn').addEventListener('click', async () => 
     }
 });
 
-// Step 2: Submit new password
+// Step 3: Reset password
 document.getElementById('forgotForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -164,7 +201,6 @@ document.getElementById('forgotForm').addEventListener('submit', async (e) => {
         });
 
         const text = await res.text();
-
         if (res.status === 200) {
             msg.textContent = text;
             msg.classList.remove('error');
@@ -181,4 +217,4 @@ document.getElementById('forgotForm').addEventListener('submit', async (e) => {
 </script>
 
 </body>
-    </html>
+                                                           </html>
