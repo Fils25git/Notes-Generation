@@ -657,8 +657,11 @@ input.addEventListener("input", () => {
     // safe place for word-by-word logic
 });
 
+// In main.js for change selection button
 changeBtn.onclick = () => {
-    localStorage.clear();
+    localStorage.removeItem("level");
+    localStorage.removeItem("classLevel");
+    localStorage.removeItem("subject");
     location.href = "selection.html";
 };
 
