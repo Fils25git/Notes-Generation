@@ -146,7 +146,9 @@ p a, .terms a {
 
 <label>Recovery Email</label>
 <input type="email" name="recoveryEmail" placeholder="Optional recovery email">
-    <label>Secret Question <span>*</span></label>
+
+<!-- ✅ ADDED: SECRET QUESTION -->
+<label>Secret Question <span>*</span></label>
 <select name="secretQuestion" id="secretQuestion" required>
     <option value="">Select a question</option>
     <option value="pet">What was the name of your first pet?</option>
@@ -189,6 +191,16 @@ function showFloatingMessage(message, type = "success") {
     setTimeout(() => floatingMsg.style.display = "none", 4000);
 }
 
+/* ✅ ADDED: disable remaining secret question */
+const secretSelect = document.getElementById('secretQuestion');
+secretSelect.addEventListener('change', () => {
+    [...secretSelect.options].forEach(opt => {
+        if (opt.value && opt.value !== secretSelect.value) {
+            opt.disabled = true;
+        }
+    });
+});
+
 document.getElementById('signupForm').addEventListener('submit', async e => {
     e.preventDefault();
 
@@ -211,15 +223,16 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
             method: 'POST',
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-    name: form.name.value.trim(),
-    email: form.email.value.trim(),
-    password: passwordVal,
-    role: form.role.value,
-    phone: form.phone.value.trim(),
-    recoveryEmail: form.recoveryEmail.value.trim(),
-    secretQuestion: form.secretQuestion.value,
-    secretAnswer: form.secretAnswer.value.trim()
-});
+                name: form.name.value.trim(),
+                email: form.email.value.trim(),
+                password: passwordVal,
+                role: form.role.value,
+                phone: form.phone.value.trim(),
+                recoveryEmail: form.recoveryEmail.value.trim(),
+                secretQuestion: form.secretQuestion.value,
+                secretAnswer: form.secretAnswer.value.trim()
+            })
+        });
 
         const text = await res.text();
 
@@ -237,18 +250,6 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
     }
 });
 </script>
-    <script>
-/* Disable remaining secret question after selection */
-const secretSelect = document.getElementById('secretQuestion');
-
-secretSelect.addEventListener('change', () => {
-    [...secretSelect.options].forEach(opt => {
-        if (opt.value && opt.value !== secretSelect.value) {
-            opt.disabled = true;
-        }
-    });
-});
-    </script>
 
 </body>
-</html>
+    </html>
