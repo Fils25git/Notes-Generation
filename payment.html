@@ -287,14 +287,14 @@ customPayBtn.addEventListener('click', () => {
     showFloatingMessage(`You will get ${lessons} lesson plans`);
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
     confirmPaymentBtn.disabled = true;
-    setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
+    setTimeout(()=> confirmPaymentBtn.disabled = false, 10000);
 });
 
 // --- Confirm payment ---
 confirmPaymentBtn.addEventListener('click', async () => {
     const now = Date.now();
     if(now - pageLoadTime < 30000){ 
-        showFloatingMessage("Wait 30 seconds before confirming payment", 'error');
+        showFloatingMessage("Wait 10 seconds before confirming payment", 'error');
         return;
     }
     if(!selectedAmount){
