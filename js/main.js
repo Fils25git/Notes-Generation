@@ -6,9 +6,9 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ===============================
+    /* ============================
        DOM ELEMENTS
-    ================================ */
+    =============================== */
     const outputArea = document.getElementById("outputArea");
     const input = document.getElementById("noteInput");
     const sendBtn = document.getElementById("sendBtn");
