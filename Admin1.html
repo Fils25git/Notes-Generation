@@ -74,16 +74,8 @@ async function fetchUsers() {
 }
 
 // Render users to table
+
 function renderUsers(users) {
-  if (!users.length) {
-    usersTableBody.innerHTML = `<tr><td colspan="5">No users found.</td></tr>`;
-    return;
-  }
-  usersTableBody.innerHTML = "";
-  users.forEach(user => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      function renderUsers(users) {
   if (!users.length) {
     usersTableBody.innerHTML = `<tr><td colspan="6">No users found.</td></tr>`;
     return;
@@ -108,8 +100,7 @@ function renderUsers(users) {
 
     usersTableBody.appendChild(row);
   });
-}
-
+                            }
 
 // Search filter
 searchInput.addEventListener("input", () => {
