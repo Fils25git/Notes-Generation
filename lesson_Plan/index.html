@@ -326,15 +326,44 @@ document.getElementById('lessonForm').addEventListener('submit', async function(
                     .replace(new RegExp(`{{\\s*${k}\\s*}}`, "g"), data[k])
                     .replace(new RegExp(`\\$\\{\\s*${k}\\s*\\}`, "g"), data[k]);
             }
+
+            // Show the lesson plan
             lessonPlanContent.innerHTML = tpl;
             resultContainer.classList.add('show');
             resultContainer.scrollIntoView({ behavior: 'smooth' });
+
+            // === AUTOMATICALLY SAVE TO DATABASE ===
+            const user_id = Number(localStorage.getItem("user_id")); 
+            if (!user_id) return; // User not logged in
+
+            const lessonData = {
+                user_id: user_id,
+                lesson_title: lessonTitle.value,
+                lesson_content: tpl,
+                language: language
+            };
+
+            fetch("/.netlify/functions/create-user-plan", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(lessonData)
+            })
+            .then(res => res.json())
+            .then(resp => {
+                if (resp.success) {
+                    console.log("✅ Lesson plan saved automatically.");
+                } else {
+                    console.error("❌ Failed to save lesson plan:", resp.message);
+                }
+            })
+            .catch(err => {
+                console.error("❌ Error saving lesson plan:", err);
+            });
         })
         .catch(() => {
             errorMessage.textContent = "❌ Failed to fetch lesson plan.";
         });
-}
-
+    }
 const editBtn = document.getElementById('editBtn');
 const saveBtn = document.getElementById('saveBtn');
 
