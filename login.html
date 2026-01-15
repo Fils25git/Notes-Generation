@@ -4,24 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login to Fila Assistant</title>
-<meta property="og:type" content="website" />
+    <meta property="og:type" content="website" />
 <meta property="og:title" content="Fila Assistant" />
 <meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
 <meta property="og:image" content="https://www.fleduacademy.com/logo.png" />
 <meta property="og:url" content="https://www.fleduacademy.com" />
     
+
 <style>
 * { box-sizing: border-box; margin:0; padding:0; }
-
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     background: linear-gradient(135deg, #6dd5fa, #2980b9);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
+    display:flex; justify-content:center; align-items:center; min-height:100vh;
 }
-
 form {
     background:#fff;
     padding:40px 30px;
@@ -31,13 +27,7 @@ form {
     max-width:450px;
     text-align:center;
 }
-
-h2 {
-    color:#333;
-    margin-bottom:25px;
-    font-size:28px;
-}
-
+h2 { color:#333; margin-bottom:25px; font-size:28px; }
 input {
     width:100%;
     padding:14px 12px;
@@ -46,46 +36,19 @@ input {
     border-radius:10px;
     font-size:16px;
 }
-
-input:focus {
-    outline:none;
-    border-color:#007bff;
-}
-
+input:focus { outline:none; border-color:#007bff; }
 button {
     width:100%;
     padding:15px;
     margin-top:20px;
     background: linear-gradient(to right, #007bff, #00c6ff);
-    color:#fff;
-    border:none;
-    border-radius:12px;
-    font-size:18px;
-    cursor:pointer;
+    color:#fff; border:none; border-radius:12px;
+    font-size:18px; cursor:pointer;
 }
-
-.show-pass {
-    font-size:14px;
-    margin-top:8px;
-    display:flex;
-    align-items:center;
-}
-
-.show-pass input {
-    width:auto;
-    margin-right:6px;
-}
-
-.links {
-    font-size:14px;
-    margin-top:15px;
-}
-
-.links a {
-    color:#007bff;
-    text-decoration:none;
-}
-
+.show-pass { font-size:14px; margin-top:8px; display:flex; align-items:center; }
+.show-pass input { width:auto; margin-right:6px; }
+.links { font-size:14px; margin-top:15px; }
+.links a { color:#007bff; text-decoration:none; }
 #floatingMessage {
     position: fixed;
     top: 20px;
@@ -103,7 +66,7 @@ button {
 <body>
 
 <form id="loginForm">
-    <h1> Welcome Back!</h1>
+    <h1>Welcome Back!</h1>
     <h2>Login to Fila Assistant</h2>
 
     <input type="email" name="email" placeholder="Enter your email" required>
@@ -117,24 +80,21 @@ button {
     <button type="submit">Login</button>
 
     <p>
-        Have you forgotten your password? <a href="forgot.html" class="links">Reset your Password</a><br><br>
-      You are new Here? <a href="create.html" class="links">Create account</a>
+        Forgot your password? <a href="forgot.html" class="links">Reset</a><br><br>
+        New here? <a href="create.html" class="links">Create Account</a>
     </p>
 </form>
 
 <div id="floatingMessage"></div>
 
 <script>
-/* SHOW / HIDE PASSWORD */
 const toggle = document.getElementById("togglePassword");
 const passwordInput = document.querySelector('[name="password"]');
+const floatingMsg = document.getElementById("floatingMessage");
 
 toggle.addEventListener("change", () => {
     passwordInput.type = toggle.checked ? "text" : "password";
 });
-
-/* FLOATING MESSAGE */
-const floatingMsg = document.getElementById("floatingMessage");
 
 function showFloatingMessage(msg, type="success") {
     floatingMsg.textContent = msg;
@@ -143,7 +103,14 @@ function showFloatingMessage(msg, type="success") {
     setTimeout(() => floatingMsg.style.display = "none", 4000);
 }
 
-/* LOGIN */
+/* AUTO-REDIRECT IF ALREADY LOGGED IN */
+const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+if (isLoggedIn) {
+    const lastPage = localStorage.getItem("lastPage") || "index.html";
+    window.location.href = lastPage;
+}
+
+/* LOGIN FORM SUBMISSION */
 document.getElementById("loginForm").addEventListener("submit", async e => {
     e.preventDefault();
 
@@ -157,18 +124,22 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
             body: JSON.stringify({ email, password })
         });
 
-        const data = await res.json(); // ✅ IMPORTANT
+        const data = await res.json();
 
         if (res.ok) {
-            // ✅ SAVE AUTH STATE
+            /* Save login state */
+            localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("auth_token", data.token);
             localStorage.setItem("user_email", data.email);
 
             showFloatingMessage("Login successful!");
 
-            setTimeout(() => {
-                window.location.href = "index.html";
-            }, 1000);
+            /* Redirect to intended page */
+            const redirectTo = localStorage.getItem("redirectAfterLogin") || "app.html";
+            localStorage.removeItem("redirectAfterLogin");
+            localStorage.setItem("lastPage", redirectTo);
+
+            setTimeout(() => window.location.href = redirectTo, 1000);
         } else {
             showFloatingMessage(data.error || "Login failed", "error");
         }
