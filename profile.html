@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             localStorage.setItem("selectionDone", "true");
             localStorage.setItem("fetched_lesson_plan", plan.lesson_content || plan.html || "");
 
-            window.location.href = "index.html";
+            window.location.href = "lesson_plan/index.html";
         } catch(err) {
             showToast(err.message, false);
         }
@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!res.ok) throw new Error("Plan not found");
             const plan = await res.json();
             await navigator.clipboard.writeText(plan.lesson_content || plan.html || "");
-            showToast("Plan copied to clipboard!");
+            showToast("Lesson Plan copied to clipboard!");
         } catch(err) {
             showToast(err.message, false);
         }
