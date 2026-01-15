@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fila Assistant</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+* { box-sizing: border-box; margin:0; padding:0; font-family: Arial, sans-serif; }
+body { background:#f4f6f8; color:#333; padding-top:72px; }
+
+/* HEADER */
+.header {
+    position: fixed;
+    top: 0; width: 100%;
+    background: #fff;
+    padding:14px 16px;
+    display:flex; justify-content:space-between; align-items:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.08); z-index:1000;
+}
+.brand { display:flex; align-items:center; gap:10px; }
+.brand img { width:40px; }
+.brand h1 { font-size:18px; }
+
+/* PROFILE ICON */
+.profile-icon {
+    font-size:28px; color:#4f46e5; cursor:pointer; display:none;
+}
+
+/* MAIN */
+main { max-width:1100px; margin:auto; padding:20px; }
+
+/* AUTH BAR */
+.auth-bar {
+    display:flex; gap:10px; margin-bottom:40px; flex-wrap:wrap;
+}
+.auth-bar button { 
+    padding:8px 14px; border:none; border-radius:6px;
+    cursor:pointer; font-size:14px; display:flex; align-items:center; gap:6px;
+}
+.login-btn { background:#2563eb; color:#fff; }
+.signup-btn { background:#22c55e; color:#fff; }
+.logout-btn { background:#ef4444; color:#fff; }
+
+/* GRID */
+.grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:16px; }
+
+/* CARD */
+.card {
+    background:#fff; padding:20px; border-radius:12px;
+    box-shadow:0 6px 18px rgba(0,0,0,.08);
+    text-align:center; cursor:pointer; transition:.2s;
+}
+.card:hover { transform:translateY(-4px); }
+.card i { font-size:36px; color:#4f46e5; margin-bottom:10px; }
+.card h3 { font-size:16px; }
+.card p { font-size:13px; color:#6b7280; }
+
+/* DISABLED CARD */
+.card.disabled { opacity:0.5; cursor:not-allowed; }
+.card.disabled:hover { transform:none; }
+
+/* TOAST */
+.toast {
+    position:fixed; bottom:20px; left:50%;
+    transform:translateX(-50%);
+    background:#1f2937; color:#fff;
+    padding:12px 18px; border-radius:8px;
+    font-size:14px; opacity:0; transition:.3s; z-index:2000;
+}
+.toast.show { opacity:1; }
+
+/* FOOTER */
+footer {
+    margin-top:40px; padding:16px; text-align:center; font-size:13px; color:#6b7280;
+}
+
+/* MOBILE */
+@media(max-width:600px){ .profile-icon{display:block;} }
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="brand">
+        <img src="logo.png" alt="Fila Assistant">
+        <h1>Fila Assistant</h1>
+    </div>
+    <i id="profileIcon" class="fas fa-user-circle profile-icon" onclick="go('profile.html')" title="My Profile"></i>
+</header>
+
+<main>
+
+<div class="auth-bar" id="authBar"></div>
+
+<div class="grid">
+    <div class="card" data-page="app.html">
+        <i class="fas fa-book-open"></i>
+        <h3>Fetch Notes</h3>
+        <p>Access lesson notes</p>
+    </div>
+
+    <div class="card" data-page="lesson_plan/index.html">
+        <i class="fas fa-file-alt"></i>
+        <h3>Generate Lesson Plan</h3>
+    </div>
+
+    <div class="card" data-page="balance.html">
+        <i class="fas fa-wallet"></i>
+        <h3>My Balance</h3>
+    </div>
+
+    <div class="card" data-page="payment.html">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>Buy Lesson Plans</h3>
+    </div>
+
+    <div class="card" onclick="window.location.href='https://fleduportal.netlify.app/userselection.html'">
+        <i class="fas fa-download"></i>
+        <h3>Get Downloadable Resources</h3>
+    </div>
+</div>
+
+</main>
+
+<footer>© 2026 Fila Assistant •All rights reserved <br>DUKORE GISIRIMU</footer>
+<div id="toast" class="toast"></div>
+
+<script>
+const authBar = document.getElementById("authBar");
+const profileIcon = document.getElementById("profileIcon");
+const toast = document.getElementById("toast");
+
+const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+/* Render auth UI */
+if (isLoggedIn){
+    authBar.innerHTML = `<button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>`;
+    profileIcon.style.display = "block";
+}else{
+    authBar.innerHTML = `
+        <button class="login-btn" onclick="go('login.html')"><i class="fas fa-sign-in-alt"></i> Login</button>
+        <button class="signup-btn" onclick="go('create.html')"><i class="fas fa-user-plus"></i>Sign Up</button>
+    `;
+    profileIcon.style.display = "none";
+}
+
+/* Toast */
+function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(()=>toast.classList.remove("show"), 2000);
+}
+
+/* Card click handling */
+document.querySelectorAll('.card[data-page]').forEach(card => {
+    card.addEventListener('click', ()=> {
+        const page = card.getAttribute('data-page');
+        if (!isLoggedIn && page !== 'app.html'){
+            localStorage.setItem('redirectAfterLogin', page);
+            showToast("Please log in to access this feature");
+            return;
+        }
+        localStorage.setItem('lastPage', page);
+        window.location.href = page;
+    });
+
+    if (!isLoggedIn && card.getAttribute('data-page') !== 'app.html'){
+        card.classList.add('disabled');
+    }
+});
+
+/* Navigation helper */
+function go(page){
+    window.location.href = page;
+}
+
+/* Logout */
+function logout(){
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('redirectAfterLogin');
+    localStorage.removeItem('lastPage');
+    window.location.href = "index.html";
+}
+</script>
+
+</body>
+    </html>
