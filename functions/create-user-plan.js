@@ -1,5 +1,9 @@
-// create-user-plan.js
-const { Client } = require("pg");
+const { Pool } = require("pg");
+
+const pool = new Pool({
+  connectionString: process.env.NEON_DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -7,89 +11,48 @@ exports.handler = async (event) => {
   }
 
   try {
-    const client = new Client({
-      connectionString: process.env.NEON_DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
-    });
+    const {
+      email,
+      lesson_title,
+      lesson_content,
+      lesson_text,
+      language
+    } = JSON.parse(event.body);
 
-    await client.connect();
-
-    const body = JSON.parse(event.body);
-
-    // ⬇️ KEEP OLD VARIABLES (NOT REMOVED)
-    const { user_id, lesson_title, lesson_content, language } = body;
-
-    // ⬇️ ADD EMAIL (NEW – frontend sends this)
-    const { email } = body;
-
-    // ⬇️ KEEP VALIDATION BUT EXTEND IT
-    if ((!user_id && !email) || !lesson_title || !lesson_content) {
+    if (!email || !lesson_title || !lesson_content) {
       return {
         statusCode: 400,
-        body: JSON.stringify({
-          success: false,
-          message: "Missing required fields"
-        })
+        body: JSON.stringify({ message: "Missing required fields" })
       };
     }
 
-    let finalUserId = user_id;
+    // Fallback: strip HTML if lesson_text not provided
+    const cleanText =
+      lesson_text || lesson_content.replace(/<[^>]*>/g, "");
 
-    // ⬇️ IF user_id NOT PROVIDED, FIND IT USING EMAIL
-    if (!finalUserId && email) {
-      const userQuery = await client.query(
-        "SELECT id FROM users WHERE email = $1",
-        [email]
-      );
-
-      if (userQuery.rowCount === 0) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify({
-            success: false,
-            message: "User not found"
-          })
-        };
-      }
-
-      finalUserId = userQuery.rows[0].id;
-    }
-
-    // ⬇️ KEEP ORIGINAL INSERT LOGIC
-    const query = `
-      INSERT INTO user_lesson_plans (user_id, lesson_title, lesson_content, language)
-      VALUES ($1, $2, $3, $4)
-      RETURNING *
-    `;
-
-    const values = [
-      finalUserId,
-      lesson_title,
-      lesson_content,
-      language || "english"
-    ];
-
-    const res = await client.query(query, values);
-
-    await client.end();
+    const result = await pool.query(
+      `
+      INSERT INTO user_lesson_plans
+      (email, lesson_title, lesson_content, lesson_text, language, created_at)
+      VALUES ($1, $2, $3, $4, $5, NOW())
+      RETURNING id
+      `,
+      [email, lesson_title, lesson_content, cleanText, language || "english"]
+    );
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
-        plan: res.rows[0]
+        plan_id: result.rows[0].id
       })
     };
 
   } catch (err) {
-    console.error("CREATE USER PLAN ERROR:", err);
-
+    console.error("Save plan error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        success: false,
-        message: err.message
-      })
+      body: JSON.stringify({ message: "Server error" })
     };
   }
 };
