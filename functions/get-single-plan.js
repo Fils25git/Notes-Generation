@@ -11,16 +11,31 @@ export async function handler(event) {
     const id = event.queryStringParameters?.id;
 
     if (!id) {
-      return { statusCode: 400, body: JSON.stringify({ error: "ID required" }) };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Plan ID required" })
+      };
     }
 
     const result = await pool.query(
-      `SELECT * FROM user_lesson_plans WHERE id = $1`,
+      `SELECT 
+          id,
+          email,
+          lesson_title,
+          lesson_content, -- RAW HTML
+          lesson_text,    -- CLEAN TEXT
+          language,
+          created_at
+       FROM user_lesson_plans
+       WHERE id = $1`,
       [id]
     );
 
     if (result.rows.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: "Plan not found" }) };
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "Plan not found" })
+      };
     }
 
     return {
@@ -30,6 +45,9 @@ export async function handler(event) {
 
   } catch (err) {
     console.error("Get plan error:", err);
-    return { statusCode: 500, body: JSON.stringify({ error: "Server error" }) };
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Server error" })
+    };
   }
 }
