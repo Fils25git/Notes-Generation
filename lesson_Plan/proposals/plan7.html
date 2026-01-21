@@ -83,6 +83,50 @@
         <td>{{references}}</td>
     </tr>
 </table>
+<table>
+    <tr>
+        <td class="bold" style="width:33%;">Type of Special Educational Needs</td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Unit title</td>
+        <td>{{unitTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Key Unit Competence</td>
+        <td>
+            Learners will understand and correctly use ideas related to {{lessonTitle}}
+            during classroom activities and daily situations.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Title of the lesson</td>
+        <td>{{lessonTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Instructional Objective</td>
+        <td>
+            By the end of the lesson, learners will be able to explain {{lessonTitle}},
+            give examples, and complete short exercises correctly.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Plan for this Class</td>
+        <td>
+            The lesson will take place in the classroom
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Learning Materials</td>
+        <td>
+            {{teachingMaterials}}
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">References</td>
+        <td>{{references}}</td>
+    </tr>
+</table>
 
 <table>
     <tr>
@@ -90,8 +134,7 @@
         <td colspan="2" class="bold text-center">
             <u>Description of Teaching and learning activities</u><br>
             <em>
-                The teacher helps learners understand {{lessonTitle}} using clear
-                explanations and simple examples.
+                The teacher guides learners to explore and understand {{lessonTitle}} using examples, exercises, and simple explanations.
             </em>
         </td>
         <td class="bold" style="width:30%;">
@@ -106,78 +149,87 @@
         <td></td>
     </tr>
 
+    <!-- INTRODUCTION -->
     <tr>
         <td class="bold">Introduction<br>5 min</td>
         <td>
             <ul>
                 <li>Greets learners and checks attendance</li>
-                <li>Introduces the lesson through questions related to {{lessonTitle}}</li>
-                <li>Explains the lesson objectives</li>
+                <li>Links previous lesson to {{lessonTitle}}</li>
+                <li>Explains lesson objectives</li>
+                <li>Shows a simple example related to {{lessonTitle}}</li>
             </ul>
         </td>
         <td>
             <ul>
                 <li>Respond to greetings</li>
-                <li>Answer introductory questions</li>
-                <li>Listen attentively</li>
+                <li>Recall previous knowledge</li>
+                <li>Listen and follow the explanation</li>
+                <li>Observe and comment on the example</li>
             </ul>
         </td>
         <td>
-            <strong>Communication:</strong> Learners answer and ask questions<br>
-            <strong>Gender equality:</strong> Equal participation encouraged
+            <strong>Communication:</strong> Asking and answering questions<br>
+            <strong>Gender equality:</strong> Ensured by equal participation
         </td>
     </tr>
 
+    <!-- DEVELOPMENT -->
     <tr>
         <td class="bold">Development of the lesson<br>25 min</td>
         <td>
             <ul>
-                <li>Explains {{lessonTitle}} using examples</li>
-                <li>Gives short activities related to the lesson</li>
-                <li>Corrects learners and gives feedback</li>
+                <li>Explains {{lessonTitle}} using clear examples</li>
+                <li>Gives short exercises to be done individually and in pairs</li>
+                <li>Monitors learners’ work and provides feedback</li>
+                <li>Encourages learners to relate concepts to real-life situations</li>
             </ul>
         </td>
         <td>
             <ul>
-                <li>Follow explanations</li>
-                <li>Do exercises individually or in groups</li>
-                <li>Ask questions for clarification</li>
+                <li>Listen and follow the teacher’s explanation</li>
+                <li>Complete exercises individually and in pairs</li>
+                <li>Ask questions when unclear and respond to feedback</li>
+                <li>Discuss how the lesson relates to daily life</li>
             </ul>
         </td>
         <td>
-            <strong>Critical thinking:</strong> Learners analyze examples<br>
-            <strong>Cooperation:</strong> Group work and pair work
+            <strong>Critical thinking:</strong> Learners analyze examples and exercises<br>
+            <strong>Cooperation:</strong> Working in pairs<br>
+            <strong>Environmental awareness:</strong> Relating lesson to real-life contexts
         </td>
     </tr>
 
+    <!-- CONCLUSION -->
     <tr>
         <td class="bold">Conclusion<br>10 min</td>
         <td>
             <ul>
-                <li>Talk about what has been learnt in summary</li>
-                <li>Ask oral and written questions to check learners’ understanding</li>
-                <li>Assign homework to learners</li>
+                <li>Summarizes key points of {{lessonTitle}}</li>
+                <li>Asks oral and written questions</li>
+                <li>Assigns follow-up exercises</li>
             </ul>
         </td>
         <td>
             <ul>
-                <li>Answer questions</li>
-                <li>Note the homework</li>
+                <li>Answer questions orally and in writing</li>
+                <li>Review what was learned</li>
+                <li>Note homework and clarify doubts</li>
             </ul>
         </td>
         <td>
-            <strong>Responsibility:</strong> Developed through homework<br>
-            <strong>Self-confidence:</strong> Built through participation
+            
+            <strong>Self-confidence:</strong> Built through participation and answering questions
         </td>
     </tr>
 
+    <!-- TEACHER SELF-EVALUATION -->
     <tr>
         <td class="bold">Teacher self-evaluation</td>
         <td colspan="3">
             <!-- To be filled by the teacher after lesson delivery -->
         </td>
     </tr>
-</table>
-
+        </table>
 </body>
   </html>
