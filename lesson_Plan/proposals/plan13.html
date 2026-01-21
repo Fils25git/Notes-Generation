@@ -1,0 +1,118 @@
+<html>
+  <body>
+    
+<!-- plan1.html -->
+<div class="text-center bold" style="font-size: 12pt; margin-bottom: 10px;">LESSON PLAN</div>
+
+<div style="margin-bottom: 5px; font-size: 10pt;">
+    <span class="bold">School Name:</span> {{schoolName}}
+    <span style="margin-left: 80px;" class="bold">Teacher's name:</span> {{teacherName}}
+</div>
+
+<table>
+    <tr>
+        <td class="bold">Term</td>
+        <td class="bold">Date</td>
+        <td class="bold">Subject</td>
+        <td class="bold">Class</td>
+        <td class="bold">Unit N°</td>
+        <td class="bold">Lesson N°</td>
+        <td class="bold">Duration</td>
+        <td class="bold">Class size</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} out of {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}} Students</td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td class="bold" style="width:15%;">Timing</td>
+        <td colspan="2" class="bold text-center">
+            <u>Description of teaching and learning activity</u><br>
+            Learners actively construct knowledge through guided interaction
+            and practice related to {{lessonTitle}}.
+        </td>
+        <td class="bold" style="width:30%;">Generic competences & Cross-cutting issues</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold">Teacher activities</td>
+        <td class="bold">Learner activities</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Introduction<br/>5 min</td>
+        <td>
+            <ul>
+                <li>Creates a friendly learning environment</li>
+                <li>Asks questions related to {{lessonTitle}}</li>
+                <li>Introduces the lesson focus clearly</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Respond positively to classroom routines</li>
+                <li>Answer questions based on prior knowledge</li>
+                <li>Follow the lesson focus attentively</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Communication:</strong> Learners explain ideas orally.<br><br>
+            <strong>Inclusive education:</strong> All learners participate freely.
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Development of the lesson<br/>25 min</td>
+        <td>
+            <ul>
+                <li>Presents tasks illustrating {{lessonTitle}}</li>
+                <li>Facilitates group-based exploration</li>
+                <li>Guides learners step by step</li>
+                <li>Supports learners with difficulties</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Analyse tasks provided by the teacher</li>
+                <li>Work collaboratively in groups</li>
+                <li>Apply ideas related to {{lessonTitle}}</li>
+                <li>Request clarification when needed</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Critical thinking:</strong> Learners interpret and apply concepts.<br><br>
+            <strong>Cooperation:</strong> Teamwork strengthens social skills.
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Conclusion<br/>10 min</td>
+        <td>
+            <ul>
+                <li>Guides reflection on {{lessonTitle}}</li>
+                <li>Checks understanding using oral questions</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Explain what they have learnt</li>
+                <li>Answer teacher’s questions confidently</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Lifelong learning:</strong> Reflection improves learning habits.
+        </td>
+    </tr>
+</table>
+  </body>
+</html>
