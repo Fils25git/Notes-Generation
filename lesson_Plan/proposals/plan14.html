@@ -1,0 +1,154 @@
+<html>
+  <body>
+    
+<!-- plan1.html -->
+<div class="text-center bold" style="font-size: 12pt; margin-bottom: 10px;">LESSON PLAN</div>
+
+<div style="margin-bottom: 5px; font-size: 10pt;">
+    <span class="bold">School Name:</span> {{schoolName}}
+    <span style="margin-left: 80px;" class="bold">Teacher's name:</span> {{teacherName}}
+</div>
+
+<table>
+    <tr>
+        <td class="bold">Term</td>
+        <td class="bold">Date</td>
+        <td class="bold">Subject</td>
+        <td class="bold">Class</td>
+        <td class="bold">Unit N°</td>
+        <td class="bold">Lesson N°</td>
+        <td class="bold">Duration</td>
+        <td class="bold">Class size</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} out of {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}} Students</td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td class="bold" style="width: 15%;">Timing</td>
+        <td colspan="2" class="bold text-center">
+            <u>Description of teaching and learning activity</u><br>
+            Teaching and learning are learner-centred, focusing on guided discovery,
+            practice and feedback related to {{lessonTitle}}.
+        </td>
+        <td class="bold" style="width: 30%;">Generic competences & Cross-cutting issues<br/> (how they are developed)</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold">Teacher activities</td>
+        <td class="bold">Learner activities</td>
+        <td></td>
+    </tr>
+
+    <!-- INTRODUCTION -->
+    <tr>
+        <td class="bold">Introduction<br/>5 min</td>
+
+        <td>
+            <ul>
+                <li>Welcomes learners and ensures readiness for learning</li>
+                <li>Checks learners’ prior knowledge related to {{lessonTitle}}</li>
+                <li>Writes the lesson title {{lessonTitle}} on the board</li>
+                <li>Explains what learners are expected to achieve</li>
+            </ul>
+        </td>
+
+        <td>
+            <ul>
+                <li>Respond to teacher’s welcome positively</li>
+                <li>Share ideas from previous learning</li>
+                <li>Copy the lesson title in their books</li>
+                <li>Listen carefully to lesson expectations</li>
+            </ul>
+        </td>
+
+        <td>
+            <strong>Communication:</strong> Learners express ideas related to {{lessonTitle}} orally.<br><br>
+            <strong>Gender and inclusive education:</strong> Equal participation of boys and girls is encouraged.
+        </td>
+    </tr>
+
+    <!-- ISOMO NYIRIZINA -->
+    <tr>
+        <td class="bold">Development of the lesson<br/>25 min</td>
+
+        <td>
+            <ul>
+                <li>Presents examples illustrating {{lessonTitle}}</li>
+                <li>Guides learners to observe and identify key features</li>
+                <li>Forms small groups for guided practice</li>
+                <li>Provides clear tasks based on {{lessonTitle}}</li>
+                <li>Supports learners with difficulties</li>
+                <li>Monitors participation and understanding</li>
+                <li>Facilitates group presentations</li>
+                <li>Gives corrective and constructive feedback</li>
+            </ul>
+        </td>
+
+        <td>
+            <ul>
+                <li>Observe examples attentively</li>
+                <li>Identify main ideas related to {{lessonTitle}}</li>
+                <li>Work actively within groups</li>
+                <li>Complete given tasks collaboratively</li>
+                <li>Seek help when facing challenges</li>
+                <li>Present group work to the class</li>
+                <li>Improve work based on feedback</li>
+            </ul>
+        </td>
+
+        <td>
+            <strong>Critical thinking and problem solving:</strong> Learners analyse examples and tasks.<br><br>
+            <strong>Cooperation:</strong> Group activities promote teamwork and responsibility.<br><br>
+            <strong>Inclusive education:</strong> Support is provided to learners with different abilities.
+        </td>
+    </tr>
+
+    <!-- CONCLUSION -->
+    <tr>
+        <td class="bold">Conclusion<br/>10 min</td>
+
+        <td>
+            <ul>
+                <li>Guides learners to summarise key ideas of {{lessonTitle}}</li>
+                <li>Asks short questions to assess understanding</li>
+                <li>Clarifies remaining misunderstandings</li>
+                <li>Assigns follow-up work related to {{lessonTitle}}</li>
+            </ul>
+        </td>
+
+        <td>
+            <ul>
+                <li>State what they have learnt</li>
+                <li>Answer assessment questions</li>
+                <li>Ask for clarification if needed</li>
+                <li>Note homework tasks correctly</li>
+            </ul>
+        </td>
+
+        <td>
+            <strong>Lifelong learning:</strong> Reflection helps learners improve learning strategies.<br><br>
+            <strong>Self-confidence:</strong> Participation builds confidence in using {{lessonTitle}}.
+        </td>
+    </tr>
+
+    <!-- KWISUZUMA -->
+    <tr>
+        <td class="bold">Teacher self-evaluation</td>
+        <td colspan="3">
+            Reflection on achievement of objectives, learner engagement,
+            mastery of {{lessonTitle}} and effectiveness of teaching strategies.
+        </td>
+    </tr>
+  </table>
+  </body>
+</html>
