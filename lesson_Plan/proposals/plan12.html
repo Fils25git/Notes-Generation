@@ -1,0 +1,115 @@
+<html>
+  <body>
+    
+<!-- plan1.html -->
+<div class="text-center bold" style="font-size: 12pt; margin-bottom: 10px;">LESSON PLAN</div>
+
+<div style="margin-bottom: 5px; font-size: 10pt;">
+    <span class="bold">School Name:</span> {{schoolName}}
+    <span style="margin-left: 80px;" class="bold">Teacher's name:</span> {{teacherName}}
+</div>
+
+<table>
+    <tr>
+        <td class="bold">Term</td>
+        <td class="bold">Date</td>
+        <td class="bold">Subject</td>
+        <td class="bold">Class</td>
+        <td class="bold">Unit N°</td>
+        <td class="bold">Lesson N°</td>
+        <td class="bold">Duration</td>
+        <td class="bold">Class size</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} out of {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}} Students</td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td class="bold">Timing</td>
+        <td colspan="2" class="bold text-center">
+            <u>Description of teaching and learning activity</u><br>
+            Learning activities encourage inquiry, interaction and practice
+            focused on {{lessonTitle}}.
+        </td>
+        <td class="bold">Generic competences & Cross-cutting issues</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold">Teacher activities</td>
+        <td class="bold">Learner activities</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Introduction<br/>5 min</td>
+        <td>
+            <ul>
+                <li>Connects previous learning to {{lessonTitle}}</li>
+                <li>Explains lesson relevance</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Recall prior learning experiences</li>
+                <li>Relate ideas to the new lesson</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Communication:</strong> Clear expression of ideas.
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Development of the lesson<br/>25 min</td>
+        <td>
+            <ul>
+                <li>Demonstrates concepts of {{lessonTitle}}</li>
+                <li>Provides guided exercises</li>
+                <li>Observes learner performance</li>
+                <li>Gives immediate feedback</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Observe demonstrations attentively</li>
+                <li>Practice activities individually and in groups</li>
+              <li> Work as teacher observes them </li>
+                <li>Improve work using feedback</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Creativity and innovation:</strong> Learners try different approaches.<br><br>
+            <strong>Inclusive education:</strong> Support ensures equal learning chances.
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Conclusion<br/>10 min</td>
+        <td>
+            <ul>
+                <li>Assesses learning outcomes</li>
+                <li>Links {{lessonTitle}} to next lesson</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Respond to assessment questions</li>
+                <li>Prepare for next learning step</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Self-confidence:</strong> Participation builds learner confidence.
+        </td>
+    </tr>
+</table>
+  </body>
+</html>
