@@ -11,8 +11,12 @@
 <meta property="og:url" content="https://www.fleduacademy.com" />
     
     <link rel="stylesheet" href="plans.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
+        .profile-icon {
+    font-size:28px; color:#4f46e5; cursor:pointer;
+}
         Responsive footer */
   footer {
     margin-top: 20px;
@@ -26,6 +30,7 @@
     text-decoration: underline;
     margin: 0 5px;
       }
+      
         body{
             background: linear-gradient(135deg, #6dd5fa, #2980b9);
         }
@@ -66,11 +71,20 @@
 
 <div class="container">
     <!-- Header -->
-    <div class="header">
+  <div class="header">
+    <div class="header-left">
         <img src="../logo.png">
         <h2>Fila Assistant</h2>
     </div>
 
+    <!-- Profile Icon (fixed right) -->
+    <i id="profileIcon"
+       class="fas fa-user-circle profile-icon"
+       onclick="go('../profile.html')"
+       title="My Profile">
+    </i>
+</div>
+   
     <!-- Form -->
     <div class="form-container">
         <p><b>Fill in the required fields below To Fetch Lesson Plan</b></p><br>
@@ -183,7 +197,7 @@
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
             <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
-            <button class="download-btn btn-pdf" onclick="window.print()">📑 Print / Save as PDF</button>
+            <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
     <button id="editBtn" Class="download-btn">✏️ Edit</button>
     <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
             
@@ -230,10 +244,24 @@
         french: "french_plans"
     };
 
-    function getRandomPlanFile(language) {
-        const folder = planFolders[language] || "proposals";
-        const index = Math.floor(Math.random() * 10) + 1;
-        return `${folder}/plan${index}.html`;
+    function getNextPlanFile(language, email) {
+    const folder = planFolders[language] || "proposals";
+
+    // English has 15 plans, others have 10
+    const totalPlans = language === "english" ? 15 : 10;
+
+    const storageKey = `last_plan_${language}_${email}`;
+    let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
+
+    let nextIndex = lastIndex + 1;
+
+    if (nextIndex > totalPlans) {
+        nextIndex = 1; // restart after finishing all plans
+    }
+
+    localStorage.setItem(storageKey, nextIndex);
+
+    return `${folder}/plan${nextIndex}.html`;
     }
 
     // ===============================
@@ -326,7 +354,7 @@
             references: references.value || defaults.references[language]
         };
 
-        fetch(getRandomPlanFile(language))
+        fetch(getNextPlanFile(language, userEmail))
             .then(res => res.text())
             .then(template => {
 
@@ -399,9 +427,12 @@
         window.getSelection().addRange(range);
         document.execCommand("copy");
         window.getSelection().removeAllRanges();
-        showFloatingMessage("Lesson copied.");
+        showFloatingMessage("Lesson Plan copied.");
     }
+    function go(path) {
+    window.location.href = path;
+}
 </script>
 
 </body>
-                        </html>
+    </html>
