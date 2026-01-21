@@ -1,9 +1,6 @@
 /* ==========================
    GENERAL RESET
 ========================== */
-/* ==========================
-   GENERAL RESET
-========================== */
 * {
     margin: 0;
     padding: 0;
@@ -32,7 +29,7 @@ body {
     background: white;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* ✅ FIXED */
+    justify-content: space-between; /* original fixed layout */
     padding: 10px 20px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     z-index: 1000;
@@ -45,6 +42,7 @@ body {
 
 .header h2 {
     font-size: 1.2em;
+    color: black; /* fixed invalid 'default' */
 }
 
 /* Profile icon */
@@ -67,13 +65,14 @@ body {
    FORM CONTAINER
 ========================== */
 .form-container {
-    background: white;
+    background: white; /* final choice */
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     margin-bottom: 20px;
     max-width: 100%;
     overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 /* ==========================
@@ -119,6 +118,7 @@ textarea {
     border-radius: 8px;
     font-size: 0.95em;
     transition: border-color 0.3s;
+    box-sizing: border-box;
 }
 
 input:focus,
@@ -133,6 +133,7 @@ textarea:focus {
     display: flex;
     gap: 5px;
     flex-wrap: wrap;
+    flex-direction: row;
 }
 
 .double-input input {
@@ -269,6 +270,10 @@ textarea:focus {
     .form-grid {
         grid-template-columns: 1fr;
     }
+
+    .double-input {
+        flex-direction: row;
+    }
 }
 
 /* ==========================
@@ -294,361 +299,4 @@ textarea:focus {
     .lesson-plan {
         font-size: 9pt;
     }
-   }
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
 }
-
-/* ==========================
-   BODY
-========================== */
-body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding-top: 70px; /* reserve space for fixed header */
-    overflow-x: hidden;
-}
-
-/* ==========================
-   HEADER
-========================== */
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 10px 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    z-index: 1000;
-}
-
-.header img {
-    height: 40px;
-    margin-right: 15px;
-}
-
-.header h2 {
-    color: default;
-    font-size: 1.2em;
-}
-
-/* ==========================
-   CONTAINER
-========================== */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
-}
-
-/* ==========================
-   FORM CONTAINER
-========================== */
-.form-container {
-    background: #f7f7f7; /* lighter gray for form */
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    margin-bottom: 20px;
-    max-width: 100%;
-    overflow-x: auto; /* prevent horizontal scroll */
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group.full-width {
-    grid-column: 1 / -1;
-}
-
-label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 0.9em;
-}
-
-label.required::after {
-    content: " *";
-    color: red;
-}
-
-label.optional {
-    color: #2563eb;
-}
-
-input, select, textarea {
-    padding: 8px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 0.9em;
-    transition: border-color 0.3s;
-}
-/* Form Container */
-.form-container {
-    background: white;
-    border-radius: 15px;
-    padding: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    margin-bottom: 20px;
-
-    max-width: 100%;     
-    overflow-x: hidden;  
-    box-sizing: border-box; 
-}
-
-/* Form Grid */
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-/* Form Groups and Inputs */
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-input, select, textarea {
-    width: 100%;         
-    padding: 10px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 0.95em;
-    transition: border-color 0.3s;
-    box-sizing: border-box;
-}
-
-input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-/* Double-input fields */
-.double-input {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;  
-   flex-direction: row;
-}
-
-.double-input input {
-   width: 48%
-}
-
-/* Result Container / Lesson Plan */
-.result-container {
-    background: white;
-    border-radius: 15px;
-    padding: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    overflow-x: auto; /* allow scroll if table is still too wide */
-    max-width: 100%;  
-    box-sizing: border-box;
-}
-
-.lesson-plan {
-    font-size: 10pt;
-    line-height: 1.4;
-    width: 100%;       /* never exceed container width */
-    overflow-x: auto;  
-}
-
-.lesson-plan table {
-    width: 100%;       /* responsive table */
-    border-collapse: collapse;
-    margin-bottom: 5px;
-}
-
-.lesson-plan td, .lesson-plan th {
-    border: 1px solid black;
-    padding: 5px;
-    vertical-align: top;
-    word-break: break-word; /* prevent overflow text */
-}
-
-/* Responsive adjustments for small devices */
-@media (max-width: 500px) {
-    .form-grid {
-        grid-template-columns: 1fr; 
-    }
-
-    .double-input {
-        flex-direction: row;
-    }
-       }
-
-input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-.double-input {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;  
-}
-
-
-/* ==========================
-   BUTTONS
-========================== */
-.generate-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1em;
-    font-weight: bold;
-    cursor: pointer;
-    display: block;
-    margin: 15px auto;
-    transition: transform 0.2s;
-}
-
-.generate-btn:hover {
-    transform: scale(1.05);
-}
-
-.generate-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
-.error-message {
-    color: red;
-    text-align: center;
-    margin-top: 10px;
-    font-size: 0.85em;
-}
-
-/* ==========================
-   RESULT CONTAINER
-========================== */
-.result-container {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    display: none;
-    max-width: 100%;
-    overflow-x: auto; /* prevent horizontal scroll */
-}
-
-.result-container.show {
-    display: block;
-}
-
-.download-buttons {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.download-btn {
-    padding: 8px 13px;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
-   background: #10b981;
-    transition: transform 0.2s;
-}
-
-.download-btn:hover {
-    transform: scale(1.05);
-}
-
-.btn-word {
-    background: #10b981;
-    color: white;
-}
-
-.btn-pdf {
-    background: #8b5cf6;
-    color: white;
-}
-
-/* ==========================
-   LESSON PLAN
-========================== */
-.lesson-plan {
-    font-size: 10pt;
-    line-height: 1.4;
-    max-width: 100%;
-    overflow-x: auto;
-}
-
-.lesson-plan table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 5px;
-    table-layout: fixed; /* ensures columns don't exceed width */
-}
-
-.lesson-plan td, 
-.lesson-plan th {
-    border: 1px solid black;
-    padding: 5px;
-    vertical-align: top;
-    word-wrap: break-word;
-}
-
-.lesson-plan .bold {
-    font-weight: bold;
-}
-
-.lesson-plan ul {
-    margin: 5px 0;
-    padding-left: 20px;
-}
-
-.lesson-plan li {
-    margin: 2px 0;
-}
-
-.text-center {
-    text-align: center;
-}
-
-/* ==========================
-   PRINT STYLING
-========================== */
-@media print {
-    body {
-        background: white;
-        padding: 0;
-    }
-    
-    .header, .form-container, .download-buttons {
-        display: none !important;
-    }
-    
-    .result-container {
-        box-shadow: none;
-        padding: 0;
-    }
-    
-    .lesson-plan {
-        font-size: 9pt;
-    }
-       }
