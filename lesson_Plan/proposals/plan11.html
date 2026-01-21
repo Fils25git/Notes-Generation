@@ -1,0 +1,114 @@
+<html>
+  <body>
+    
+<!-- plan1.html -->
+<div class="text-center bold" style="font-size: 12pt; margin-bottom: 10px;">LESSON PLAN</div>
+
+<div style="margin-bottom: 5px; font-size: 10pt;">
+    <span class="bold">School Name:</span> {{schoolName}}
+    <span style="margin-left: 80px;" class="bold">Teacher's name:</span> {{teacherName}}
+</div>
+
+<table>
+    <tr>
+        <td class="bold">Term</td>
+        <td class="bold">Date</td>
+        <td class="bold">Subject</td>
+        <td class="bold">Class</td>
+        <td class="bold">Unit N°</td>
+        <td class="bold">Lesson N°</td>
+        <td class="bold">Duration</td>
+        <td class="bold">Class size</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} out of {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}} Students</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td class="bold">Timing</td>
+        <td colspan="2" class="bold text-center">
+            <u>Description of teaching and learning activity</u><br>
+            Learners engage in observation, discussion and practice
+            to master {{lessonTitle}}.
+        </td>
+        <td class="bold">Generic competences & Cross-cutting issues</td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold">Teacher activities</td>
+        <td class="bold">Learner activities</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Introduction<br/>5 min</td>
+        <td>
+            <ul>
+                <li>Stimulates interest in {{lessonTitle}}</li>
+                <li>Sets clear learning expectations</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Show curiosity towards the lesson</li>
+                <li>Listen and prepare for learning</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Communication:</strong> Active listening and speaking.
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Development of the lesson<br/>25 min</td>
+        <td>
+            <ul>
+                <li>Facilitates learner-centred activities</li>
+                <li>Guides application of {{lessonTitle}}</li>
+                <li>Encourages peer support</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Engage actively in tasks</li>
+                <li>Apply lesson knowledge collaboratively</li>
+                <li>Support peers when necessary</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Cooperation:</strong> Shared responsibility in learning.<br><br>
+            <strong>Critical thinking:</strong> Applying knowledge to tasks.
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Conclusion<br/>10 min</td>
+        <td>
+            <ul>
+                <li>Guides learners to self-assess learning</li>
+                <li>Gives follow-up tasks</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Reflect on learning progress</li>
+                <li>Note assigned tasks</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Lifelong learning:</strong> Self-evaluation improves outcomes.
+        </td>
+    </tr>
+  </table>
+  </body>
+</html>
