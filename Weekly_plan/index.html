@@ -87,103 +87,177 @@
    
     <!-- Form -->
     <div class="form-container">
-        <p><b>Fill in the required fields below To Fetch Lesson Plan</b></p><br>
+        <p><b>Fill in the required fields below To Fetch Weekly Plan</b></p><br>
         
-<form id="weeklyPlanForm">
+<form id="lessonForm">
+<div class="form-grid">
 
 <h3>📌 General Information</h3>
 
-<label>Date</label>
-<input type="date" id="date" required>
+    <div class="form-group">
+                    <label class="required">School Name</label>
+                    <input type="text" id="schoolName" placeholder="e.g:,TTC BICUMBI"  required>
+    </div>
 
-<label>Term</label>
+    <div class="form-group">
+                    <label class="required">Teacher's Name</label>
+                    <input type="text" id="teacherName" placeholder="e.g:, IRATURINZE Fils Lambert" required>
+    </div>
+    
+                <div class="form-group">
+<label class="required">Date</label>
+<input type="date" id="date" required>
+                </div>
+    
+                <div class="form-group">
+<label class="required">Term</label>
 <select id="term" required>
   <option value="">Select term</option>
   <option value="I">Term I</option>
   <option value="II">Term II</option>
   <option value="III">Term III</option>
 </select>
-
-<label>Level</label>
-<input type="text" id="level" placeholder="e.g. Nursery, P1" required>
-
-<label>Academic Year</label>
-<input type="text" id="year" placeholder="e.g. 2025" required>
-
-<label>Number of Children</label>
+                </div>
+    
+                <div class="form-group">
+<label class="required" class="required">Level</label>
+<input type="text" id="level" placeholder="e.g. N1, N3A" required>
+                </div>
+    
+                <div class="form-group">
+<label class="required">Academic Year</label>
+<input type="text" id="year" placeholder="e.g. 2025-2026" required>
+                </div>
+    
+                <div class="form-group">
+<label class="required">Number of Children</label>
 <input type="number" id="childrensNumber" required>
+                </div>
+    
+                <div class="form-group">
 
-<label>Main Topic</label>
+<label class="required">Insanganyamatsiko nini (Kinyarwanda)</label>
 <input type="text" id="mainTopic" required>
+                </div>
+    
+                <div class="form-group">
 
-<label>Sub Topic (Kinyarwanda)</label>
+    <label class="required">Insanganyamatsiko nini (in English)</label>
+                
+<input type="text" id="mainTopic" required>
+                    </div>
+    
+                <div class="form-group">
+<label class="required">Insanganyamatsiko nto ( mu Kinyarwanda)</label>
+                
 <input type="text" id="subTopic" required>
+                </div>
 
-<label>Sub Topic (English)</label>
+                <div class="form-group">
+<label class="required">Insanganyamatsiko nto ( in English)</label>
 <input type="text" id="subTopicEng" required>
+                </div>
 
-<label>Special Educational Needs</label>
+                <div class="form-group full-width">
+<label class="optional">Special Educational Needs (If available)</label>
 <input type="text" id="specialNeeds" placeholder="Optional">
+                </div>
 
 <hr>
 
 <h3>🕢 7:45 – 8:00 | Guhana ikaze</h3>
-<label>Ikigwa</label>
+    
+    <div class="form-group">
+<label class="required">Ikigwa</label>
+        <div class="double-input">
 <input type="text" id="ikigwa_0745" required>
-<label>Ibindi byigwa</label>
+<label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_0745" required>
+        </div>
+    </div>
 
 <h3>🕗 8:00 – 8:30 | Imibare</h3>
-<label>Ikigwa</label>
+    <div class="form-group">
+<label class="required">Ikigwa</label>
+        <div class="double-input">
 <input type="text" id="ikigwa_0800" required>
-<label>Ibindi byigwa</label>
+<label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_0800" required>
+        </div>
+    </div>
 
 <h3>🕣 8:30 – 9:00 | Ubumenyi bw'Ibidukikije</h3>
-<label>Ikigwa</label>
+    <div class="form-group">
+<label class="required">Ikigwa</label>
+        <div class="double-input">
 <input type="text" id="ikigwa_0830" required>
-<label>Ibindi byigwa</label>
+<label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_0830" required>
+        </div>
+    </div>
 
 <h3>🕘 9:00 – 9:30 | Ikinyarwanda</h3>
-<label>Ikigwa</label>
+    <div class="form-group">
+<label class="required">Ikigwa</label>
+        <div class="double-input">
 <input type="text" id="ikigwa_0900" required>
-<label>Ibindi byigwa</label>
+<label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_0900" required>
-
+        </div>
+    </div>
 <h3>🕤 9:30 – 10:00 | English Oral Communication</h3>
-<label>Lesson Focus</label>
+    <div class="form-group">
+<label class="required">Ikigwa</label>
+        <div class="double-input">
 <input type="text" id="ikigwa_0930" required>
-<label>Related Content</label>
+<label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_0930" required>
-
+        </div>
+    </div>
 <h3>🕥 10:40 – 11:00 | Outdoor Games</h3>
-<label>Ikigwa</label>
+    <div class="form-group">
+<label class="required">Ikigwa</label>
+        <div class="form-group">
 <input type="text" id="ikigwa_1040" required>
-<label>Ibindi byigwa</label>
+<label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_1040" required>
+        </div>
+    </div>
 
 <h3>🕚 11:00 – 11:20 | Arts and Culture</h3>
-<label>Ikigwa</label>
+    <div class="form-group">
+<label class="required">Ikigwa</label>
+        <div class="double-input">
 <input type="text" id="ikigwa_1100" required>
-<label>Ibindi byigwa</label>
+<label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_1100" required>
+        </div>
+    </div>
 
 <h3>🕦 11:20 – 11:40 | Indoor Games</h3>
-<label>Ikigwa</label>
+    <div class="form-group">
+<label class="required">Ikigwa</label>
+        <div class="double-input">
 <input type="text" id="ikigwa_1120" required>
-<label>Ibindi byigwa</label>
+<label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_1120" required>
+        </div>
+    </div>
 
 <h3>🕛 11:40 – 12:00 | Closing Time</h3>
-<label>Ikigwa</label>
+    <div class="form-group">
+<label class="required">Ikigwa</label>
+        <div class="double-input">
 <input type="text" id="ikigwa_1140" required>
-<label>Ibindi byigwa</label>
+<label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_1140" required>
+        </div>
+    </div>
 
 <hr>
 
-<button type="submit">Generate Weekly Plan</button>
+<button type="submit" class="generate-btn">Generate Weekly Plan</button>
+    <div id="errorMessage" class="error-message"></div>
 
 </form>
     </div>
@@ -207,227 +281,152 @@
 
 <!-- Netlify Identity -->
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script>
+/* ===============================
+   AUTH CHECK (UNCHANGED)
+================================ */
+const token = localStorage.getItem("auth_token");
+const userEmail = localStorage.getItem("user_email");
 
-<script>
-    // ===============================
-    // AUTH CHECK
-    // ===============================
-    const token = localStorage.getItem("auth_token");
-    const userEmail = localStorage.getItem("user_email");
-
-    if (!token || !userEmail) {
-        window.location.href = "../login.html";
-    }
-
-    // ===============================
-    // FLOATING MESSAGE
-    // ===============================
-    function showFloatingMessage(msg) {
-        const box = document.getElementById("floatingMessage");
-        box.innerHTML = msg;
-        box.style.display = "block";
-        setTimeout(() => box.style.display = "none", 8000);
-    }
-
-    // ===============================
-    // PLAN FILES
-    // ===============================
-    const planFolders = {
-        english: "proposals",
-        kinyarwanda: "kinyarwanda_plans",
-        kiswahili: "kiswahili_plans",
-        french: "french_plans"
-    };
-
-    function getNextPlanFile(language, email) {
-    const folder = planFolders[language] || "proposals";
-
-    // English has 15 plans, others have 10
-    const totalPlans = language === "english" ? 15 : 10;
-
-    const storageKey = `last_plan_${language}_${email}`;
-    let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
-
-    let nextIndex = lastIndex + 1;
-
-    if (nextIndex > totalPlans) {
-        nextIndex = 1; // restart after finishing all plans
-    }
-
-    localStorage.setItem(storageKey, nextIndex);
-
-    return `${folder}/plan${nextIndex}.html`;
-    }
-
-    // ===============================
-    // DEFAULTS
-    // ===============================
-    function getLanguageDefaults(language, subject, classLevel) {
-        return {
-            specialNeeds: {
-                english: "There is no learner with special educational needs.",
-                kinyarwanda: "Nta munyeshuri ufite ibyo agenerwa by'ihariye.",
-                kiswahili: "Hakuna mwanafunzi mwenye mahitaji maalum.",
-                french: "Il n'y a aucun élève ayant des besoins spéciaux."
-            },
-            teachingMaterials: {
-                english: `${subject} textbook, learner's book, teacher's guide.`,
-                kinyarwanda: `${subject} igitabo cy'umunyeshuri ${classLevel}.`,
-                kiswahili: `Kitabu cha ${subject} cha darasa la ${classLevel}.`,
-                french: `Livre de ${subject} pour ${classLevel}.`
-            },
-            references: {
-                english: `${subject} learner’s book, REB curriculum.`,
-                kinyarwanda: `${subject} igitabo cy'umunyeshuri.`,
-                kiswahili: `Kitabu cha mwanafunzi cha ${subject}.`,
-                french: `Livre de l'élève ${subject}.`
-            }
-        };
-    }
-
-    // ===============================
-    // FORM SUBMIT
-    // ===============================
-    document.getElementById("lessonForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const btn = document.querySelector(".generate-btn");
-        btn.disabled = true;
-        btn.textContent = "Fetching...";
-
-        try {
-            const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
-            const data = await res.json();
-
-            if (data.balance <= 0) {
-                showFloatingMessage("❌ No lesson plans remaining.");
-                btn.disabled = false;
-                btn.textContent = "Fetch Lesson Plan";
-                return;
-            }
-
-            await fetch("/.netlify/functions/use-lesson-plan", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: userEmail })
-            });
-
-            generateLessonPlan();
-
-        } catch (err) {
-            showFloatingMessage("❌ Network error.");
-            btn.disabled = false;
-            btn.textContent = "Fetch Lesson Plan";
-        }
-    });
-
-    // ===============================
-    // GENERATE + AUTO SAVE
-    // ===============================
-    function generateLessonPlan() {
-        const language = document.getElementById("language").value || "english";
-        const subjectVal = subject.value;
-        const classVal = document.getElementById("class").value;
-        const defaults = getLanguageDefaults(language, subjectVal, classVal);
-
-        const data = {
-            schoolName: schoolName.value,
-            teacherName: teacherName.value,
-            term: term.value,
-            date: date.value,
-            subject: subjectVal,
-            class: classVal,
-            unitNo: unitNo.value,
-            lessonNo: lessonNo.value,
-            totalLessons: totalLessons.value,
-            duration: duration.value,
-            classSize: classSize.value,
-            unitTitle: unitTitle.value,
-            lessonTitle: lessonTitle.value,
-            teachingMaterials: teachingMaterials.value || defaults.teachingMaterials[language],
-            specialNeeds: specialNeeds.value || defaults.specialNeeds[language],
-            references: references.value || defaults.references[language]
-        };
-
-        fetch(getNextPlanFile(language, userEmail))
-            .then(res => res.text())
-            .then(template => {
-
-                for (const key in data) {
-    template = template
-        .replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), data[key])
-        .replace(new RegExp(`\\$\\{\\s*${key}\\s*\\}`, "g"), data[key]);
-    }
-
-                lessonPlanContent.innerHTML = template;
-                resultContainer.classList.add("show");
-                resultContainer.scrollIntoView({ behavior: "smooth" });
-
-                // 🔥 AUTO SAVE TO DATABASE USING EMAIL ONLY
-                autoSavePlan(template, language, data.lessonTitle);
-
-            })
-            .catch(() => {
-                showFloatingMessage("❌ Failed to load lesson plan.");
-            });
-    }
-
-    // ===============================
-    // AUTO SAVE FUNCTION (DATABASE)
-    // ===============================
-    async function autoSavePlan(content, language, title) {
-        try {
-            const res = await fetch("/.netlify/functions/create-user-plan", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    email: userEmail,   // <-- use email instead of user_id
-                    lesson_title: title,
-                    lesson_content: content,
-                    language
-                })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                console.error("SAVE FAILED:", data);
-                showFloatingMessage("⚠️ Lesson generated but not saved.");
-            }
-
-        } catch (err) {
-            console.error("AUTO SAVE ERROR:", err);
-        }
-    }
-
-    // ===============================
-    // EDIT & COPY (UNCHANGED)
-    // ===============================
-    editBtn.addEventListener("click", () => {
-        lessonPlanContent.contentEditable = true;
-        editBtn.disabled = true;
-        saveBtn.disabled = false;
-    });
-
-    saveBtn.addEventListener("click", () => {
-        lessonPlanContent.contentEditable = false;
-        editBtn.disabled = false;
-        saveBtn.disabled = true;
-    });
-
-    function copyToWord() {
-        const range = document.createRange();
-        range.selectNode(lessonPlanContent);
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(range);
-        document.execCommand("copy");
-        window.getSelection().removeAllRanges();
-        showFloatingMessage("Lesson Plan copied.");
-    }
-    function go(path) {
-    window.location.href = path;
+if (!token || !userEmail) {
+  window.location.href = "../login.html";
 }
-</script>
+
+/* ===============================
+   FLOATING MESSAGE
+================================ */
+function showFloatingMessage(msg) {
+  const box = document.getElementById("floatingMessage");
+  box.innerHTML = msg;
+  box.style.display = "block";
+  setTimeout(() => box.style.display = "none", 6000);
+}
+
+/* ===============================
+   FORM SUBMIT
+================================ */
+document
+  .getElementById("weeklyPlanForm")
+  .addEventListener("submit", function (e) {
+    e.preventDefault();
+    generateWeeklyPlan();
+  });
+
+/* ===============================
+   GENERATE WEEKLY PLAN
+================================ */
+function generateWeeklyPlan() {
+  const data = {
+    schoolName: schoolName.value,
+   teacherName: teacherName.value,
+    date: date.value,
+    term: term.value,
+    level: level.value,
+    year: year.value,
+    childrensNumber: childrensNumber.value,
+    mainTopic: mainTopic.value,
+    subTopic: subTopic.value,
+    subTopicEng: subTopicEng.value,
+    specialNeeds: specialNeeds.value || "Nta bibazo byihariye byagaragaye",
+
+    ikigwa_0745: ikigwa_0745.value,
+    ibindi_byigwa_0745: ibindi_byigwa_0745.value,
+
+    ikigwa_0800: ikigwa_0800.value,
+    ibindi_byigwa_0800: ibindi_byigwa_0800.value,
+
+    ikigwa_0830: ikigwa_0830.value,
+    ibindi_byigwa_0830: ibindi_byigwa_0830.value,
+
+    ikigwa_0900: ikigwa_0900.value,
+    ibindi_byigwa_0900: ibindi_byigwa_0900.value,
+
+    ikigwa_0930: ikigwa_0930.value,
+    ibindi_byigwa_0930: ibindi_byigwa_0930.value,
+
+    ikigwa_1040: ikigwa_1040.value,
+    ibindi_byigwa_1040: ibindi_byigwa_1040.value,
+
+    ikigwa_1100: ikigwa_1100.value,
+    ibindi_byigwa_1100: ibindi_byigwa_1100.value,
+
+    ikigwa_1120: ikigwa_1120.value,
+    ibindi_byigwa_1120: ibindi_byigwa_1120.value,
+
+    ikigwa_1140: ikigwa_1140.value,
+    ibindi_byigwa_1140: ibindi_byigwa_1140.value
+  };
+
+  fetch("weekly_schedule_template.html")
+    .then(res => res.text())
+    .then(template => {
+      for (const key in data) {
+        template = template.replace(
+          new RegExp(`{{\\s*${key}\\s*}}`, "g"),
+          data[key]
+        );
+      }
+
+      lessonPlanContent.innerHTML = template;
+      resultContainer.classList.add("show");
+      resultContainer.scrollIntoView({ behavior: "smooth" });
+
+      autoSaveWeeklyPlan(template);
+    })
+    .catch(() => {
+      showFloatingMessage("❌ Failed to load weekly schedule template.");
+    });
+}
+
+/* ===============================
+   AUTO SAVE (OPTIONAL BUT READY)
+================================ */
+async function autoSaveWeeklyPlan(content) {
+  try {
+    await fetch("/.netlify/functions/create-user-plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: userEmail,
+        lesson_title: "CBC Weekly Schedule",
+        lesson_content: content,
+        language: "kinyarwanda"
+      })
+    });
+  } catch (err) {
+    console.error("Auto-save failed", err);
+  }
+}
+
+/* ===============================
+   EDIT & COPY (UNCHANGED)
+================================ */
+editBtn.addEventListener("click", () => {
+  lessonPlanContent.contentEditable = true;
+  editBtn.disabled = true;
+  saveBtn.disabled = false;
+});
+
+saveBtn.addEventListener("click", () => {
+  lessonPlanContent.contentEditable = false;
+  editBtn.disabled = false;
+  saveBtn.disabled = true;
+});
+
+function copyToWord() {
+  const range = document.createRange();
+  range.selectNode(lessonPlanContent);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+  document.execCommand("copy");
+  window.getSelection().removeAllRanges();
+  showFloatingMessage("✅ Weekly plan copied.");
+}
+
+function go(path) {
+  window.location.href = path;
+}
+             </script>
 
 </body>
     </html>
