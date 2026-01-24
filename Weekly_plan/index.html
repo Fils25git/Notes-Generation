@@ -125,7 +125,7 @@
                 </div>
     
                 <div class="form-group">
-<label class="required">Academic Year</label>
+<label class="required">Umwaka w'amashuri/Academic Year</label>
 <input type="text" id="year" placeholder="e.g. 2025-2026" required>
                 </div>
     
@@ -144,7 +144,7 @@
 
     <label class="required">Insanganyamatsiko nini (in English)</label>
                 
-<input type="text" id="mainTopic" required>
+<input type="text" id="mainTopicEng" required>
                     </div>
     
                 <div class="form-group">
@@ -306,7 +306,7 @@ function showFloatingMessage(msg) {
    FORM SUBMIT
 ================================ */
 document
-  .getElementById("weeklyPlanForm")
+  .getElementById("lessonForm")
   .addEventListener("submit", function (e) {
     e.preventDefault();
     generateWeeklyPlan();
