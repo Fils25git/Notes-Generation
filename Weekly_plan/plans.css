@@ -298,10 +298,33 @@ textarea:focus {
     .lesson-plan {
         font-size: 9pt;
     }
-}
-@media print {
+
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .header,
+    .form-container,
+    .download-buttons {
+        display: none !important;
+    }
+
     .result-container {
         display: block !important;
         visibility: visible !important;
+        width: 100%;
     }
+
+    .lesson-plan {
+        font-size: 9pt;
+    }
+
+    /* Landscape orientation */
+    @page {
+        size: landscape;
+        margin: 20mm;
+    }
+   
 }
+
