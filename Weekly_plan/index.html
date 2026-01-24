@@ -224,7 +224,7 @@
         </div>
     </div><br>
 
-<h3>🕚 11:00 – 11:20 | Ubugeni n'umuco</h3>
+<h3>🕚 11:00 – 11:20 | Ubugeni n'umuco/Kubara Inkuru mu Kinyarwanda</h3>
     <div class="form-group">
 <label class="required">Ikigwa</label>
         <div class="form-group">
@@ -234,7 +234,7 @@
         </div>
     </div><br>
 
-<h3>🕦 11:20 – 11:40 | Indoor Games</h3>
+<h3>🕦 11:20 – 11:40 | Imikino yo mu nguni</h3>
     <div class="form-group">
 <label class="required">Ikigwa</label>
         <div class="form-group">
@@ -244,7 +244,7 @@
         </div>
     </div><br>
 
-<h3>🕛 11:40 – 12:00 | Closing Time</h3>
+<h3>🕛 11:40 – 12:00 | Gusezeranaho</h3>
     <div class="form-group">
 <label class="required">Ikigwa</label>
     <div class="form-group">
@@ -357,7 +357,7 @@ function generateWeeklyPlan() {
     ibindi_byigwa_1140: ibindi_byigwa_1140.value
   };
 
-  fetch("weekly_schedule_template.html")
+  fetch("proposal/plan1.html")
     .then(res => res.text())
     .then(template => {
       for (const key in data) {
