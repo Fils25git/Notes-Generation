@@ -452,35 +452,14 @@ function copyToWord() {
 function go(path) {
   window.location.href = path;
 }
+function downloadPDF() {
+  lessonPlanContent.contentEditable = false;
+  editBtn.disabled = false;
+  saveBtn.disabled = true;
 
-        function downloadPDF() {
-    // Ensure content is not editable
-    lessonPlanContent.contentEditable = false;
-    editBtn.disabled = false;
-    saveBtn.disabled = true;
-
-    // Trigger print → Save as PDF
-    window.print();
-                }
-    async function downloadPDF() {
-  const html = lessonPlanContent.innerHTML;
-  const title = lessonTitle.value || "lesson-plan";
-
-  const res = await fetch("/.netlify/functions/generate-pdf", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ html, title })
-  });
-
-  const blob = await res.blob();
-
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `${title}.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-      }
+  window.print();
+        }
+        
              </script>
 
 </body>
