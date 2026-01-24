@@ -329,7 +329,7 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
                 body: JSON.stringify({ email: userEmail })
             });
 
-            generateLessonPlan();
+            generateWeeklyPlan();
 
         } catch (err) {
             showFloatingMessage("❌ Network error.");
