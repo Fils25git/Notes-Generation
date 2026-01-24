@@ -181,7 +181,6 @@ textarea:focus {
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    display: none;
     max-width: 100%;
     overflow-x: auto;
 }
@@ -298,5 +297,11 @@ textarea:focus {
 
     .lesson-plan {
         font-size: 9pt;
+    }
+}
+@media print {
+    .result-container {
+        display: block !important;
+        visibility: visible !important;
     }
 }
