@@ -527,7 +527,9 @@ function printLessonPlan() {
 
     const win = window.open("", "_blank");
 
+    win.document.open();
     win.document.write(`
+        <!DOCTYPE html>
         <html>
         <head>
             <title>Weekly Plan</title>
@@ -554,13 +556,17 @@ function printLessonPlan() {
         </body>
         </html>
     `);
-
     win.document.close();
-    win.focus();
-    win.print();
-    win.close();
+
+    // ✅ CRITICAL FIX: wait for load
+    win.onload = () => {
+        setTimeout(() => {
+            win.focus();
+            win.print();
+        }, 300);
+    };
 }
-        
+
              </script>
 
 </body>
