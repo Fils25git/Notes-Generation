@@ -330,7 +330,7 @@
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
             <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
-            <button class="download-btn btn-pdf" onclick="printLessonPlan()">📑 Save as PDF/Print</button>
+            <button class="download-btn btn-pdf" onclick="downloadPDFProper()">📑 Save as PDF</button>
     <button id="editBtn" Class="download-btn">✏️ Edit</button>
     <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
             
@@ -519,101 +519,46 @@ function go(path) {
         
              </script>
     <script>
-function printLessonPlan() {
-    const content = document.getElementById("lessonPlanContent");
+function downloadPDFProper() {
+    const { jsPDF } = window.jspdf;
 
-    if (!content || !content.innerHTML.trim()) {
-        alert("Generate the weekly plan first.");
+    const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4"
+    });
+
+    doc.setFontSize(12);
+    doc.text("WEEKLY PLAN", 14, 10);
+
+    const table = document.querySelector("#lessonPlanContent table");
+
+    if (!table) {
+        alert("No lesson plan found");
         return;
     }
 
-    const win = window.open("", "_blank");
+    doc.autoTable({
+        html: table,
+        startY: 15,
+        styles: {
+            fontSize: 9,
+            cellPadding: 2,
+            overflow: "linebreak"
+        },
+        headStyles: {
+            fillColor: [230, 230, 230]
+        },
+        tableWidth: "auto",
+        margin: { left: 10, right: 10 }
+    });
 
-    win.document.open();
-    win.document.write(`
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Weekly Plan</title>
-
-<style>
-/* RESET */
-* {
-    box-sizing: border-box;
-}
-
-/* PAGE */
-@page {
-    size: A4 landscape;
-    margin: 10mm;
-}
-
-html, body {
-    width: 297mm;
-    height: 210mm;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-}
-
-/* CONTENT */
-body {
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-}
-
-/* FORCE FULL WIDTH */
-#print-root {
-    width: 100%;
-}
-
-/* TABLE FIX */
-table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    table-layout: fixed;
-}
-
-td, th {
-    border: 1px solid #000;
-    padding: 6px;
-    font-size: 11pt;
-    vertical-align: top;
-    word-break: break-word;
-}
-
-/* TEXT */
-p, div, span {
-    font-size: 11pt;
-}
-
-/* PREVENT CUTTING */
-table, tr, td, th {
-    page-break-inside: avoid;
-}
-</style>
-</head>
-
-<body>
-    <div id="print-root">
-        ${content.innerHTML}
-    </div>
-</body>
-</html>
-    `);
-
-    win.document.close();
-
-    win.onload = () => {
-        setTimeout(() => {
-            win.focus();
-            win.print();
-        }, 500);
-    };
+    doc.save("Weekly_Plan_Landscape.pdf");
 }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
 
 </body>
     </html>
