@@ -74,41 +74,26 @@
     background: #fff !important;
   }
 
-  /* Hide everything except lesson plan */
-  body * {
-    visibility: hidden;
-  }
-
-  #lessonPlanContent,
-  #lessonPlanContent * {
-    visibility: visible;
+  body > *:not(#lessonPlanContent) {
+    display: none !important;
   }
 
   #lessonPlanContent {
-    position: absolute;
-    left: 0;
-    top: 0;
+    position: static;
     width: 100%;
-    
-    /* SCALE DOWN TO FIT ONE PAGE */
-    transform: scale(0.85);
-    transform-origin: top left;
+    font-size: 12px;
   }
 
-  /* Force single page */
   @page {
-    size: A4;
+    size: A4 landscape; /* horizontal like you wanted */
     margin: 10mm;
   }
 
-  /* Remove page breaks */
-  .lesson-plan,
-  table,
-  tr,
-  td {
+  table, tr, td {
     page-break-inside: avoid;
   }
 }
+        
       
         body{
             background: linear-gradient(135deg, #6dd5fa, #2980b9);
