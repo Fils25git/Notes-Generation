@@ -330,7 +330,7 @@
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
             <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
-            <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
+            <button class="download-btn btn-pdf" onclick="printLessonPlan()">📑 Save as PDF/Print</button>
     <button id="editBtn" Class="download-btn">✏️ Edit</button>
     <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
             
@@ -516,13 +516,50 @@ function copyToWord() {
 function go(path) {
   window.location.href = path;
 }
-function downloadPDF() {
-  lessonPlanContent.contentEditable = false;
-  editBtn.disabled = false;
-  saveBtn.disabled = true;
+        
+function printLessonPlan() {
+    const content = document.getElementById("lessonPlanContent");
 
-  window.print();
-        }
+    if (!content || !content.innerHTML.trim()) {
+        alert("Nothing to print. Generate the weekly plan first.");
+        return;
+    }
+
+    const win = window.open("", "_blank");
+
+    win.document.write(`
+        <html>
+        <head>
+            <title>Weekly Plan</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20mm;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                td, th {
+                    border: 1px solid black;
+                    padding: 5px;
+                }
+                @page {
+                    size: A4 landscape;
+                }
+            </style>
+        </head>
+        <body>
+            ${content.innerHTML}
+        </body>
+        </html>
+    `);
+
+    win.document.close();
+    win.focus();
+    win.print();
+    win.close();
+}
         
              </script>
 
