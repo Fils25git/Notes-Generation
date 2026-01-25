@@ -372,9 +372,9 @@ function showFloatingMessage(msg) {
 document.getElementById("lessonForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const btn = document.querySelector(".generate-btn");
+        const btn = document.querySelectorAll(".generate-btn");
         btn.disabled = true;
-        btn.textContent = "Fetching...";
+        btn.textContent = "Generating... wait";
 
         try {
             const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
@@ -528,29 +528,45 @@ function downloadPDFProper() {
         format: "a4"
     });
 
-    doc.setFontSize(12);
+    doc.setFontSize(14);
     doc.text("WEEKLY PLAN", 14, 10);
 
-    const table = document.querySelector("#lessonPlanContent table");
+    let startY = 18;
 
-    if (!table) {
+    const tables = document.querySelectorAll("#lessonPlanContent table");
+
+    if (tables.length === 0) {
         alert("No lesson plan found");
         return;
     }
 
-    doc.autoTable({
-        html: table,
-        startY: 15,
-        styles: {
-            fontSize: 9,
-            cellPadding: 2,
-            overflow: "linebreak"
-        },
-        headStyles: {
-            fillColor: [230, 230, 230]
-        },
-        tableWidth: "auto",
-        margin: { left: 10, right: 10 }
+    tables.forEach((table, index) => {
+
+        if (index > 0) {
+            doc.addPage();
+            startY = 15;
+        }
+
+        doc.autoTable({
+            html: table,
+            startY: startY,
+            theme: "grid",
+            styles: {
+                fontSize: 10,
+                cellPadding: 3,
+                overflow: "linebreak",
+                halign: "center",
+                valign: "middle"
+            },
+            headStyles: {
+                fillColor: [240, 240, 240],
+                textColor: 20
+            },
+            margin: { left: 8, right: 8 },
+            tableWidth: "wrap"
+        });
+
+        startY = doc.lastAutoTable.finalY + 10;
     });
 
     doc.save("Weekly_Plan_Landscape.pdf");
