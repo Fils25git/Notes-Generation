@@ -517,11 +517,13 @@ function go(path) {
   window.location.href = path;
 }
         
+             </script>
+    <script>
 function printLessonPlan() {
     const content = document.getElementById("lessonPlanContent");
 
     if (!content || !content.innerHTML.trim()) {
-        alert("Nothing to print. Generate the weekly plan first.");
+        alert("Generate the weekly plan first.");
         return;
     }
 
@@ -529,45 +531,89 @@ function printLessonPlan() {
 
     win.document.open();
     win.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Weekly Plan</title>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    margin: 20mm;
-                }
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                }
-                td, th {
-                    border: 1px solid black;
-                    padding: 5px;
-                }
-                @page {
-                    size: A4 landscape;
-                }
-            </style>
-        </head>
-        <body>
-            ${content.innerHTML}
-        </body>
-        </html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Weekly Plan</title>
+
+<style>
+/* RESET */
+* {
+    box-sizing: border-box;
+}
+
+/* PAGE */
+@page {
+    size: A4 landscape;
+    margin: 10mm;
+}
+
+html, body {
+    width: 297mm;
+    height: 210mm;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* CONTENT */
+body {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+/* FORCE FULL WIDTH */
+#print-root {
+    width: 100%;
+}
+
+/* TABLE FIX */
+table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed;
+}
+
+td, th {
+    border: 1px solid #000;
+    padding: 6px;
+    font-size: 11pt;
+    vertical-align: top;
+    word-break: break-word;
+}
+
+/* TEXT */
+p, div, span {
+    font-size: 11pt;
+}
+
+/* PREVENT CUTTING */
+table, tr, td, th {
+    page-break-inside: avoid;
+}
+</style>
+</head>
+
+<body>
+    <div id="print-root">
+        ${content.innerHTML}
+    </div>
+</body>
+</html>
     `);
+
     win.document.close();
 
-    // ✅ CRITICAL FIX: wait for load
     win.onload = () => {
         setTimeout(() => {
             win.focus();
             win.print();
-        }, 300);
+        }, 500);
     };
 }
-
-             </script>
+    </script>
 
 </body>
     </html>
