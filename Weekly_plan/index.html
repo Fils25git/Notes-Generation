@@ -65,6 +65,85 @@
         text-decoration: underline;
         font-weight: bold;
       }
+        /* ===============================
+   FORCE SINGLE-PAGE PDF
+=============================== */
+@media print {
+
+  body {
+    background: #fff !important;
+  }
+
+  /* Hide everything except lesson plan */
+  body * {
+    visibility: hidden;
+  }
+
+  #lessonPlanContent,
+  #lessonPlanContent * {
+    visibility: visible;
+  }
+
+  #lessonPlanContent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    
+    /* SCALE DOWN TO FIT ONE PAGE */
+    transform: scale(0.85);
+    transform-origin: top left;
+  }
+
+  /* Force single page */
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  /* Remove page breaks */
+  .lesson-plan,
+  table,
+  tr,
+  td {
+    page-break-inside: avoid;
+  }
+}
+      
+        body{
+            background: linear-gradient(135deg, #6dd5fa, #2980b9);
+        }
+      .floating-message {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #e74c3c;
+        color: #fff;
+        padding: 18px 22px;
+        border-radius: 14px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 9999;
+        animation: slideIn 0.6s ease;
+        max-width: 300px;
+        line-height: 1.6;
+      }
+        #lessonPlanContent[contenteditable="true"] {
+    border: 2px dashed #007bff;
+    background: #f8fbff;
+    padding: 15px;
+        }
+
+      @keyframes slideIn {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .floating-message a {
+        color: #fff;
+        text-decoration: underline;
+        font-weight: bold;
+              }
     </style>
 </head>
 <body>
