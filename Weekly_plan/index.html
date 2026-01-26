@@ -528,50 +528,77 @@ function downloadPDFProper() {
         format: "a4"
     });
 
-    doc.setFontSize(14);
-    doc.text("WEEKLY PLAN", 14, 10);
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-    let startY = 18;
+    // ===== TITLE =====
+    doc.setFontSize(14);
+    doc.text("WEEKLY PLAN", pageWidth / 2, 12, { align: "center" });
 
     const tables = document.querySelectorAll("#lessonPlanContent table");
 
     if (tables.length === 0) {
-        alert("No lesson plan found");
+        alert("No lesson plan tables found");
         return;
     }
 
-    tables.forEach((table, index) => {
+    let startY = 18;
 
-        if (index > 0) {
-            doc.addPage();
-            startY = 15;
+    // ===== FIRST TABLE (HEADER INFO) =====
+    doc.autoTable({
+        html: tables[0],
+        startY: startY,
+        theme: "grid",
+        styles: {
+            fontSize: 10,
+            cellPadding: 3,
+            valign: "middle",
+            overflow: "linebreak"
+        },
+        headStyles: {
+            fillColor: [240, 240, 240]
+        },
+        margin: { left: 8, right: 8 },
+        tableWidth: "wrap"
+    });
+
+    startY = doc.lastAutoTable.finalY + 6;
+
+    // ===== MERGE ALL REMAINING TABLES INTO ONE =====
+    if (tables.length > 1) {
+        const mergedTable = tables[1].cloneNode(true);
+        const mergedBody = mergedTable.querySelector("tbody");
+
+        for (let i = 2; i < tables.length; i++) {
+            const rows = tables[i].querySelectorAll("tbody tr");
+            rows.forEach(row => {
+                mergedBody.appendChild(row.cloneNode(true));
+            });
         }
 
         doc.autoTable({
-            html: table,
+            html: mergedTable,
             startY: startY,
             theme: "grid",
             styles: {
-                fontSize: 10,
+                fontSize: 9,
                 cellPadding: 3,
-                overflow: "linebreak",
-                halign: "center",
-                valign: "middle"
+                valign: "top",
+                overflow: "linebreak"
             },
             headStyles: {
-                fillColor: [240, 240, 240],
-                textColor: 20
+                fillColor: [230, 230, 230]
             },
             margin: { left: 8, right: 8 },
-            tableWidth: "wrap"
+            tableWidth: "wrap",
+            pageBreak: "auto",
+            rowPageBreak: "avoid"
         });
-
-        startY = doc.lastAutoTable.finalY + 10;
-    });
+    }
 
     doc.save("Weekly_Plan_Landscape.pdf");
 }
     </script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
     
