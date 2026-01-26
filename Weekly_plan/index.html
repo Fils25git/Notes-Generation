@@ -377,7 +377,7 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
 
         const btn = document.querySelectorAll(".generate-btn");
         btn.disabled = true;
-        btn.textContent = "Generating... wait";
+        btn.textContent = "Fetching...";
 
         try {
             const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
