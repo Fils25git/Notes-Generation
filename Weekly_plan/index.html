@@ -169,8 +169,11 @@
     </div>
     
                 <div class="form-group">
-<label class="required">Date</label>
+<label class="required">From Date/ To Date</label>
+                    <div class="double-input">
 <input type="date" id="date" required>
+<input type="date" id="toDate"  required>
+                </div>
                 </div>
     
                 <div class="form-group">
@@ -410,6 +413,7 @@ function generateWeeklyPlan() {
     schoolName: schoolName.value,
    teacherName: teacherName.value,
     date: date.value,
+      toDate: toDate.value,
     term: term.value,
     level: level.value,
     year: year.value,
