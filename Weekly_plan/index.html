@@ -628,7 +628,10 @@ function downloadPDFProper() {
         });
     }
 
-    doc.save("Weekly_Plan_Landscape.pdf");
+    const today = new Date().toISOString().split("T")[0];
+
+    // ✅ SAVE WITH DATE
+    doc.save(`Weekly_Plan_Landscape_${today}.pdf`);
 }
 </script>    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
