@@ -518,78 +518,107 @@ function go(path) {
 }
         
              </script>
-    <script>
+<script>
 function downloadPDFProper() {
     const { jsPDF } = window.jspdf;
-
-    const doc = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4"
-    });
+    const doc = new jsPDF("landscape", "mm", "a4");
 
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // ===== TITLE =====
     doc.setFontSize(14);
     doc.text("WEEKLY PLAN", pageWidth / 2, 12, { align: "center" });
 
     const tables = document.querySelectorAll("#lessonPlanContent table");
-
     if (tables.length === 0) {
-        alert("No lesson plan tables found");
+        alert("No tables found");
         return;
     }
 
     let startY = 18;
 
-    // ===== FIRST TABLE (HEADER INFO) =====
+    // Helper: extract table data safely
+    function extractTable(table) {
+        const head = [];
+        const body = [];
+
+        table.querySelectorAll("thead tr").forEach(tr => {
+            const row = [];
+            tr.querySelectorAll("th").forEach(th => {
+                row.push(th.innerText.trim());
+            });
+            head.push(row);
+        });
+
+        table.querySelectorAll("tbody tr").forEach(tr => {
+            const row = [];
+            tr.querySelectorAll("td").forEach(td => {
+                // normalize text for wrapping
+                const text = td.innerText
+                    .replace(/\n+/g, "\n")
+                    .trim();
+                row.push(text);
+            });
+            body.push(row);
+        });
+
+        return { head, body };
+    }
+
+    // ===== FIRST TABLE =====
+    const first = extractTable(tables[0]);
+
     doc.autoTable({
-        html: tables[0],
-        startY: startY,
+        head: first.head,
+        body: first.body,
+        startY,
         theme: "grid",
         styles: {
             fontSize: 10,
             cellPadding: 3,
+            overflow: "linebreak",
             valign: "middle",
-            overflow: "linebreak"
+            lineWidth: 0.1
         },
         headStyles: {
             fillColor: [240, 240, 240]
         },
         margin: { left: 8, right: 8 },
-        tableWidth: "wrap"
+        rowPageBreak: "avoid"
     });
 
     startY = doc.lastAutoTable.finalY + 6;
 
-    // ===== MERGE ALL REMAINING TABLES INTO ONE =====
+    // ===== MERGE REMAINING TABLES =====
     if (tables.length > 1) {
-        const mergedTable = tables[1].cloneNode(true);
-        const mergedBody = mergedTable.querySelector("tbody");
+        const mergedHead = [];
+        const mergedBody = [];
+
+        // use header from second table
+        const second = extractTable(tables[1]);
+        mergedHead.push(...second.head);
+        mergedBody.push(...second.body);
 
         for (let i = 2; i < tables.length; i++) {
-            const rows = tables[i].querySelectorAll("tbody tr");
-            rows.forEach(row => {
-                mergedBody.appendChild(row.cloneNode(true));
-            });
+            const next = extractTable(tables[i]);
+            mergedBody.push(...next.body);
         }
 
         doc.autoTable({
-            html: mergedTable,
-            startY: startY,
+            head: mergedHead,
+            body: mergedBody,
+            startY,
             theme: "grid",
             styles: {
                 fontSize: 9,
                 cellPadding: 3,
+                overflow: "linebreak",
                 valign: "top",
-                overflow: "linebreak"
+                lineWidth: 0.1
             },
             headStyles: {
                 fillColor: [230, 230, 230]
             },
             margin: { left: 8, right: 8 },
-            tableWidth: "wrap",
             pageBreak: "auto",
             rowPageBreak: "avoid"
         });
@@ -597,8 +626,7 @@ function downloadPDFProper() {
 
     doc.save("Weekly_Plan_Landscape.pdf");
 }
-    </script>
-    
+</script>    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
     
