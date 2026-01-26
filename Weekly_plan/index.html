@@ -535,13 +535,13 @@ function downloadPDFProper() {
     doc.setFontSize(10);
 
 doc.text(
-  `AMAZINA Y'UMUREZI: ${teacherName}`,
+  `AMAZINA Y'UMUREZI: ${teacherName.value}`,
   14,
   18
 );
 
 doc.text(
-  `IZINA RY'ISHURI: ${schoolName}`,
+  `IZINA RY'ISHURI: ${schoolName.value}`,
   pageWidth - 14,
   18,
   { align: "right" }
