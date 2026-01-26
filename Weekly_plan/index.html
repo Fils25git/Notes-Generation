@@ -160,7 +160,7 @@
 
     <div class="form-group">
                     <label class="required">School Name</label>
-                    <input type="text" id="schoolName" placeholder="e.g:,TTC BICUMBI"  required>
+                    <input type="text" id="schoolName" placeholder="e.g:,EP KABIRIZI"  required>
     </div>
 
     <div class="form-group">
@@ -274,10 +274,10 @@
     </div><br>
 <h3>🕤 9:30 – 10:00 | English Oral Communication</h3>
     <div class="form-group">
-<label class="required">Ikigwa</label>
+<label class="required">Ikigwa(in English)</label>
         <div class="form-group">
 <input type="text" id="ikigwa_0930" required>
-<label class="required">Ibindi byigwa</label>
+<label class="required">Ibindi byigwa(in English)</label>
 <input type="text" id="ibindi_byigwa_0930" required>
         </div>
     </div><br>
@@ -377,16 +377,16 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
 
         const btn = document.querySelector(".generate-btn");
         btn.disabled = true;
-        btn.textContent = "Fetching...";
+        btn.textContent = "Generating...";
 
         try {
             const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
             const data = await res.json();
 
             if (data.balance <= 0) {
-                showFloatingMessage("❌ No lesson plans remaining.");
+                showFloatingMessage("❌ No weekly plans remaining.");
                 btn.disabled = false;
-                btn.textContent = "Fetch Lesson Plan";
+                btn.textContent = "Fetch weekly Plan";
                 return;
             }
 
@@ -401,7 +401,7 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
         } catch (err) {
             showFloatingMessage("❌ Network error.");
             btn.disabled = false;
-            btn.textContent = "Fetch Lesson Plan";
+            btn.textContent = "Fetch weekly Plan";
         }
     });
 
@@ -652,7 +652,7 @@ doc.text(
     const today = new Date().toISOString().split("T")[0];
 
     // ✅ SAVE WITH DATE
-    doc.save(`Weekly_Plan_Landscape_${today}.pdf`);
+    doc.save(`Weekly_Plan_${today}.pdf`);
 }
 </script>    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
