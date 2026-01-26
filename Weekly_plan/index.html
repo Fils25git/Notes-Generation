@@ -375,7 +375,7 @@ function showFloatingMessage(msg) {
 document.getElementById("lessonForm").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const btn = document.querySelectorAll(".generate-btn");
+        const btn = document.querySelector(".generate-btn");
         btn.disabled = true;
         btn.textContent = "Fetching...";
 
@@ -569,6 +569,18 @@ function downloadPDFProper() {
     }
 
     // ===== FIRST TABLE =====
+    const firstTable = tables[0];
+const schoolName = document.getElementById("schoolName").value;
+const teacherName = document.getElementById("teacherName").value;
+const dateRange = document.getElementById("date").value + " - " + document.getElementById("toDate").value;
+
+// Insert a row at the top of table
+const headerRow = firstTable.insertRow(0);
+const headerCell = headerRow.insertCell(0);
+headerCell.colSpan = firstTable.rows[1].cells.length; // span all columns
+headerCell.innerText = `School: ${schoolName} | Teacher: ${teacherName} | Date: ${dateRange}`;
+headerCell.style.fontWeight = "bold";
+headerCell.style.textAlign = "center";
     const first = extractTable(tables[0]);
 
     doc.autoTable({
@@ -623,7 +635,10 @@ function downloadPDFProper() {
                 lineWidth: 0.1
             },
             headStyles: {
-                fillColor: [230, 230, 230]
+    fillColor: [245, 245, 245], // very light gray
+    textColor: 0,
+    fontStyle: "bold"
+    
             },
             margin: { left: 8, right: 8 },
             pageBreak: "auto",
