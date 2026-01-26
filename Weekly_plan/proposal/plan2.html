@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imbata nkomatanyo y'icyumweru</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 10px;
+        }
+        .container {
+            max-width: 650px;
+            margin: auto;
+            padding: 10px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        table {
+            width: 100%;
+        }
+        th, td {
+            padding: 4px;
+            vertical-align: top;
+        }
+        .time {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        ul {
+            margin: 3px 0;
+            padding-left: 18px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+<!-- ================= GENERAL INFORMATION ================= -->
+<table>
+    <tr>
+        <th>Itariki</th>
+        <th>Igihembwe</th>
+        <th>Ikiciro</th>
+        <th>Umwaka</th>
+        <th>Umubare w’abana</th>
+        <th>Insanganyamatsiko Nini</th>
+        <th>Insanganyamatsiko Nto</th>
+        <th>Abanyeshuri bafite ibyo bagenerwa byihariye</th>
+    </tr>
+    <tr>
+        <td>{{date}} – {{toDate}}</td>
+        <td>{{term}}</td>
+        <td>{{level}}</td>
+        <td>{{year}}</td>
+        <td>{{childrensNumber}}</td>
+        <td>{{mainTopic}}</td>
+        <td>{{subTopic}}</td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+</table>
+
+<br>
+
+<!-- ================= DAILY ACTIVITIES ================= -->
+<table>
+<thead>
+<tr>
+    <th>Igihe</th>
+    <th>Igikorwa</th>
+    <th>Ikigwa</th>
+    <th>Ibindi byigwa</th>
+    <th>Intego zigamijwe</th>
+    <th>Ibikorwa by’umurezi</th>
+    <th>Ibikorwa by’abana</th>
+    <th>Imfashanyigisho</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td class="time">7:45–8:00</td>
+<td>Guhana ikaze</td>
+<td>{{ikigwa_0745}}</td>
+<td>{{ibindi_byigwa_0745}}</td>
+<td>
+Gufasha abana kwinjira mu myigire bifashishije amagambo, indirimbo n’imikino ijyanye na
+{{ikigwa_0745}} na {{ibindi_byigwa_0745}} bikubiye mu {{subTopic}}.
+</td>
+<td>
+<ul>
+<li>Kwakira abana mu mutekano</li>
+<li>Kuganiriza abana ku ngingo z’umunsi</li>
+<li>Gutangira indirimbo y’ikaze</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Kwitaba indamutso</li>
+<li>Kuganira n’abandi bana</li>
+<li>Kuririmba no gukina imikino migufi</li>
+</ul>
+</td>
+<td>Indirimbo, amashusho</td>
+</tr>
+
+<tr>
+<td class="time">8:00–8:30</td>
+<td>Imibare</td>
+<td>{{ikigwa_0800}}</td>
+<td>{{ibindi_byigwa_0800}}</td>
+<td>
+Guteza imbere ubushobozi bwo kubara no gukoresha imibare ijyanye na
+{{ikigwa_0800}} na {{ibindi_byigwa_0800}}.
+</td>
+<td>
+<ul>
+<li>Gukoresha ibikoresho bifatika</li>
+<li>Gutoza kubara no gusoma imibare</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Kubara ibintu</li>
+<li>Gukora imyitozo yoroheje</li>
+</ul>
+</td>
+<td>Udukoresho two kubara</td>
+</tr>
+
+<tr>
+<td class="time">8:30–9:00</td>
+<td>Ubumenyi bw’ibidukikije</td>
+<td>{{ikigwa_0830}}</td>
+<td>{{ibindi_byigwa_0830}}</td>
+<td>
+Kwigira ku bintu biri hafi yabo no kubifata neza hifashishijwe
+{{ikigwa_0830}}.
+</td>
+<td>
+<ul>
+<li>Kwereka amashusho cyangwa ibintu bifatika</li>
+<li>Kubaza ibibazo byoroheje</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Kwitegereza</li>
+<li>Gutanga ibisubizo</li>
+</ul>
+</td>
+<td>Amashusho, ibintu bifatika</td>
+</tr>
+
+<tr>
+<td class="time">9:00–9:30</td>
+<td>Ikinyarwanda</td>
+<td>{{ikigwa_0900}}</td>
+<td>{{ibindi_byigwa_0900}}</td>
+<td>
+Gukoresha amagambo n’interuro ngufi mu biganiro byoroheje bijyanye na
+{{ikigwa_0900}}.
+</td>
+<td>
+<ul>
+<li>Kubara inkuru ngufi</li>
+<li>Kwigisha amagambo mashya</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Kumva no gusubiramo amagambo</li>
+<li>Kuvuga interuro ngufi</li>
+</ul>
+</td>
+<td>Ibitabo, amakarita</td>
+</tr>
+
+<tr>
+<td class="time">9:30–10:00</td>
+<td>English Oral Communication</td>
+<td>{{ikigwa_0930}}</td>
+<td>{{ibindi_byigwa_0930}}</td>
+<td>
+To enable learners to use simple English words related to
+{{ikigwa_0930}} in oral communication.
+</td>
+<td>
+<ul>
+<li>Showing pictures</li>
+<li>Pronouncing words clearly</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Repeating words</li>
+<li>Naming objects</li>
+</ul>
+</td>
+<td>Flashcards</td>
+</tr>
+
+<tr>
+<td class="time">10:00–10:40</td>
+<td colspan="8" style="text-align:center;font-weight:bold;">
+AKARUHUKO
+</td>
+</tr>
+
+<tr>
+<td class="time">10:40–11:00</td>
+<td>Imikino yo hanze</td>
+<td>{{ikigwa_1040}}</td>
+<td>{{ibindi_byigwa_1040}}</td>
+<td>
+Guteza imbere imikurire y’umubiri n’imibanire myiza binyuze mu mikino.
+</td>
+<td>
+<ul>
+<li>Gushyiraho amategeko y’umukino</li>
+<li>Kugenzura umutekano</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Gukina no gukorana n’abandi</li>
+</ul>
+</td>
+<td>Ibikoresho by’imikino</td>
+</tr>
+
+<tr>
+<td class="time">11:00–11:20</td>
+<td>Ubugeni n’umuco</td>
+<td>{{ikigwa_1100}}</td>
+<td>{{ibindi_byigwa_1100}}</td>
+<td>
+Gukoresha ubugeni mu kugaragaza ibitekerezo bijyanye na
+{{ikigwa_1100}}.
+</td>
+<td>
+<ul>
+<li>Gutanga amabwiriza</li>
+<li>Gutanga urugero</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Gushushanya cyangwa kuririmba</li>
+</ul>
+</td>
+<td>Impapuro, amabara</td>
+</tr>
+
+<tr>
+<td class="time">11:20–11:40</td>
+<td>Imikino yo mu nguni</td>
+<td>{{ikigwa_1120}}</td>
+<td>{{ibindi_byigwa_1120}}</td>
+<td>
+Gukomeza imyigire binyuze mu mikino itandukanye yo mu nguni.
+</td>
+<td>
+<ul>
+<li>Gutegura inguni zitandukanye</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Gukina mu nguni bahisemo</li>
+</ul>
+</td>
+<td>Ibitabo, amakarita</td>
+</tr>
+
+<tr>
+<td class="time">11:40–12:00</td>
+<td>Gusezeranaho</td>
+<td>{{ikigwa_1140}}</td>
+<td>{{ibindi_byigwa_1140}}</td>
+<td>
+Gusoza umunsi mu mutekano no mu byishimo.
+</td>
+<td>
+<ul>
+<li>Gutegura abana gutaha</li>
+<li>Kureba ko bose biteguye neza</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Gusezeranaho</li>
+<li>Gutaha mu mutekano</li>
+</ul>
+</td>
+<td>Nta mfashanyigisho</td>
+</tr>
+
+</tbody>
+</table>
+
+</div>
+</body>
+      </html>
