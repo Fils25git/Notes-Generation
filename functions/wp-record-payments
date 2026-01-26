@@ -1,0 +1,102 @@
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.NEON_DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // required for Neon
+});
+
+export async function handler(event) {
+  try {
+    const method = event.httpMethod;
+
+    /* ===============================
+       POST: Record pending weekly plan payment
+    =============================== */
+    if (method === 'POST') {
+      const { phone, email, amount_rwf, plans_purchased } = JSON.parse(event.body || '{}');
+
+      if (!phone || !amount_rwf || !plans_purchased) {
+        return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Missing required fields' }) };
+      }
+
+      // 1️⃣ Get user by phone or email
+      let userRes = await pool.query(
+        'SELECT id FROM users WHERE phone=$1 OR email=$2',
+        [phone, email || null]
+      );
+
+      let userId;
+      if (userRes.rows.length > 0) {
+        userId = userRes.rows[0].id;
+      } else {
+        // Create user if not exists
+        const newUser = await pool.query(
+          'INSERT INTO users(phone, email) VALUES($1, $2) RETURNING id',
+          [phone, email || null]
+        );
+        userId = newUser.rows[0].id;
+      }
+
+      // 2️⃣ Insert pending payment into weekly_plan_payments
+      const reference = 'WP' + Date.now();
+
+      await pool.query(
+        `INSERT INTO weekly_plan_payments(
+            user_id,
+            amount_rwf,
+            plans_purchased,
+            payment_status,
+            payment_reference,
+            payment_method,
+            payment_date,
+            confirmed_by_user,
+            created_at,
+            updated_at
+          )
+          VALUES($1, $2, $3, 'pending', $4, 'momo', NOW(), FALSE, NOW(), NOW())`,
+        [userId, amount_rwf, plans_purchased, reference]
+      );
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          message: 'Weekly plan payment recorded as pending.',
+          reference
+        })
+      };
+    }
+
+    /* ===============================
+       GET: Fetch all pending weekly plan payments
+    =============================== */
+    else if (method === 'GET') {
+      const res = await pool.query(
+        `SELECT wp.id, wp.user_id, u.phone, u.email, wp.amount_rwf, wp.plans_purchased, wp.payment_status, wp.payment_reference, wp.payment_date, wp.confirmed_by_user
+         FROM weekly_plan_payments wp
+         JOIN users u ON u.id = wp.user_id
+         WHERE wp.payment_status='pending'
+         ORDER BY wp.payment_date DESC`
+      );
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          pendingPayments: res.rows
+        })
+      };
+    }
+
+    /* ===============================
+       Other methods not allowed
+    =============================== */
+    else {
+      return { statusCode: 405, body: JSON.stringify({ success: false, message: 'Method not allowed' }) };
+    }
+
+  } catch (err) {
+    console.error('weekly_plan_payment error:', err);
+    return { statusCode: 500, body: JSON.stringify({ success: false, message: 'Server error: ' + err.message }) };
+  }
+}
