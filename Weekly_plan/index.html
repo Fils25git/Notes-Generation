@@ -187,7 +187,7 @@
                 </div>
     
                 <div class="form-group">
-<label class="required" class="required">Level</label>
+<label class="required" class="required">Ikiciro/Level</label>
 <input type="text" id="level" placeholder="e.g. N1, N3A" required>
                 </div>
     
@@ -197,7 +197,7 @@
                 </div>
     
                 <div class="form-group">
-<label class="required">Number of Children</label>
+<label class="required">Umubare w'abanyeshuri/Number of learners</label>
 <input type="number" id="childrensNumber" required>
                 </div>
     
@@ -333,7 +333,7 @@
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
             <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
-            <button class="download-btn btn-pdf" onclick="downloadPDFProper()">📑 Save as PDF</button>
+            <button class="download-btn btn-pdf" onclick="downloadPDFProper()">📑 Download PDF</button>
     <button id="editBtn" Class="download-btn">✏️ Edit</button>
     <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
             
@@ -419,9 +419,10 @@ function generateWeeklyPlan() {
     year: year.value,
     childrensNumber: childrensNumber.value,
     mainTopic: mainTopic.value,
+      mainTopicEng:mainTopicEng.value,
     subTopic: subTopic.value,
     subTopicEng: subTopicEng.value,
-    specialNeeds: specialNeeds.value || "Nta bibazo byihariye byagaragaye",
+    specialNeeds: specialNeeds.value || "Nta bana bafite ibibazo",
 
     ikigwa_0745: ikigwa_0745.value,
     ibindi_byigwa_0745: ibindi_byigwa_0745.value,
@@ -531,6 +532,20 @@ function downloadPDFProper() {
 
     doc.setFontSize(14);
     doc.text("WEEKLY PLAN", pageWidth / 2, 12, { align: "center" });
+    doc.setFontSize(10);
+
+doc.text(
+  `AMAZINA Y'UMUREZI: ${teacherName}`,
+  14,
+  18
+);
+
+doc.text(
+  `IZINA RY'ISHURI: ${schoolName}`,
+  pageWidth - 14,
+  18,
+  { align: "right" }
+);
 
     const tables = document.querySelectorAll("#lessonPlanContent table");
     if (tables.length === 0) {
@@ -569,18 +584,6 @@ function downloadPDFProper() {
     }
 
     // ===== FIRST TABLE =====
-    const firstTable = tables[0];
-const schoolName = document.getElementById("schoolName").value;
-const teacherName = document.getElementById("teacherName").value;
-const dateRange = document.getElementById("date").value + " - " + document.getElementById("toDate").value;
-
-// Insert a row at the top of table
-const headerRow = firstTable.insertRow(0);
-const headerCell = headerRow.insertCell(0);
-headerCell.colSpan = firstTable.rows[1].cells.length; // span all columns
-headerCell.innerText = `School: ${schoolName} | Teacher: ${teacherName} | Date: ${dateRange}`;
-headerCell.style.fontWeight = "bold";
-headerCell.style.textAlign = "center";
     const first = extractTable(tables[0]);
 
     doc.autoTable({
