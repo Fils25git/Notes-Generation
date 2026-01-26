@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imbata nkomatanyo y'icyumweru</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 10px;
+        }
+        .container {
+            max-width: 650px;
+            margin: auto;
+            padding: 10px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        table {
+            width: 100%;
+        }
+        th, td {
+            padding: 4px;
+            vertical-align: top;
+        }
+        .time {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        ul {
+            margin: 3px 0;
+            padding-left: 18px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+<!-- ================= GENERAL INFORMATION ================= -->
+<table>
+<tr>
+    <th>Itariki</th>
+    <th>Igihembwe</th>
+    <th>Ikiciro</th>
+    <th>Umwaka</th>
+    <th>Umubare w’abana</th>
+    <th>Insanganyamatsiko Nini</th>
+    <th>Insanganyamatsiko Nto</th>
+    <th>Abanyeshuri bafite ibyo bagenerwa byihariye</th>
+</tr>
+<tr>
+    <td>{{date}} – {{toDate}}</td>
+    <td>{{term}}</td>
+    <td>{{level}}</td>
+    <td>{{year}}</td>
+    <td>{{childrensNumber}}</td>
+    <td>{{mainTopic}}</td>
+    <td>{{subTopic}}</td>
+    <td>{{specialNeeds}}</td>
+</tr>
+</table>
+
+<br>
+<table class="schedule-table">
+<thead>
+    <tr>
+        <th rowspan="2">Igihe</th>
+        <th rowspan="2">Ubwoko bw'igikorwa</th>
+        <th rowspan="2">Ikigwa</th>
+        <th rowspan="2">Ibindi byigwa</th>
+        <th rowspan="2">Intego zigamijwe</th>
+        <th rowspan="2">Ibikorwa by'umurezi</th>
+        <th rowspan="2">Ibikorwa by'abana</th>
+        <th rowspan="2">Imfashanyigisho</th>
+    </tr>
+</thead>
+
+<tbody>
+
+<!-- ===================================================== -->
+<!-- INTRODUCTION -->
+<tr>
+    <td class="time-slot">7:45 - 8:00</td>
+    <td class="activity-type">Guhana ikaze</td>
+    <td>{{ikigwa_0745}}</td>
+    <td>{{ibindi_byigwa_0745}}</td>
+    <td>
+        Kwakira abana no kubategura mu buryo bw’ibitekerezo ku bijyanye na {{subTopic}} na {{mainTopic}}.
+    </td>
+    <td>
+        <ul>
+            <li>Gusuhuza abana no kugenzura ko biteguye kwiga</li>
+            <li>Kuganiriza ku byo bize ku {{subTopic}} bijyanye na {{mainTopic}}</li>
+            <li>Kuyobora indirimbo y’ikaze ishingiye ku {{ikigwa_0745}}</li>
+        </ul>
+    </td>
+    <td>
+        <ul>
+            <li>Gusubiza mu buryo bwiza ku masuhuza</li>
+            <li>Kuganira ku byo bamenye ku {{subTopic}}</li>
+            <li>Kuririmba indirimbo y’ikaze</li>
+        </ul>
+    </td>
+    <td>
+        Indirimbo y’ikaze, amashusho, ibikoresho byo kwerekana {{subTopic}}
+    </td>
+</tr>
+
+<!-- ===================================================== -->
+<!-- IMIBARE / MATHEMATICS -->
+<tr>
+    <td class="time-slot">8:00 - 8:30</td>
+    <td class="activity-type">Imibare</td>
+    <td>{{ikigwa_0800}}</td>
+    <td>{{ibindi_byigwa_0800}}</td>
+    <td>
+        Kumenya no gukoresha imibare ijyanye na {{ikigwa_0800}} n’{{ibindi_byigwa_0800}}, bifitanye isano na {{subTopic}} mu {{mainTopic}}.
+    </td>
+    <td>
+        <ul>
+            <li>Kwereka amashusho n’ibikoresho bifatika bya {{ikigwa_0800}}</li>
+            <li>Gusobanura uburyo bwo kubara bijyanye na {{ibindi_byigwa_0800}}</li>
+            <li>Kuyobora imyitozo yo kwandika imibare</li>
+        </ul>
+    </td>
+    <td>
+        <ul>
+            <li>Gukora imyitozo yo kubara</li>
+            <li>Gusoma imibare bayobowe na mwarimu</li>
+            <li>Kwiga kwandika imibare neza</li>
+        </ul>
+    </td>
+    <td>
+        Amashusho, udukoresho, amakarita y’imibare
+    </td>
+</tr>
+
+<!-- ===================================================== -->
+<!-- UBUMENYI BW'IBIDUKIKIJE / ENVIRONMENT -->
+<tr>
+    <td class="time-slot">8:30 - 9:00</td>
+    <td class="activity-type">Ubumenyi bw'Ibidukikije</td>
+    <td>{{ikigwa_0830}}</td>
+    <td>{{ibindi_byigwa_0830}}</td>
+    <td>
+        Kumenya, gusobanura no gufata neza {{ikigwa_0830}} n’{{ibindi_byigwa_0830}} bijyanye na {{subTopic}} mu {{mainTopic}}.
+    </td>
+    <td>
+        <ul>
+            <li>Kwereka abana ibintu bifatika cyangwa amashusho ya {{ikigwa_0830}}</li>
+            <li>Gusobanura akamaro ka {{subTopic}} mu buzima bwa buri munsi</li>
+            <li>Gutoza uburyo bwo kwita ku bidukikije</li>
+        </ul>
+    </td>
+    <td>
+        <ul>
+            <li>Kwitegereza no gusobanura ibintu</li>
+            <li>Gusubiza ibibazo bya mwarimu</li>
+            <li>Kwerekana uko bafata neza {{ibindi_byigwa_0830}}</li>
+        </ul>
+    </td>
+    <td>
+        Amashusho, ibintu bifatika, ibikoresho byo kwerekana
+    </td>
+</tr>
+
+<!-- ===================================================== -->
+<!-- IKINYARWANDA -->
+<tr>
+    <td class="time-slot">9:00 - 9:30</td>
+    <td class="activity-type">Ikinyarwanda</td>
+    <td>{{ikigwa_0900}}</td>
+    <td>{{ibindi_byigwa_0900}}</td>
+    <td>
+        Gukoresha amagambo, interuro ngufi no gusoma ku bijyanye na {{ikigwa_0900}} n’{{ibindi_byigwa_0900}}, bihujwe na {{subTopic}} mu {{mainTopic}}.
+    </td>
+    <td>
+        <ul>
+            <li>Kwereka abana inkuru cyangwa amagambo ajyanye na {{ikigwa_0900}}</li>
+            <li>Gusobanura uburyo bwo gukoresha interuro</li>
+            <li>Gukora imyitozo yo gusoma no kwandika</li>
+        </ul>
+    </td>
+    <td>
+        <ul>
+            <li>Kumva inkuru no kuyisubiramo</li>
+            <li>Kuvuga interuro ngufi zifitanye isano na {{subTopic}}</li>
+            <li>Gusoma no kwandika amagambo mashya</li>
+        </ul>
+    </td>
+    <td>
+        Ibitabo by’inkuru, amashusho, amakarita y’amagambo
+    </td>
+</tr>
+
+<!-- ===================================================== -->
+<!-- ENGLISH ORAL COMMUNICATION -->
+<tr>
+    <td class="time-slot">9:30 - 10:00</td>
+    <td class="activity-type">English Oral Communication</td>
+    <td>{{ikigwa_0930}}</td>
+    <td>{{ibindi_byigwa_0930}}</td>
+    <td>
+        Kumenya amazina, gusobanura no kuvuga ku {{ikigwa_0930}} n’{{ibindi_byigwa_0930}}, bihujwe na {{subTopicEng}} mu {{mainTopicEng}}.
+    </td>
+    <td>
+        <ul>
+            <li>Kwereka amashusho n’ibikoresho</li>
+            <li>Kwigisha amagambo y’ibanze mu Cyongereza</li>
+            <li>Gutoza interuro ngufi ku {{ibindi_byigwa_0930}}</li>
+        </ul>
+    </td>
+    <td>
+        <ul>
+            <li>Kumva no gusubiramo amagambo</li>
+            <li>Gukoresha interuro ngufi</li>
+            <li>Kuvuga amazina y’ibintu</li>
+        </ul>
+    </td>
+    <td>
+        Pictures, flashcards, word cards
+    </td>
+</tr>
+
+<!-- ===================================================== -->
+<!-- AKARUHUKO -->
+<tr>
+    <td class="time-slot">10:00 - 10:40</td>
+    <td colspan="8" style="text-align:center; font-weight:bold; font-size:18px;">
+        AKARUHUKO / BREAK
+    </td>
+</tr>
+
+<!-- ===================================================== -->
+<!-- OUTDOOR GAMES -->
+<tr>
+    <td class="time-slot">10:40 - 11:00</td>
+    <td class="activity-type">Imikino yo hanze</td>
+    <td>{{ikigwa_1040}}</td>
+    <td>{{ibindi_byigwa_1040}}</td>
+    <td>
+        Gukina imikino ijyanye na {{ikigwa_1040}} n’{{ibindi_byigwa_1040}} bifasha gufatanya no kumva {{subTopic}} mu {{mainTopic}}.
+    </td>
+    <td>
+        <ul>
+            <li>Kwerekana imikino ijyanye na {{ikigwa_1040}}</li>
+            <li>Gusobanura amategeko</li>
+            <li>Gutoza gukorana neza n’abandi</li>
+        </ul>
+    </td>
+    <td>
+        <ul>
+            <li>Kwitabira imikino</li>
+            <li>Gukurikiza amategeko y’umukino</li>
+            <li>Gukorana n’abandi</li>
+        </ul>
+    </td>
+    <td>
+        Ibikoresho by’imikino yo hanze
+    </td>
+</tr>
+
+<!-- ===================================================== -->
+<!-- ARTS AND CULTURE -->
+<tr>
+    <td class="time-slot">11:00 - 11:20</td>
+    <td class="activity-type">Ubugeni n'umuco</td>
+  <td>{{ikigwa_1100}}</td>
+    <td>{{ibindi_byigwa_1100}}</td>
+    <td>
+        Gukora ibikorwa by’ubugeni n’umuziki bijyanye na {{ikigwa_1100}} n’{{ibindi_byigwa_1100}}, bifitanye isano na {{subTopic}} mu {{mainTopic}}.
+    </td>
+    <td>
+        <ul>
+            <li>Kwereka urugero rw’ishusho cyangwa indirimbo</li>
+            <li>Gusobanura uburyo bwo gukora igikorwa</li>
+            <li>Gutoza kugaragaza ibyo bakoze</li>
+        </ul>
+    </td>
+    <td>
+        <ul>
+            <li>Gukora igikorwa cy’ubugeni</li>
+            <li>Kuririmba indirimbo</li>
+            <li>Kwerekana ibyo bakoze</li>
+        </ul>
+    </td>
+    <td>
+        Impapuro, amakaramu, amabara, amashusho y’{{subTopic}}
+    </td>
+</tr>
+
+<!-- ===================================================== -->
+<!-- INDOOR GAMES -->
+<tr>
+    <td class="time-slot">11:20 - 11:40</td>
+    <td class="activity-type">Imikino yo mu nguni / Indoor Games</td>
+    <td>{{ikigwa_1120}}</td>
+    <td>{{ibindi_byigwa_1120}}</td>
+    <td>
+        Gukomeza kwiga {{ikigwa_1120}} n’{{ibindi_byigwa_1120}} binyuze mu mikino yo mu nguni, bifitanye isano na {{subTopic}} mu {{mainTopic}}.
+    </td>
+    <td>
+        <ul>
+            <li>Gusomera abana ibitabo cyangwa gukoresha udukoresho</li>
+            <li>Kuyobora imikino y’inyandiko n’imibare</li>
+        </ul>
+    </td>
+    <td>
+        <ul>
+            <li>Kwitabira imikino yose</li>
+            <li>Gukora imyitozo bayobowe na mwarimu</li>
+        </ul>
+    </td>
+    <td>
+        Ibitabo, amakarita y’imikino, udukoresho
+    </td>
+</tr>
+
+<!-- ===================================================== -->
+<!-- CLOSING TIME / GUSEZERANAHO -->
+<tr>
+    <td class="time-slot">11:40 - 12:00</td>
+    <td class="activity-type">Gusezeranaho / Closing time</td>
+    <td>{{ikigwa_1140}}</td>
+    <td>{{ibindi_byigwa_1140}}</td>
+    <td>
+        Gukomeza no gushimangira ibisubizo by’imyigire bijyanye na {{ikigwa_1140}} n’{{ibindi_byigwa_1140}}, bigahuzwa n’{{subTopic}} mu {{mainTopic}}.
+    </td>
+    <td>
+        <ul>
+            <li>Gutoranya igikorwa cyo gusezeranaho gishingiye ku byo abana bize</li>
+            <li>Kubaza abana ibibazo bijyanye na {{subTopic}}</li>
+            <li>Kuyobora igikorwa cyo gusoza gihuye n’insanganyamatsiko nini {{mainTopic}}</li>
+        </ul>
+    </td>
+    <td>
+        <ul>
+            <li>Kuvuga cyangwa kugaragaza ibyo bungutse bijyanye na {{ikigwa_1140}}</li>
+            <li>Kwitabira igikorwa cyo gusoza</li>
+            <li>Gusezeranaho mu bwubahane no mu mutekano</li>
+        </ul>
+    </td>
+    <td>
+        Amashusho, Indirimbo
+    </td>
+</tr>
+
+</tbody>
+  </table>
+</body>
+  </html>
