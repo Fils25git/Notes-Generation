@@ -235,19 +235,25 @@ function generateUSSD(amount){ return USSD_BASE + amount + "%23"; } // encoded #
 // --- Fetch current balance ---
 async function refreshBalance() {
     const identifier = userEmail || userPhone;
-    try {
-        const url = identifier.includes('@') 
-            ? `/.netlify/functions/wp-get-balance?email=${identifier}` 
-            : `/.netlify/functions/wp-get-balance?phone=${identifier}`;
 
-        const res = await fetch(url);
+    try {
+        const res = await fetch('/.netlify/functions/wp-get-balance', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: identifier.includes('@') ? identifier : null,
+                phone: identifier.includes('@') ? null : identifier
+            })
+        });
+
         if (!res.ok) throw new Error("Failed to fetch balance");
+
         const data = await res.json();
 
-        // Use weeklyBalance instead of balance
-        currentBalanceEl.innerText = `${data.weeklyBalance} weekly plan${data.weeklyBalance === 1 ? '' : 's'}`;
+        currentBalanceEl.innerText =
+            `${data.weeklyBalance} weekly plan${data.weeklyBalance === 1 ? '' : 's'}`;
 
-    } catch(err){
+    } catch (err) {
         console.error("Error refreshing balance:", err);
         currentBalanceEl.innerText = "Error loading";
     }
