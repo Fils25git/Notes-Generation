@@ -50,7 +50,7 @@ export async function handler(event) {
     =============================== */
     const purchasedRes = await client.query(
       `SELECT COALESCE(SUM(lessons), 0) AS total_purchased
-       FROM payments
+       FROM weekly_plan_payments
        WHERE user_id=$1 AND status='approved'`,
       [userId]
     );
