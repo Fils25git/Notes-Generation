@@ -5,28 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fila Assistant Balance Dashboard</title>
 
-  <meta property="og:type" content="website" />
+<meta property="og:type" content="website" />
 <meta property="og:title" content="Fila Assistant" />
-<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
+<meta property="og:description" content="Fila Assistant is an educational website that offers lesson plans and study guides" />
 <meta property="og:image" content="https://www.fleduacademy.com/logo.png" />
 <meta property="og:url" content="https://www.fleduacademy.com" />
-  
-  
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <style>
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #6dd5fa, #2980b9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    color: #333;
-    position: relative;
-  }
-
-  .back-btn {
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #6dd5fa, #2980b9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+    .back-btn {
     position: absolute;
     top: 20px;
     left: 20px;
@@ -37,128 +31,132 @@
     cursor: pointer;
     border: none;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  }
+    }
 
-  .dashboard {
-    background: #fff;
-    padding: 30px 40px;
-    border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    text-align: center;
-    width: 100%;
-    max-width: 450px;
-  }
+.dashboard {
+  background: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  text-align: center;
+}
 
-  h2 {
-    margin-bottom: 20px;
-  }
+.balance-box {
+  margin: 15px 0 solid black;
+  font-size: 20px;
+  font-weight: bold;
+}
 
-  #balance {
-    font-size: 24px;
-    font-weight: bold;
-    margin-top: 15px;
-  }
-
-  #explanation {
-    margin-top: 18px;
-    font-size: 15px;
-    line-height: 1.5;
-    color: #444;
-  }
-
-  .buy-btn {
-    display: inline-block;
-    margin-top: 22px;
-    padding: 12px 20px;
-    border-radius: 12px;
-    background: linear-gradient(to right, #007bff, #00c6ff);
-    color: #fff;
-    font-size: 16px;
-    text-decoration: none;
-    cursor: pointer;
-  }
+.buy-btn {
+  margin-top: 20px;
+  display: inline-block;
+  padding: 12px 20px;
+  background: linear-gradient(to right, #007bff, #00c6ff);
+  color: #fff;
+  border-radius: 12px;
+  text-decoration: none;
+}
 </style>
 </head>
-<body>
 
+<body>
 <button class="back-btn" onclick="window.location.href='index.html'">⬅ Back</button>
 
 <div class="dashboard">
-  <h2>Your Dashboard</h2>
+  <h2> Here is Your Balance Dashboard</h2>
 
-  <p id="user-info">Loading user info...</p>
-  
-  <p id="balance">Loading balance...</p>
+  <p id="user-info">Loading user...</p>
 
-  <p id="explanation">
-    You can buy more lesson plans below.
+  <div id="lesson-balance" class="balance-box">
+    Loading lesson plans...
+  </div>
+
+  <div id="weekly-balance" class="balance-box">
+    Loading weekly plans...
+  </div>
+<p id="explanation">
+    You can buy more lesson plans or weekly plans below.
     
   </p>
 
   <a href="payment.html" class="buy-btn">
     Buy More Lesson Plans
-  </a><br> <br>
+  </a><br> 
+  
+  <a href="wp-payment.html" class="buy-btn">
+    📅 Buy More weekly Plans
+  </a>
+  <br>
   Do You have a problem? contact Us: via <br>
   WhatsApp:<b>+250786728623</b><br>
   Call: <b>0786728623</b>
 </div>
+
 <script>
-// ✅ JWT-based login check
+// 🔐 AUTH CHECK
 const token = localStorage.getItem("auth_token");
 const userEmail = localStorage.getItem("user_email");
 
-if (!token) {
-    // Not logged in → redirect
-    window.location.href = "index.html";
+if (!token || !userEmail) {
+  window.location.href = "index.html";
 }
 
-// Extract first name from email
+// 👋 NAME
 function getFirstName(email) {
-    return email?.split("@")[0] || "there";
+  return email.split("@")[0];
 }
 
-// Fetch balance ONLY
-async function fetchBalance(identifier) {
-  try {
-    const isEmail = identifier.includes("@");
-    const url = isEmail
-      ? `/.netlify/functions/get-balance?email=${identifier}`
-      : `/.netlify/functions/get-balance?phone=${identifier}`;
+document.getElementById("user-info").innerText =
+  `Hello ${getFirstName(userEmail)}`;
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch balance");
+// 📘 LESSON PLAN BALANCE
+async function fetchLessonBalance(email) {
+  try {
+    const res = await fetch(
+      `/.netlify/functions/get-balance?email=${encodeURIComponent(email)}`
+    );
+
+    if (!res.ok) throw new Error("Lesson fetch failed");
 
     const data = await res.json();
 
-    document.getElementById('balance').innerText =
-      `Available: ${data.balance} lesson plan${data.balance === 1 ? '' : 's'}`;
+    document.getElementById("lesson-balance").innerText =
+      `Lesson Plans: ${data.balance}`;
+
   } catch (err) {
-    document.getElementById('balance').innerText = 'Error loading balance';
+    document.getElementById("lesson-balance").innerText =
+      "Failed to load lesson plans";
     console.error(err);
   }
 }
 
-function updateBalance() {
-    if (!userEmail) {
-        document.getElementById('user-info').innerText =
-          'Please log in to see your balance';
-        document.getElementById('balance').innerText = '';
-        return;
-    }
+// 📅 WEEKLY PLAN BALANCE
+async function fetchWeeklyBalance(email) {
+  try {
+    const res = await fetch(
+      `/.netlify/functions/wp-get-balance?email=${encodeURIComponent(email)}`
+    );
 
-    // Greeting from email
-    const firstName = getFirstName(userEmail);
-    document.getElementById('user-info').innerText = `Hello ${firstName}`;
+    if (!res.ok) throw new Error("Weekly fetch failed");
 
-    // Balance from backend
-    fetchBalance(userEmail);
+    const data = await res.json();
+
+    document.getElementById("weekly-balance").innerText =
+      `Weekly Plans: ${data.weeklyBalance}`;
+
+  } catch (err) {
+    document.getElementById("weekly-balance").innerText =
+      "Failed to load weekly plans";
+    console.error(err);
+  }
 }
 
-// Run once on page load
-updateBalance();
-
-// Optional polling (safe)
-setInterval(updateBalance, 10000);
+// 🚀 LOAD BOTH
+fetchLessonBalance(userEmail);
+fetchWeeklyBalance(userEmail);
 </script>
+
 </body>
 </html>
