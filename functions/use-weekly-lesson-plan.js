@@ -61,7 +61,7 @@ export async function handler(event) {
     // ===============================
     const usedRes = await client.query(
       `SELECT COALESCE(SUM(lessons_used), 0) AS total_used
-       FROM "weeklyP_lesson_usage"
+       FROM "weekly_p_lesson_usage"
        WHERE user_id=$1`,
       [userId]
     );
@@ -89,7 +89,7 @@ export async function handler(event) {
     // 5️⃣ DEDUCT ONE WEEKLY LESSON PLAN
     // ===============================
     await client.query(
-      `INSERT INTO "weeklyP_lesson_usage" (user_id, lessons_used, used_at)
+      `INSERT INTO "weekly_p_lesson_usage" (user_id, lessons_used, used_at)
        VALUES ($1, 1, NOW())`,
       [userId]
     );
