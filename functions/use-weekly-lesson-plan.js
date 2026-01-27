@@ -25,15 +25,14 @@ export async function handler(event) {
   try {
     await client.connect();
 
-    /* ===============================
-       1️⃣ FIND USER
-    =============================== */
-    const userRes = await client.query(
-      email
-        ? "SELECT id FROM users WHERE email=$1"
-        : "SELECT id FROM users WHERE phone=$1",
-      [email || phone]
-    );
+    // ===============================
+    // 1️⃣ FIND USER
+    // ===============================
+    const userQuery = email
+      ? 'SELECT id FROM "users" WHERE email=$1'
+      : 'SELECT id FROM "users" WHERE phone=$1';
+
+    const userRes = await client.query(userQuery, [email || phone]);
 
     if (userRes.rows.length === 0) {
       await client.end();
@@ -45,33 +44,33 @@ export async function handler(event) {
 
     const userId = userRes.rows[0].id;
 
-    /* ===============================
-       2️⃣ TOTAL PURCHASED WEEKLY LESSON PLANS
-    =============================== */
+    // ===============================
+    // 2️⃣ TOTAL PURCHASED WEEKLY LESSON PLANS
+    // ===============================
     const purchasedRes = await client.query(
       `SELECT COALESCE(SUM(lessons), 0) AS total_purchased
-       FROM weekly_plan_payments
+       FROM "weekly_plan_payments"
        WHERE user_id=$1 AND status='approved'`,
       [userId]
     );
 
     const totalPurchased = parseInt(purchasedRes.rows[0].total_purchased, 10);
 
-    /* ===============================
-       3️⃣ TOTAL USED WEEKLY LESSON PLANS
-    =============================== */
+    // ===============================
+    // 3️⃣ TOTAL USED WEEKLY LESSON PLANS
+    // ===============================
     const usedRes = await client.query(
       `SELECT COALESCE(SUM(lessons_used), 0) AS total_used
-       FROM weeklyP_lesson_usage
+       FROM "weeklyP_lesson_usage"
        WHERE user_id=$1`,
       [userId]
     );
 
     const totalUsed = parseInt(usedRes.rows[0].total_used, 10);
 
-    /* ===============================
-       4️⃣ CHECK AVAILABLE BALANCE
-    =============================== */
+    // ===============================
+    // 4️⃣ CHECK AVAILABLE BALANCE
+    // ===============================
     const available = totalPurchased - totalUsed;
 
     if (available < 1) {
@@ -86,11 +85,11 @@ export async function handler(event) {
       };
     }
 
-    /* ===============================
-       5️⃣ DEDUCT ONE WEEKLY LESSON PLAN
-    =============================== */
+    // ===============================
+    // 5️⃣ DEDUCT ONE WEEKLY LESSON PLAN
+    // ===============================
     await client.query(
-      `INSERT INTO weeklyP_lesson_usage (user_id, lessons_used, used_at)
+      `INSERT INTO "weeklyP_lesson_usage" (user_id, lessons_used, used_at)
        VALUES ($1, 1, NOW())`,
       [userId]
     );
@@ -116,8 +115,8 @@ export async function handler(event) {
       statusCode: 500,
       body: JSON.stringify({
         success: false,
-        message: "Server error"
+        message: `Server error: ${err.message}`
       })
     };
   }
-                            }
+          }
