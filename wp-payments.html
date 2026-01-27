@@ -3,144 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Buy Lesson Plans - Fila Assistant</title>
+<title>Buy Weekly Plans - Fila Assistant</title>
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Fila Assistant" />
-<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
+<meta property="og:description" content="Fila Assistant offers weekly lesson plans for teachers and students." />
 <meta property="og:image" content="https://www.fleduacademy.com/logo.png" />
 <meta property="og:url" content="https://www.fleduacademy.com" />
-  
-  
+
 <style>
   body { 
     font-family: 'Segoe UI', Arial, sans-serif; 
     background: linear-gradient(135deg, #6dd5fa, #2980b9); 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    min-height: 100vh; 
-    color: #333; 
-    position: relative;
-    flex-direction: column;
+    display: flex; justify-content: center; align-items: center; 
+    min-height: 100vh; color: #333; position: relative; flex-direction: column;
   }
   .container { 
-    background: #fff; 
-    padding: 30px 40px; 
-    border-radius: 16px; 
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2); 
-    text-align: center; 
-    width: 100%; 
-    max-width: 450px; 
-    position: relative;
+    background: #fff; padding: 30px 40px; border-radius: 16px; 
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2); text-align: center; 
+    width: 100%; max-width: 450px; position: relative;
   }
   h2 { margin-bottom: 20px; }
   .packages button { 
-    padding: 10px 15px; 
-    margin: 8px; 
-    border: none; 
-    border-radius: 12px; 
+    padding: 10px 15px; margin: 8px; border: none; border-radius: 12px; 
     background: linear-gradient(to right, #007bff, #00c6ff); 
-    color: #fff; 
-    font-size: 16px; 
-    cursor: pointer; 
+    color: #fff; font-size: 16px; cursor: pointer; 
   }
   input[type="number"] { 
-    width: 80%; 
-    padding: 10px; 
-    margin: 12px 0; 
-    border-radius: 8px; 
-    border: 1px solid #ccc; 
-    font-size: 16px; 
+    width: 80%; padding: 10px; margin: 12px 0; border-radius: 8px; 
+    border: 1px solid #ccc; font-size: 16px; 
   }
   button {
-    padding: 10px 15px; 
-    border: none; 
-    border-radius: 12px; 
-    background: #007bff; 
-    color: #fff; 
-    font-size: 14px; 
-    cursor: pointer; 
+    padding: 10px 15px; border: none; border-radius: 12px; 
+    background: #007bff; color: #fff; font-size: 14px; cursor: pointer; 
   }
   #ussd a { 
-    display: inline-block; 
-    margin-top: 10px; 
-    padding: 10px 15px; 
-    background: #28a745; 
-    color: #fff; 
-    border-radius: 12px; 
-    text-decoration: none; 
-    font-weight: bold; 
+    display: inline-block; margin-top: 10px; padding: 10px 15px; 
+    background: #28a745; color: #fff; border-radius: 12px; 
+    text-decoration: none; font-weight: bold; 
   }
   #result { margin-top: 15px; font-weight: bold; }
   #confirmPayment { 
-    display: inline-block; 
-    margin-top: 10px; 
-    padding: 10px 15px; 
-    background: #28a745; 
-    color: #fff; 
-    border-radius: 12px; 
-    text-decoration: none; 
-    font-weight: bold; 
+    display: inline-block; margin-top: 10px; padding: 10px 15px; 
+    background: #28a745; color: #fff; border-radius: 12px; 
+    text-decoration: none; font-weight: bold; 
   }
-  /* Back button top-left */
   #backBtn { 
-    position: absolute; 
-    top: 10px; 
-    left: 20px; 
-    padding: 10px 15px; 
-    border: none; 
-    border-radius: 12px; 
-    background: #007bff; 
-    color: #fff; 
-    font-size: 14px; 
-    cursor: pointer; 
+    position: absolute; top: 10px; left: 20px; padding: 10px 15px; 
+    border: none; border-radius: 12px; background: #007bff; color: #fff; 
+    font-size: 14px; cursor: pointer; 
   }
-  /* Floating message box */
   .floating-msg {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50px);
-    padding: 15px 20px;
-    border-radius: 12px;
-    font-weight: bold;
-    color: #fff;
-    min-width: 250px;
-    text-align: center;
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-50px); 
+    padding: 15px 20px; border-radius: 12px; font-weight: bold; color: #fff; 
+    min-width: 250px; text-align: center; z-index: 9999; opacity: 0; pointer-events: none; 
     transition: all 0.5s ease;
   }
-  .floating-msg.show { 
-    transform: translateX(-50%) translateY(0); 
-    opacity: 1; 
-    pointer-events: auto; 
-  }
+  .floating-msg.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
   .floating-msg.success { background: #28a745; }
   .floating-msg.error { background: #dc3545; }
-  .floating-msg .close {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    color: #fff;
-  }
-
-  /* Responsive footer */
-  footer {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 14px;
-    color: #fff;
-    width: 100%;
-  }
-  footer a {
-    color: #fff;
-    text-decoration: underline;
-    margin: 0 5px;
-  }
+  .floating-msg .close { position: absolute; top: 5px; right: 10px; cursor: pointer; font-weight: bold; color: #fff; }
+  footer { margin-top: 20px; text-align: center; font-size: 14px; color: #fff; width: 100%; }
+  footer a { color: #fff; text-decoration: underline; margin: 0 5px; }
   @media (max-width: 480px){
     .container { padding: 20px 20px; }
     .packages button { width: 100%; margin: 5px 0; }
@@ -153,30 +76,28 @@
 <div class="container">
   <button id="backBtn"> 《《 Back</button>
   
-  <h2>Buy weekly plans</h2>
-  
+  <h2>Buy Weekly Plans</h2>
 
-  <!-- Current balance display -->
   <div>
     <p><b>BALANCE:</b> <span id="currentBalance">Loading...</span></p>
   </div>
+
   <div class="packages">
     <button data-amount="250">250 RWF → 5 weekly plans</button>
     <button data-amount="500">500 RWF → 15 weekly plans</button>
-    <button data-amount="1000">1000 RWF → 40 Weekly plans</button>
+    <button data-amount="1000">1000 RWF → 40 weekly plans</button>
   </div>
 
   <p>OR enter custom amount:</p>
-  <input type="number" id="customAmount" placeholder="Enter amount in RWF" min="100">
+  <input type="number" id="customAmount" placeholder="Enter amount in RWF" min="250">
   <button id="customPayBtn">Calculate & Generate USSD</button>
 
   <p id="result"></p>
   <p id="ussd"></p>
   <div>
-    <button id="confirmPayment" disabled style="padding: 15px 20px;">I have paid</button>
+    <button id="confirmPayment" disabled>I have paid</button>
   </div>
 
-  <!-- Floating message box -->
   <div id="floatingMsg" class="floating-msg">
     <span id="msgText"></span>
     <span class="close" onclick="closeMsg()">✖</span>
@@ -188,16 +109,12 @@
 </footer>
 
 <script>
-// --- USER SETUP (without Netlify Identity) ---
+// --- User setup ---
 const userEmail = localStorage.getItem("user_email");
 const userPhone = localStorage.getItem("user_phone");
+if (!userEmail && !userPhone) window.location.href = "index.html";
 
-// Block non-logged-in users
-if (!userEmail && !userPhone) {
-    window.location.href = "index.html";
-}
-
-// --- Floating message functions ---
+// --- Floating messages ---
 const floatingMsg = document.getElementById('floatingMsg');
 const msgText = document.getElementById('msgText');
 function showFloatingMessage(msg, type='success'){
@@ -221,70 +138,45 @@ let selectedAmount = null;
 let pollInterval = null;
 let pageLoadTime = Date.now();
 
-// --- Calculate lesson plans ---
+// --- Weekly plan calculation ---
 function calculateLessons(amount){
-    if(amount >= 1000) return Math.floor(amount / 25);
-    if(amount >= 500) return Math.floor(amount / (500/15));
-    if(amount >= 250) return Math.floor(amount / (250/5));
-    if(amount >= 20) return Math.floor(amount / 100);
+    if(amount >= 1000) return 40;
+    if(amount >= 500) return 15;
+    if(amount >= 250) return 5;
     return null;
 }
-function generateUSSD(amount){ return USSD_BASE + amount + "%23"; } // encoded # to fix dialer
+function generateUSSD(amount){ return USSD_BASE + amount + "%23"; }
 
-// --- Fetch current balance ---
-// --- Fetch current balance ---
+// --- Fetch balance ---
 async function refreshBalance() {
     const identifier = userEmail || userPhone || "";
-
     try {
         let url = "/.netlify/functions/wp-get-balance";
-
-        if (identifier && identifier.includes("@")) {
-            url += `?email=${encodeURIComponent(identifier)}`;
-        } else if (identifier) {
-            url += `?phone=${encodeURIComponent(identifier)}`;
-        } else {
-            throw new Error("No identifier");
-        }
+        if (identifier.includes("@")) url += `?email=${encodeURIComponent(identifier)}`;
+        else url += `?phone=${encodeURIComponent(identifier)}`;
 
         const res = await fetch(url);
-        const text = await res.text();
-
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch {
-            console.error("Server returned:", text);
-            throw new Error("Bad JSON");
-        }
-
-        const balance = data.weeklyBalance ?? 0;
-
-        currentBalanceEl.innerText =
-            `${balance} weekly plan${balance === 1 ? '' : 's'}`;
-
-    } catch (err) {
-        console.error("Balance error:", err);
+        const data = await res.json();
+        const weeklyBalance = data.weeklyBalance ?? 0;
+        currentBalanceEl.innerText = `${weeklyBalance} weekly plan${weeklyBalance === 1 ? '' : 's'}`;
+    } catch(err){
+        console.error(err);
         currentBalanceEl.innerText = "Error loading";
     }
 }
+
 // --- Handle package buttons ---
 packages.forEach(btn => {
     btn.addEventListener('click', () => {
         selectedAmount = parseInt(btn.dataset.amount);
         const lessons = calculateLessons(selectedAmount);
-
         if(!lessons){
-            showFloatingMessage("Amount too low. Minimum is 20 RWF", 'error');
-            resultEl.innerText = "";
-            ussdEl.innerHTML = "";
-            confirmPaymentBtn.disabled = true;
+            showFloatingMessage("Amount too low. Minimum is 250 RWF", 'error');
+            resultEl.innerText = ""; ussdEl.innerHTML = ""; confirmPaymentBtn.disabled = true;
             return;
         }
-
-        showFloatingMessage(`You will get ${lessons} Weekly plans`);
-        ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a><br>
-        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720<b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
+        showFloatingMessage(`You will get ${lessons} weekly plans`);
+        ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
         confirmPaymentBtn.disabled = true;
         setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
     });
@@ -294,15 +186,11 @@ packages.forEach(btn => {
 customPayBtn.addEventListener('click', () => {
     selectedAmount = parseInt(customAmountInput.value);
     const lessons = calculateLessons(selectedAmount);
-
     if(!lessons){
-        showFloatingMessage("Amount too low. Minimum is 100 RWF", 'error');
-        resultEl.innerText = "";
-        ussdEl.innerHTML = "";
-        confirmPaymentBtn.disabled = true;
+        showFloatingMessage("Amount too low. Minimum is 250 RWF", 'error');
+        resultEl.innerText = ""; ussdEl.innerHTML = ""; confirmPaymentBtn.disabled = true;
         return;
     }
-
     showFloatingMessage(`You will get ${lessons} weekly plans`);
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
     confirmPaymentBtn.disabled = true;
@@ -320,11 +208,9 @@ confirmPaymentBtn.addEventListener('click', async () => {
         showFloatingMessage("Select a package or enter an amount first", 'error');
         return;
     }
-
     const phone = userPhone || "unknown";
     const email = userEmail || null;
-    const reference = 'LP' + Date.now();
-
+    const reference = 'WP' + Date.now();
     try {
         const res = await fetch('/.netlify/functions/wp-record-payment', {
             method: 'POST',
@@ -341,11 +227,8 @@ confirmPaymentBtn.addEventListener('click', async () => {
         const text = await res.text();
         showFloatingMessage(text, 'success');
         confirmPaymentBtn.disabled = true;
-
-        // Start polling balance every 10s
-        if (pollInterval) clearInterval(pollInterval);
+        if(pollInterval) clearInterval(pollInterval);
         pollInterval = setInterval(refreshBalance, 10000);
-
     } catch(err){
         showFloatingMessage("Error: " + err.message, 'error');
     }
@@ -357,6 +240,5 @@ backBtn.addEventListener('click', () => window.location.href = "index.html");
 // --- Initial balance fetch ---
 refreshBalance();
 </script>
-
 </body>
     </html>
