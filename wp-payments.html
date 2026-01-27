@@ -237,28 +237,30 @@ async function refreshBalance() {
     const identifier = userEmail || userPhone;
 
     try {
-        const res = await fetch('/.netlify/functions/wp-get-balance', {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                email: identifier && identifier.includes('@') ? identifier : null,
-                phone: identifier && !identifier.includes('@') ? identifier : null
-            })
-        });
+        let url = "/.netlify/functions/wp-get-balance";
 
-        if (!res.ok) throw new Error("Failed to fetch balance");
+        if (identifier.includes("@")) {
+            url += `?email=${encodeURIComponent(identifier)}`;
+        } else {
+            url += `?phone=${encodeURIComponent(identifier)}`;
+        }
+
+        const res = await fetch(url); // GET request
+        if (!res.ok) throw new Error("Failed");
 
         const data = await res.json();
 
+        // if your function returns "balance" instead of "weeklyBalance"
+        const balance = data.weeklyBalance ?? data.balance ?? 0;
+
         currentBalanceEl.innerText =
-            `${data.weeklyBalance} weekly plan${data.weeklyBalance === 1 ? '' : 's'}`;
+            `${balance} weekly plan${balance === 1 ? '' : 's'}`;
 
     } catch (err) {
-        console.error("Error refreshing balance:", err);
+        console.error("Balance error:", err);
         currentBalanceEl.innerText = "Error loading";
     }
-}
-
+  }
 // --- Handle package buttons ---
 packages.forEach(btn => {
     btn.addEventListener('click', () => {
