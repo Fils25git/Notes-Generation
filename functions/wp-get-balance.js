@@ -42,7 +42,7 @@ export async function handler(event) {
     // 3️⃣ Total weekly plans used
     const usageRes = await pool.query(
       `SELECT COALESCE(SUM(lessons_used), 0) AS used
-       FROM weekly_p_lesson_usage
+       FROM weeklyP_lesson_usage
        WHERE user_id = $1`,
       [userId]
     );
