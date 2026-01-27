@@ -100,64 +100,41 @@
 </div>
 
 <script>
-// ✅ JWT-based login check
 const token = localStorage.getItem("auth_token");
 const userEmail = localStorage.getItem("user_email");
 
-if (!token) {
-    // Not logged in → redirect
-    window.location.href = "index.html";
+if (!token || !userEmail) {
+  window.location.href = "index.html";
 }
 
-// Extract first name from email
 function getFirstName(email) {
-    return email?.split("@")[0] || "there";
+  return email.split("@")[0];
 }
 
-// Fetch weekly plan balance ONLY
-async function fetchWeeklyBalance(identifier) {
+async function fetchWeeklyBalance(email) {
   try {
-    const isEmail = identifier.includes("@");
-    const url = isEmail
-      ? `/.netlify/functions/wp-get-balance?email=${encodeURIComponent(identifier)}`
-      : `/.netlify/functions/wp-get-balance?phone=${encodeURIComponent(identifier)}`;
+    const res = await fetch(
+      `/.netlify/functions/wp-get-balance?email=${encodeURIComponent(email)}`
+    );
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch weekly balance");
+    if (!res.ok) throw new Error("Request failed");
 
     const data = await res.json();
 
-    const weeklyBalance = data.weeklyBalance ?? 0;
+    document.getElementById("balance").innerText =
+      `Available: ${data.weeklyBalance} weekly plan${data.weeklyBalance === 1 ? '' : 's'}`;
 
-    document.getElementById('balance').innerText =
-      `Available: ${weeklyBalance} weekly plan${weeklyBalance === 1 ? '' : 's'}`;
   } catch (err) {
-    document.getElementById('balance').innerText = 'Error loading weekly balance';
     console.error(err);
+    document.getElementById("balance").innerText =
+      "Failed to load weekly balance";
   }
 }
 
-function updateBalance() {
-    if (!userEmail) {
-        document.getElementById('user-info').innerText =
-          'Please log in to see your balance';
-        document.getElementById('balance').innerText = '';
-        return;
-    }
+document.getElementById("user-info").innerText =
+  `Hello ${getFirstName(userEmail)}`;
 
-    // Greeting from email
-    const firstName = getFirstName(userEmail);
-    document.getElementById('user-info').innerText = `Hello ${firstName}`;
-
-    // Weekly balance from backend
-    fetchWeeklyBalance(userEmail);
-}
-
-// Run once on page load
-updateBalance();
-
-// Poll every 10s to keep balance updated
-setInterval(updateBalance, 10000);
+fetchWeeklyBalance(userEmail);
 </script>
 </body>
 </html>
