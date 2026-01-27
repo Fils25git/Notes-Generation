@@ -3,16 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fila Assistant Balance Dashboard</title>
+<title>Fila Assistant Weekly Plan Dashboard</title>
 
-  <meta property="og:type" content="website" />
+<meta property="og:type" content="website" />
 <meta property="og:title" content="Fila Assistant" />
-<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
+<meta property="og:description" content="Fila Assistant is an educational website offering Lesson Plans and study guides for teachers and students across primary and secondary education" />
 <meta property="og:image" content="https://www.fleduacademy.com/logo.png" />
 <meta property="og:url" content="https://www.fleduacademy.com" />
-  
-  
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <style>
   body {
@@ -88,20 +85,20 @@
 
   <p id="user-info">Loading user info...</p>
   
-  <p id="balance">Loading balance...</p>
+  <p id="balance">Loading weekly plans...</p>
 
   <p id="explanation">
     You can buy more weekly plans below.
-    
   </p>
 
-  <a href="wp-payments.html" class="buy-btn">
-    Buy More Lesson Plans
+  <a href="payment.html" class="buy-btn">
+    Buy More Weekly Plans
   </a><br> <br>
-  Do You have a problem? contact Us: via <br>
-  WhatsApp:<b>+250786728623</b><br>
+  Do you have a problem? Contact us via: <br>
+  WhatsApp: <b>+250786728623</b><br>
   Call: <b>0786728623</b>
 </div>
+
 <script>
 // ✅ JWT-based login check
 const token = localStorage.getItem("auth_token");
@@ -117,23 +114,25 @@ function getFirstName(email) {
     return email?.split("@")[0] || "there";
 }
 
-// Fetch balance ONLY
-async function fetchBalance(identifier) {
+// Fetch weekly plan balance ONLY
+async function fetchWeeklyBalance(identifier) {
   try {
     const isEmail = identifier.includes("@");
     const url = isEmail
-      ? `/.netlify/functions/wp-get-balance?email=${identifier}`
-      : `/.netlify/functions/wp-get-balance?phone=${identifier}`;
+      ? `/.netlify/functions/wp-get-balance?email=${encodeURIComponent(identifier)}`
+      : `/.netlify/functions/wp-get-balance?phone=${encodeURIComponent(identifier)}`;
 
     const res = await fetch(url);
-    if (!res.ok) throw new Error("Failed to fetch balance");
+    if (!res.ok) throw new Error("Failed to fetch weekly balance");
 
     const data = await res.json();
 
+    const weeklyBalance = data.weeklyBalance ?? 0;
+
     document.getElementById('balance').innerText =
-      `Available: ${data.balance} Weekly plan${data.balance === 1 ? '' : 's'}`;
+      `Available: ${weeklyBalance} weekly plan${weeklyBalance === 1 ? '' : 's'}`;
   } catch (err) {
-    document.getElementById('balance').innerText = 'Error loading balance';
+    document.getElementById('balance').innerText = 'Error loading weekly balance';
     console.error(err);
   }
 }
@@ -150,14 +149,14 @@ function updateBalance() {
     const firstName = getFirstName(userEmail);
     document.getElementById('user-info').innerText = `Hello ${firstName}`;
 
-    // Balance from backend
-    fetchBalance(userEmail);
+    // Weekly balance from backend
+    fetchWeeklyBalance(userEmail);
 }
 
 // Run once on page load
 updateBalance();
 
-// Optional polling (safe)
+// Poll every 10s to keep balance updated
 setInterval(updateBalance, 10000);
 </script>
 </body>
