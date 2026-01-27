@@ -77,20 +77,32 @@ async function loadPayments() {
   tbody.innerHTML = "";
 
   try {
-    const res = await fetch("/.netlify/functions/get-payments?status=pending");
+    // Fetch both payment lists in parallel
+    const [res1, res2] = await Promise.all([
+      fetch("/.netlify/functions/get-payments?status=pending"),
+      fetch("/.netlify/functions/wp-get-payments?status=pending")
+    ]);
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      alert("Failed to load payments!\n" + JSON.stringify(errorData, null, 2));
+    if (!res1.ok || !res2.ok) {
+      const err1 = await res1.json().catch(()=>({}));
+      const err2 = await res2.json().catch(()=>({}));
+      alert("Failed to load payments!\n" + JSON.stringify({err1, err2}, null, 2));
       return;
     }
 
-    const payments = await res.json();
+    const payments1 = await res1.json();
+    const payments2 = await res2.json();
+
+    // Merge both arrays
+    const payments = [...payments1, ...payments2];
 
     if (!payments.length) {
       alert("No payments found.");
       return;
     }
+
+    // Sort by newest first
+    payments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     payments.forEach(p => {
       const tr = document.createElement("tr");
@@ -118,7 +130,7 @@ async function loadPayments() {
   } catch (err) {
     alert("Network or JS error:\n" + err);
   }
-  }
+}
 
 /* ============================= SINGLE ACTIONS ============================= */
 function attachButtons() {
