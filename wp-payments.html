@@ -234,24 +234,31 @@ function generateUSSD(amount){ return USSD_BASE + amount + "%23"; } // encoded #
 // --- Fetch current balance ---
 // --- Fetch current balance ---
 async function refreshBalance() {
-    const identifier = userEmail || userPhone;
+    const identifier = userEmail || userPhone || "";
 
     try {
         let url = "/.netlify/functions/wp-get-balance";
 
-        if (identifier.includes("@")) {
+        if (identifier && identifier.includes("@")) {
             url += `?email=${encodeURIComponent(identifier)}`;
-        } else {
+        } else if (identifier) {
             url += `?phone=${encodeURIComponent(identifier)}`;
+        } else {
+            throw new Error("No identifier");
         }
 
-        const res = await fetch(url); // GET request
-        if (!res.ok) throw new Error("Failed");
+        const res = await fetch(url);
+        const text = await res.text();
 
-        const data = await res.json();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            console.error("Server returned:", text);
+            throw new Error("Bad JSON");
+        }
 
-        // if your function returns "balance" instead of "weeklyBalance"
-        const balance = data.weeklyBalance ?? data.balance ?? 0;
+        const balance = data.weeklyBalance ?? 0;
 
         currentBalanceEl.innerText =
             `${balance} weekly plan${balance === 1 ? '' : 's'}`;
@@ -260,7 +267,7 @@ async function refreshBalance() {
         console.error("Balance error:", err);
         currentBalanceEl.innerText = "Error loading";
     }
-  }
+}
 // --- Handle package buttons ---
 packages.forEach(btn => {
     btn.addEventListener('click', () => {
