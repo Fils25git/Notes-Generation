@@ -236,8 +236,8 @@ async function refreshBalance() {
     const identifier = userEmail || userPhone;
     try {
         const url = identifier.includes('@') 
-            ? `/.netlify/functions/get-balance?email=${identifier}` 
-            : `/.netlify/functions/get-balance?phone=${identifier}`;
+            ? `/.netlify/functions/wp-get-balance?email=${identifier}` 
+            : `/.netlify/functions/wp-get-balance?phone=${identifier}`;
 
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch balance");
