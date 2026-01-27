@@ -79,7 +79,7 @@ export async function handler(event) {
         statusCode: 400,
         body: JSON.stringify({
           success: false,
-          message: "No weekly lesson plans available",
+          message: "No weekly plans available on your balance",
           balance: 0
         })
       };
@@ -102,7 +102,7 @@ export async function handler(event) {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
-        message: "Weekly lesson plan used successfully",
+        message: "Weekly plan used successfully",
         balance: newBalance
       })
     };
