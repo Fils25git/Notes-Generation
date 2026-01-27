@@ -18,8 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const globalCopyBtn = document.getElementById("globalCopyBtn");
    
    function requireAuth(actionName = "this action") {
-    if (!currentUser) {
-        showSystemMessage(`Sign in first to ${actionName}.`);
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    if (!isLoggedIn) {
+        systemBubble(`🔒 Sign in first to ${actionName}.`);
         return false;
     }
     return true;
@@ -37,18 +38,23 @@ function enableSend() {
     /* ===============================
        LOCAL STORAGE CHECK
     ================================ */
+    // Only enforce selection on app.html
+const isNotesPage = location.pathname.endsWith("app.html");
+
+if (isNotesPage) {
     const level = localStorage.getItem("level");
     const classLevel = localStorage.getItem("classLevel");
     const subject = localStorage.getItem("subject");
 
     if (!level || !classLevel || !subject) {
-        window.location.replace("selection.html");
+        window.location.href = "selection.html"; // safer than replace
         return;
     }
 
     if (currentSelectionEl) {
-        currentSelectionEl.textContent =` ${classLevel} | ${subject}`;
+        currentSelectionEl.textContent = `${classLevel} | ${subject}`;
     }
+}
 
     let currentNotesHTML = "";
 
