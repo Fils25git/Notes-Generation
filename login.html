@@ -135,7 +135,7 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
             showFloatingMessage("Login successful!");
 
             /* Redirect to intended page */
-            const redirectTo = localStorage.getItem("redirectAfterLogin") || "app.html";
+            const redirectTo = localStorage.getItem("redirectAfterLogin") || "index.html";
             localStorage.removeItem("redirectAfterLogin");
             localStorage.setItem("lastPage", redirectTo);
 
