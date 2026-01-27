@@ -241,8 +241,8 @@ async function refreshBalance() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                email: identifier.includes('@') ? identifier : null,
-                phone: identifier.includes('@') ? null : identifier
+                email: identifier && identifier.includes('@') ? identifier : null,
+                phone: identifier && !identifier.includes('@') ? identifier : null
             })
         });
 
@@ -257,7 +257,7 @@ async function refreshBalance() {
         console.error("Error refreshing balance:", err);
         currentBalanceEl.innerText = "Error loading";
     }
-  }
+}
 
 // --- Handle package buttons ---
 packages.forEach(btn => {
