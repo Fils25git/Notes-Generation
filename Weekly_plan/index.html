@@ -348,134 +348,39 @@
 
 <!-- Netlify Identity -->
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <script>
+                <script>
 /* ===============================
-   AUTH CHECK (UNCHANGED)
+   GLOBAL VARIABLES
 ================================ */
+let currentPlanIndex = 1; // plan1.html start
+const totalPlans = 5;     // total templates
+
+// DOM elements
+const lessonForm = document.getElementById("lessonForm");
+const lessonPlanContent = document.getElementById("lessonPlanContent");
+const resultContainer = document.getElementById("resultContainer");
+const floatingMessage = document.getElementById("floatingMessage");
+const btn = document.querySelector(".generate-btn");
+const editBtn = document.getElementById("editBtn");
+const saveBtn = document.getElementById("saveBtn");
+
+// Auth check
 const token = localStorage.getItem("auth_token");
 const userEmail = localStorage.getItem("user_email");
+if (!token || !userEmail) window.location.href = "../login.html";
 
-if (!token || !userEmail) {
-  window.location.href = "../login.html";
-}
-
-/* ===============================
-   FLOATING MESSAGE
-================================ */
+// ===============================
+// FLOATING MESSAGE
+// ===============================
 function showFloatingMessage(msg) {
-  const box = document.getElementById("floatingMessage");
-  box.innerHTML = msg;
-  box.style.display = "block";
-  setTimeout(() => box.style.display = "none", 6000);
+  floatingMessage.innerHTML = msg;
+  floatingMessage.style.display = "block";
+  setTimeout(() => (floatingMessage.style.display = "none"), 6000);
 }
 
-/* ===============================
-   FORM SUBMIT
-================================ */
-document.getElementById("lessonForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const btn = document.querySelector(".generate-btn");
-        btn.disabled = true;
-        btn.textContent = "Generating...";
-
-        try {
-            const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
-            const data = await res.json();
-
-            if (data.balance <= 0) {
-                showFloatingMessage("❌ No weekly plans remaining.");
-                btn.disabled = false;
-                btn.textContent = "Fetch weekly Plan";
-                return;
-            }
-
-            await fetch("/.netlify/functions/use-lesson-plan", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: userEmail })
-            });
-
-            generateWeeklyPlan();
-
-        } catch (err) {
-            showFloatingMessage("❌ Network error.");
-            btn.disabled = false;
-            btn.textContent = "Fetch weekly Plan";
-        }
-    });
-
-/* ===============================
-   GENERATE WEEKLY PLAN
-================================ */
-function generateWeeklyPlan() {
-  const data = {
-    schoolName: schoolName.value,
-   teacherName: teacherName.value,
-    date: date.value,
-      toDate: toDate.value,
-    term: term.value,
-    level: level.value,
-    year: year.value,
-    childrensNumber: childrensNumber.value,
-    mainTopic: mainTopic.value,
-      mainTopicEng:mainTopicEng.value,
-    subTopic: subTopic.value,
-    subTopicEng: subTopicEng.value,
-    specialNeeds: specialNeeds.value || "Nta bana bafite ibibazo",
-
-    ikigwa_0745: ikigwa_0745.value,
-    ibindi_byigwa_0745: ibindi_byigwa_0745.value,
-
-    ikigwa_0800: ikigwa_0800.value,
-    ibindi_byigwa_0800: ibindi_byigwa_0800.value,
-
-    ikigwa_0830: ikigwa_0830.value,
-    ibindi_byigwa_0830: ibindi_byigwa_0830.value,
-
-    ikigwa_0900: ikigwa_0900.value,
-    ibindi_byigwa_0900: ibindi_byigwa_0900.value,
-
-    ikigwa_0930: ikigwa_0930.value,
-    ibindi_byigwa_0930: ibindi_byigwa_0930.value,
-
-    ikigwa_1040: ikigwa_1040.value,
-    ibindi_byigwa_1040: ibindi_byigwa_1040.value,
-
-    ikigwa_1100: ikigwa_1100.value,
-    ibindi_byigwa_1100: ibindi_byigwa_1100.value,
-
-    ikigwa_1120: ikigwa_1120.value,
-    ibindi_byigwa_1120: ibindi_byigwa_1120.value,
-
-    ikigwa_1140: ikigwa_1140.value,
-    ibindi_byigwa_1140: ibindi_byigwa_1140.value
-  };
-
-  fetch("proposal/plan1.html")
-    .then(res => res.text())
-    .then(template => {
-      for (const key in data) {
-        template = template.replace(
-          new RegExp(`{{\\s*${key}\\s*}}`, "g"),
-          data[key]
-        );
-      }
-
-      lessonPlanContent.innerHTML = template;
-      resultContainer.classList.add("show");
-      resultContainer.scrollIntoView({ behavior: "smooth" });
-
-      autoSaveWeeklyPlan(template);
-    })
-    .catch(() => {
-      showFloatingMessage("❌ Failed to load weekly schedule template.");
-    });
-}
-
-/* ===============================
-   AUTO SAVE (OPTIONAL BUT READY)
-================================ */
+// ===============================
+// AUTO SAVE FUNCTION
+// ===============================
 async function autoSaveWeeklyPlan(content) {
   try {
     await fetch("/.netlify/functions/create-user-plan", {
@@ -485,17 +390,84 @@ async function autoSaveWeeklyPlan(content) {
         email: userEmail,
         lesson_title: "CBC Weekly Schedule",
         lesson_content: content,
-        language: "kinyarwanda"
-      })
+        language: "kinyarwanda",
+      }),
     });
   } catch (err) {
     console.error("Auto-save failed", err);
   }
 }
 
-/* ===============================
-   EDIT & COPY (UNCHANGED)
-================================ */
+// ===============================
+// FORM SUBMIT
+// ===============================
+lessonForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  btn.disabled = true;
+  btn.textContent = "Generating...";
+
+  try {
+    // 1️⃣ Deduct 1 weekly plan
+    const useRes = await fetch("/.netlify/functions/use-weekly-lesson-plan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: userEmail }),
+    });
+
+    const data = await useRes.json();
+
+    if (!data.success) {
+      showFloatingMessage(`❌ ${data.message}`);
+      btn.disabled = false;
+      btn.textContent = "Generate Weekly Plan";
+      return;
+    }
+
+    // 2️⃣ Load current template (plan1 → plan5)
+    const templatePath = `proposal/plan${currentPlanIndex}.html`;
+    const templateRes = await fetch(templatePath);
+    if (!templateRes.ok) throw new Error("Template not found");
+    let templateText = await templateRes.text();
+
+    // 3️⃣ Prepare form data
+    const formData = {};
+    lessonForm.querySelectorAll("input, select").forEach((el) => {
+      formData[el.id] = el.value || "";
+    });
+
+    // 4️⃣ Replace placeholders
+    for (const key in formData) {
+      templateText = templateText.replace(
+        new RegExp(`{{\\s*${key}\\s*}}`, "g"),
+        formData[key]
+      );
+    }
+
+    // 5️⃣ Display plan
+    lessonPlanContent.innerHTML = templateText;
+    resultContainer.classList.add("show");
+    resultContainer.scrollIntoView({ behavior: "smooth" });
+
+    // 6️⃣ Auto-save
+    await autoSaveWeeklyPlan(templateText);
+
+    // 7️⃣ Rotate plan index
+    currentPlanIndex++;
+    if (currentPlanIndex > totalPlans) currentPlanIndex = 1;
+
+    btn.disabled = false;
+    btn.textContent = "Generate Weekly Plan";
+  } catch (err) {
+    console.error(err);
+    showFloatingMessage("❌ Network or template error.");
+    btn.disabled = false;
+    btn.textContent = "Generate Weekly Plan";
+  }
+});
+
+// ===============================
+// EDIT & SAVE
+// ===============================
 editBtn.addEventListener("click", () => {
   lessonPlanContent.contentEditable = true;
   editBtn.disabled = true;
@@ -508,6 +480,9 @@ saveBtn.addEventListener("click", () => {
   saveBtn.disabled = true;
 });
 
+// ===============================
+// COPY TO WORD
+// ===============================
 function copyToWord() {
   const range = document.createRange();
   range.selectNode(lessonPlanContent);
@@ -518,146 +493,86 @@ function copyToWord() {
   showFloatingMessage("✅ Weekly plan copied.");
 }
 
-function go(path) {
-  window.location.href = path;
-}
-        
-             </script>
-<script>
+// ===============================
+// DOWNLOAD PDF
+// ===============================
 function downloadPDFProper() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF("landscape", "mm", "a4");
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("landscape", "mm", "a4");
+  const pageWidth = doc.internal.pageSize.getWidth();
 
-    const pageWidth = doc.internal.pageSize.getWidth();
+  doc.setFontSize(14);
+  doc.text("WEEKLY PLAN", pageWidth / 2, 12, { align: "center" });
+  doc.setFontSize(10);
+  doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, 18);
+  doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, 18, {
+    align: "right",
+  });
 
-    doc.setFontSize(14);
-    doc.text("WEEKLY PLAN", pageWidth / 2, 12, { align: "center" });
-    doc.setFontSize(10);
+  const tables = document.querySelectorAll("#lessonPlanContent table");
+  if (!tables.length) {
+    alert("No tables found");
+    return;
+  }
 
-doc.text(
-  `AMAZINA Y'UMUREZI: ${teacherName.value}`,
-  14,
-  18
-);
+  let startY = 18;
 
-doc.text(
-  `IZINA RY'ISHURI: ${schoolName.value}`,
-  pageWidth - 14,
-  18,
-  { align: "right" }
-);
-
-    const tables = document.querySelectorAll("#lessonPlanContent table");
-    if (tables.length === 0) {
-        alert("No tables found");
-        return;
-    }
-
-    let startY = 18;
-
-    // Helper: extract table data safely
-    function extractTable(table) {
-        const head = [];
-        const body = [];
-
-        table.querySelectorAll("thead tr").forEach(tr => {
-            const row = [];
-            tr.querySelectorAll("th").forEach(th => {
-                row.push(th.innerText.trim());
-            });
-            head.push(row);
-        });
-
-        table.querySelectorAll("tbody tr").forEach(tr => {
-            const row = [];
-            tr.querySelectorAll("td").forEach(td => {
-                // normalize text for wrapping
-                const text = td.innerText
-                    .replace(/\n+/g, "\n")
-                    .trim();
-                row.push(text);
-            });
-            body.push(row);
-        });
-
-        return { head, body };
-    }
-
-    // ===== FIRST TABLE =====
-    const first = extractTable(tables[0]);
-
-    doc.autoTable({
-        head: first.head,
-        body: first.body,
-        startY,
-        theme: "grid",
-        styles: {
-            fontSize: 10,
-            cellPadding: 3,
-            overflow: "linebreak",
-            valign: "middle",
-            lineWidth: 0.1
-        },
-        headStyles: {
-    fillColor: [245, 245, 245], // very light gray
-    textColor: 0,
-    fontStyle: "bold"
-    
-        },
-        margin: { left: 8, right: 8 },
-        rowPageBreak: "avoid"
+  function extractTable(table) {
+    const head = [];
+    const body = [];
+    table.querySelectorAll("thead tr").forEach((tr) => {
+      const row = [];
+      tr.querySelectorAll("th").forEach((th) => row.push(th.innerText.trim()));
+      head.push(row);
     });
+    table.querySelectorAll("tbody tr").forEach((tr) => {
+      const row = [];
+      tr.querySelectorAll("td").forEach((td) => row.push(td.innerText.trim()));
+      body.push(row);
+    });
+    return { head, body };
+  }
 
-    startY = doc.lastAutoTable.finalY + 6;
+  const first = extractTable(tables[0]);
+  doc.autoTable({
+    head: first.head,
+    body: first.body,
+    startY,
+    theme: "grid",
+    styles: { fontSize: 10, cellPadding: 3, overflow: "linebreak" },
+    headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
+    margin: { left: 8, right: 8 },
+    rowPageBreak: "avoid",
+  });
 
-    // ===== MERGE REMAINING TABLES =====
-    if (tables.length > 1) {
-        const mergedHead = [];
-        const mergedBody = [];
+  startY = doc.lastAutoTable.finalY + 6;
 
-        // use header from second table
-        const second = extractTable(tables[1]);
-        mergedHead.push(...second.head);
-        mergedBody.push(...second.body);
-
-        for (let i = 2; i < tables.length; i++) {
-            const next = extractTable(tables[i]);
-            mergedBody.push(...next.body);
-        }
-
-        doc.autoTable({
-            head: mergedHead,
-            body: mergedBody,
-            startY,
-            theme: "grid",
-            styles: {
-                fontSize: 9,
-                cellPadding: 3,
-                overflow: "linebreak",
-                valign: "top",
-                lineWidth: 0.1
-            },
-            headStyles: {
-    fillColor: [245, 245, 245], // very light gray
-    textColor: 0,
-    fontStyle: "bold"
-    
-            },
-            margin: { left: 8, right: 8 },
-            pageBreak: "auto",
-            rowPageBreak: "avoid"
-        });
+  if (tables.length > 1) {
+    const mergedHead = [];
+    const mergedBody = [];
+    for (let i = 1; i < tables.length; i++) {
+      const t = extractTable(tables[i]);
+      mergedHead.push(...t.head);
+      mergedBody.push(...t.body);
     }
+    doc.autoTable({
+      head: mergedHead,
+      body: mergedBody,
+      startY,
+      theme: "grid",
+      styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
+      headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
+      margin: { left: 8, right: 8 },
+      rowPageBreak: "avoid",
+    });
+  }
 
-    const today = new Date().toISOString().split("T")[0];
-
-    // ✅ SAVE WITH DATE
-    doc.save(`Weekly_Plan_${today}.pdf`);
+  const today = new Date().toISOString().split("T")[0];
+  doc.save(`Weekly_Plan_${today}.pdf`);
 }
-</script>    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-    
 
 </body>
     </html>
