@@ -232,6 +232,7 @@ function calculateLessons(amount){
 function generateUSSD(amount){ return USSD_BASE + amount + "%23"; } // encoded # to fix dialer
 
 // --- Fetch current balance ---
+// --- Fetch current balance ---
 async function refreshBalance() {
     const identifier = userEmail || userPhone;
     try {
@@ -242,12 +243,15 @@ async function refreshBalance() {
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch balance");
         const data = await res.json();
+
+        // Use weeklyBalance instead of balance
         currentBalanceEl.innerText = `${data.weeklyBalance} weekly plan${data.weeklyBalance === 1 ? '' : 's'}`;
+
     } catch(err){
         console.error("Error refreshing balance:", err);
         currentBalanceEl.innerText = "Error loading";
     }
-}
+  }
 
 // --- Handle package buttons ---
 packages.forEach(btn => {
