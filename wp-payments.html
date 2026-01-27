@@ -242,7 +242,7 @@ async function refreshBalance() {
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch balance");
         const data = await res.json();
-        currentBalanceEl.innerText = `${data.balance} weekly plan${data.balance === 1 ? '' : 's'}`;
+        currentBalanceEl.innerText = `${data.weeklyBalance} weekly plan${data.weeklyBalance === 1 ? '' : 's'}`;
     } catch(err){
         console.error("Error refreshing balance:", err);
         currentBalanceEl.innerText = "Error loading";
