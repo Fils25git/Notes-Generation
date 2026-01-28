@@ -192,7 +192,8 @@ customPayBtn.addEventListener('click', () => {
         return;
     }
     showFloatingMessage(`You will get ${lessons} weekly plans`);
-    ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
+    ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>
+        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720<b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
     confirmPaymentBtn.disabled = true;
     setTimeout(()=> confirmPaymentBtn.disabled = false, 10000);
 });
