@@ -34,22 +34,18 @@
     font-size:28px; color:#4f46e5; cursor:pointer; display:none;
     }
 
-    header {
-      background: #0d6efd;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
+    .header {
+    position: fixed;
+    top: 0; width: 100%;
+    background: #fff;
+    padding:14px 16px;
+    display:flex; justify-content:space-between; align-items:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.08); z-index:1000;
+}
+.brand { display:flex; align-items:center; gap:10px; }
+.brand img { width:40px; }
+.brand h1 { font-size:18px; }
 
-    header h1 {
-      font-size: 22px;
-      font-weight: 600;
-    }
-
-    header p {
-      font-size: 14px;
-      opacity: 0.9;
-    }
 
     .container {
       padding: 25px;
@@ -105,11 +101,13 @@
 </head>
 <body>
 
-  <header>
-    <h1>Admin Dashboard</h1>
-    <p>Fila Assistant Management Panel</p>
-        <i id="profileIcon" class="fas fa-user-circle profile-icon" onclick="go('/profile.html')" title="My Profile"></i>
-  </header>
+<header class="header">
+    <div class="brand">
+        <img src="logo.png" alt="Fila Assistant">
+        <h1>Fila Assistant-Admin Panel</h1>
+    </div>
+    <i id="profileIcon" class="fas fa-user-circle profile-icon" onclick="go('profile.html')" title="My Profile"></i>
+</header>
 <div class="auth-bar" id="authBar"></div>
   <div class="container">
     <div class="grid">
@@ -159,6 +157,9 @@ function showToast(msg){
     toast.classList.add("show");
     setTimeout(()=>toast.classList.remove("show"), 2000);
 }
+  function go(page){
+    window.location.href = page;
+  }
   function logout(){
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('redirectAfterLogin');
