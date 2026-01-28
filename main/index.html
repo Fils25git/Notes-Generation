@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FL EduAcademy – Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body {
+      background: #f4f6f9;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #0d6efd;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .container {
+      padding: 25px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      text-decoration: none;
+      color: #333;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+
+    .card i {
+      font-size: 40px;
+      color: #0d6efd;
+      margin-bottom: 15px;
+    }
+
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Admin Dashboard</h1>
+    <p>FL EduAcademy Management Panel</p>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+
+      <!-- Users List -->
+      <a href="/admin.html" class="card">
+        <i class="fas fa-users"></i>
+        <h3>Users List</h3>
+        <p>View, manage and control platform users</p>
+      </a>
+
+      <!-- Payments Approval -->
+      <a href="/ad-payments.html" class="card">
+        <i class="fas fa-money-check-alt"></i>
+        <h3>Payments Approval</h3>
+        <p>Approve or reject pending payments</p>
+      </a>
+
+    </div>
+
+    <footer>
+      © 2026 Fila Assistant· Admin Panel
+    </footer>
+  </div>
+
+</body>
+</html>
