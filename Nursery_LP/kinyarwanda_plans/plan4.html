@@ -1,0 +1,173 @@
+<!DOCTYPE html>    
+<html lang="rw">    
+<head>    
+    <meta charset="UTF-8">    
+    <title>Imbata y’Isomo </title>    
+    <link rel="stylesheet" href="plan.css">    
+</head>    
+<body>    
+    
+<div class="text-center bold" style="font-size:12pt; margin-bottom:10px;">    
+    IMBATA Y’ISOMO    
+</div>    
+    
+<div style="margin-bottom:5px; font-size:10pt;">    
+    <span class="bold">Izina ry’ishuri:</span> {{schoolName}}    
+    <span style="margin-left:80px;" class="bold">Amazina y’Umwarimu:</span> {{teacherName}}    
+</div>    
+    
+<table border="1" cellspacing="0" cellpadding="5">    
+    <tr>    
+        <td class="bold">Igihembwe</td>    
+        <td class="bold">Itariki</td>    
+        <td class="bold">Ikigwa</td>    
+        <td class="bold">Ikiciro</td>    
+        <td class="bold">Umutwe wa</td>    
+        <td class="bold">Isomo rya</td>    
+        <td class="bold">Igihe</td>    
+        <td class="bold">Umubare w’abanyeshuri</td>    
+    </tr>    
+    <tr>    
+        <td>{{term}}</td>    
+        <td>{{date}}</td>    
+        <td>{{subject}}</td>    
+        <td>{{class}}</td>    
+        <td>{{unitNo}}</td>    
+        <td>{{lessonNo}} kuri {{totalLessons}}</td>    
+        <td>Iminota {{duration}}</td>    
+        <td>Abanyeshuri {{classSize}}</td>    
+    </tr>    
+</table>    
+    
+<table border="1" cellspacing="0" cellpadding="5">    
+    <tr>    
+        <td class="bold" style="width:33%;">Umubare w’abanyeshuri bafite ibyo bagenerwa byihariye mu myigire n’imyigishirize</td>    
+        <td>{{specialNeeds}}</td>    
+    </tr>    
+    <tr>    
+        <td class="bold">Umutwe</td>    
+        <td>{{unitTitle}}</td>    
+    </tr>    
+    <tr>    
+        <td class="bold">Ubushobozi bw’ingenzi bugamijwe</td>    
+        <td>    
+            Abana bazashobora gusobanukirwa no kwerekana {{lessonTitle}}    
+            babihuza n’Insanganyamatsiko y’icyumweru <strong>{{weeklyTheme}}</strong>    
+            binyuze mu mikino, indirimbo n’ibikorwa by’amatsinda.    
+        </td>    
+    </tr>    
+    <tr>    
+        <td class="bold">Insanganyamatsiko y'icyumweru</td>    
+        <td>{{weeklyTheme}}</td>    
+    </tr>    
+    <tr>    
+        <td class="bold">Umutwe w’Isomo</td>    
+        <td>{{lessonTitle}}</td>    
+    </tr>    
+    <tr>    
+        <td class="bold">Intego ngenamukoro</td>    
+        <td>    
+            Hifashishijwe indirimbo, amashusho, ibikinisho n’imikino, abana bazashobora    
+            kumenya no gukoresha {{lessonTitle}} mu buryo bujyanye n’insanganyamatsiko    
+            y’icyumweru {{weeklyTheme}}.    
+        </td>    
+    </tr>    
+    <tr>    
+        <td class="bold">Imiterere y'Aho isomo ribera</td>    
+        <td>Mu ishuri</td>    
+    </tr>    
+    <tr>    
+        <td class="bold">Imfashanyigisho</td>    
+        <td>{{teachingMaterials}}</td>    
+    </tr>    
+    <tr>    
+        <td class="bold">Inyandiko n'ibitabo byifashishijwe</td>    
+        <td>{{references}}</td>    
+    </tr>    
+</table>    
+    
+<table border="1" cellspacing="0" cellpadding="5">    
+    <tr>    
+        <td class="bold" style="width:15%;">Igihe</td>    
+        <td colspan="2" class="bold text-center">    
+            <u>Ibisobanuro by’ibikorwa byo kwigisha no kwiga</u><br>    
+            <em>Mwarimu arayobora abana mu isomo ahuza Ibikorwa byose  n’Insanganyamatsiko y’icyumweru {{weeklyTheme}} yifashishije imfashanyigisho zitandukanye</em>    
+        </td>    
+        <td class="bold" style="width:30%;">Ubushobozi n’ingingo nsanganyamasomo + Ibisobanuro bigufi</td>    
+    </tr>    
+    
+    <tr>    
+        <td></td>    
+        <td class="bold">Ibikorwa by’Umwarimu</td>    
+        <td class="bold">Ibikorwa by’Abanyeshuri</td>    
+        <td></td>    
+    </tr>    
+    
+    <tr>    
+        <td class="bold">Intangiriro<br>Iminota {{intMin}}</td>    
+        <td>    
+            <ul>    
+                <li>Gutangiza indirimbo ijyanye na {{weeklyTheme}}</li>    
+                <li>Kwerekana amashusho cyangwa ibikinisho bijyanye na {{lessonTitle}}</li>    
+            </ul>    
+        </td>    
+        <td>    
+            <ul>    
+                <li>Kuririmba no gukoma amashyi</li>    
+                <li>Kuvuga ibyo babona</li>    
+            </ul>    
+        </td>    
+        <td>    
+            <strong>Itumanaho:</strong> Binyuze mu kuririmba no kuvuga ibyo babona.<br>    
+            <strong>Uburezi budaheza:</strong> Binyuze mu kuba abana bose bagira uruhare rungana mu ndirimbo no mu biganiro.    
+        </td>    
+    </tr>    
+    
+    <tr>    
+        <td class="bold">Isomo nyirizina<br>Iminota {{devMin}}</td>    
+        <td>    
+            <ul>    
+                <li>Gukoresha umukino werekana {{lessonTitle}} ujyanye na {{weeklyTheme}}</li>    
+                <li>Gufasha abana gushushanya cyangwa gutondeka ibintu</li>    
+            </ul>    
+        </td>    
+        <td>    
+            <ul>    
+                <li>Gukina no gukorera mu matsinda</li>    
+                <li>Gushushanya no kwerekana ibyo bakoze</li>    
+            </ul>    
+        </td>    
+        <td>    
+            <strong>Gufatanya:</strong> Binyuze mu mikino n’ibikorwa by’amatsinda.<br>    
+            <strong>Kurengera ibidukikije:</strong> Binyuze mu gukoresha neza ibikoresho no kubibungabunga.    
+        </td>    
+    </tr>    
+    
+    <tr>    
+        <td class="bold">Umusozo<br> Iminota {{concMin}}</td>    
+        <td>    
+            <ul>    
+                <li>Gusubiramo isomo mu ndirimbo ijyanye na {{weeklyTheme}}</li>    
+                <li>Kubaza abana icyo bize</li>    
+            </ul>    
+        </td>    
+        <td>    
+            <ul>    
+                <li>Kuririmba no gusubiza</li>    
+                <li>Kuvuga ijambo cyangwa igikorwa bize</li>    
+            </ul>    
+        </td>    
+        <td>    
+            <strong>Kwigirira icyizere:</strong> Binyuze mu kuvuga imbere y’abandi.<br>    
+            <strong>Indangagaciro z’ubunyarwanda:</strong> Binyuze mu kubahana no gufatanya.    
+        </td>    
+    </tr>    
+    
+    <tr>    
+        <td class="bold">Kwisuzuma</td>    
+        <td colspan="3"></td>    
+    </tr>    
+</table>    
+    
+</body>    
+</html>
