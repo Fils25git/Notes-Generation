@@ -19,6 +19,24 @@
   .toast.show { opacity:1; }
 </style>
 </head>
+  <script>
+const ADMIN_EMAIL = "iraturinze02@gmail.com"; // 🔴 PUT YOUR REAL EMAIL HERE
+
+const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+const email = localStorage.getItem("user_email");
+
+// 1️⃣ Not logged in → go to login
+if (!isLoggedIn) {
+    localStorage.setItem("redirectAfterLogin", "admin.html");
+    window.location.replace("login.html");
+}
+
+// 2️⃣ Logged in but NOT admin → kick out
+if (email !== ADMIN_EMAIL) {
+    alert("Access denied. Admin only.");
+    window.location.replace("index.html");
+}
+  </script>
 <body>
 
 <h1>Admin Dashboard</h1>
