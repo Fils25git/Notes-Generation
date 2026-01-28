@@ -45,6 +45,7 @@
 .brand { display:flex; align-items:center; gap:10px; }
 .brand img { width:40px; }
 .brand h1 { font-size:18px; }
+    main { max-width:1100px; margin:auto; padding:20px; }
 
 
     .container {
@@ -52,6 +53,7 @@
       max-width: 1100px;
       margin: auto;
     }
+    
 
     .grid {
       display: grid;
@@ -103,15 +105,17 @@
 
 <header class="header">
     <div class="brand">
-        <img src="logo.png" alt="Fila Assistant">
+        <img src="../logo.png" alt="Fila Assistant">
         <h1>Fila Assistant-Admin Panel</h1>
     </div>
-    <i id="profileIcon" class="fas fa-user-circle profile-icon" onclick="go('profile.html')" title="My Profile"></i>
+    <i id="profileIcon" class="fas fa-user-circle profile-icon" onclick="go('../profile.html')" title="My Profile"></i>
 </header>
+  <main>
 <div class="auth-bar" id="authBar"></div>
+    
   <div class="container">
-    <div class="grid">
-
+   
+<div class="grid">
       <!-- Users List -->
       <a href="admin.html" class="card">
         <i class="fas fa-users"></i>
@@ -127,6 +131,8 @@
       </a>
 
     </div>
+  </div>
+  </main>
 
     <footer>
       © 2026 Fila Assistant· Admin Panel
