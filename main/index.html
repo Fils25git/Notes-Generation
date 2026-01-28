@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>FL EduAcademy – Admin Dashboard</title>
+  <title>Fila Assistant – Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Font Awesome -->
@@ -15,6 +15,16 @@
       box-sizing: border-box;
       font-family: "Segoe UI", Tahoma, sans-serif;
     }
+    .auth-bar {
+    display:flex; gap:10px; margin-bottom:40px; flex-wrap:wrap;
+}
+.auth-bar button { 
+    padding:8px 14px; border:none; border-radius:6px;
+    cursor:pointer; font-size:14px; display:flex; align-items:center; gap:6px;
+}
+.login-btn { background:#2563eb; color:#fff; }
+.signup-btn { background:#22c55e; color:#fff; }
+.logout-btn { background:#ef4444; color:#fff; }
 
     body {
       background: #f4f6f9;
@@ -94,9 +104,9 @@
 
   <header>
     <h1>Admin Dashboard</h1>
-    <p>FL EduAcademy Management Panel</p>
+    <p>Fila Assistant Management Panel</p>
   </header>
-
+<div class="auth-bar" id="authBar"></div>
   <div class="container">
     <div class="grid">
 
@@ -120,6 +130,32 @@
       © 2026 Fila Assistant· Admin Panel
     </footer>
   </div>
+<script>
+  const authBar = document.getElementById("authBar");
+const profileIcon = document.getElementById("profileIcon");
+const toast = document.getElementById("toast");
 
+const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+/* Render auth UI */
+if (isLoggedIn){
+    authBar.innerHTML = `<button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>`;
+    profileIcon.style.display = "block";
+}else{
+    authBar.innerHTML = `
+        <button class="login-btn" onclick="go('login.html')"><i class="fas fa-sign-in-alt"></i> Login</button>
+        <button class="signup-btn" onclick="go('create.html')"><i class="fas fa-user-plus"></i>Sign Up</button>
+    `;
+    profileIcon.style.display = "none";
+}
+
+/* Toast */
+function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(()=>toast.classList.remove("show"), 2000);
+}
+
+</script>
 </body>
 </html>
