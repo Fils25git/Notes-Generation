@@ -4,7 +4,11 @@ export async function handler(event) {
   const userId = event.queryStringParameters?.user;
 
   if (!userId) {
-    return { statusCode: 400, body: JSON.stringify({ error: "User ID required" }) };
+    return {
+      statusCode: 400,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: "User ID required" })
+    };
   }
 
   const client = new Client({
@@ -25,14 +29,21 @@ export async function handler(event) {
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*" 
+      },
       body: JSON.stringify(res.rows)
     };
 
   } catch (err) {
     console.error("get-user-weekly-payments error:", err);
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    return {
+      statusCode: 500,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: err.message })
+    };
   } finally {
     await client.end();
   }
-    }
+      }
