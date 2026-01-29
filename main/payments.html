@@ -6,21 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; margin:0; }
-    h1 { margin-bottom:20px; color:#333; }
-    .card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:20px; }
-    .summary { display:flex; gap:20px; flex-wrap:wrap; }
-    .summary div { flex:1 1 200px; background:#2980b9; color:#fff; padding:15px; border-radius:8px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-    table { width:100%; border-collapse:collapse; background:#fff; border-radius:8px; overflow:hidden; }
+    h1 { margin-bottom:20px; color:#333; text-align:center; }
+    .card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:20px; overflow-x:auto; }
+    .summary { display:flex; gap:15px; flex-wrap:wrap; justify-content:center; margin-bottom:20px; }
+    .summary div { flex:1 1 150px; background:#2980b9; color:#fff; padding:15px; border-radius:8px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+    table { width:100%; border-collapse:collapse; min-width:500px; }
     th, td { border:1px solid #ddd; padding:10px; text-align:left; }
     th { background:#2980b9; color:#fff; }
     tr:nth-child(even) { background:#f9f9f9; }
-    .section-title { margin-top:30px; margin-bottom:10px; color:#555; }
+    .section-title { margin-top:30px; margin-bottom:10px; color:#555; text-align:center; }
+    #error { text-align:center; color:#e74c3c; font-weight:bold; margin-top:20px; }
   </style>
 </head>
 <body>
-  <div id="content"></div>
 
 <h1>User Payments</h1>
+
+<div id="error"></div>
 
 <!-- Summary Cards -->
 <div class="summary">
@@ -69,7 +71,7 @@
       <tr>
         <th>#</th>
         <th>Amount</th>
-        <th>Plans Purchased</th>
+        <th>Lessons/Plans</th>
         <th>Status</th>
         <th>Date</th>
       </tr>
@@ -83,29 +85,32 @@
 <script>
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("user");
+const errorDiv = document.getElementById("error");
 
 if (!userId) {
-  document.getElementById("content").textContent = "No user selected.";
+  errorDiv.textContent = "No user selected.";
   throw new Error("No user selected.");
 }
 
-// Update summary and tables
 async function loadPayments() {
   try {
-    // Fetch summary (remaining plans, balance, total paid)
+    // 1️⃣ Load summary
     const summaryRes = await fetch(`/.netlify/functions/get-user-plan-summary-remaining?user=${userId}`);
+    if (!summaryRes.ok) throw new Error("Failed to load summary.");
     const summaryData = await summaryRes.json();
 
-    document.getElementById("totalPaid").textContent = summaryData.totals.totalPaid;
-    document.getElementById("dailyPlans").textContent = summaryData.totals.remainingDaily;
-    document.getElementById("weeklyPlans").textContent = summaryData.totals.remainingWeekly;
-    document.getElementById("balanceRemaining").textContent = summaryData.totals.balanceRemaining;
+    document.getElementById("totalPaid").textContent = summaryData.totalPaid ?? 0;
+    document.getElementById("dailyPlans").textContent = summaryData.remainingDaily ?? 0;
+    document.getElementById("weeklyPlans").textContent = summaryData.remainingWeekly ?? 0;
+    document.getElementById("balanceRemaining").textContent = summaryData.balanceRemaining ?? 0;
 
-    // Fetch daily payments history
+    // 2️⃣ Load daily payments
     const dailyRes = await fetch(`/.netlify/functions/get-user-payments?user=${userId}`);
+    if (!dailyRes.ok) throw new Error("Failed to load daily payments.");
     const dailyPayments = await dailyRes.json();
+
     const dailyTableBody = document.querySelector("#dailyPaymentsTable tbody");
-    if (dailyPayments.length === 0) {
+    if (!dailyPayments.length) {
       dailyTableBody.innerHTML = `<tr><td colspan="5">No daily payments found.</td></tr>`;
     } else {
       dailyTableBody.innerHTML = dailyPayments.map((p, i) => `
@@ -119,27 +124,29 @@ async function loadPayments() {
       `).join("");
     }
 
-    // Fetch weekly payments history
+    // 3️⃣ Load weekly payments
     const weeklyRes = await fetch(`/.netlify/functions/get-user-weekly-payments?user=${userId}`);
+    if (!weeklyRes.ok) throw new Error("Failed to load weekly payments.");
     const weeklyPayments = await weeklyRes.json();
+
     const weeklyTableBody = document.querySelector("#weeklyPaymentsTable tbody");
-    if (weeklyPayments.length === 0) {
+    if (!weeklyPayments.length) {
       weeklyTableBody.innerHTML = `<tr><td colspan="5">No weekly payments found.</td></tr>`;
     } else {
       weeklyTableBody.innerHTML = weeklyPayments.map((p, i) => `
         <tr>
           <td>${i + 1}</td>
-          <td>${p.amount_rwf}</td>
-          <td>${p.plans_purchased}</td>
-          <td>${p.payment_status}</td>
-          <td>${new Date(p.payment_date).toLocaleString()}</td>
+          <td>${p.amount}</td>
+          <td>${p.lessons}</td>
+          <td>${p.status}</td>
+          <td>${new Date(p.created_at).toLocaleString()}</td>
         </tr>
       `).join("");
     }
 
   } catch (err) {
     console.error(err);
-    document.getElementById("content").textContent = "Error loading payments data.";
+    errorDiv.textContent = "Error loading payments data. Please try again.";
   }
 }
 
@@ -147,4 +154,4 @@ loadPayments();
 </script>
 
 </body>
-  </html>
+</html>
