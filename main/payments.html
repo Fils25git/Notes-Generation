@@ -81,36 +81,36 @@
     </tbody>
   </table>
 </div>
-
 <script>
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("user");
-const errorDiv = document.getElementById("error");
 
 if (!userId) {
-  errorDiv.textContent = "No user selected.";
+  alert("No user selected.");
   throw new Error("No user selected.");
 }
 
-async function loadPayments() {
+document.addEventListener("DOMContentLoaded", async () => {
   try {
-    // 1️⃣ Load summary
+    // -----------------------
+    // 1️⃣ Fetch summary
+    // -----------------------
     const summaryRes = await fetch(`/.netlify/functions/get-user-plan-summary-remaining?user=${userId}`);
-    if (!summaryRes.ok) throw new Error("Failed to load summary.");
     const summaryData = await summaryRes.json();
 
-    document.getElementById("totalPaid").textContent = summaryData.totalPaid ?? 0;
-    document.getElementById("dailyPlans").textContent = summaryData.remainingDaily ?? 0;
-    document.getElementById("weeklyPlans").textContent = summaryData.remainingWeekly ?? 0;
-    document.getElementById("balanceRemaining").textContent = summaryData.balanceRemaining ?? 0;
+    document.getElementById("totalPaid").textContent = summaryData.totals.totalPaid;
+    document.getElementById("dailyPlans").textContent = summaryData.totals.remainingDaily;
+    document.getElementById("weeklyPlans").textContent = summaryData.totals.remainingWeekly;
+    document.getElementById("balanceRemaining").textContent = summaryData.totals.balanceRemaining;
 
-    // 2️⃣ Load daily payments
+    // -----------------------
+    // 2️⃣ Fetch daily payments
+    // -----------------------
     const dailyRes = await fetch(`/.netlify/functions/get-user-payments?user=${userId}`);
-    if (!dailyRes.ok) throw new Error("Failed to load daily payments.");
     const dailyPayments = await dailyRes.json();
-
     const dailyTableBody = document.querySelector("#dailyPaymentsTable tbody");
-    if (!dailyPayments.length) {
+
+    if (!Array.isArray(dailyPayments) || dailyPayments.length === 0) {
       dailyTableBody.innerHTML = `<tr><td colspan="5">No daily payments found.</td></tr>`;
     } else {
       dailyTableBody.innerHTML = dailyPayments.map((p, i) => `
@@ -124,13 +124,14 @@ async function loadPayments() {
       `).join("");
     }
 
-    // 3️⃣ Load weekly payments
+    // -----------------------
+    // 3️⃣ Fetch weekly payments
+    // -----------------------
     const weeklyRes = await fetch(`/.netlify/functions/get-user-weekly-payments?user=${userId}`);
-    if (!weeklyRes.ok) throw new Error("Failed to load weekly payments.");
     const weeklyPayments = await weeklyRes.json();
-
     const weeklyTableBody = document.querySelector("#weeklyPaymentsTable tbody");
-    if (!weeklyPayments.length) {
+
+    if (!Array.isArray(weeklyPayments) || weeklyPayments.length === 0) {
       weeklyTableBody.innerHTML = `<tr><td colspan="5">No weekly payments found.</td></tr>`;
     } else {
       weeklyTableBody.innerHTML = weeklyPayments.map((p, i) => `
@@ -146,12 +147,9 @@ async function loadPayments() {
 
   } catch (err) {
     console.error(err);
-    errorDiv.textContent = "Error loading payments data. Please try again.";
+    alert("Error loading payments data. Please try again.");
   }
-}
-
-loadPayments();
-</script>
-
+});
+  </script>
 </body>
 </html>
