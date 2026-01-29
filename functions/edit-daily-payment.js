@@ -1,14 +1,9 @@
 import { Client } from "pg";
 
 export async function handler(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: JSON.stringify({ success: false, message: "Method not allowed" }) };
-  }
-
-  const { id, status } = JSON.parse(event.body || "{}");
-
-  if (!id || !status) {
-    return { statusCode: 400, body: JSON.stringify({ success: false, message: "ID and status are required" }) };
+  const id = event.queryStringParameters?.id;
+  if (!id) {
+    return { statusCode: 400, body: JSON.stringify({ success: false, message: "Payment ID required" }) };
   }
 
   const client = new Client({
@@ -18,12 +13,17 @@ export async function handler(event) {
 
   try {
     await client.connect();
-    await client.query(`UPDATE payments SET status=$1 WHERE id=$2`, [status, id]);
+    const res = await client.query(`DELETE FROM payments WHERE id=$1 RETURNING *`, [id]);
+
+    if (res.rowCount === 0) {
+      return { statusCode: 404, body: JSON.stringify({ success: false, message: "Payment not found" }) };
+    }
+
     return { statusCode: 200, body: JSON.stringify({ success: true }) };
   } catch (err) {
-    console.error(err);
+    console.error("DELETE daily payment error:", err);
     return { statusCode: 500, body: JSON.stringify({ success: false, message: err.message }) };
   } finally {
     await client.end();
   }
-      }
+}
