@@ -99,6 +99,7 @@
     </tbody>
   </table>
 </div>
+    
 <script>
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("user");
@@ -129,7 +130,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const dailyTableBody = document.querySelector("#dailyPaymentsTable tbody");
 
     if (!Array.isArray(dailyPayments) || dailyPayments.length === 0) {
-      dailyTableBody.innerHTML = `<tr><td colspan="7">No daily payments found.</td></tr>`;
+      dailyTableBody.innerHTML = `<tr><td colspan="5">No daily payments found.</td></tr>`;
     } else {
       dailyTableBody.innerHTML = dailyPayments.map((p, i) => `
         <tr>
@@ -154,7 +155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const weeklyTableBody = document.querySelector("#weeklyPaymentsTable tbody");
 
     if (!Array.isArray(weeklyPayments) || weeklyPayments.length === 0) {
-      weeklyTableBody.innerHTML = `<tr><td colspan="7">No weekly payments found.</td></tr>`;
+      weeklyTableBody.innerHTML = `<tr><td colspan="5">No weekly payments found.</td></tr>`;
     } else {
       weeklyTableBody.innerHTML = weeklyPayments.map((p, i) => `
         <tr>
@@ -176,14 +177,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert("Error loading payments data. Please try again.");
   }
 });
-
-// -----------------------
-// 4️⃣ Edit/Delete functions
-// -----------------------
-async function deletePayment(paymentId, type) {
+     async function deletePayment(paymentId, type) {
   if (!confirm("Are you sure you want to delete this payment?")) return;
 
-  const endpoint = type === 'daily'
+  const endpoint = type === 'daily' 
     ? `/.netlify/functions/delete-daily-payment?id=${paymentId}`
     : `/.netlify/functions/delete-weekly-payment?id=${paymentId}`;
 
@@ -192,7 +189,7 @@ async function deletePayment(paymentId, type) {
     const data = await res.json();
     if (data.success) {
       alert("Payment deleted successfully");
-      location.reload(); // refresh table
+      loadPayments(); // refresh tables
     } else {
       alert("Error: " + (data.message || "Could not delete"));
     }
@@ -219,7 +216,7 @@ async function editPayment(paymentId, type) {
     const data = await res.json();
     if (data.success) {
       alert("Payment updated successfully");
-      location.reload(); // refresh table
+      loadPayments(); // refresh tables
     } else {
       alert("Error: " + (data.message || "Could not update"));
     }
@@ -227,7 +224,7 @@ async function editPayment(paymentId, type) {
     console.error(err);
     alert("Server error while updating payment");
   }
-}
+  }                                                 
 </script>
 </body>
 </html>
