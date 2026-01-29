@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+9<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -157,10 +157,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       weeklyTableBody.innerHTML = weeklyPayments.map((p, i) => `
         <tr>
           <td>${i + 1}</td>
-          <td>${p.amount_rwf}</td>
-          <td>${p.plans_purchased}</td>
-          <td>${p.payment_status}</td>
-          <td>${new Date(p.payment_date).toLocaleString()}</td>
+          <td>${p.amount}</td>
+          <td>${p.lessons}</td>
+          <td>${p.status}</td>
+          <td>${new Date(p.created_at).toLocaleString()}</td>
           
         </tr>
       `).join("");
