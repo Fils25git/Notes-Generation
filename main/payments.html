@@ -137,7 +137,10 @@ if (!userId) {
   alert("No user selected.");
   throw new Error("No user selected.");
 }
-  const fullName = document.getElementById("fullName");
+
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+      const fullName = document.getElementById("fullName");
     const email = document.getElementById("email");
     const phone = document.getElementById("phone");
     const avatar = document.getElementById("avatar");
@@ -168,8 +171,6 @@ if (!userId) {
         showToast("Failed to load profile", false);
   }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
     // -----------------------
     // 1️⃣ Fetch summary
     // -----------------------
