@@ -62,6 +62,7 @@ if (email !== ADMIN_EMAIL) {
     <tr><td colspan="5">Loading users...</td></tr>
   </tbody>
 </table>
+  <div id="pagination" style="margin-top:15px;text-align:center;"></div>
 
 <!-- Toast -->
 <div id="toast" class="toast"></div>
@@ -84,18 +85,27 @@ function showToast(message, success = true) {
 }
 
 // Fetch all users
-async function fetchUsers() {
+let currentPage = 1;
+let totalPages = 1;
+const limit = 100;
+
+async function fetchUsers(page = 1) {
   try {
-    const res = await fetch("/.netlify/functions/get-users");
-    if (!res.ok) throw new Error("Failed to fetch users");
-    usersData = await res.json();
+    const res = await fetch(`/.netlify/functions/get-users?page=${page}&limit=${limit}`);
+    const data = await res.json();
+
+    usersData = data.users;
+    currentPage = data.currentPage;
+    totalPages = data.totalPages;
+
     renderUsers(usersData);
-  } catch(err) {
-    usersTableBody.innerHTML = `<tr><td colspan="5">Error loading users.</td></tr>`;
+    renderPagination();
+
+  } catch (err) {
+    usersTableBody.innerHTML = `<tr><td colspan="6">Error loading users.</td></tr>`;
     console.error(err);
-    showToast("Error fetching users", false);
   }
-}
+  }
 
 // Render users to table
 
@@ -153,14 +163,39 @@ async function deleteUser(userId, btn) {
     showToast(err.message, false);
   }
 }
+  function renderPagination() {
+  const container = document.getElementById("pagination");
+  container.innerHTML = "";
+
+  if (totalPages <= 1) return;
+
+  const prev = document.createElement("button");
+  prev.textContent = "⬅ Prev";
+  prev.className = "btn";
+  prev.disabled = currentPage === 1;
+  prev.onclick = () => fetchUsers(currentPage - 1);
+
+  const next = document.createElement("button");
+  next.textContent = "Next ➡";
+  next.className = "btn";
+  next.disabled = currentPage === totalPages;
+  next.onclick = () => fetchUsers(currentPage + 1);
+
+  const info = document.createElement("span");
+  info.style.margin = "0 10px";
+  info.textContent = `Page ${currentPage} of ${totalPages}`;
+
+  container.append(prev, info, next);
+  }
 
 // View Payments (optional)
 function viewPayments(userId) {
   window.location.href = `payments.html?user=${userId}`;
 }
+  
 
 // Initial load
-fetchUsers();
+fetchUsers(1);
 </script>
 
 </body>
