@@ -69,7 +69,7 @@ if (email !== ADMIN_EMAIL) {
 
 <script>
   function goToPayments() {
-  window.location.href = "ad-payment.html";
+  window.location.href = "ad-payments.html";
   }
 const usersTableBody = document.querySelector("#usersTable tbody");
 const searchInput = document.getElementById("searchInput");
@@ -87,12 +87,12 @@ function showToast(message, success = true) {
 // Fetch all users
 let currentPage = 1;
 let totalPages = 1;
-const limit = 100;
+const limit = 50;
 
 async function fetchUsers(page = 1, search = "") {
   try {
     const res = await fetch(
-      `/.netlify/functions/get-users?page=${page}&limit=100&search=${encodeURIComponent(search)}`
+      `/.netlify/functions/get-users?page=${page}&limit=50&search=${encodeURIComponent(search)}`
     );
 
     const data = await res.json();
