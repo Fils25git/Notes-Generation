@@ -1,3 +1,5 @@
+
+//For weekly plans
 import { Client } from "pg";
 
 export async function handler(event) {
