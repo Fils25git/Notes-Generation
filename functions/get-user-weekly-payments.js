@@ -16,7 +16,7 @@ export async function handler(event) {
     await client.connect();
 
     const res = await client.query(
-      `SELECT id, amount_rwf, plans_purchased, payment_status, payment_date 
+      `SELECT id, amount, plans_purchased, payment_status, payment_date 
        FROM weekly_plan_payments
        WHERE user_id=$1
        ORDER BY payment_date DESC`,
