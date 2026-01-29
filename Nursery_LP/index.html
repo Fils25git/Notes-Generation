@@ -330,7 +330,7 @@ function getLanguageDefaults(language, subject, classLevel) {
         btn.textContent = "Fetching...";
 
         try {
-            const res = await fetch(`/.netlify/functions/get-balance`);
+            const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
             const data = await res.json();
 
             if (data.balance <= 0) {
