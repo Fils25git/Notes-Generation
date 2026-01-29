@@ -34,6 +34,67 @@ body { background:#f4f6f8; color:#333; padding-top:72px; }
     font-size:28px; color:#4f46e5; cursor:pointer; display:none;
 }
 
+/* MODAL STYLES */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 3000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%;
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.6); 
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto; 
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.modal h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    color: #111827;
+}
+
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.modal-buttons button {
+    padding: 14px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #4f46e5;
+    color: #fff;
+    transition: background 0.3s;
+}
+
+.modal-buttons button:hover {
+    background-color: #3730a3;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #6b7280;
+    font-weight: bold;
+}
 /* MAIN */
 main { max-width:1100px; margin:auto; padding:20px; }
 
@@ -138,6 +199,16 @@ footer {
 </div>
 
 </main>
+    <div id="lessonModal" class="modal">
+  <div class="modal-content">
+    <h2>Select Lesson Plan Type</h2>
+    <div class="modal-buttons">
+      <button onclick="go('Nursery_LP/index.html')">Nursery Lesson Plan</button>
+      <button onclick="go('lesson_plan/index.html')">Primary & General Education</button>
+    </div>
+    <span class="close" onclick="closeModal()">&times;</span>
+  </div>
+    </div>
 
 <footer>© 2026 Fila Assistant •All rights reserved <br>DUKORE GISIRIMU</footer>
 <div id="toast" class="toast"></div>
@@ -160,7 +231,30 @@ if (isLoggedIn){
     `;
     profileIcon.style.display = "none";
 }
+const lessonModal = document.getElementById('lessonModal');
 
+document.querySelectorAll('.card[data-page="lesson_plan/index.html"]').forEach(card => {
+    card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!isLoggedIn) {
+            localStorage.setItem('redirectAfterLogin', 'lesson_plan/index.html');
+            showToast("Please log in to access this feature");
+            return;
+        }
+        lessonModal.style.display = 'block';
+    });
+});
+
+function closeModal() {
+    lessonModal.style.display = 'none';
+}
+
+// Close modal when clicking outside content
+window.onclick = function(event) {
+    if (event.target === lessonModal) {
+        closeModal();
+    }
+    }
 /* Toast */
 function showToast(msg){
     toast.textContent = msg;
