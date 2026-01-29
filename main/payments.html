@@ -140,90 +140,104 @@ if (!userId) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-      const fullName = document.getElementById("fullName");
-    const email = document.getElementById("email");
-    const phone = document.getElementById("phone");
+    const fullName = document.getElementById("fullName");
+    const emailEl = document.getElementById("email");
+    const phoneEl = document.getElementById("phone");
     const avatar = document.getElementById("avatar");
-    const plansList = document.getElementById("plansList");
     const toast = document.getElementById("toast");
 
-    function showToast(msg, ok=true){
-        toast.textContent = msg;
-        toast.style.background = ok ? "#4caf50" : "#f44336";
-        toast.classList.add("show");
-        setTimeout(()=>toast.classList.remove("show"),3000);
+    function showToast(msg, ok = true) {
+      toast.textContent = msg;
+      toast.style.background = ok ? "#4caf50" : "#f44336";
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
     }
 
-    function initials(name){
-        if(!name) return "--";
-        return name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
-    }
-
-    // FETCH PROFILE
-    try{
-        const res = await fetch(`/.netlify/functions/get-user-profile?email=${userEmail}`);
-        const data = await res.json();
-        fullName.textContent = data.name || "N/A";
-        email.textContent = data.email || "N/A";
-        phone.textContent = data.phone || "N/A";
-        avatar.textContent = initials(data.name);
-    }catch{
-        showToast("Failed to load profile", false);
-  }
-
-    // -----------------------
-    // 1️⃣ Fetch summary
-    // -----------------------
-    const summaryRes = await fetch(`/.netlify/functions/get-user-plan-summary-remaining?user=${userId}`);
-    const summaryData = await summaryRes.json();
-
-    document.getElementById("totalPaid").textContent = summaryData.totals.totalPaid;
-    document.getElementById("dailyPlans").textContent = summaryData.totals.remainingDaily;
-    document.getElementById("weeklyPlans").textContent = summaryData.totals.remainingWeekly;
-    document.getElementById("balanceRemaining").textContent = summaryData.totals.balanceRemaining;
-
-    // -----------------------
-    // 2️⃣ Fetch daily payments
-    // -----------------------
-    const dailyRes = await fetch(`/.netlify/functions/get-user-payments?user=${userId}`);
-    const dailyPayments = await dailyRes.json();
-    const dailyTableBody = document.querySelector("#dailyPaymentsTable tbody");
-
-    if (!Array.isArray(dailyPayments) || dailyPayments.length === 0) {
-      dailyTableBody.innerHTML = `<tr><td colspan="5">No daily payments found.</td></tr>`;
-    } else {
-      dailyTableBody.innerHTML = dailyPayments.map((p, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${p.amount}</td>
-          <td>${p.lessons}</td>
-          <td>${p.status}</td>
-          <td>${new Date(p.created_at).toLocaleString()}</td>
-          <td>
-        </tr>
-      `).join("");
+    function initials(name) {
+      if (!name) return "--";
+      return name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
     }
 
     // -----------------------
-    // 3️⃣ Fetch weekly payments
+    // 1️⃣ FETCH USER PROFILE
     // -----------------------
-    const weeklyRes = await fetch(`/.netlify/functions/get-user-weekly-payments?user=${userId}`);
-    const weeklyPayments = await weeklyRes.json();
-    const weeklyTableBody = document.querySelector("#weeklyPaymentsTable tbody");
+    try {
+      const res = await fetch(`/.netlify/functions/get-user-profile?user=${userId}`);
+      const data = await res.json();
 
-    if (!Array.isArray(weeklyPayments) || weeklyPayments.length === 0) {
-      weeklyTableBody.innerHTML = `<tr><td colspan="5">No weekly payments found.</td></tr>`;
-    } else {
-      weeklyTableBody.innerHTML = weeklyPayments.map((p, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${p.amount}</td>
-          <td>${p.lessons}</td>
-          <td>${p.status}</td>
-          <td>${new Date(p.created_at).toLocaleString()}</td>
-          
-        </tr>
-      `).join("");
+      fullName.textContent = data.name || "N/A";
+      emailEl.textContent = data.email || "N/A";
+      phoneEl.textContent = data.phone || "N/A";
+      avatar.textContent = initials(data.name);
+    } catch {
+      showToast("Failed to load profile", false);
+    }
+
+    // -----------------------
+    // 2️⃣ FETCH PLAN SUMMARY
+    // -----------------------
+    try {
+      const summaryRes = await fetch(`/.netlify/functions/get-user-plan-summary-remaining?user=${userId}`);
+      const summaryData = await summaryRes.json();
+
+      document.getElementById("totalPaid").textContent = summaryData.totals.totalPaid || 0;
+      document.getElementById("dailyPlans").textContent = summaryData.totals.remainingDaily || 0;
+      document.getElementById("weeklyPlans").textContent = summaryData.totals.remainingWeekly || 0;
+      document.getElementById("balanceRemaining").textContent = summaryData.totals.balanceRemaining || 0;
+    } catch {
+      showToast("Failed to load plan summary", false);
+    }
+
+    // -----------------------
+    // 3️⃣ FETCH DAILY PAYMENTS
+    // -----------------------
+    try {
+      const dailyRes = await fetch(`/.netlify/functions/get-user-payments?user=${userId}`);
+      const dailyPayments = await dailyRes.json();
+      const dailyTableBody = document.querySelector("#dailyPaymentsTable tbody");
+
+      if (!Array.isArray(dailyPayments) || dailyPayments.length === 0) {
+        dailyTableBody.innerHTML = `<tr><td colspan="6">No daily payments found.</td></tr>`;
+      } else {
+        dailyTableBody.innerHTML = dailyPayments.map((p, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${p.amount || 0}</td>
+            <td>${p.lessons || 0}</td>
+            <td>${p.status || "N/A"}</td>
+            <td>${p.payment_method || "N/A"}</td>
+            <td>${new Date(p.created_at).toLocaleString() || "N/A"}</td>
+          </tr>
+        `).join("");
+      }
+    } catch {
+      showToast("Failed to load daily payments", false);
+    }
+
+    // -----------------------
+    // 4️⃣ FETCH WEEKLY PAYMENTS
+    // -----------------------
+    try {
+      const weeklyRes = await fetch(`/.netlify/functions/get-user-weekly-payments?user=${userId}`);
+      const weeklyPayments = await weeklyRes.json();
+      const weeklyTableBody = document.querySelector("#weeklyPaymentsTable tbody");
+
+      if (!Array.isArray(weeklyPayments) || weeklyPayments.length === 0) {
+        weeklyTableBody.innerHTML = `<tr><td colspan="6">No weekly payments found.</td></tr>`;
+      } else {
+        weeklyTableBody.innerHTML = weeklyPayments.map((p, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${p.amount || 0}</td>
+            <td>${p.lessons || 0}</td>
+            <td>${p.status || "N/A"}</td>
+            <td>${p.payment_method || "N/A"}</td>
+            <td>${p.created_at ? new Date(p.created_at).toLocaleString() : "N/A"}</td>
+          </tr>
+        `).join("");
+      }
+    } catch {
+      showToast("Failed to load weekly payments", false);
     }
 
   } catch (err) {
@@ -231,7 +245,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert("Error loading payments data. Please try again.");
   }
 });
-                                                      
 </script>
 </body>
 </html>
