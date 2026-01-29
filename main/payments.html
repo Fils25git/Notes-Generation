@@ -140,9 +140,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           <td>${p.status}</td>
           <td>${new Date(p.created_at).toLocaleString()}</td>
           <td>
-            <button class="btn-edit" onclick="editPayment('${p.id}', 'daily')">Edit</button>
-            <button class="btn-delete" onclick="deletePayment('${p.id}', 'daily')">Delete</button>
-          </td>
         </tr>
       `).join("");
     }
@@ -164,10 +161,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           <td>${p.plans_purchased}</td>
           <td>${p.payment_status}</td>
           <td>${new Date(p.payment_date).toLocaleString()}</td>
-          <td>
-            <button class="btn-edit" onclick="editPayment('${p.id}', 'weekly')">Edit</button>
-            <button class="btn-delete" onclick="deletePayment('${p.id}', 'weekly')">Delete</button>
-          </td>
+          
         </tr>
       `).join("");
     }
@@ -177,54 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert("Error loading payments data. Please try again.");
   }
 });
-     async function deletePayment(paymentId, type) {
-  if (!confirm("Are you sure you want to delete this payment?")) return;
-
-  const endpoint = type === 'daily' 
-    ? `/.netlify/functions/delete-daily-payment?id=${paymentId}`
-    : `/.netlify/functions/delete-weekly-payment?id=${paymentId}`;
-
-  try {
-    const res = await fetch(endpoint, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.success) {
-      alert("Payment deleted successfully");
-      loadPayments(); // refresh tables
-    } else {
-      alert("Error: " + (data.message || "Could not delete"));
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Server error while deleting payment");
-  }
-}
-
-async function editPayment(paymentId, type) {
-  const newStatus = prompt("Enter new status (approved/pending/failed):");
-  if (!newStatus) return;
-
-  const endpoint = type === 'daily'
-    ? `/.netlify/functions/edit-daily-payment`
-    : `/.netlify/functions/edit-weekly-payment`;
-
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: paymentId, status: newStatus })
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert("Payment updated successfully");
-      loadPayments(); // refresh tables
-    } else {
-      alert("Error: " + (data.message || "Could not update"));
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Server error while updating payment");
-  }
-  }                                                 
+                                                      
 </script>
 </body>
 </html>
