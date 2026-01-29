@@ -87,7 +87,7 @@
    
     <!-- Form -->
     <div class="form-container">
-        <p><b>Fill in the required fields below To Fetch Lesson Plan</b></p><br>
+        <p><b>Fill in the required fields below To Fetch Lesson Plan For Nursery</b></p><br>
         <form id="lessonForm">
             <div class="form-grid">
 
@@ -99,13 +99,13 @@
                         <option value="english">English</option>
                         <option value="kinyarwanda">Kinyarwanda</option>
                       <!--  <option value="kiswahili">Kiswahili</option>-->
-                        <option value="french">French</option>
+                        <!--<option value="french">French</option>-->
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label class="required">School Name</label>
-                    <input type="text" id="schoolName" placeholder="e.g:,TTC BICUMBI"  required>
+                    <input type="text" id="schoolName" placeholder="e.g:,EP KABIRIZI"  required>
                 </div>
 
                 <div class="form-group">
@@ -154,6 +154,14 @@
                     <label class="required"> Igihe isomo rimara/ Duration (minutes)</label>
                     <input type="number" id="duration" placeholder=" e.g:, 40" required>
                 </div>
+                <div class="form-group">
+                    <label class="required"> Igihe isomo rimara mu ntangiriro/ Mu isomo Nyirizina / no mu Musozo Duration for each part of lesson</label>
+                    <div class="triple-input">
+                    <input type="number" id="intMin" placeholder=" Mu ntangiriro/ for inteoduction  e.g:, 5" required>
+                        <input type="number" id="DevMin" placeholder=" Mu isomo nyirizina / for Development  e.g:, 10" required>
+                        <input type="number" id="concMin" placeholder=" Mu Musozo/ for conclusion e.g:, 5" required>
+                </div>
+                </div>
 
                 <div class="form-group">
                     <label class="required">Umubare w'abanyeshuri/Class size</label>
@@ -167,6 +175,11 @@
               <div class="form-group full-width">
                     <label class="required">Insanganyamatsiko y'cyumweru/Weekly Theme</label>
                     <input type="text" id="weeklyTheme" placeholder="e.g:,Umuryango" required>
+              </div>
+                
+              <div class="form-group full-width">
+                    <label class="required">Imitere y'aho isomo ribera/ Plan for this class</label>
+                    <input type="text" id="classPlan" placeholder="e.g:, Mu ishuri bakorera mu matsinda ya 3" required>
               </div>
 
                 <div class="form-group full-width">
@@ -245,14 +258,14 @@
         english: "proposals",
         kinyarwanda: "kinyarwanda_plans",
       //  kiswahili: "kiswahili_plans",
-        french: "french_plans"
+        //french: "french_plans"
     };
 
     function getNextPlanFile(language, email) {
     const folder = planFolders[language] || "proposals";
 
     // English has 15 plans, others have 10
-    const totalPlans = language === "english" ? 15 : 10;
+    const totalPlans = language === "english" ? 5 : 10;
 
     const storageKey = `last_plan_${language}_${email}`;
     let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
@@ -277,19 +290,19 @@
                 english: "There is no learner with special educational needs.",
                 kinyarwanda: "Nta munyeshuri ufite ibyo agenerwa by'ihariye.",
                // kiswahili: "Hakuna mwanafunzi mwenye mahitaji maalum.",
-                french: "Il n'y a aucun élève ayant des besoins spéciaux."
+               // french: "Il n'y a aucun élève ayant des besoins spéciaux."
             },
             teachingMaterials: {
-                english: `${subject} textbook, learner's book, teacher's guide.`,
-                kinyarwanda: `${subject} igitabo cy'umunyeshuri ${classLevel}.`,
+                english: `Songs, ${subject} textbook, learner's book, teacher's guide.`,
+                kinyarwanda: ` Indirimbo, ${subject} igitabo cy'umunyeshuri ${classLevel}.`,
                 //kiswahili: `Kitabu cha ${subject} cha darasa la ${classLevel}.`,
-                french: `Livre de ${subject} pour ${classLevel}.`
+               // french: `Livre de ${subject} pour ${classLevel}.`
             },
             references: {
                 english: `${subject} learner’s book, REB curriculum.`,
                 kinyarwanda: `${subject} igitabo cy'umunyeshuri.`,
                // kiswahili: `Kitabu cha mwanafunzi cha ${subject}.`,
-                french: `Livre de l'élève ${subject}.`
+               // french: `Livre de l'élève ${subject}.`
             }
         };
     }
@@ -354,6 +367,10 @@
             unitTitle: unitTitle.value,
             lessonTitle: lessonTitle.value,
           weeklyTheme: weeklyTheme.value,
+            intMin:intMin.value,
+            devMin:devMin.value,
+            concMin:concMin.value,
+            classPlan:classPlan.value,
             teachingMaterials: teachingMaterials.value || defaults.teachingMaterials[language],
             specialNeeds: specialNeeds.value || defaults.specialNeeds[language],
             references: references.value || defaults.references[language]
