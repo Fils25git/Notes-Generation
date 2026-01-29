@@ -16,10 +16,10 @@ export async function handler(event) {
     await client.connect();
 
     const res = await client.query(
-      `SELECT id, amount, plans_purchased, payment_status, payment_date 
+      `SELECT id, amount, lessons, status, created_at, approved_at
        FROM weekly_plan_payments
        WHERE user_id=$1
-       ORDER BY payment_date DESC`,
+       ORDER BY created_at DESC`,
       [userId]
     );
 
@@ -30,8 +30,9 @@ export async function handler(event) {
     };
 
   } catch (err) {
+    console.error("get-user-weekly-payments error:", err);
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   } finally {
     await client.end();
   }
-      }
+    }
