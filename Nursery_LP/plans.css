@@ -129,7 +129,7 @@ textarea:focus {
 }
 
 /* Double inputs */
-.double-input,triple-input {
+.double-input, .triple-input {
     display: flex;
     gap: 5px;
     flex-wrap: wrap;
