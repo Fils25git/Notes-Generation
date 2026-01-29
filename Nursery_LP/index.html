@@ -158,7 +158,7 @@
                     <label class="required"> Igihe isomo rimara mu ntangiriro/ Mu isomo Nyirizina / no mu Musozo Duration for each part of lesson</label>
                     <div class="triple-input">
                     <input type="number" id="intMin" placeholder=" Mu ntangiriro/ for inteoduction  e.g:, 5" required>
-                        <input type="number" id="DevMin" placeholder=" Mu isomo nyirizina / for Development  e.g:, 10" required>
+                        <input type="number" id="devMin" placeholder=" Mu isomo nyirizina / for Development  e.g:, 10" required>
                         <input type="number" id="concMin" placeholder=" Mu Musozo/ for conclusion e.g:, 5" required>
                 </div>
                 </div>
@@ -330,7 +330,7 @@ function getLanguageDefaults(language, subject, classLevel) {
         btn.textContent = "Fetching...";
 
         try {
-            const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
+            const res = await fetch(`/.netlify/functions/get-balance`);
             const data = await res.json();
 
             if (data.balance <= 0) {
