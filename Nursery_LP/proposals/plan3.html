@@ -1,0 +1,184 @@
+<!-- proposals/plan6_alt5.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson Plan</title>
+</head>
+<body>
+
+<div class="text-center bold" style="font-size:12pt; margin-bottom:10px;">
+    LESSON PLAN
+</div>
+
+<div style="margin-bottom:5px; font-size:10pt;">
+    <span class="bold">School Name:</span> {{schoolName}}
+    <span style="margin-left:80px;" class="bold">Teacher's name:</span> {{teacherName}}
+</div>
+
+<table>
+    <tr>
+        <td class="bold">Term</td>
+        <td class="bold">Date</td>
+        <td class="bold">Subject</td>
+        <td class="bold">Class</td>
+        <td class="bold">Unit N°</td>
+        <td class="bold">Lesson N°</td>
+        <td class="bold">Duration</td>
+        <td class="bold">Class size</td>
+    </tr>
+    <tr>
+        <td>{{term}}</td>
+        <td>{{date}}</td>
+        <td>{{subject}}</td>
+        <td>{{class}}</td>
+        <td>{{unitNo}}</td>
+        <td>{{lessonNo}} out of {{totalLessons}}</td>
+        <td>{{duration}} min</td>
+        <td>{{classSize}} Students</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td class="bold" style="width:33%;">Type of Special Educational Needs</td>
+        <td>{{specialNeeds}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Unit title</td>
+        <td>{{unitTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Key Unit Competence</td>
+        <td>
+            Learners will enjoy learning about {{lessonTitle}} 
+            through fun games, songs, and classroom activities.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Weekly Theme</td>
+        <td>{{weeklyTheme}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Title of the lesson</td>
+        <td>{{lessonTitle}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Instructional Objective</td>
+        <td>
+            By the end of the lesson, learners will be able to 
+            recognize and play with {{lessonTitle}}, sing songs, 
+            or answer simple questions about it.
+        </td>
+    </tr>
+    <tr>
+        <td class="bold">Plan for this Class</td>
+        <td>{{classPlan}}</td>
+    </tr>
+    <tr>
+        <td class="bold">Learning Materials</td>
+        <td>{{teachingMaterials}}</td>
+    </tr>
+    <tr>
+        <td class="bold">References</td>
+        <td>{{references}}</td>
+    </tr>
+</table>
+
+<table>
+    <tr>
+        <td class="bold" style="width:15%;">Timing</td>
+        <td colspan="2" class="bold text-center">
+            <u>Description of Teaching and learning activities</u><br>
+            <em>
+                Learners have fun learning {{lessonTitle}} through songs, 
+                play, drawing, and simple classroom activities.
+            </em>
+        </td>
+        <td class="bold" style="width:30%;">
+            Generic competences and Cross-cutting issues
+        </td>
+    </tr>
+
+    <tr>
+        <td></td>
+        <td class="bold" style="width:27.5%;">Teacher activities</td>
+        <td class="bold" style="width:27.5%;">Learner activities</td>
+        <td></td>
+    </tr>
+
+    <tr>
+        <td class="bold">Introduction<br>{{intMin}}min</td>
+        <td>
+            <ul>
+                <li>Welcome children with a smile and greeting song</li>
+                <li>Show pictures or objects linked to {{weeklyTheme}}</li>
+                <li>Introduce today’s topic {{lessonTitle}} in a playful way</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Greet the teacher back</li>
+                <li>Look at pictures and objects</li>
+                <li>Listen and get ready to play</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Communication:</strong> Speaking and listening<br>
+            <strong>Gender equality:</strong> Everyone joins in
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Development of the lesson<br>{{devMin}} min</td>
+        <td>
+            <ul>
+                <li>Explain {{lessonTitle}} using songs, actions, or story</li>
+                <li>Lead games, drawing, or simple activities</li>
+                <li>Encourage learners and help if needed</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Join the song or game</li>
+                <li>Try drawing or acting along</li>
+                <li>Ask questions or point things out</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Critical thinking:</strong> Trying activities<br>
+            <strong>Cooperation:</strong> Playing together
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Conclusion<br>{{concMin}} min</td>
+        <td>
+            <ul>
+                <li>Review what we learned through a song or simple recap</li>
+                <li>Ask easy questions</li>
+                <li>Give simple home practice, like drawing or singing a song</li>
+            </ul>
+        </td>
+        <td>
+            <ul>
+                <li>Answer questions or show understanding</li>
+                <li>Sing or act what they learned</li>
+                <li>Listen to home instructions</li>
+            </ul>
+        </td>
+        <td>
+            <strong>Self-confidence:</strong> Sharing and participating
+        </td>
+    </tr>
+
+    <tr>
+        <td class="bold">Teacher self-evaluation</td>
+        <td colspan="3">
+            <!-- To be filled by the teacher after lesson delivery -->
+        </td>
+    </tr>
+</table>
+
+</body>
+  </html>
