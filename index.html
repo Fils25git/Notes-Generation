@@ -169,7 +169,7 @@ footer {
         <p>Access lesson notes</p>
     </div>
 
-    <div class="card" data-page="lesson_plan/index.html">
+    <div class="card" id="lessonPlanCard">
         <i class="fas fa-file-alt"></i>
         <h3>Generate Lesson Plan</h3>
     </div>
@@ -231,30 +231,33 @@ if (isLoggedIn){
     `;
     profileIcon.style.display = "none";
 }
+// Get modal and card
 const lessonModal = document.getElementById('lessonModal');
+const lessonPlanCard = document.getElementById('lessonPlanCard');
 
-document.querySelectorAll('.card[data-page="lesson_plan/index.html"]').forEach(card => {
-    card.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (!isLoggedIn) {
-            localStorage.setItem('redirectAfterLogin', 'lesson_plan/index.html');
-            showToast("Please log in to access this feature");
-            return;
-        }
-        lessonModal.style.display = 'block';
-    });
+lessonPlanCard.addEventListener('click', (e) => {
+    e.stopPropagation();   // stop other handlers
+    e.preventDefault();
+
+    if (!isLoggedIn) {
+        localStorage.setItem('redirectAfterLogin', 'lesson_plan/index.html'); // optional
+        showToast("Please log in to access this feature");
+        return;
+    }
+
+    lessonModal.style.display = 'block';
 });
 
+// Close modal functions
 function closeModal() {
     lessonModal.style.display = 'none';
 }
 
-// Close modal when clicking outside content
 window.onclick = function(event) {
     if (event.target === lessonModal) {
         closeModal();
     }
-    }
+}
 /* Toast */
 function showToast(msg){
     toast.textContent = msg;
