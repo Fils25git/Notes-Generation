@@ -10,22 +10,35 @@ export async function handler(event) {
   try {
     await client.connect();
 
-    // 🔹 Get page & limit from URL
     const page = parseInt(event.queryStringParameters?.page) || 1;
     const limit = parseInt(event.queryStringParameters?.limit) || 100;
+    const search = event.queryStringParameters?.search || "";
     const offset = (page - 1) * limit;
 
-    // 🔹 Fetch paginated users
-    const usersRes = await client.query(
-      `SELECT id, name, email, phone, balance
-       FROM users
-       ORDER BY id DESC
-       LIMIT $1 OFFSET $2`,
-      [limit, offset]
-    );
+    let query = `
+      SELECT id, name, email, phone, balance
+      FROM users
+    `;
 
-    // 🔹 Total users count
-    const countRes = await client.query(`SELECT COUNT(*) FROM users`);
+    let countQuery = `SELECT COUNT(*) FROM users`;
+    let values = [];
+    let whereClause = "";
+
+    if (search) {
+      whereClause = `
+        WHERE name ILIKE $1
+        OR email ILIKE $1
+        OR phone ILIKE $1
+      `;
+      values.push(`%${search}%`);
+    }
+
+    query += whereClause + ` ORDER BY id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`;
+    values.push(limit, offset);
+
+    const usersRes = await client.query(query, values);
+
+    const countRes = await client.query(countQuery + whereClause, search ? [`%${search}%`] : []);
     const totalUsers = parseInt(countRes.rows[0].count, 10);
 
     return {
@@ -39,13 +52,9 @@ export async function handler(event) {
     };
 
   } catch (error) {
-    console.error("Error fetching users:", error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Failed to fetch users" })
-    };
-
+    console.error(error);
+    return { statusCode: 500, body: JSON.stringify({ error: "Failed" }) };
   } finally {
     await client.end();
   }
-      }
+}
