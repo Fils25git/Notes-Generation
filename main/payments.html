@@ -5,28 +5,145 @@
   <title>User Payments</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; }
-    h1 { margin-bottom:10px; }
-    .card { background:#fff; padding:15px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+    body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; margin:0; }
+    h1 { margin-bottom:20px; color:#333; }
+    .card { background:#fff; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-bottom:20px; }
+    .summary { display:flex; gap:20px; flex-wrap:wrap; }
+    .summary div { flex:1 1 200px; background:#2980b9; color:#fff; padding:15px; border-radius:8px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+    table { width:100%; border-collapse:collapse; background:#fff; border-radius:8px; overflow:hidden; }
+    th, td { border:1px solid #ddd; padding:10px; text-align:left; }
+    th { background:#2980b9; color:#fff; }
+    tr:nth-child(even) { background:#f9f9f9; }
+    .section-title { margin-top:30px; margin-bottom:10px; color:#555; }
   </style>
 </head>
 <body>
 
 <h1>User Payments</h1>
-<div class="card" id="content">Loading...</div>
+
+<!-- Summary Cards -->
+<div class="summary">
+  <div>
+    <h3>Total Paid</h3>
+    <p id="totalPaid">0</p>
+  </div>
+  <div>
+    <h3>Remaining Daily Plans</h3>
+    <p id="dailyPlans">0</p>
+  </div>
+  <div>
+    <h3>Remaining Weekly Plans</h3>
+    <p id="weeklyPlans">0</p>
+  </div>
+  <div>
+    <h3>Balance Remaining</h3>
+    <p id="balanceRemaining">0</p>
+  </div>
+</div>
+
+<!-- Daily Payments Table -->
+<h2 class="section-title">Daily Lesson Payments</h2>
+<div class="card">
+  <table id="dailyPaymentsTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Amount</th>
+        <th>Lessons Purchased</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="5">Loading daily payments...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Weekly Payments Table -->
+<h2 class="section-title">Weekly Plan Payments</h2>
+<div class="card">
+  <table id="weeklyPaymentsTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Amount</th>
+        <th>Plans Purchased</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="5">Loading weekly payments...</td></tr>
+    </tbody>
+  </table>
+</div>
 
 <script>
-  // Get user id from URL
-  const params = new URLSearchParams(window.location.search);
-  const userId = params.get("user");
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("user");
 
-  if (!userId) {
-    document.getElementById("content").textContent = "No user selected.";
-  } else {
-    document.getElementById("content").textContent =
-      "Showing payments for user ID: " + userId;
+if (!userId) {
+  document.getElementById("content").textContent = "No user selected.";
+  throw new Error("No user selected.");
+}
+
+// Update summary and tables
+async function loadPayments() {
+  try {
+    // Fetch summary (remaining plans, balance, total paid)
+    const summaryRes = await fetch(`/.netlify/functions/get-user-plan-summary-remaining?user=${userId}`);
+    const summaryData = await summaryRes.json();
+
+    document.getElementById("totalPaid").textContent = summaryData.totals.totalPaid;
+    document.getElementById("dailyPlans").textContent = summaryData.totals.remainingDaily;
+    document.getElementById("weeklyPlans").textContent = summaryData.totals.remainingWeekly;
+    document.getElementById("balanceRemaining").textContent = summaryData.totals.balanceRemaining;
+
+    // Fetch daily payments history
+    const dailyRes = await fetch(`/.netlify/functions/get-user-payments?user=${userId}`);
+    const dailyPayments = await dailyRes.json();
+    const dailyTableBody = document.querySelector("#dailyPaymentsTable tbody");
+    if (dailyPayments.length === 0) {
+      dailyTableBody.innerHTML = `<tr><td colspan="5">No daily payments found.</td></tr>`;
+    } else {
+      dailyTableBody.innerHTML = dailyPayments.map((p, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${p.amount}</td>
+          <td>${p.lessons}</td>
+          <td>${p.status}</td>
+          <td>${new Date(p.created_at).toLocaleString()}</td>
+        </tr>
+      `).join("");
+    }
+
+    // Fetch weekly payments history
+    const weeklyRes = await fetch(`/.netlify/functions/get-user-weekly-payments?user=${userId}`);
+    const weeklyPayments = await weeklyRes.json();
+    const weeklyTableBody = document.querySelector("#weeklyPaymentsTable tbody");
+    if (weeklyPayments.length === 0) {
+      weeklyTableBody.innerHTML = `<tr><td colspan="5">No weekly payments found.</td></tr>`;
+    } else {
+      weeklyTableBody.innerHTML = weeklyPayments.map((p, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${p.amount_rwf}</td>
+          <td>${p.plans_purchased}</td>
+          <td>${p.payment_status}</td>
+          <td>${new Date(p.payment_date).toLocaleString()}</td>
+        </tr>
+      `).join("");
+    }
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("content").textContent = "Error loading payments data.";
   }
+}
+
+loadPayments();
 </script>
 
 </body>
-</html>
+  </html>
