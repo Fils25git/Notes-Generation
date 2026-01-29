@@ -254,59 +254,71 @@
     // ===============================
     // PLAN FILES
     // ===============================
-    const planFolders = {
-        english: "proposals",
-        kinyarwanda: "kinyarwanda_plans",
-      //  kiswahili: "kiswahili_plans",
-        //french: "french_plans"
-    };
+    // ===============================
+// PLAN FILES
+// ===============================
+const planFolders = {
+    english: "proposals",
+    kinyarwanda: "kinyarwanda_plans"
+    // Disabled languages are commented out
+    // kiswahili: "kiswahili_plans",
+    // french: "french_plans"
+};
 
-    function getNextPlanFile(language, email) {
-    const folder = planFolders[language] || "proposals";
+// ===============================
+// GET NEXT PLAN FILE (ROTATION)
+// ===============================
+function getNextPlanFile(language, email) {
+    // Only allow active languages
+    const activeLangs = Object.keys(planFolders);
+    if (!activeLangs.includes(language)) {
+        language = "english"; // fallback if disabled language is somehow chosen
+    }
 
-    // English has 15 plans, others have 10
-    const totalPlans = language === "english" ? 5 : 10;
+    const folder = planFolders[language];
+
+    // Total plans per language
+    const totalPlans = language === "english" ? 5 : 10; // adjust if needed
 
     const storageKey = `last_plan_${language}_${email}`;
     let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
 
+    // Get next index
     let nextIndex = lastIndex + 1;
 
-    if (nextIndex > totalPlans) {
-        nextIndex = 1; // restart after finishing all plans
-    }
+    // Restart rotation if exceeded total
+    if (nextIndex > totalPlans) nextIndex = 1;
 
+    // Save next index for next fetch
     localStorage.setItem(storageKey, nextIndex);
 
+    // Return full path to plan file
     return `${folder}/plan${nextIndex}.html`;
-    }
+}
 
-    // ===============================
-    // DEFAULTS
-    // ===============================
-    function getLanguageDefaults(language, subject, classLevel) {
-        return {
-            specialNeeds: {
-                english: "There is no learner with special educational needs.",
-                kinyarwanda: "Nta munyeshuri ufite ibyo agenerwa by'ihariye.",
-               // kiswahili: "Hakuna mwanafunzi mwenye mahitaji maalum.",
-               // french: "Il n'y a aucun élève ayant des besoins spéciaux."
-            },
-            teachingMaterials: {
-                english: `Songs, ${subject} textbook, learner's book, teacher's guide.`,
-                kinyarwanda: ` Indirimbo, ${subject} igitabo cy'umunyeshuri ${classLevel}.`,
-                //kiswahili: `Kitabu cha ${subject} cha darasa la ${classLevel}.`,
-               // french: `Livre de ${subject} pour ${classLevel}.`
-            },
-            references: {
-                english: `${subject} learner’s book, REB curriculum.`,
-                kinyarwanda: `${subject} igitabo cy'umunyeshuri.`,
-               // kiswahili: `Kitabu cha mwanafunzi cha ${subject}.`,
-               // french: `Livre de l'élève ${subject}.`
-            }
-        };
-    }
+// ===============================
+// LANGUAGE DEFAULTS
+// ===============================
+function getLanguageDefaults(language, subject, classLevel) {
+    const activeLangs = ["english", "kinyarwanda"]; // only active languages
 
+    if (!activeLangs.includes(language)) language = "english"; // fallback
+
+    return {
+        specialNeeds: {
+            english: "There is no learner with special educational needs.",
+            kinyarwanda: "Nta munyeshuri ufite ibyo agenerwa by'ihariye."
+        },
+        teachingMaterials: {
+            english: `Songs, ${subject} textbook, learner's book, teacher's guide.`,
+            kinyarwanda: `Indirimbo, ${subject} igitabo cy'umunyeshuri ${classLevel}.`
+        },
+        references: {
+            english: `${subject} learner’s book, REB curriculum.`,
+            kinyarwanda: `${subject} igitabo cy'umunyeshuri.`
+        }
+    };
+    }
     // ===============================
     // FORM SUBMIT
     // ===============================
