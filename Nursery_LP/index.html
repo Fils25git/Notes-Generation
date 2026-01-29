@@ -359,34 +359,42 @@ function getLanguageDefaults(language, subject, classLevel) {
     // GENERATE + AUTO SAVE
     // ===============================
     function generateLessonPlan() {
-        const language = document.getElementById("language").value || "english";
-        const subjectVal = subject.value;
-        const classVal = document.getElementById("class").value;
-        const defaults = getLanguageDefaults(language, subjectVal, classVal);
+    const language = document.getElementById("language").value || "english";
 
-        const data = {
-            schoolName: schoolName.value,
-            teacherName: teacherName.value,
-            term: term.value,
-            date: date.value,
-            subject: subjectVal,
-            class: classVal,
-            unitNo: unitNo.value,
-            lessonNo: lessonNo.value,
-            totalLessons: totalLessons.value,
-            duration: duration.value,
-            classSize: classSize.value,
-            unitTitle: unitTitle.value,
-            lessonTitle: lessonTitle.value,
-          weeklyTheme: weeklyTheme.value,
-            intMin:intMin.value,
-            devMin:devMin.value,
-            concMin:concMin.value,
-            classPlan:classPlan.value,
-            teachingMaterials: teachingMaterials.value || defaults.teachingMaterials[language],
-            specialNeeds: specialNeeds.value || defaults.specialNeeds[language],
-            references: references.value || defaults.references[language]
-        };
+    const subjectVal   = document.getElementById("subject").value;
+    const classVal     = document.getElementById("class").value;
+    const intMinVal    = document.getElementById("intMin").value;
+    const devMinVal    = document.getElementById("devMin").value;
+    const concMinVal   = document.getElementById("concMin").value;
+    const weeklyThemeVal = document.getElementById("weeklyTheme").value;
+    const classPlanVal = document.getElementById("classPlan").value;
+
+    const defaults = getLanguageDefaults(language, subjectVal, classVal);
+
+    const data = {
+        schoolName: document.getElementById("schoolName").value,
+        teacherName: document.getElementById("teacherName").value,
+        term: document.getElementById("term").value,
+        date: document.getElementById("date").value,
+        subject: subjectVal,
+        class: classVal,
+        unitNo: document.getElementById("unitNo").value,
+        lessonNo: document.getElementById("lessonNo").value,
+        totalLessons: document.getElementById("totalLessons").value,
+        duration: document.getElementById("duration").value,
+        classSize: document.getElementById("classSize").value,
+        unitTitle: document.getElementById("unitTitle").value,
+        lessonTitle: document.getElementById("lessonTitle").value,
+        weeklyTheme: weeklyThemeVal,
+        intMin: intMinVal,
+        devMin: devMinVal,
+        concMin: concMinVal,
+        classPlan: classPlanVal,
+        teachingMaterials: document.getElementById("teachingMaterials").value || defaults.teachingMaterials[language],
+        specialNeeds: document.getElementById("specialNeeds").value || defaults.specialNeeds[language],
+        references: document.getElementById("references").value || defaults.references[language]
+    };
+
 
         fetch(getNextPlanFile(language, userEmail))
             .then(res => res.text())
