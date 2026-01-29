@@ -6,6 +6,7 @@ export async function handler(event) {
   if (!userId) {
     return {
       statusCode: 400,
+      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: "User ID is required" })
     };
   }
@@ -18,69 +19,52 @@ export async function handler(event) {
   try {
     await client.connect();
 
-    // -----------------------
-    // 1️⃣ Daily lessons
-    // -----------------------
+    // Daily plans
     const dailyPurchasedRes = await client.query(
       `SELECT COALESCE(SUM(lessons),0) AS total_purchased
        FROM payments
        WHERE user_id=$1 AND status='approved'`,
       [userId]
     );
-
     const dailyUsedRes = await client.query(
       `SELECT COALESCE(SUM(lessons_used),0) AS total_used
        FROM lesson_usage
        WHERE user_id=$1`,
       [userId]
     );
+    const remainingDaily = Number(dailyPurchasedRes.rows[0].total_purchased || 0) - Number(dailyUsedRes.rows[0].total_used || 0);
 
-    const dailyPurchased = Number(dailyPurchasedRes.rows[0].total_purchased || 0);
-    const dailyUsed = Number(dailyUsedRes.rows[0].total_used || 0);
-    const remainingDaily = dailyPurchased - dailyUsed;
-
-    // -----------------------
-    // 2️⃣ Weekly lessons
-    // -----------------------
+    // Weekly plans
     const weeklyPurchasedRes = await client.query(
-      `SELECT COALESCE(SUM(plans_purchased),0) AS total_purchased
+      `SELECT COALESCE(SUM(lessons),0) AS total_purchased
        FROM weekly_plan_payments
-       WHERE user_id=$1 AND payment_status='completed'`,
+       WHERE user_id=$1 AND status='approved'`,
       [userId]
     );
-
     const weeklyUsedRes = await client.query(
       `SELECT COALESCE(SUM(lessons_used),0) AS total_used
        FROM weekly_p_lesson_usage
        WHERE user_id=$1`,
       [userId]
     );
+    const remainingWeekly = Number(weeklyPurchasedRes.rows[0].total_purchased || 0) - Number(weeklyUsedRes.rows[0].total_used || 0);
 
-    const weeklyPurchased = Number(weeklyPurchasedRes.rows[0].total_purchased || 0);
-    const weeklyUsed = Number(weeklyUsedRes.rows[0].total_used || 0);
-    const remainingWeekly = weeklyPurchased - weeklyUsed;
-
-    // -----------------------
-    // 3️⃣ User balance
-    // -----------------------
+    // User balance
     const userRes = await client.query(
       `SELECT balance FROM users WHERE id=$1`,
       [userId]
     );
-
     const balance = Number(userRes.rows[0]?.balance || 0);
 
-    // -----------------------
-    // 4️⃣ Total paid
-    // -----------------------
-    const totalPaid = dailyPurchased + weeklyPurchased;
+    // Total paid
+    const totalPaid = Number(dailyPurchasedRes.rows[0].total_purchased || 0) + Number(weeklyPurchasedRes.rows[0].total_purchased || 0);
 
-    // -----------------------
-    // 5️⃣ Return summary
-    // -----------------------
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*" 
+      },
       body: JSON.stringify({
         totals: {
           totalPaid,
@@ -95,9 +79,10 @@ export async function handler(event) {
     console.error(err);
     return {
       statusCode: 500,
+      headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ error: err.message })
     };
   } finally {
     await client.end();
   }
-}
+      }
