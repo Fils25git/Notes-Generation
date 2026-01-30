@@ -81,8 +81,9 @@
     <i class="fab fa-whatsapp"></i>
 </a>
 <script>
-  // 1 hour from when page loads
-  const endTime = new Date().getTime() + (60 * 60 * 1000);
+  // 🔒 SET ONCE — 1 hour from the moment this file was generated
+  const endTime = new Date("2026-01-30T12:20:00").getTime(); 
+  // ⬆️ CHANGE THIS TIME ONLY WHEN YOU WANT NEW MAINTENANCE
 
   function updateCountdown() {
     const now = new Date().getTime();
