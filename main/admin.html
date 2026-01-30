@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="css/style.css">
 <style>
-  body { font-family:sans-serif; background:#f4f6f8; padding:20px; }
+  body { font-family:sans-serif; background:#f4f6f8; padding:20px; position:fixed;}
   h1 { margin-bottom:10px; }
   input[type="text"] { padding:8px; width:300px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc; }
   table { width:100%; font-size:5px; border-collapse:collapse; margin-top:10px; }
@@ -121,12 +121,12 @@ function showToast(message, success = true) {
 // Fetch all users
 let currentPage = 1;
 let totalPages = 1;
-const limit = 50;
+const limit = 40;
 
 async function fetchUsers(page = 1, search = "") {
   try {
     const res = await fetch(
-      `/.netlify/functions/get-users?page=${page}&limit=50&search=${encodeURIComponent(search)}`
+      `/.netlify/functions/get-users?page=${page}&limit=40&search=${encodeURIComponent(search)}`
     );
 
     const data = await res.json();
