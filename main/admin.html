@@ -11,7 +11,7 @@
   h1 { margin-bottom:10px; }
   input[type="text"] { padding:8px; width:300px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc; }
   table { width:100%; border-collapse:collapse; margin-top:10px; }
-  th, td { border:1px solid #ddd; padding:8px; text-align:left; }
+  th, td { border:1px solid #ddd; padding:5px; text-align:left; }
   th { background:#2980b9; color:#fff; }
   .btn { padding:5px 10px; border:none; border-radius:5px; cursor:pointer; }
   .action-buttons {
@@ -160,7 +160,7 @@ function renderUsers(users) {
   <td>${user.email}</td>
   <td>${user.phone || "N/A"}</td>
   <td>${user.balance || 0}</td>
-  <td class="action-buttons">>
+  <td class="action-buttons">
     <button class="btn btn-view" onclick="viewPayments('${user.id}')" title="View Payments">
       <i class="fas fa-eye"></i>
     </button>
