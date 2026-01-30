@@ -205,7 +205,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             <td>${p.amount || 0}</td>
             <td>${p.lessons || 0}</td>
             <td>${p.status || "N/A"}</td>
-            <td>${p.payment_method || "N/A"}</td>
             <td>${new Date(p.created_at).toLocaleString() || "N/A"}</td>
           </tr>
         `).join("");
@@ -231,7 +230,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             <td>${p.amount || 0}</td>
             <td>${p.lessons || 0}</td>
             <td>${p.status || "N/A"}</td>
-            <td>${p.payment_method || "N/A"}</td>
             <td>${p.created_at ? new Date(p.created_at).toLocaleString() : "N/A"}</td>
           </tr>
         `).join("");
