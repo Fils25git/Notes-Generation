@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fila Assistant - Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="css/style.css">
 <style>
   body { font-family:sans-serif; background:#f4f6f8; padding:20px; }
@@ -13,8 +14,23 @@
   th, td { border:1px solid #ddd; padding:8px; text-align:left; }
   th { background:#2980b9; color:#fff; }
   .btn { padding:5px 10px; border:none; border-radius:5px; cursor:pointer; }
-  .btn-view { background:#27ae60; color:#fff; }
-  .btn-delete { background:#e74c3c; color:#fff; }
+  ..btn {
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.btn-view {
+  background: #3498db;
+  color: white;
+}
+
+.btn-delete {
+  background: #e74c3c;
+  color: white;
+    }
   .toast { position: fixed; top:20px; right:20px; background:#4caf50; color:#fff; padding:10px 20px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.2); opacity:0; transition:0.3s; z-index:9999; }
   .toast.show { opacity:1; }
 </style>
@@ -122,16 +138,21 @@ function renderUsers(users) {
     const row = document.createElement("tr");
 
     row.innerHTML = `
-      <td>${index + 1}</td>
-      <td>${user.name}</td>
-      <td>${user.email}</td>
-      <td>${user.phone || "N/A"}</td>
-      <td>${user.balance || 0}</td>
-      <td>
-        <button class="btn btn-view" style="font-size:5px;" onclick="viewPayments('${user.id}')">View</button>
-        <button class="btn btn-delete" onclick="deleteUser('${user.id}', this)">Delete</button>
-      </td>
-    `;
+  <td>${index + 1}</td>
+  <td>${user.name}</td>
+  <td>${user.email}</td>
+  <td>${user.phone || "N/A"}</td>
+  <td>${user.balance || 0}</td>
+  <td>
+    <button class="btn btn-view" onclick="viewPayments('${user.id}')" title="View Payments">
+      <i class="fas fa-eye"></i>
+    </button>
+
+    <button class="btn btn-delete" onclick="deleteUser('${user.id}', this)" title="Delete User">
+      <i class="fas fa-trash"></i>
+    </button>
+  </td>
+`;
 
     usersTableBody.appendChild(row);
   });
