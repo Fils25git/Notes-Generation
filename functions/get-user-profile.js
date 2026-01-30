@@ -9,15 +9,25 @@ const pool = new Pool({
 export async function handler(event) {
   try {
     const email = event.queryStringParameters?.email;
+    const userId = event.queryStringParameters?.user;
 
-    if (!email) {
-      return { statusCode: 400, body: JSON.stringify({ error: "Email required" }) };
+    if (!email && !userId) {
+      return { statusCode: 400, body: JSON.stringify({ error: "Email or user ID required" }) };
     }
 
-    const result = await pool.query(
-      `SELECT name, email, phone, balance FROM users WHERE email = $1`,
-      [email]
-    );
+    let result;
+
+    if (email) {
+      result = await pool.query(
+        `SELECT name, email, phone, balance FROM users WHERE email = $1`,
+        [email]
+      );
+    } else {
+      result = await pool.query(
+        `SELECT name, email, phone, balance FROM users WHERE id = $1`,
+        [userId]
+      );
+    }
 
     if (result.rows.length === 0) {
       return { statusCode: 404, body: JSON.stringify({ error: "User not found" }) };
@@ -32,4 +42,4 @@ export async function handler(event) {
     console.error("Profile error:", err);
     return { statusCode: 500, body: JSON.stringify({ error: "Server error" }) };
   }
-}
+        }
