@@ -16,7 +16,7 @@
       font-family: Arial, Helvetica, sans-serif;
       text-align: center;
     }
-    
+    4
     .box {
       background: white;
       padding: 40px;
@@ -68,15 +68,41 @@
       This page is currently under maintenance.<br>
       Please come back later.
     </p>
+    <div id="countdown">01:00:00</div>
     <hr style="margin:20px 0;">
     <p>
       Turi kuvugurura iki gice ubu nonaha.<br>
     w wOngere ugaruke nyuma y'isaha.
     </p>
+    <div id="countdown">01:00:00</div>
   </div>
   <!-- WhatsApp Button -->
 <a href="https://wa.me/250786728623?text=Hello%20I%20need%20help%20with%20Fila%20Assistant" target="_blank" class="whatsapp-btn">
     <i class="fab fa-whatsapp"></i>
 </a>
+  <script>
+    // Set countdown time to 1 hour (in seconds)
+    let timeLeft = 60 * 60;
+
+    function updateCountdown() {
+      let hours = Math.floor(timeLeft / 3600);
+      let minutes = Math.floor((timeLeft % 3600) / 60);
+      let seconds = timeLeft % 60;
+
+      document.getElementById("countdown").innerHTML =
+        String(hours).padStart(2, '0') + ":" +
+        String(minutes).padStart(2, '0') + ":" +
+        String(seconds).padStart(2, '0');
+
+      if (timeLeft > 0) {
+        timeLeft--;
+      } else {
+        document.getElementById("countdown").innerHTML = "00:00:00";
+      }
+    }
+
+    setInterval(updateCountdown, 1000);
+  </script>
+
 </body>
 </html>
