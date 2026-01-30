@@ -265,7 +265,7 @@
 
 <h3>🕘 9:00 – 9:30 | Ikinyarwanda</h3>
     <div class="form-group">
-<label class="required">Ikigwa</label>
+<label class="required">ubwoko bw'igikorwa</label>
       <div class="form-group">  
 <input type="text" id="ikigwa_0900" required>
 <label class="required">Ibindi byigwa</label>
@@ -274,7 +274,7 @@
     </div><br>
 <h3>🕤 9:30 – 10:00 | English Oral Communication</h3>
     <div class="form-group">
-<label class="required">Ikigwa(in English)</label>
+<label class="required">ubwoko bw'igikorwa(in English)</label>
         <div class="form-group">
 <input type="text" id="ikigwa_0930" required>
 <label class="required">Ibindi byigwa(in English)</label>
@@ -283,7 +283,7 @@
     </div><br>
 <h3>🕥 10:40 – 11:00 | Imikino yo hanze</h3>
     <div class="form-group">
-<label class="required">Ikigwa</label>
+<label class="required">Ubwoko bw'igikorwa</label>
         <div class="form-group">
 <input type="text" id="ikigwa_1040" required>
 <label class="required">Ibindi byigwa</label>
@@ -293,7 +293,7 @@
 
 <h3>🕚 11:00 – 11:20 | Ubugeni n'umuco</h3>
     <div class="form-group">
-<label class="required">Ikigwa</label>
+<label class="required">ubwoko bw'igikorwa</label>
         <div class="form-group">
 <input type="text" id="ikigwa_1100" required>
 <label class="required">Ibindi byigwa</label>
@@ -303,7 +303,7 @@
 
 <h3>🕦 11:20 – 11:40 | Kubara Inkuru mu Kinyarwanda</h3>
     <div class="form-group">
-<label class="required">Ikigwa</label>
+<label class="required">Ubwoko bw'igikorwa</label>
         <div class="form-group">
 <input type="text" id="ikigwa_1120" required>
 <label class="required">Ibindi byigwa</label>
@@ -313,7 +313,7 @@
 
 <h3>🕛 11:40 – 12:00 | Imikino yo mu nguni</h3>
     <div class="form-group">
-<label class="required">Ikigwa</label>
+<label class="required">ubwoko bw'igikorwa</label>
     <div class="form-group">
 <input type="text" id="ikigwa_1140" required>
 <label class="required">Ibindi byigwa</label>
@@ -348,10 +348,11 @@
 
 <!-- Netlify Identity -->
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-                <script>
+                
 /* ===============================
    GLOBAL VARIABLES
 ================================ */
+    <script>
 let currentPlanIndex = 1; // plan1.html start
 const totalPlans = 5;     // total templates
 
@@ -560,7 +561,8 @@ function downloadPDFProper() {
       body: mergedBody,
       startY,
       theme: "grid",
-      styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
+      styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak"
+        },
       headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
       margin: { left: 8, right: 8 },
       rowPageBreak: "avoid",
@@ -569,7 +571,8 @@ function downloadPDFProper() {
 
   const today = new Date().toISOString().split("T")[0];
   doc.save(`Weekly_Plan_${today}.pdf`);
-}
+        }
+
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
