@@ -128,7 +128,7 @@ function renderUsers(users) {
       <td>${user.phone || "N/A"}</td>
       <td>${user.balance || 0}</td>
       <td>
-        <button class="btn btn-view" onclick="viewPayments('${user.id}')">View Payments</button>
+        <button class="btn btn-view" style="font-size:5px;" onclick="viewPayments('${user.id}')">View</button>
         <button class="btn btn-delete" onclick="deleteUser('${user.id}', this)">Delete</button>
       </td>
     `;
