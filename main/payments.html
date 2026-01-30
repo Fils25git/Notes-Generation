@@ -56,10 +56,11 @@
   </style>
 </head>
 <body>
+  <h1>User Payments Summary</h1>
   
 <div class="profile-container">
    <div class="profile-card">
-        <div class="avatar" id="avatar">--</div>
+        <!--<div class="avatar" id="avatar">--</div>-->
         <div class="profile-details">
             <div><strong>Name:</strong> <span id="fullName">Loading...</span></div>
             <div><strong>Email:</strong> <span id="email">Loading...</span></div>
@@ -67,7 +68,7 @@
         </div>
    </div>
 
-<h1>User Payments</h1>
+
 
 <div id="error"></div>
 
@@ -168,7 +169,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       fullName.textContent = data.name || "N/A";
       emailEl.textContent = data.email || "N/A";
       phoneEl.textContent = data.phone || "N/A";
-      avatar.textContent = initials(data.name);
+      //avatar.textContent = initials(data.name);
     } catch {
       showToast("Failed to load profile", false);
     }
