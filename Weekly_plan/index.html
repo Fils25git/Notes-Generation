@@ -81,9 +81,8 @@
     <i class="fab fa-whatsapp"></i>
 </a>
 <script>
-  // SET THE TIME WHEN MAINTENANCE ENDS (YEAR, MONTH-1, DAY, HOUR, MINUTE, SECOND)
-  const endTime = new Date(2026, 0, 30, 15, 0, 0).getTime(); 
-  // Example: Jan 30, 2026 at 15:00:00
+  // 1 hour from when page loads
+  const endTime = new Date().getTime() + (60 * 60 * 1000);
 
   function updateCountdown() {
     const now = new Date().getTime();
@@ -94,7 +93,7 @@
       return;
     }
 
-    let hours = Math.floor((timeLeft / (1000 * 60 * 60)));
+    let hours = Math.floor(timeLeft / (1000 * 60 * 60));
     let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
     let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
