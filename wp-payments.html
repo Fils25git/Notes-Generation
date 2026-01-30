@@ -9,6 +9,7 @@
 <meta property="og:description" content="Fila Assistant offers weekly lesson plans for teachers and students." />
 <meta property="og:image" content="https://www.fleduacademy.com/logo.png" />
 <meta property="og:url" content="https://www.fleduacademy.com" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
   body { 
@@ -70,6 +71,30 @@
     input[type="number"] { width: 100%; }
   }
 </style>
+  <style>
+.whatsapp-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #25D366;
+    color: white;
+    font-size: 28px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: 0.3s;
+}
+
+.whatsapp-btn:hover {
+    transform: scale(1.1);
+}
+  </style>
 </head>
 <body>
 
@@ -102,6 +127,11 @@
     <span id="msgText"></span>
     <span class="close" onclick="closeMsg()">✖</span>
   </div>
+  
+<!-- WhatsApp Button -->
+<a href="https://wa.me/250788123456" target="_blank" class="whatsapp-btn">
+    <i class="fab fa-whatsapp"></i>
+</a>
 </div>
 
 <footer>
