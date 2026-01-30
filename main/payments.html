@@ -53,6 +53,19 @@
     box-shadow:0 2px 6px rgba(0,0,0,.08);
     flex-wrap: wrap;
   }
+    .avatar {
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    background: var(--primary);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:34px;
+    font-weight:bold;
+    }
+    .profile-details div { margin-bottom:6px; font-size:.95rem; }
   </style>
 </head>
 <body>
@@ -60,7 +73,7 @@
   
 <div class="profile-container">
    <div class="profile-card">
-        <!--<div class="avatar" id="avatar">--</div>-->
+        <div class="avatar" id="avatar">--</div>
         <div class="profile-details">
             <div><strong>Name:</strong> <span id="fullName">Loading...</span></div>
             <div><strong>Email:</strong> <span id="email">Loading...</span></div>
@@ -144,7 +157,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const fullName = document.getElementById("fullName");
     const emailEl = document.getElementById("email");
     const phoneEl = document.getElementById("phone");
-   // const avatar = document.getElementById("avatar");
+    const avatar = document.getElementById("avatar");
     const toast = document.getElementById("toast");
 
     function showToast(msg, ok = true) {
@@ -154,9 +167,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       setTimeout(() => toast.classList.remove("show"), 3000);
     }
 
-  //  function initials(name) {
-   //   if (!name) return "--";
-     // return name.split(" ").map(w => w[0]).slice(0, //2).join("").toUpperCase();
+  function initials(name) {
+     if (!name) return "--";
+      return name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
     }
 
     // -----------------------
@@ -169,7 +182,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       fullName.textContent = data.name || "N/A";
       emailEl.textContent = data.email || "N/A";
       phoneEl.textContent = data.phone || "N/A";
-      //avatar.textContent = initials(data.name);
+      avatar.textContent = initials(data.name);
     } catch {
       showToast("Failed to load profile", false);
     }
