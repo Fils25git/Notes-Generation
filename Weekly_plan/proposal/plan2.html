@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Imbata nkomatanyo y'icyumweru</title>
+    <title>Imbata nkomatanyo y'icyumweru - Weekly Schedule</title>
 
     <style>
         body {
@@ -11,28 +11,37 @@
             margin: 10px;
         }
         .container {
-            max-width: 650px;
-            margin: auto;
+            max-width: 600px;
+            margin: 0 auto;
             padding: 10px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         table, th, td {
             border: 1px solid black;
             border-collapse: collapse;
         }
-        table {
+        .schedule-table {
             width: 100%;
+            margin-bottom: 10px;
         }
-        th, td {
+        .schedule-table th,
+        .schedule-table td {
             padding: 4px;
             vertical-align: top;
         }
-        .time {
+        .time-slot {
             font-weight: bold;
             white-space: nowrap;
         }
+        .activity-type {
+            font-weight: bold;
+        }
+        .subject {
+            font-style: italic;
+        }
         ul {
-            margin: 3px 0;
+            margin: 4px 0;
             padding-left: 18px;
         }
     </style>
@@ -41,309 +50,371 @@
 <body>
 <div class="container">
 
-<!-- ================= GENERAL INFORMATION ================= -->
-<table>
-    <tr>
-        <th>Itariki</th>
-        <th>Igihembwe</th>
-        <th>Ikiciro</th>
-        <th>Umwaka</th>
-        <th>Umubare w’abana</th>
-        <th>Insanganyamatsiko Nini</th>
-        <th>Insanganyamatsiko Nto</th>
-        <th>Abanyeshuri bafite ibyo bagenerwa byihariye</th>
-    </tr>
-    <tr>
-        <td>{{date}} – {{toDate}}</td>
-        <td>{{term}}</td>
-        <td>{{level}}</td>
-        <td>{{year}}</td>
-        <td>{{childrensNumber}}</td>
-        <td>{{mainTopic}}</td>
-        <td>{{subTopic}}</td>
-        <td>{{specialNeeds}}</td>
-    </tr>
+
+<!-- ================= GENERAL INFORMATION TABLE ================= -->
+<table class="schedule-table">
+
+    <thead>
+        <tr>
+            <th>Itariki<br>Date</th>
+            <th>Igihembwe<br>Term</th>
+            <th>Ikiciro<br>Level</th>
+            <th>Umwaka<br>Year</th>
+            <th>Umubare w'abana</th>
+            <th>Insanganyamatsiko Nini</th>
+            <th>Insanganyamatsiko Nto</th>
+            <th>Ibibazo byihariye</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>From {{date}} To {{toDate}}</td>
+            <td>{{term}}</td>
+            <td>{{level}}</td>
+            <td>{{year}}</td>
+            <td>{{childrensNumber}}</td>
+            <td>{{mainTopic}}</td>
+            <td>{{subTopic}}</td>
+            <td>{{specialNeeds}}</td>
+        </tr>
+    </tbody>
 </table>
 
-<br>
-
-<!-- ================= DAILY ACTIVITIES ================= -->
-<table>
+<!-- ================= LESSON SCHEDULE TABLE ================= -->
+<table class="schedule-table">
 <thead>
-<tr>
-    <th>Igihe</th>
-    <th>Igikorwa</th>
-    <th>Ikigwa</th>
-    <th>Ibindi byigwa</th>
-    <th>Intego zigamijwe</th>
-    <th>Ibikorwa by’umurezi</th>
-    <th>Ibikorwa by’abana</th>
-    <th>Imfashanyigisho</th>
-</tr>
+    <tr>
+        <th rowspan="2">Igihe</th>
+        <th rowspan="2">Ubwoko bw'igikorwa</th>
+        <th rowspan="2">Ikigwa</th>
+        <th rowspan="2">Ibindi byigwa</th>
+        <th rowspan="2">Intego zigamijwe</th>
+        <th rowspan="2">Ibikorwa by'umurezi</th>
+        <th rowspan="2">Ibikorwa by'abana</th>
+        <th rowspan="2">Imfashanyigisho</th>
+    </tr>
 </thead>
 
 <tbody>
 
 <tr>
 <td class="time-slot">7:45 - 8:00</td>
-<td id="ikigwa_0745">{{ikigwa_0745}}</td>
-<td class="activity-type">Guhana ikaze</td>
+<td class="activity-type" id="activity_time_0745">{{activity_time_0745}}</td>
+<td>Guhana ikaze</td>
 <td id="ibindi_byigwa_0745">{{ibindi_byigwa_0745}}</td>
 <td>
-Gufasha abana kwinjira mu myigire bifashishije amagambo, indirimbo n’imikino ijyanye na
-{{ikigwa_0745}} na {{ibindi_byigwa_0745}} bikubiye mu {{subTopic}}.
+Iki gihe kigamije kwakira abana neza no kubategura kwiga, kibinjiza mu nsanganyamatsiko {{mainTopic}} no mu {{subTopic}} binyuze mu biganiro bigufi, indirimbo n’ibikoresho biboneka.
 </td>
 <td>
 <ul>
-<li>Kwakira abana mu mutekano</li>
-<li>Kuganiriza abana ku ngingo z’umunsi</li>
-<li>Gutangira indirimbo y’ikaze</li>
+<li>Kwakira abana mu byishimo no kubita amazina yabo</li>
+<li>Kuganira ku mibereho yabo ya mugitondo hifashishijwe {{mainTopic}}</li>
+<li>Kubaza ibibazo bigufi bijyanye na {{subTopic}}</li>
+<li>Kwereka amashusho ajyanye n’insanganyamatsiko no kuyaganiraho</li>
+<li>Gutangiza indirimbo ijyanye na {{mainTopic}}</li>
+<li>Gufasha abana kuvuga ibyo babona mu mashusho</li>
+<li>Kubasobanurira mu magambo make gahunda y’umunsi</li>
+<li>Gutoza abana gutuza no kwitegura amasomo</li>
 </ul>
 </td>
 <td>
 <ul>
-<li>Kwitaba indamutso</li>
-<li>Kuganira n’abandi bana</li>
-<li>Kuririmba no gukina imikino migufi</li>
+<li>Kwitaba amazina yabo mu byishimo</li>
+<li>Kuvuga uko bameze n’ibibakikije</li>
+<li>Kureba no gusobanura ibyo babona mu mashusho</li>
+<li>Kuririmba indirimbo y’ikaze</li>
+<li>Gusubiza ibibazo bigufi by’umurezi</li>
+<li>Kuganira n’abandi ku {{subTopic}}</li>
+<li>Kwitabira imyitozo mito yo gutegura kwiga</li>
+<li>Kumvira amabwiriza ajyanye n’umunsi w’amasomo</li>
 </ul>
 </td>
-<td>Indirimbo, amashusho</td>
+<td>Amashusho, indirimbo, ibikinisho bito</td>
 </tr>
 
 <tr>
-    <td class="time">8:00–8:30</td>
-    <td>Imibare</td>
-    <td>{{ikigwa_0800}}</td>
-    <td>{{ibindi_byigwa_0800}}</td>
-    <td>
-        Abana biga gukoresha imibare mu bikorwa bifatika bijyanye na {{subTopic}}, 
-        bigafasha gusobanukirwa uburyo imibare ikoreshwa mu buzima bwa buri munsi 
-        mu rwego rwa {{mainTopic}}.
-    </td>
-    <td>
-        <ul>
-            <li>Gutegura no gutanga ibikoresho bifasha mu kubara bijyanye na {{subTopic}}</li>
-            <li>Kwereka abana uburyo babara hifashishijwe ibintu bifatika</li>
-            <li>Gusobanura uko imibare ijyana n’ibikorwa bya {{mainTopic}}</li>
-            <li>Gutanga imyitozo y’ibarura n’ubwanditsi bw’imibare</li>
-        </ul>
-    </td>
-    <td>
-        <ul>
-            <li>Kubara no gukoresha ibintu bifatika bahawe</li>
-            <li>Guhuza imibare n’ibikorwa bya {{subTopic}}</li>
-            <li>Gukora imyitozo yo kubara no kwandika imibare</li>
-        </ul>
-    </td>
-    <td>Udukoresho two kubara, amakarita y’imibare</td>
-</tr>
-
-<tr>
-    <td class="time-slot">8:30 - 9:00</td>
-<td id="ikigwa_0830">{{ikigwa_0830}}</td>
-<td class="activity-type">Ubumenyi bw'Ibidukikije</td>
+<td class="time-slot">8:00 - 8:30</td>
+<td class="activity-type" id="activity_time_0830">{{activity_time_0830}}</td>
+<td>Ubumenyi bw'Ibidukikije</td>
 <td id="ibindi_byigwa_0830">{{ibindi_byigwa_0830}}</td>
-    <td>
-        Abana bigira ku bidukikije biri hafi yabo, bakabireba, bakabifata neza kandi
-        bakabisesengura hifashishijwe {{ikigwa_0830}}. Ibi bigamije kubafasha
-        gusobanukirwa uko ibintu bitandukanye mu buzima bwabo bwa buri munsi bifitanye
-        isano na {{mainTopic}}, ndetse no guteza imbere ubushobozi bwo kwitegereza no gutekereza.
-    </td>
-    <td>
-        <ul>
-            <li>Kwereka amashusho cyangwa ibintu bifatika bijyanye na {{subTopic}}</li>
-            <li>Kubaza abana ibibazo byoroshye kandi bibafasha gutekereza</li>
-            <li>Kwerekana uko ibintu bifatika bigira uruhare mu buzima bwa buri munsi</li>
-            <li>Gutoza abana kwandika no gusobanura ibyo babonye mu buryo bworoshye</li>
-        </ul>
-    </td>
-    <td>
-        <ul>
-            <li>Kwitegereza no kugenzura ibintu biri mu ishuri cyangwa hanze</li>
-            <li>Gutanga ibisubizo ku bibazo byabajijwe n’umwarimu</li>
-            <li>Kuganira ku byo babonye no kubihuza na {{mainTopic}}</li>
-            <li>Kwandika cyangwa gushushanya ibitekerezo byabo ku byo bize</li>
-        </ul>
-    </td>
-    <td>Amashusho, ibintu bifatika, ibikoresho byo kwandika no gushushanya</td>
+<td>
+Abana bunguka ubumenyi ku {{isomo_time_0830}} binyuze mu kureba, gukora no kuganira, bigatuma basobanukirwa {{subTopic}} nk’igice cy’ingenzi cya {{mainTopic}}.
+</td>
+<td>
+<ul>
+<li>Kwereka abana ibikoresho bifatika bijyanye n’isomo</li>
+<li>Kubaza ibyo basanzwe bazi ku {{isomo_time_0830}}</li>
+<li>Gusobanura isomo hifashishijwe ingero zifatika</li>
+<li>Kwerekana amashusho cyangwa videwo bigaragaza isomo</li>
+<li>Kwigisha amagambo mashya ajyanye na {{subTopic}}</li>
+<li>Kuganira ku kamaro k’ibyo biga mu buzima bwa buri munsi</li>
+<li>Kuyobora igikorwa gito cyo kugerageza cyangwa kwitegereza</li>
+<li>Gukurikirana no gusuzuma uko abana babyumva</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Kureba no gufata ibikoresho by’isomo</li>
+<li>Kuvuga ibyo babona kandi babyumva</li>
+<li>Kubaza no gusubiza ibibazo byoroshye</li>
+<li>Gusubiramo amagambo mashya</li>
+<li>Kwitabira ibikorwa bifatika by’isomo</li>
+<li>Gutanga ibisubizo mu magambo cyangwa mu bikorwa</li>
+<li>Kwitabira umukino ujyanye n’isomo</li>
+<li>Kuhuza ibyo bize n’ubuzima busanzwe</li>
+</ul>
+</td>
+<td>Ibikoresho bifatika, amashusho, videwo ngufi</td>
+</tr>
+
+<tr>
+<td class="time-slot">8:30 - 9:00</td>
+<td class="activity-type" id="activity_time_0830">{{activity_time_0830}}</td>
+<td>Imibare</td>
+<td id="ibindi_byigwa_0800">{{ibindi_byigwa_0800}}</td>
+<td>
+Iki gikorwa gifasha abana gusobanukirwa {{isomo_time_0800}} binyuze mu kubara, gukina no gukoresha imibare mu bikorwa bifatika bifitanye isano na {{mainTopic}}.
+</td>
+<td>
+<ul>
+<li>Kwereka udukoresho tujyanye na {{isomo_time_0800}}</li>
+<li>Kwigisha {{isomo_time_0800}}  mu ijwi riranguruye</li>
+<li>Kwerekana  amakarita no kuyasobanura</li>
+<li>Kubaza imibare yoroheje ijyanye n’isomo</li>
+<li>Kuyobora umukino wo guhuza isomo: {{isomo_time_0800}} n’ibintu bisanzwe</li>
+<li>Gukora imyitozo mu matsinda mato</li>
+<li>Gusubiramo imibare yizewe</li>
+<li>Gushimira abana bagaragaje ubushobozi mu kubara</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Kubara ibikoresho bifatika</li>
+<li>Kwerekana imibare bakoresheje intoki</li>
+<li>Guhuza umubare n’ibintu bijyanye na {{subTopic}}</li>
+<li>Kwitabira imikino yo kubara</li>
+<li>Kubara mu matsinda</li>
+<li>Kubara ibintu biboneka mu ishuri</li>
+<li>Gusubiramo imibare nyuma y’umurezi</li>
+<li>Kuvuga aho imibare ikoreshwa mu buzima</li>
+</ul>
+</td>
+<td>Amakarita y’imibare, udukoresho two kubara, ibikinisho</td>
 </tr>
 
 <tr>
 <td class="time-slot">9:00 - 9:30</td>
-<td id="ikigwa_0900">{{ikigwa_0900}}</td>
-<td class="activity-type">Ikinyarwanda</td>
+<td class="activity-type" id="activity_time_0900">{{activity_time_0900}}</td>
+<td>Ikinyarwanda</td>
 <td id="ibindi_byigwa_0900">{{ibindi_byigwa_0900}}</td>
-    <td>
-        Abana biga gukoresha amagambo, interuro ngufi n’ibiganiro byoroheje mu
-        gusobanura no kugaragaza ibitekerezo bijyanye na {{ikigwa_0900}},
-        bigafasha gutyaza ubumenyi mu gusoma no kwandika, ndetse no guteza imbere
-        ubushobozi bwo kuvuga no kumva neza ururimi rwabo.
-    </td>
-    <td>
-        <ul>
-            <li>Kubara inkuru ngufi zijyanye na {{subTopic}}</li>
-            <li>Kwigisha amagambo mashya n’imvugo zikoreshwa mu buzima bwa buri munsi</li>
-            <li>Gutoza abana gukoresha interuro ngufi mu biganiro byoroshye</li>
-            <li>Kwereka uburyo inkuru cyangwa interuro ishobora gutegurwa no kuvugwa</li>
-        </ul>
-    </td>
-    <td>
-        <ul>
-            <li>Kumva no gusubiramo amagambo n’interuro zigiye kwigishwa</li>
-            <li>Kuvuga interuro ngufi no gusobanura ibitekerezo byabo</li>
-            <li>Gukora ibiganiro bigufi n’abandi banyeshuri ku {{subTopic}}</li>
-            <li>Kwandika cyangwa gushushanya ibitekerezo byabo bijyanye n’inkuru</li>
-        </ul>
-    </td>
-    <td>Ibitabo, amakarita y’amagambo, ibikoresho byo kwandika no gushushanya</td>
+<td>
+Abana biga gukoresha amagambo n’interuro zoroshye zijyanye na {{isomo_time_0900}}, bigabafasha gusobanukirwa {{subTopic}} no kuyihuza na {{mainTopic}} mu biganiro n’ibikorwa bitandukanye.
+</td>
+<td>
+<ul>
+<li>Kwereka amashusho n’ibikoresho bijyanye na {{isomo_time_0900}}</li>
+<li>Kwigisha amagambo arimo {{isomo_time_0900}} gahoro gahoro</li>
+<li>Gusobanura ayo amagambo hifashishijwe ingero</li>
+<li>Kwigisha interuro ngufi zoroheje zirimo ayo magambo</li>
+<li>Kubaza ibibazo byo gusobanukirwa</li>
+<li>Kubara inkuru ngufi ijyanye n’insanganyamatsiko {{subtopic}}</li>
+<li>Kuyobora indirimbo y’Ikinyarwanda ijyanye n’isomo</li>
+<li>Gufasha abana gukoresha amagambo mu biganiro</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Gusubiramo amagambo mashya</li>
+<li>Kuvuga interuro ngufi</li>
+<li>Kwerekana ibintu bivugwa</li>
+<li>Kwitabira inkuru no kuyisubiramo</li>
+<li>Kuririmba indirimbo y’isomo</li>
+<li>Kuganira ku byo babonye mu mashusho</li>
+<li>Kwitabira ikiganiro cy’ishuri</li>
+<li>Gukoresha amagambo mu buryo bukwiye</li>
+</ul>
+</td>
+<td>Amashusho, ibitabo by’amashusho, amakarita y’amagambo</td>
 </tr>
-    <tr>
-    <td class="time-slot">7:45 - 8:00</td>
-<td id="ikigwa_0745">{{ikigwa_0745}}</td>
-<td class="activity-type">Guhana ikaze</td>
-<td id="ibindi_byigwa_0745">{{ibindi_byigwa_0745}}</td>
-    <td>
-        Enabling learners to recognize, pronounce, and use simple English words
-        related to {{ikigwa_0930}} and {{ibindi_byigwa_0930}} in oral communication.
-    </td>
-    <td>
-        <ul>
-            <li>Displaying relevant pictures and teaching aids</li>
-            <li>Modeling correct pronunciation of words</li>
-            <li>Guiding learners to form short, meaningful sentences</li>
-        </ul>
-    </td>
-    <td>
-        <ul>
-            <li>Listening attentively and repeating words</li>
-            <li>Naming objects, actions, and simple phrases</li>
-            <li>Using words in short oral sentences</li>
-        </ul>
-    </td>
-    <td>
-        Flashcards, pictures, word cards
-    </td>
+<tr>
+<td class="time-slot">9:30 - 10:00</td>
+<td class="activity-type" id="activity_time_0930">{{activity_time_0930}}</td>
+<td>English Oral Communication</td>
+<td id="ibindi_byigwa_0930">{{ibindi_byigwa_0930}}</td>
+<td>
+Children practice using simple spoken English vocabulary about {{isomo_time_0930}}, connected to {{subTopicEng}} within the wider {{mainTopicEng}}, through guided speaking, songs, actions, and play-based interaction.
+</td>
+<td>
+<ul>
+<li>Introducing vocabulary related to {{isomo_time_0930}} using flashcards and real objects</li>
+<li>Pronouncing words clearly and repeatedly while linking them to {{subTopicEng}}</li>
+<li>Using gestures, actions, and demonstrations to clarify meaning</li>
+<li>Leading a short song that includes words from {{isomo_time_0930}}</li>
+<li>Asking simple oral questions such as “What is this?”</li>
+<li>Encouraging turn-taking and confident speaking</li>
+<li>Supporting learners who struggle with pronunciation</li>
+<li>Connecting new words to familiar experiences in {{mainTopicEng}}</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Listening attentively to new English words</li>
+<li>Repeating vocabulary related to {{isomo_time_0930}}</li>
+<li>Pointing at objects or pictures when naming them</li>
+<li>Answering simple oral questions</li>
+<li>Singing along with the teacher</li>
+<li>Imitating gestures and actions</li>
+<li>Participating in short vocabulary games</li>
+<li>Using words confidently during activities</li>
+</ul>
+</td>
+<td>Flashcards, real objects, pictures, English songs</td>
 </tr>
-
 
 <tr>
-<td class="time">10:00–10:40</td>
-<td colspan="8" style="text-align:center;font-weight:bold;">
-AKARUHUKO
+<td class="time-slot">10:00 - 10:40</td>
+<td colspan="8" style="text-align:center; font-weight:bold; font-size:18px;">
+AKARUHUKO (BREAK)
 </td>
 </tr>
- <tr>
-    <td class="time-slot">10:40 - 11:00</td>
-<td id="ikigwa_1040">{{ikigwa_1040}}</td>
-<td class="activity-type">Imikino yo hanze</td>
-<td id="ibindi_byigwa_1040">{{ibindi_byigwa_1040}}</td>
-    <td>
-        Guteza imbere imbaraga z’umubiri, imikoranire
-        n’imibanire myiza y’abana binyuze mu mikino yo hanze.
-    </td>
-    <td>
-        <ul>
-            <li>Gusobanura intego n’amategeko y’imikino</li>
-            <li>Kwereka abana uko imikino ikinwa</li>
-            <li>Kugenzura umutekano n’imyitwarire y’abana</li>
-            <li>Gufasha abana gukemura ibibazo bivutse mu mukino</li>
-        </ul>
-    </td>
-    <td>
-        <ul>
-            <li>Kwitabira imikino itandukanye yo hanze</li>
-            <li>Gukorana na bagenzi babo mu matsinda</li>
-            <li>Gukurikiza amategeko y’imikino</li>
-            <li>Kwerekana imyitwarire myiza mu mukino</li>
-        </ul>
-    </td>
-    <td>Ibikoresho by’imikino yo hanze</td>
- </tr>
-    <tr>
-    <td class="time-slot">11:00 - 11:20</td>
-<td id="ikigwa_1100">{{ikigwa_1100}}</td>
-<td class="activity-type">Ubugeni n’Umuco</td>
-<td id="ibindi_byigwa_1100">{{ibindi_byigwa_1100}}</td>
-    <td>
-        Kugaragaza ibitekerezo, amarangamutima n’ubumenyi
-        ku {{ikigwa_1100}} binyuze mu bikorwa by’ubugeni n’umuco.
-    </td>
-    <td>
-        <ul>
-            <li>Gusobanura igikorwa n’icyo kigamije</li>
-            <li>Kwereka urugero rw’ishusho, indirimbo cyangwa inkuru</li>
-            <li>Gutanga amabwiriza y’uko igikorwa gikorwa</li>
-            <li>Gukurikirana no gufasha abana mu gihe bakora</li>
-        </ul>
-    </td>
-    <td>
-        <ul>
-            <li>Gushushanya cyangwa gusiga amabara ku nsanganyamatsiko</li>
-            <li>Kuririmba indirimbo ijyanye n’isomo</li>
-            <li>Kubara inkuru ngufi</li>
-            <li>Kwerekana no gusobanura ibyo bakoze</li>
-        </ul>
-    </td>
-    <td>Impapuro zo gushushanyaho, amabara, amakaramu</td>
-    </tr>
-    <tr>
+
 <tr>
-    <td class="time-slot">11:20 - 11:40</td>
-<td id="ikigwa_1120">{{ikigwa_1120}}</td>
-<td class="activity-type">Kubara inkuru mu Kinyarwanda</td>
-<td id="ibindi_byigwa_1120">{{ibindi_byigwa_1120}}</td>
-    <td>
-        Abana bakomeza kwitoza kubara inkuru mu Kinyarwanda, bifasha
-        gusobanukirwa {{subTopic}} no gushimangira ubumenyi ku {{mainTopic}}
-        mu buryo burimo gutekereza, gusoma, kwandika no gukorana n’abandi.
-    </td>
-    <td>
-        <ul>
-            <li>Gutanga ibitabo n’ibikoresho bifasha mu kubara inkuru</li>
-            <li>Kwerekana urugero rw’inkuru ibarwa cyangwa ivugwa</li>
-            <li>Gutoza abana gukurikira no gusubiramo inkuru</li>
-        </ul>
-    </td>
-    <td>
-        <ul>
-            <li>Kwitabira ibikorwa byo kubara inkuru</li>
-            <li>Kuvuga no kwandika inkuru zabo</li>
-            <li>Gusangira inkuru zabo n’abandi mu bufatanye</li>
-        </ul>
-    </td>
-    <td>Ibitabo, amakarita, ibikoresho byo kubara inkuru</td>
-    </tr>
-    <tr>
+<td class="time-slot">10:40 - 11:00</td>
+<td class="activity-type" id="activity_time_1040">{{activity_time_1040}}</td>
+<td>Imikino yo hanze</td>
+<td id="ibindi_byigwa_1040">{{ibindi_byigwa_1040}}</td>
+<td>
+Imikino yo hanze ituma abana basobanukirwa {{isomo_time_1040}} binyuze mu gukina, gukorana n’abandi, no gukoresha umubiri wabo mu gusobanukirwa {{subTopic}} nk’igice cya {{mainTopic}}.
+</td>
+<td>
+<ul>
+<li>Gutegura ahabereye imikino hizewe kandi hafunguye</li>
+<li>Gusobanura amategeko y’imikino ajyanye na {{subTopic}}</li>
+<li>Kwerekana uko imikino ikinwa mbere yo gutangira</li>
+<li>Kugenzura imyitwarire n’umutekano w’abana</li>
+<li>Gushishikariza ubufatanye n’imikoranire</li>
+<li>Kwigisha amagambo ajyanye na {{isomo_time_1040}} mu gihe cyo gukina</li>
+<li>Guhindura imikino bitewe n’ubushobozi bw’abana</li>
+<li>Gushimira abana bagaragaza ubwitange n’ubufatanye</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Kwitabira imikino yo kwiruka no gusimbuka</li>
+<li>Gukurikiza amategeko y’umukino</li>
+<li>Gukina mu matsinda bafashanya</li>
+<li>Gukoresha amagambo ajyanye na {{isomo_time_1040}}</li>
+<li>Kugaragaza ubufatanye n’abandi</li>
+<li>Kwishimira umukino no kugenda biga</li>
+<li>Kubaza no gusubiza ibibazo bijyanye na {{subTopic}}</li>
+<li>Kumenya uko {{subTopic}} ihuzwa na {{mainTopic}}</li>
+</ul>
+</td>
+<td>Imipira, udutambaro, ibikoresho byo gukina</td>
+</tr>
+
+<tr>
+<td class="time-slot">11:00 - 11:20</td>
+<td class="activity-type" id="activity_time_1100">{{activity_time_1100}}</td>
+<td>Ubugeni n’Umuco (Kuwa mbere no Kuwa Gatatu)</td>
+<td id="ibindi_byigwa_1100">{{ibindi_byigwa_1100}}</td>
+<td>
+Abana bagaragaza ubumenyi ku {{isomo_time_1100}} binyuze mu bugeni, indirimbo n’imbyino, bigafasha gusobanukirwa neza {{subTopic}} no kuyihuza na {{mainTopic}}.
+</td>
+<td>
+<ul>
+<li>Kwerekana igikorwa cy’ubugeni kijyanye n’isomo</li>
+<li>Gusobanura intambwe ku yindi uko igikorwa gikozwe</li>
+<li>Kwereka abana uko ibikoresho bikoreshwa neza</li>
+<li>Kuyobora indirimbo cyangwa imbyino ijyanye na {{subTopic}}</li>
+<li>Gufasha abana bagira ingorane mu gukora igikorwa</li>
+<li>Gushishikariza guhanga no gutanga ibitekerezo</li>
+<li>Kubaza abana ibisobanuro ku byo bakoze</li>
+<li>Gushimira imbaraga n’ubwitange byabo</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Gushushanya no gusiga amabara bijyanye na {{isomo_time_1100}}</li>
+<li>Kuririmba no kwimbyina indirimbo z’isomo</li>
+<li>Gukoresha neza ibikoresho by’ubugeni</li>
+<li>Kwerekana igihangano cyabo</li>
+<li>Gusobanura igihangano bakoze</li>
+<li>Gukorana n’abandi mu mutuzo</li>
+<li>Kwishimira ibihangano by’abandi</li>
+<li>Gukurikiza amabwiriza y’umurezi</li>
+</ul>
+</td>
+<td>Impapuro, amabara, amakaramu, indirimbo</td>
+</tr>
+
+<tr>
+<td class="time-slot">11:20 - 11:40</td>
+<td class="activity-type" id="activity_time_1130">{{activity_time_1130}}</td>
+<td>Imikino yo mu Nguni</td>
+<td id="ibindi_byigwa_1130">{{ibindi_byigwa_1130}}</td>
+<td>
+Imikino yo mu nguni ifasha abana gusubiramo {{isomo_time_1130}}, gukomeza gusobanukirwa {{subTopic}}, no kwiyungura ubumenyi bujyanye na {{mainTopic}} binyuze mu mikorere itandukanye.
+</td>
+<td>
+<ul>
+<li>Gutegura inguni zitandukanye z’imikino</li>
+<li>Gusobanura intego ya buri nguni</li>
+<li>Gukurikira uko abana bakina no gufashanya</li>
+<li>Kwitaho abana bafite ingorane</li>
+<li>Gushishikariza gusangira ibikoresho</li>
+<li>Kongera amagambo ajyanye n’isomo mu mikino</li>
+<li>Kureba ko inguni zose zifitanye isano na {{mainTopic}}</li>
+<li>Gushimira abana bagaragaje ubufatanye</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Guhitamo inguni yo gukiniramo</li>
+<li>Gukina hakurikijwe amategeko</li>
+<li>Gusangira no gufatanya n’abandi</li>
+<li>Kuvuga amagambo ajyanye na {{isomo_time_1130}}</li>
+<li>Kwishimira imikino</li>
+<li>Gusubiramo ibyo bize</li>
+<li>Kugaragaza ibyo basobanukiwe kuri {{subTopic}}</li>
+<li>Guhinduranya inguni mu mutuzo</li>
+</ul>
+</td>
+<td>Ibikinisho, amakarita, udukoresho tw’imikino</td>
+</tr>
+
+<tr>
 <td class="time-slot">11:40 - 12:00</td>
-<td id="ikigwa_1140">{{ikigwa_1140}}</td>
-<td class="activity-type">Imikino yo mu Nguni</td>
+<td class="activity-type" id="activity_time_1140">{{activity_time_1140}}</td>
+<td>Gusezeranaho</td>
 <td id="ibindi_byigwa_1140">{{ibindi_byigwa_1140}}</td>
-    <td>
-        Gusoza ibikorwa by’umunsi abana bakoresheje imikino yo mu nguni,
-        bagaragaza ibyo bize n’uko babikoresheje.
-    </td>
-    <td>
-        <ul>
-            <li>Gutanga imikino yo gusubiramo amasomo</li>
-            <li>Kubaza abana ibyo bakoze n’ibyo bize</li>
-            <li>Gukurikirana imyitwarire n’imikoranire</li>
-            <li>Gufasha abana gutunganya ibikoresho</li>
-        </ul>
-    </td>
-    <td>
-        <ul>
-            <li>Kwitabira imikino yo gusubiramo</li>
-            <li>Kuvuga ibyo bize n’uko babyumvise</li>
-            <li>Gutunganya aho bakiniraga</li>
-            <li>Kwitegura gutaha mu mutekano</li>
-        </ul>
-    </td>
-    <td>Ibikoresho byo mu nguni</td>
+<td>
+ Gusubiramo amasomo y’umunsi ku {{mainTopic}} na {{subTopic}}, kwishimira ibyo bize no gusoza umunsi mu byishimo.
+</td>
+<td>
+<ul>
+<li>Kubaza ibibazo byo gusubiramo amasomo</li>
+<li>Gukina umukino mugufi wo kwibutsa ibyo bize</li>
+<li>Kuririmbana indirimbo z’umunsi</li>
+<li>Gushimira imyitwarire myiza y’abana</li>
+<li>Gutega amatwi ibitekerezo byabo</li>
+<li>Kubabwira gahunda y’umunsi ukurikiraho</li>
+<li>Kuyobora abana gutuza</li>
+<li>Gusezera mu buryo bwuje urugwiro</li>
+</ul>
+</td>
+<td>
+<ul>
+<li>Kuvuga ibyo bize ku {{mainTopic}} na {{subTopic}}</li>
+<li>Kwitabira imikino yo gusubiramo</li>
+<li>Kuririmba indirimbo z’umunsi</li>
+<li>Kugaragaza ibyo bakunze cyane</li>
+<li>Kwishimira ibyo bize</li>
+<li>Gutunganya ibikoresho</li>
+<li>Gusezera ku murezi neza</li>
+<li>Gusohoka mu mutuzo</li>
+</ul>
+</td>
+<td>Indirimbo, amashusho, ibikoresho byakoreshejwe</td>
     </tr>
-
-</tbody>
-</table>
-
-</div>
-</body>
-      </html>
+    </tbody>
