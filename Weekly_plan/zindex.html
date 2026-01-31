@@ -198,31 +198,31 @@
     
                 <div class="form-group">
 <label class="required">Umubare w'abanyeshuri/Number of learners</label>
-<input type="number" id="childrensNumber" required>
+<input type="number" id="childrensNumber" placeholder=" e.g, 30" required>
                 </div>
     
                 <div class="form-group">
 
 <label class="required">Insanganyamatsiko nini (Kinyarwanda)</label>
-<input type="text" id="mainTopic" required>
+<input type="text" id="mainTopic" placeholder="Andika insanganyamatsiko nini mu Kinyarwanda" required>
                 </div>
     
                 <div class="form-group">
 
     <label class="required">Insanganyamatsiko nini (in English)</label>
                 
-<input type="text" id="mainTopicEng" required>
+<input type="text" id="mainTopicEng" placeholder="Write theme in English" required>
                     </div>
     
                 <div class="form-group">
 <label class="required">Insanganyamatsiko nto ( mu Kinyarwanda)</label>
                 
-<input type="text" id="subTopic" required>
+<input type="text" id="subTopic" placeholder="Andika insanganyamatsiko nto mu Kinyarwanda" required>
                 </div>
 
                 <div class="form-group">
 <label class="required">Insanganyamatsiko nto ( in English)</label>
-<input type="text" id="subTopicEng" required>
+<input type="text" id="subTopicEng" placeholder="Write sub Theme in English" required>
                 </div>
 
                 <div class="form-group full-width">
@@ -232,34 +232,42 @@
 
 <hr>
 
-<h3>🕢 7:45 – 8:00 | Guhana ikaze</h3>
+<h3>🕢 7:45 – 8:00 | Guhana ikaze/Welcoming Time</h3>
     
     <div class="form-group">
-<label class="required">Ikigwa</label>
+<label class="required">Ubwoko bw'igikorwa</label>
         <div class="form-group">
-<input type="text" id="ikigwa_0745" placeholder="e.g, ikaze ku ruziga" required>
+<input type="text" id="activity_time_0745" placeholder="e.g, Gukora uruziga" required>
 <label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_0745" placeholder="e.g,Igororamubiri,Imibare" required>
         </div>
     </div><br>
 
-<h3>🕗 8:00 – 8:30 | Imibare</h3>
+<h3>🕗 8:00 – 8:30 |  Ubumenyi bw'Ibidukikije/Discovery of the world</h3>
     <div class="form-group">
-<label class="required">Ikigwa</label>
+<label class="required">Ubwoko bw'igikorwa</label>
         <div class="form-group">
-<input type="text" id="ikigwa_0800" placeholder="e.g,Kubara kuva kuri 1 kugeza ku 10" required>
+<input type="text" id="activity_time_0800" placeholder="e.g, kuririmba" required>
 <label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_0800" placeholder="e.g, ikinyarwanda" required>
+<label class="required">Isomo rizibandwaho</label>
+<input type="text" id="isomo_time_0800" placeholder="e.g,Isuku ku mubiri" required>
+
+        </div>
         </div>
     </div><br>
 
-<h3>🕣 8:30 – 9:00 | Ubumenyi bw'Ibidukikije</h3>
+<h3>🕣 8:30 – 9:00 | Imibare/Numeracy</h3>
     <div class="form-group">
-<label class="required">Ikigwa</label>
+<label class="required">Ubwoko bw'igikorwa</label>
         <div class="form-group">
-<input type="text" id="ikigwa_0830" required>
+<input type="text" id="activity_time_0830" placeholder="e.g, Kubaka udutafari" required>
 <label class="required">Ibindi byigwa</label>
-<input type="text" id="ibindi_byigwa_0830" required>
+<input type="text" id="ibindi_byigwa_0830" placeholder="indimi,..." required>
+<label class="required">Isomo rizibandwaho</label>
+<input type="text" id="isomo_time_0830" placeholder="e.g,Kubara kuva kuri 1 kugera ku 10" required>
+
+        </div>
         </div>
     </div><br>
 
@@ -267,59 +275,89 @@
     <div class="form-group">
 <label class="required">ubwoko bw'igikorwa</label>
       <div class="form-group">  
-<input type="text" id="ikigwa_0900" required>
+<input type="text" id="activity_time_0900" placeholder="e.g, Gushushanya inyajwi" required>
 <label class="required">Ibindi byigwa</label>
-<input type="text" id="ibindi_byigwa_0900" required>
+<input type="text" id="ibindi_byigwa_0900" placeholder="e.g, imibare, ubumenyi bw'ibidukikije,..." required>
+<label class="required">Isomo rizibandwaho</label>
+<input type="text" id="isomo_time_0900" placeholder="e.g,Kwandika inyajwi 'a' " required>
+
+        </div>
         </div>
     </div><br>
 <h3>🕤 9:30 – 10:00 | English Oral Communication</h3>
     <div class="form-group">
 <label class="required">ubwoko bw'igikorwa(in English)</label>
         <div class="form-group">
-<input type="text" id="ikigwa_0930" required>
+<input type="text" id="activity_time_0930" placeholder="e.g, Playig games related to greeting" required>
 <label class="required">Ibindi byigwa(in English)</label>
-<input type="text" id="ibindi_byigwa_0930" required>
+<input type="text" id="ibindi_byigwa_0930" placeholder="e.g, Numracy, Story teling " required>
+<label class="required">Isomo rizibandwaho</label>
+<input type="text" id="isomo_time_0930" placeholder="e.g, greeting people at school" required>
+
+        </div>
         </div>
     </div><br>
-<h3>🕥 10:40 – 11:00 | Imikino yo hanze</h3>
+<h3>🕥 10:40 – 11:00 | Imikino yo hanze/Outdoor Plays</h3>
     <div class="form-group">
 <label class="required">Ubwoko bw'igikorwa</label>
         <div class="form-group">
-<input type="text" id="ikigwa_1040" required>
+<input type="text" id="activity_time_1040" required>
 <label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_1040" required>
+<label class="required">Isomo rizibandwaho</label>
+<input type="text" id="isomo_time_1040" placeholder="e.g,guteranya (bifashishije ibikoesho byo hanze)" required>
+
+        </div>
         </div>
     </div><br>
 
-<h3>🕚 11:00 – 11:20 | Ubugeni n'umuco</h3>
+<h3>🕚 11:00 – 11:20 | Ubugeni n'umuco/Arts and Culture(Kuwa 1 no kuwa 3)</h3>
     <div class="form-group">
 <label class="required">ubwoko bw'igikorwa</label>
         <div class="form-group">
-<input type="text" id="ikigwa_1100" required>
+<input type="text" id="activity_time_1100" required>
 <label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_1100" required>
+<label class="required">Isomo rizibandwaho</label>
+<input type="text" id="isomo_time_1100" placeholder="e.g, Gushushanya isura y'umuntu" required>
+
+        </div>
         </div>
     </div><br>
 
-<h3>🕦 11:20 – 11:40 | Kubara Inkuru mu Kinyarwanda</h3>
+<h3>🕦 11:00 – 11:20 | Kubara Inkuru mu Kinyarwanda/Story Time Kinyarwanda(kuwa 2,4,5)</h3>
     <div class="form-group">
 <label class="required">Ubwoko bw'igikorwa</label>
         <div class="form-group">
-<input type="text" id="ikigwa_1120" required>
+<input type="text" id="activity_time_1120" required>
 <label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_1120" required>
+<label class="required">Isomo rizibandwaho</label>
+<input type="text" id="isomo_time_1120" placeholder="e.g,Gusoma no kumva Inkuru ya Kanyoni na Bakame" required>
+
+        </div>
         </div>
     </div><br>
 
-<h3>🕛 11:40 – 12:00 | Imikino yo mu nguni</h3>
+<h3>🕛 11:20 – 11:40 | Imikino yo mu nguni/Free corner play</h3>
     <div class="form-group">
 <label class="required">ubwoko bw'igikorwa</label>
     <div class="form-group">
-<input type="text" id="ikigwa_1140" required>
+<input type="text" id="activity_time_1130" required>
+<label class="required">Ibindi byigwa</label>
+<input type="text" id="ibindi_byigwa_1130" required>
+<label class="required">Isomo rizibandwaho</label>
+<input type="text" id="isomo_time_1130" placeholder="e.g, Gukina umukino wo gutahura inyuguti" required>
+
+        </div>
+    </div><br>
+    <h3>🕛 11:40 – 12:00 | Gusezeranaho/Closing Time</h3>
+    <div class="form-group">
+<label class="required">ubwoko bw'igikorwa</label>
+    <div class="form-group">
+<input type="text" id="activity_time_1140" required>
 <label class="required">Ibindi byigwa</label>
 <input type="text" id="ibindi_byigwa_1140" required>
-        </div>
-    </div>
 
 <hr>
 
