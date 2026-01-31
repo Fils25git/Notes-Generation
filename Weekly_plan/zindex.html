@@ -540,12 +540,19 @@ function downloadPDFProper() {
   const pageWidth = doc.internal.pageSize.getWidth();
 
   doc.setFontSize(14);
-  doc.text("IMBATA NKOMATANYO Y'ICYUMWERU", pageWidth / 2, 12, { align: "center" });
-  doc.setFontSize(10);
-  doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, 18);
-  doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, 18, {
-    align: "right",
-  });
+  doc.text("IMBATA NKOMATANYO Y'ICYUMWERU", pageWidth / 2, 12, { 
+  
+doc.setFontSize(10);  
+let y = 18; // starting vertical position  
+doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, y);  
+doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });  
+  
+// Add space below  
+y += 8; // 8mm of space below the names  
+  
+// Next content starts here  
+doc.text("OTHER CONTENT STARTS HERE", 14, y);
+  
 
   const tables = document.querySelectorAll("#lessonPlanContent table");
   if (!tables.length) {
