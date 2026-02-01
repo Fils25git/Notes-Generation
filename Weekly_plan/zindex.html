@@ -370,6 +370,7 @@
     </div>
 </div>
     <!-- Result -->
+    <img id="staticPartImg" src="img.jpg" style="display:none;">
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
             <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
@@ -543,14 +544,22 @@ function downloadPDFProper() {
   doc.setFontSize(14);
   doc.text("IMBATA NKOMATANYO Y'ICYUMWERU", pageWidth / 2, 12, { align: "center" });
 
-  // ===== SCHOOL & TEACHER INFO =====
-  doc.setFontSize(10);
-  let y = 18;
+let y = 18;
 
-  doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, y);
-  doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });
+// ===== STATIC FIXED PART (ALWAYS INCLUDED) =====
+const staticImg = document.getElementById("staticPartImg");
 
-  y += 8;
+if (staticImg) {
+  doc.addImage(staticImg, "JPEG", 14, y, 180, 90); 
+  y += 95; // move below the image
+}
+
+// ===== SCHOOL & TEACHER INFO =====
+doc.setFontSize(10);
+doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, y);
+doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });
+
+y += 8;
 
   // ===== EXTRACT TABLES FROM GENERATED PLAN =====
   const tables = document.querySelectorAll("#lessonPlanContent table");
