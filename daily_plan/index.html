@@ -168,7 +168,7 @@
                         <option value="english">English</option>
                         <option value="kinyarwanda">Kinyarwanda</option>
                     </select>
-
+   </div>
     <div class="form-group">
                     <label class="required">School Name</label>
                     <input type="text" id="schoolName" placeholder="e.g:,EP KABIRIZI"  required>
@@ -241,7 +241,7 @@
 <h3>🕥 10:40 – 11:00 | Imikino yo hanze/Outdoor Plays</h3>
        <div class="form-group">
 <label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
-<input type="text" id="tmNOutdoor" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+<input type="text" id="tmOutdoor" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
         </div>
     <br>
 
@@ -274,7 +274,7 @@
 
 <hr>
 
-<button type="submit" class="generate-btn">Generate Weekly Plan</button>
+<button type="submit" class="generate-btn">Create Daily  Plan</button>
     <div id="errorMessage" class="error-message"></div>
 
 </form>
@@ -368,29 +368,8 @@ function getNextPlanFile(language, email) {
     return `${folder}/plan${nextIndex}.html`;
 }
 
-// ===============================
-// LANGUAGE DEFAULTS
-// ===============================
-function getLanguageDefaults(language, subject, classLevel) {
-    const activeLangs = ["english", "kinyarwanda"]; // only active languages
 
-    if (!activeLangs.includes(language)) language = "english"; // fallback
 
-    return {
-        specialNeeds: {
-            english: "There is no learner with special educational needs.",
-            kinyarwanda: "Nta munyeshuri ufite ibyo agenerwa by'ihariye."
-        },
-        teachingMaterials: {
-            english: `Songs, ${subject} textbook, learner's book, teacher's guide.`,
-            kinyarwanda: `Indirimbo, ${subject} igitabo cy'umunyeshuri ${classLevel}.`
-        },
-        references: {
-            english: `${subject} learner’s book, REB curriculum.`,
-            kinyarwanda: `${subject} igitabo cy'umunyeshuri.`
-        }
-    };
-    }
     // ===============================
     // FORM SUBMIT
     // ===============================
@@ -399,16 +378,16 @@ function getLanguageDefaults(language, subject, classLevel) {
 
         const btn = document.querySelector(".generate-btn");
         btn.disabled = true;
-        btn.textContent = "Fetching...";
+        btn.textContent = "Creating...";
 
         try {
             const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
             const data = await res.json();
 
             if (data.balance <= 0) {
-                showFloatingMessage("❌ No lesson plans remaining.");
+                showFloatingMessage("❌ No lesson plans remaining. Check your balance");
                 btn.disabled = false;
-                btn.textContent = "Fetch Lesson Plan";
+                btn.textContent = "Fetch Daily Plan";
                 return;
             }
 
@@ -423,9 +402,39 @@ function getLanguageDefaults(language, subject, classLevel) {
         } catch (err) {
             showFloatingMessage("❌ Network error.");
             btn.disabled = false;
-            btn.textContent = "Fetch Lesson Plan";
+            btn.textContent = "Fetch Daily  Plan";
         }
     });
+       function getAutoTeachingMaterials(activity, language) {
+    const materials = {
+        english: {
+            welcome: "Songs, name cards, attendance chart, greeting poster.",
+            environment: "Real objects, pictures, flashcards, nature items (leaves, stones).",
+            numeracy: "Bottle tops, counting sticks, number charts, blocks.",
+            kinyarwanda: "Amakarita, Ibishushanyo bijyanye n'isomo, igipupe.",
+            english: "Alphabet charts, flashcards, pictures, songs.",
+            outdoor: "Balls, hoops, cones, ropes.",
+            art: "Crayons, paper, clay, paint, beads.",
+            story: "Igitabo k'inkuru,Ibishushanyo byerekeye inkuru.",
+            corner: "Toys, puzzles, blocks, dolls.",
+            closing: "Songs, reflection chart, goodbye poster."
+        },
+        kinyarwanda: {
+            welcome: "Indirimbo, amakarita y'amazina, urutonde rw'abana, ifoto zo gusuhuza.",
+            environment: "Ibikoresho nyabyo, amashusho, ibikoresho byo mu bidukikije.",
+            numeracy: "Udupira duto, utubuye, udukoni, imbonerahamwe y'imibare.",
+            kinyarwanda: "Amashusho y'inkuru, udukarita, ibitabo binini.",
+            english: "flashcards, songs, images.",
+            outdoor: "Imipira, imigozi, udukombe.",
+            art: "Amakaramu y'amabara, impapuro, ibumba, irangi.",
+            story: "Igitabo cy'inkuru, udukino tw'intoki, amashusho.",
+            corner: "Ibikinisho, puzzle, udukoni two kubaka.",
+            closing: "Indirimbo zo gusezera, ishusho yo gusuzuma umunsi."
+        }
+    };
+
+    return materials[language][activity];
+       }
 
     // ===============================
     // GENERATE + AUTO SAVE
@@ -433,54 +442,52 @@ function getLanguageDefaults(language, subject, classLevel) {
     function generateLessonPlan() {
     const language = document.getElementById("language").value || "english";
 
-    const subjectVal   = document.getElementById("subject").value;
-    const classVal     = document.getElementById("class").value;
-    const intMinVal    = document.getElementById("intMin").value;
-    const devMinVal    = document.getElementById("devMin").value;
-    const concMinVal   = document.getElementById("concMin").value;
-    const weeklyThemeVal = document.getElementById("weeklyTheme").value;
-    const classPlanVal = document.getElementById("classPlan").value;
-
-    const defaults = getLanguageDefaults(language, subjectVal, classVal);
-
+    // ✅ Collect ONLY fields that exist in your form
     const data = {
-        schoolName: document.getElementById("schoolName").value,
-        teacherName: document.getElementById("teacherName").value,
-        term: document.getElementById("term").value,
-        date: document.getElementById("date").value,
-        subject: subjectVal,
-        class: classVal,
-        unitNo: document.getElementById("unitNo").value,
-        lessonNo: document.getElementById("lessonNo").value,
-        totalLessons: document.getElementById("totalLessons").value,
-        duration: document.getElementById("duration").value,
-        classSize: document.getElementById("classSize").value,
-        unitTitle: document.getElementById("unitTitle").value,
-        lessonTitle: document.getElementById("lessonTitle").value,
-        weeklyTheme: weeklyThemeVal,
-        intMin: intMinVal,
-        devMin: devMinVal,
-        concMin: concMinVal,
-        classPlan: classPlanVal,
-        teachingMaterials: document.getElementById("teachingMaterials").value || defaults.teachingMaterials[language],
-        specialNeeds: document.getElementById("specialNeeds").value || defaults.specialNeeds[language],
-        references: document.getElementById("references").value || defaults.references[language]
-    };
+    schoolName: schoolName.value,
+    teacherName: teacherName.value,
+    date: date.value,
+    level: level.value,
+    subTopic: subTopic.value,
+    subTopicEng: subTopicEng.value,
 
+    tmWelcome: tmWelcome.value || getAutoTeachingMaterials("welcome", language),
+    tmEnvironment: tmEnvironment.value || getAutoTeachingMaterials("environment", language),
+    tmNumeracy: tmNumeracy.value || getAutoTeachingMaterials("numeracy", language),
+    tmKiny: tmKiny.value || getAutoTeachingMaterials("kinyarwanda", language),
+    tmEng: tmEng.value || getAutoTeachingMaterials("english", language),
+    tmNOutdoor: tmNOutdoor.value || getAutoTeachingMaterials("outdoor", language),
+    tmArt: tmArt.value || getAutoTeachingMaterials("art", language),
+    tmStory: tmStory.value || getAutoTeachingMaterials("story", language),
+    tmCorner: tmCorner.value || getAutoTeachingMaterials("corner", language),
+    tmClosing: tmClosing.value || getAutoTeachingMaterials("closing", language)
+};
 
-        fetch(getNextPlanFile(language, userEmail))
-            .then(res => res.text())
-            .then(template => {
+    // ✅ Fetch correct language template
+    fetch(getNextPlanFile(language, userEmail))
+        .then(res => res.text())
+        .then(template => {
 
-                for (const key in data) {
-    template = template
-        .replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), data[key])
-        .replace(new RegExp(`\\$\\{\\s*${key}\\s*\\}`, "g"), data[key]);
-    }
+            // 🔥 Replace placeholders {{ }} and ${ }
+            for (const key in data) {
+                template = template
+                    .replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), data[key] || "")
+                    .replace(new RegExp(`\\$\\{\\s*${key}\\s*\\}`, "g"), data[key] || "");
+            }
 
-                lessonPlanContent.innerHTML = template;
-                resultContainer.classList.add("show");
-                resultContainer.scrollIntoView({ behavior: "smooth" });
+            lessonPlanContent.innerHTML = template;
+
+            // ✅ Show result
+            resultContainer.classList.add("show");
+            resultContainer.scrollIntoView({ behavior: "smooth" });
+
+            // ✅ Auto save
+            autoSavePlan(template, language, data.subTopicEng);
+        })
+        .catch(() => {
+            showFloatingMessage("❌ Failed to load weekly plan.");
+        });
+       }
 
                 // 🔥 AUTO SAVE TO DATABASE USING EMAIL ONLY
                 autoSavePlan(template, language, data.lessonTitle);
@@ -553,8 +560,8 @@ function getLanguageDefaults(language, subject, classLevel) {
 
   let y = 18;
  doc.setFontSize(14);
-  doc.text(`ITARIKI: ${date.value}", pageWidth / 2, 12, { align: "right}`);
-  doc.text(`IKICIRO: ${class.value}", pageWidth / 2, 12, { align: "right` });
+  doc.text(`ITARIKI: ${date.value}`, pageWidth - 14, 12, { align: "right" });
+doc.text(`IKICIRO: ${level.value}`, pageWidth - 14, 18, { align: "right" });
 
 
   let y = 18;
