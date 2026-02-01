@@ -671,11 +671,29 @@ function flattenCellContent(td) {
     margin: { left: 8, right: 8 },
     rowPageBreak: "avoid",
   });
-    // ===== ADD LINE BELOW FIRST TABLE =====
-const lineY = doc.lastAutoTable.finalY + 2; // 2mm below table
-doc.setLineWidth(0.5); // thickness of the line
-doc.line(14, lineY, pageWidth - 14, lineY); // from left margin to right margin
+if (tables.length > 1) {
+  doc.addPage(); // <-- forces a new page
 
+  const mergedHead = [];
+  const mergedBody = [];
+
+  for (let i = 1; i < tables.length; i++) {
+    const t = extractTable(tables[i]);
+    mergedHead.push(...t.head);
+    mergedBody.push(...t.body);
+  }
+
+  doc.autoTable({
+    head: mergedHead,
+    body: mergedBody,
+    startY: 18, // start near top of new page
+    theme: "grid",
+    styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
+    headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
+    margin: { left: 8, right: 8 },
+    rowPageBreak: "avoid",
+  });
+}
   // ===== OTHER TABLES MERGED =====
   let nextY = doc.lastAutoTable.finalY + 6;
 
