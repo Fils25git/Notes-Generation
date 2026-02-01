@@ -656,8 +656,14 @@ function copyToWord() {
   }
 
   // SAVE
-  const today = new Date().toISOString().split("T")[0];
-  doc.save(`Weekly_Plan_${today}.pdf`);
+  // Get today’s date
+const today = new Date().toISOString().split("T")[0];
+
+// Make the filename safe (replace spaces and special characters in subTopicEng)
+const safeSubTopic = subTopicEng.value.replace(/[^a-z0-9]/gi, '_');
+
+// Save PDF with desired format
+doc.save(`${safeSubTopic}_weekly_plan_${today}.pdf`);
 }
     </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
