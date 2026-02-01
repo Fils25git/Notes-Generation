@@ -373,9 +373,9 @@
     <img id="staticPartImg" src="img.jpg" style="display:none;">
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
-            <button id="downloadBtn" class="download-btn btn-pdf" onclick="downloadPDFProper()" style="display:none;">📑 Download PDF</button>
-    <button id="editBtn" Class="download-btn">✏️ Edit</button>
-    <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
+            <button id="editBtn" style="display:none;">Edit</button>
+<button id="saveBtn" style="display:none;">Save</button>
+<button id="downloadBtn" class="download-btn btn-pdf" onclick="downloadPDFProper()" style="display:none;">📑 Download PDF</button>
             
         </div>
         <div id="lessonPlanContent" class="lesson-plan"></div>
@@ -485,6 +485,8 @@ lessonForm.addEventListener("submit", async (e) => {
     lessonPlanContent.innerHTML = templateText;
     resultContainer.classList.add("show");
       document.getElementById("downloadBtn").style.display = "inline-block";
+document.getElementById("editBtn").style.display = "inline-block";
+document.getElementById("saveBtn").style.display = "inline-block";
     resultContainer.scrollIntoView({ behavior: "smooth" });
 
     // 6️⃣ Auto-save
@@ -516,6 +518,15 @@ saveBtn.addEventListener("click", () => {
   editBtn.disabled = false;
   saveBtn.disabled = true;
 });
+        function resetGenerator(){
+  const btn = document.getElementById("generateBtn");
+  btn.disabled = false;
+  btn.textContent = "Generate Weekly Plan";
+
+  document.getElementById("downloadBtn").style.display = "none";
+  document.getElementById("editBtn").style.display = "none";
+  document.getElementById("saveBtn").style.display = "none";
+        }
 
 // ===============================
 // COPY TO WORD
