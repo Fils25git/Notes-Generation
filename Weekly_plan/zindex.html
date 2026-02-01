@@ -373,8 +373,7 @@
     <img id="staticPartImg" src="img.jpg" style="display:none;">
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
-            <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
-            <button class="download-btn btn-pdf" onclick="downloadPDFProper()">📑 Download PDF</button>
+            <button id="downloadBtn" class="download-btn btn-pdf" onclick="downloadPDFProper()" style="display:none;">📑 Download PDF</button>
     <button id="editBtn" Class="download-btn">✏️ Edit</button>
     <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
             
@@ -485,6 +484,7 @@ lessonForm.addEventListener("submit", async (e) => {
     // 5️⃣ Display plan
     lessonPlanContent.innerHTML = templateText;
     resultContainer.classList.add("show");
+      document.getElementById("downloadBtn").style.display = "inline-block";
     resultContainer.scrollIntoView({ behavior: "smooth" });
 
     // 6️⃣ Auto-save
@@ -494,8 +494,6 @@ lessonForm.addEventListener("submit", async (e) => {
     currentPlanIndex++;
     if (currentPlanIndex > totalPlans) currentPlanIndex = 1;
 
-    btn.disabled = false;
-    btn.textContent = "Generate Weekly Plan";
   } catch (err) {
     console.error(err);
     showFloatingMessage("❌ Network or template error.");
