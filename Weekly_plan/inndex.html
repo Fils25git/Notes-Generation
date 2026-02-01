@@ -549,168 +549,104 @@ function copyToWord() {
 // ===============================
 // DOWNLOAD PDF
 // ===============================
-function downloadPDFProper() {
+    function downloadPDFProper() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF("landscape", "mm", "a4");
   const pageWidth = doc.internal.pageSize.getWidth();
 
-  // ===== TITLE =====
+  // TITLE
   doc.setFontSize(14);
   doc.text("IMBATA NKOMATANYO Y'ICYUMWERU", pageWidth / 2, 12, { align: "center" });
 
-let y = 18;
+  let y = 18;
 
-// ===== STATIC FIXED PART (ALWAYS INCLUDED) =====
-const staticImg = document.getElementById("staticPartImg");
+  // STATIC IMAGE
+  const staticImg = document.getElementById("staticPartImg");
+  if (staticImg) {
+    doc.addImage(staticImg, "JPEG", 14, y, 180, 90);
+    y += 95;
+  }
 
-if (staticImg) {
-  doc.addImage(staticImg, "JPEG", 14, y, 180, 90); 
-  y += 95; // move below the image
-}
+  // SCHOOL & TEACHER INFO
+  doc.setFontSize(10);
+  doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, y);
+  doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });
+  y += 8;
 
-// ===== SCHOOL & TEACHER INFO =====
-doc.setFontSize(10);
-doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, y);
-doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });
-
-y += 8;
-
-  // ===== EXTRACT TABLES FROM GENERATED PLAN =====
+  // EXTRACT TABLES
   const tables = document.querySelectorAll("#lessonPlanContent table");
-
   if (!tables.length) {
     alert("No tables found in lesson plan.");
     return;
   }
-    // Convert HTML content in table cells into plain text with bullets/line breaks
-function flattenCellContent(td) {
-  let html = td.innerHTML.trim();
 
-  // Replace <li> with bullets
-  html = html.replace(/<li>/gi, "• "); 
-  html = html.replace(/<\/li>/gi, "\n"); 
-
-  // Replace <br> with newline
-  html = html.replace(/<br\s*\/?>/gi, "\n");
-
-  // Remove any remaining HTML tags
-  html = html.replace(/<[^>]*>/g, "");
-
-  return html;
-        }
+  function flattenCellContent(td) {
+    let html = td.innerHTML.trim();
+    html = html.replace(/<li>/gi, "• ").replace(/<\/li>/gi, "\n");
+    html = html.replace(/<br\s*\/?>/gi, "\n");
+    html = html.replace(/<[^>]*>/g, "");
+    return html;
+  }
 
   function extractTableFlattened(table) {
-  const head = [];
-  const body = [];
-
-  // Extract headers
-  table.querySelectorAll("thead tr").forEach(tr => {
-    const row = [];
-    tr.querySelectorAll("th").forEach(th => row.push(th.innerText.trim()));
-    head.push(row);
-  });
-
-  const rowSpans = []; // track active rowspans per column
-
-  // Extract body
-  table.querySelectorAll("tbody tr").forEach(tr => {
-    const row = [];
-    let colIndex = 0;
-
-    tr.querySelectorAll("td").forEach(td => {
-      // Fill previous rowspans first
+    const head = [], body = [], rowSpans = [];
+    table.querySelectorAll("thead tr").forEach(tr => {
+      const row = [];
+      tr.querySelectorAll("th").forEach(th => row.push(th.innerText.trim()));
+      head.push(row);
+    });
+    table.querySelectorAll("tbody tr").forEach(tr => {
+      const row = [];
+      let colIndex = 0;
+      tr.querySelectorAll("td").forEach(td => {
+        while (rowSpans[colIndex] && rowSpans[colIndex].rowsLeft > 0) {
+          row.push(rowSpans[colIndex].value);
+          rowSpans[colIndex].rowsLeft--;
+          colIndex++;
+        }
+        const value = flattenCellContent(td);
+        const colspan = parseInt(td.getAttribute("colspan") || "1", 10);
+        const rowspan = parseInt(td.getAttribute("rowspan") || "1", 10);
+        for (let c = 0; c < colspan; c++) row.push(value);
+        if (rowspan > 1) for (let c = 0; c < colspan; c++) rowSpans[colIndex + c] = { value, rowsLeft: rowspan - 1 };
+        colIndex += colspan;
+      });
       while (rowSpans[colIndex] && rowSpans[colIndex].rowsLeft > 0) {
         row.push(rowSpans[colIndex].value);
         rowSpans[colIndex].rowsLeft--;
         colIndex++;
       }
-
-      const value = flattenCellContent(td);
-      const colspan = parseInt(td.getAttribute("colspan") || "1", 10);
-      const rowspan = parseInt(td.getAttribute("rowspan") || "1", 10);
-
-      // Fill current cell for colspan
-      for (let c = 0; c < colspan; c++) {
-        row.push(value);
-      }
-
-      // Track rowspan for future rows
-      if (rowspan > 1) {
-        for (let c = 0; c < colspan; c++) {
-          rowSpans[colIndex + c] = { value, rowsLeft: rowspan - 1 };
-        }
-      }
-
-      colIndex += colspan;
+      body.push(row);
     });
+    return { head, body };
+  }
 
-    // Fill leftover rowspans at the end of the row
-    while (rowSpans[colIndex] && rowSpans[colIndex].rowsLeft > 0) {
-      row.push(rowSpans[colIndex].value);
-      rowSpans[colIndex].rowsLeft--;
-      colIndex++;
-    }
-
-    body.push(row);
-  });
-
-  return { head, body };
-        }
-
-  // ===== FIRST TABLE =====
-  let startY = y;
+  // FIRST TABLE
   const first = extractTableFlattened(tables[0]);
-
   doc.autoTable({
     head: first.head,
     body: first.body,
-    startY,
+    startY: y,
     theme: "grid",
     styles: { fontSize: 10, cellPadding: 3, overflow: "linebreak" },
     headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
     margin: { left: 8, right: 8 },
     rowPageBreak: "avoid",
   });
-if (tables.length > 1) {
-  doc.addPage(); // <-- forces a new page
 
-  const mergedHead = [];
-  const mergedBody = [];
-
-  for (let i = 1; i < tables.length; i++) {
-    const t = extractTable(tables[i]);
-    mergedHead.push(...t.head);
-    mergedBody.push(...t.body);
-  }
-
-  doc.autoTable({
-    head: mergedHead,
-    body: mergedBody,
-    startY: 18, // start near top of new page
-    theme: "grid",
-    styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
-    headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
-    margin: { left: 8, right: 8 },
-    rowPageBreak: "avoid",
-  });
-}
-  // ===== OTHER TABLES MERGED =====
-  let nextY = doc.lastAutoTable.finalY + 6;
-
+  // REMAINING TABLES (on NEW PAGE)
   if (tables.length > 1) {
-    const mergedHead = [];
-    const mergedBody = [];
-
+    doc.addPage();
+    const mergedHead = [], mergedBody = [];
     for (let i = 1; i < tables.length; i++) {
       const t = extractTableFlattened(tables[i]);
       mergedHead.push(...t.head);
       mergedBody.push(...t.body);
     }
-
     doc.autoTable({
       head: mergedHead,
       body: mergedBody,
-      startY: nextY,
+      startY: 18,
       theme: "grid",
       styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
       headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
@@ -719,11 +655,11 @@ if (tables.length > 1) {
     });
   }
 
-  // ===== SAVE PDF =====
+  // SAVE
   const today = new Date().toISOString().split("T")[0];
   doc.save(`Weekly_Plan_${today}.pdf`);
-        }
-</script>
+}
+    </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
