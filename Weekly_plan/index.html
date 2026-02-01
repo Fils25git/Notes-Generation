@@ -583,28 +583,67 @@ y += 8;
     return;
   }
 
-  function extractTable(table) {
-    const head = [];
-    const body = [];
+  function extractTableFlattened(table) {
+  const head = [];
+  const body = [];
 
-    table.querySelectorAll("thead tr").forEach((tr) => {
-      const row = [];
-      tr.querySelectorAll("th").forEach((th) => row.push(th.innerText.trim()));
-      head.push(row);
+  // Extract headers
+  table.querySelectorAll("thead tr").forEach(tr => {
+    const row = [];
+    tr.querySelectorAll("th").forEach(th => row.push(th.innerText.trim()));
+    head.push(row);
+  });
+
+  const rowSpans = []; // track active rowspans per column
+
+  // Extract body
+  table.querySelectorAll("tbody tr").forEach(tr => {
+    const row = [];
+    let colIndex = 0;
+
+    tr.querySelectorAll("td").forEach(td => {
+      // Fill previous rowspans first
+      while (rowSpans[colIndex] && rowSpans[colIndex].rowsLeft > 0) {
+        row.push(rowSpans[colIndex].value);
+        rowSpans[colIndex].rowsLeft--;
+        colIndex++;
+      }
+
+      const value = td.innerText.trim();
+      const colspan = parseInt(td.getAttribute("colspan") || "1", 10);
+      const rowspan = parseInt(td.getAttribute("rowspan") || "1", 10);
+
+      // Fill current cell for colspan
+      for (let c = 0; c < colspan; c++) {
+        row.push(value);
+      }
+
+      // Track rowspan for future rows
+      if (rowspan > 1) {
+        for (let c = 0; c < colspan; c++) {
+          rowSpans[colIndex + c] = { value, rowsLeft: rowspan - 1 };
+        }
+      }
+
+      colIndex += colspan;
     });
 
-    table.querySelectorAll("tbody tr").forEach((tr) => {
-      const row = [];
-      tr.querySelectorAll("td").forEach((td) => row.push(td.innerText.trim()));
-      body.push(row);
-    });
+    // Fill leftover rowspans at the end of the row
+    while (rowSpans[colIndex] && rowSpans[colIndex].rowsLeft > 0) {
+      row.push(rowSpans[colIndex].value);
+      rowSpans[colIndex].rowsLeft--;
+      colIndex++;
+    }
 
-    return { head, body };
-  }
+    body.push(row);
+  });
+
+  return { head, body };
+        }
 
   // ===== FIRST TABLE =====
   let startY = y;
-  const first = extractTable(tables[0]);
+  const first = extractTableFlattened(tables[0]);
 
   doc.autoTable({
     head: first.head,
@@ -625,7 +664,7 @@ y += 8;
     const mergedBody = [];
 
     for (let i = 1; i < tables.length; i++) {
-      const t = extractTable(tables[i]);
+      const t = extractTableFlattened(tables[i]);
       mergedHead.push(...t.head);
       mergedBody.push(...t.body);
     }
