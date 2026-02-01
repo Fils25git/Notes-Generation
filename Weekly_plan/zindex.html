@@ -129,7 +129,7 @@
         text-decoration: underline;
         font-weight: bold;
               }
-        #actionButtons {
+        #resultContainer {
   display: none;
                                     }
     </style>
@@ -488,7 +488,7 @@ lessonForm.addEventListener("submit", async (e) => {
     // 5️⃣ Display plan
     lessonPlanContent.innerHTML = templateText;
     resultContainer.classList.add("show");
-      document.getElementById("actionButtons").style.display = "block";
+      document.getElementById("resultContainer").style.display = "block";
       document.getElementById("downloadBtn").style.display = "inline-block";
 document.getElementById("editBtn").style.display = "inline-block";
 document.getElementById("saveBtn").style.display = "inline-block";
