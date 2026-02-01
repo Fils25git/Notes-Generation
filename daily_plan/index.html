@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fila Assistant - CBC Weekly plan Generator</title>
+    <meta property="og:type" content="website" />
+<meta property="og:title" content="Fila Assistant" />
+<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
+<meta property="og:image" content="https://www.fleduacademy.com/../logo.png" />
+<meta property="og:url" content="https://www.fleduacademy.com" />
+    
+    <link rel="stylesheet" href="plans.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        .profile-icon {
+    font-size:28px; color:#4f46e5; cursor:pointer;
+}
+/*Responsive footer */
+  footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+    width: 100%;
+  }
+  footer a {
+    color: #fff;
+    text-decoration: underline;
+    margin: 0 5px;
+      }
+      
+        body{
+            background: linear-gradient(135deg, #6dd5fa, #2980b9);
+        }
+      .floating-message {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #e74c3c;
+        color: #fff;
+        padding: 18px 22px;
+        border-radius: 14px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 9999;
+        animation: slideIn 0.6s ease;
+        max-width: 300px;
+        line-height: 1.6;
+      }
+        #lessonPlanContent[contenteditable="true"] {
+    border: 2px dashed #007bff;
+    background: #f8fbff;
+    padding: 15px;
+        }
+
+      @keyframes slideIn {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .floating-message a {
+        color: #fff;
+        text-decoration: underline;
+        font-weight: bold;
+      }
+        /* ===============================
+   FORCE SINGLE-PAGE PDF
+=============================== */
+@media print {
+
+  body {
+    background: #fff !important;
+  }
+
+  body > *:not(#lessonPlanContent) {
+    display: none !important;
+  }
+
+  #lessonPlanContent {
+    position: static;
+    width: 100%;
+    font-size: 12px;
+  }
+
+  @page {
+    size: A4 landscape; /* horizontal like you wanted */
+    margin: 10mm;
+  }
+
+  table, tr, td {
+    page-break-inside: avoid;
+  }
+}
+        
+      
+        body{
+            background: linear-gradient(135deg, #6dd5fa, #2980b9);
+        }
+      .floating-message {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: #e74c3c;
+        color: #fff;
+        padding: 18px 22px;
+        border-radius: 14px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        display: none;
+        z-index: 9999;
+        animation: slideIn 0.6s ease;
+        max-width: 300px;
+        line-height: 1.6;
+      }
+        #lessonPlanContent[contenteditable="true"] {
+    border: 2px dashed #007bff;
+    background: #f8fbff;
+    padding: 15px;
+        }
+
+      @keyframes slideIn {
+        from { transform: translateY(30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .floating-message a {
+        color: #fff;
+        text-decoration: underline;
+        font-weight: bold;
+              }
+        #resultContainer {
+  display: none;
+                                    }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+        <img src="../logo.png">
+        <h2>Fila Assistant</h2>
+    </div>
+
+    <!-- Profile Icon (fixed right) -->
+    <i id="profileIcon"
+       class="fas fa-user-circle profile-icon"
+       onclick="go('../profile.html')"
+       title="My Profile">
+    </i>
+</div>
+   
+    <!-- Form -->
+    <div class="form-container">
+        <p><b>Fill in the required fields below To Fetch Weekly Plan</b></p><br>
+        
+<form id="lessonForm">
+<div class="form-grid">
+
+<h3>📌 General Information</h3>
+
+   <div class="form-group">
+                    <label class="required">Language/Ururimi</label>
+                    <select id="language" required>
+                        <option value="">Select Language</option>
+                        <option value="english">English</option>
+                        <option value="kinyarwanda">Kinyarwanda</option>
+                    </select>
+
+    <div class="form-group">
+                    <label class="required">School Name</label>
+                    <input type="text" id="schoolName" placeholder="e.g:,EP KABIRIZI"  required>
+    </div>
+
+    <div class="form-group">
+                    <label class="required">Teacher's Name</label>
+                    <input type="text" id="teacherName" placeholder="e.g:, IRATURINZE Fils Lambert" required>
+    </div>
+    
+                <div class="form-group">
+<label class="required"> Itariki/ Date</label>
+<input type="date" id="date" required>
+                </div>
+    
+                <div class="form-group">
+<label class="required" class="required">Ikiciro/Level</label>
+<input type="text" id="level" placeholder="e.g. N1, N3A" required>
+                </div>
+       
+    
+                <div class="form-group">
+<label class="required">Insanganyamatsiko y'icyumweru/Weekly Theme ( mu Kinyarwanda)</label>
+                
+<input type="text" id="subTopic" placeholder="Andika insanganyamatsiko y'icyumweru  mu Kinyarwanda" required>
+                </div>
+
+                <div class="form-group">
+<label class="required">Weekly Theme/Insanganyamatsiko y'icyumweru ( in English)</label>
+<input type="text" id="subTopicEng" placeholder="Write weekly Theme in English" required>
+                </div>
+
+<hr>
+
+<h3>🕢 7:45 – 8:00 |Ikaze Ku Ruziga/Welcoming Time</h3>
+    
+     <div class="form-group">
+<label class="optonal">Imfashanyigisho/Teaching Aids(Opional)</label>
+<input type="text" id="tmWelcome" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+        </div>
+  <br>
+
+<h3>🕗 8:00 – 8:30 |  Tumenye Ibidukikije/Welcoming Time</h3>
+    <div class="form-group full-width">
+<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
+<input type="text" id="tmEnvironment" placeholder="e.g, Ntutazishyiramo systeme irashyiramo izayo">
+        </div>
+    <br>
+
+<h3>🕣 8:30 – 9:00 | Imibare/Numeracy</h3>
+    <div class="form-group">
+<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
+<input type="text" id="tmNumeracy" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+        </div>
+    <br>
+
+<h3>🕘 9:00 – 9:30 | Ikinyarwanda</h3>
+       <div class="form-group">
+<label class="optonal">Imfashanyigisho/teaching aids(Opional)</label>
+<input type="text" id="tmKiny" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+        </div>
+      
+    <br>
+<h3>🕤 9:30 – 10:00 | English Oral Communication</h3>
+    <div class="form-group">
+<label class="optonal">Teaching aids/Imfashanyigisho(Opional)</label>
+<input type="text" id="tmEng" placeholder="e.g, If you dont fill in teaching aids,the systeme will generate some for you">
+        </div>
+    <br>
+<h3>🕥 10:40 – 11:00 | Imikino yo hanze/Outdoor Plays</h3>
+       <div class="form-group">
+<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
+<input type="text" id="tmNOutdoor" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+        </div>
+    <br>
+
+<h3>🕚 11:00 – 11:20 | Ubugeni n'umuco/Arts and Culture(Kuwa 1 no kuwa 3)</h3>
+       <div class="form-group">
+<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
+<input type="text" id="tmArt" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+        </div>
+    <br>
+
+<h3>🕦 11:00 – 11:20 | Kubara Inkuru mu Kinyarwanda/Story Time Kinyarwanda(kuwa 2,4,5)</h3>
+       <div class="form-group">
+<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
+<input type="text" id="tmStory" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+        </div>
+    <br>
+
+<h3>🕛 11:20 – 11:40 | Imikino yo mu nguni/Free corner play</h3>
+        <div class="form-group">
+<label class="optonal">Imfashanyigisho/Teaching Aids(Opional)</label>
+<input type="text" id="tmCorner" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+        </div>
+  <br>
+    <h3>🕛 11:40 – 12:00 | Gusezeranaho/Closing Time</h3>
+     <div class="form-group">
+<label class="optonal">Imfashanyigisho/Teaching Aids(Opional)</label>
+<input type="text" id="tmClosing" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+        </div>
+  <br>
+
+<hr>
+
+<button type="submit" class="generate-btn">Generate Weekly Plan</button>
+    <div id="errorMessage" class="error-message"></div>
+
+</form>
+    </div>
+</div>
+    <!-- Result -->
+    <img id="staticPartImg" src="img.jpg" style="display:none;">
+    <div id="resultContainer" class="result-container">
+        <div id="actionButtons" class="download-buttons">
+            <button class="download-btn" id="editBtn" style="display:none;">Edit</button>
+<button class="download-btn" id="saveBtn" style="display:none;">Save</button>
+<button id="downloadBtn" class="download-btn btn-pdf" onclick="downloadPDFProper()" style="display:none;">📑 Download PDF</button>
+          <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
+            
+        </div>
+        <div id="lessonPlanContent" class="lesson-plan"></div>
+        
+    </div>
+</div>
+
+
+<div id="floatingMessage" class="floating-message"></div>
+
+
+<!-- Netlify Identity -->
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+   <script>
+    // ===============================
+    // AUTH CHECK
+    // ===============================
+    const token = localStorage.getItem("auth_token");
+    const userEmail = localStorage.getItem("user_email");
+
+    if (!token || !userEmail) {
+        window.location.href = "../login.html";
+    }
+
+    // ===============================
+    // FLOATING MESSAGE
+    // ===============================
+    function showFloatingMessage(msg) {
+        const box = document.getElementById("floatingMessage");
+        box.innerHTML = msg;
+        box.style.display = "block";
+        setTimeout(() => box.style.display = "none", 8000);
+    }
+
+    // ===============================
+    // PLAN FILES
+    // ===============================
+    // ===============================
+// PLAN FILES
+// ===============================
+const planFolders = {
+    english: "proposals",
+    kinyarwanda: "kinyarwanda_plans"
+    // Disabled languages are commented out
+    // kiswahili: "kiswahili_plans",
+    // french: "french_plans"
+};
+
+// ===============================
+// GET NEXT PLAN FILE (ROTATION)
+// ===============================
+function getNextPlanFile(language, email) {
+    // Only allow active languages
+    const activeLangs = Object.keys(planFolders);
+    if (!activeLangs.includes(language)) {
+        language = "english"; // fallback if disabled language is somehow chosen
+    }
+
+    const folder = planFolders[language];
+
+    // Total plans per language
+    const totalPlans = language === "english" ? 5 : 10; // adjust if needed
+
+    const storageKey = `last_plan_${language}_${email}`;
+    let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
+
+    // Get next index
+    let nextIndex = lastIndex + 1;
+
+    // Restart rotation if exceeded total
+    if (nextIndex > totalPlans) nextIndex = 1;
+
+    // Save next index for next fetch
+    localStorage.setItem(storageKey, nextIndex);
+
+    // Return full path to plan file
+    return `${folder}/plan${nextIndex}.html`;
+}
+
+// ===============================
+// LANGUAGE DEFAULTS
+// ===============================
+function getLanguageDefaults(language, subject, classLevel) {
+    const activeLangs = ["english", "kinyarwanda"]; // only active languages
+
+    if (!activeLangs.includes(language)) language = "english"; // fallback
+
+    return {
+        specialNeeds: {
+            english: "There is no learner with special educational needs.",
+            kinyarwanda: "Nta munyeshuri ufite ibyo agenerwa by'ihariye."
+        },
+        teachingMaterials: {
+            english: `Songs, ${subject} textbook, learner's book, teacher's guide.`,
+            kinyarwanda: `Indirimbo, ${subject} igitabo cy'umunyeshuri ${classLevel}.`
+        },
+        references: {
+            english: `${subject} learner’s book, REB curriculum.`,
+            kinyarwanda: `${subject} igitabo cy'umunyeshuri.`
+        }
+    };
+    }
+    // ===============================
+    // FORM SUBMIT
+    // ===============================
+    document.getElementById("lessonForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const btn = document.querySelector(".generate-btn");
+        btn.disabled = true;
+        btn.textContent = "Fetching...";
+
+        try {
+            const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
+            const data = await res.json();
+
+            if (data.balance <= 0) {
+                showFloatingMessage("❌ No lesson plans remaining.");
+                btn.disabled = false;
+                btn.textContent = "Fetch Lesson Plan";
+                return;
+            }
+
+            await fetch("/.netlify/functions/use-lesson-plan", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: userEmail })
+            });
+
+            generateLessonPlan();
+
+        } catch (err) {
+            showFloatingMessage("❌ Network error.");
+            btn.disabled = false;
+            btn.textContent = "Fetch Lesson Plan";
+        }
+    });
+
+    // ===============================
+    // GENERATE + AUTO SAVE
+    // ===============================
+    function generateLessonPlan() {
+    const language = document.getElementById("language").value || "english";
+
+    const subjectVal   = document.getElementById("subject").value;
+    const classVal     = document.getElementById("class").value;
+    const intMinVal    = document.getElementById("intMin").value;
+    const devMinVal    = document.getElementById("devMin").value;
+    const concMinVal   = document.getElementById("concMin").value;
+    const weeklyThemeVal = document.getElementById("weeklyTheme").value;
+    const classPlanVal = document.getElementById("classPlan").value;
+
+    const defaults = getLanguageDefaults(language, subjectVal, classVal);
+
+    const data = {
+        schoolName: document.getElementById("schoolName").value,
+        teacherName: document.getElementById("teacherName").value,
+        term: document.getElementById("term").value,
+        date: document.getElementById("date").value,
+        subject: subjectVal,
+        class: classVal,
+        unitNo: document.getElementById("unitNo").value,
+        lessonNo: document.getElementById("lessonNo").value,
+        totalLessons: document.getElementById("totalLessons").value,
+        duration: document.getElementById("duration").value,
+        classSize: document.getElementById("classSize").value,
+        unitTitle: document.getElementById("unitTitle").value,
+        lessonTitle: document.getElementById("lessonTitle").value,
+        weeklyTheme: weeklyThemeVal,
+        intMin: intMinVal,
+        devMin: devMinVal,
+        concMin: concMinVal,
+        classPlan: classPlanVal,
+        teachingMaterials: document.getElementById("teachingMaterials").value || defaults.teachingMaterials[language],
+        specialNeeds: document.getElementById("specialNeeds").value || defaults.specialNeeds[language],
+        references: document.getElementById("references").value || defaults.references[language]
+    };
+
+
+        fetch(getNextPlanFile(language, userEmail))
+            .then(res => res.text())
+            .then(template => {
+
+                for (const key in data) {
+    template = template
+        .replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), data[key])
+        .replace(new RegExp(`\\$\\{\\s*${key}\\s*\\}`, "g"), data[key]);
+    }
+
+                lessonPlanContent.innerHTML = template;
+                resultContainer.classList.add("show");
+                resultContainer.scrollIntoView({ behavior: "smooth" });
+
+                // 🔥 AUTO SAVE TO DATABASE USING EMAIL ONLY
+                autoSavePlan(template, language, data.lessonTitle);
+
+            })
+            .catch(() => {
+                showFloatingMessage("❌ Failed to load Daily plan.");
+            });
+    }
+
+    // ===============================
+    // AUTO SAVE FUNCTION (DATABASE)
+    // ===============================
+    async function autoSavePlan(content, language, title) {
+        try {
+            const res = await fetch("/.netlify/functions/create-user-plan", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: userEmail,   // <-- use email instead of user_id
+                    lesson_title: title,
+                    lesson_content: content,
+                    language
+                })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                console.error("SAVE FAILED:", data);
+                showFloatingMessage("⚠️ Plan generated but not saved.");
+            }
+
+        } catch (err) {
+            console.error("AUTO SAVE ERROR:", err);
+        }
+    }
+
+    // ===============================
+    // EDIT & COPY (UNCHANGED)
+    // ===============================
+    editBtn.addEventListener("click", () => {
+        lessonPlanContent.contentEditable = true;
+        editBtn.disabled = true;
+        saveBtn.disabled = false;
+    });
+
+    saveBtn.addEventListener("click", () => {
+        lessonPlanContent.contentEditable = false;
+        editBtn.disabled = false;
+        saveBtn.disabled = true;
+    });
+
+   
+    function go(path) {
+    window.location.href = path;
+}
+
+// ===============================
+// DOWNLOAD PDF
+// ===============================
+    function downloadPDFProper() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("landscape", "mm", "a4");
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // TITLE
+  doc.setFontSize(14);
+  doc.text("IMBATA Y'IBIKORWA BY'UMUNSI", pageWidth / 2, 12, { align: "center" });
+
+  let y = 18;
+ doc.setFontSize(14);
+  doc.text(`ITARIKI: ${date.value}", pageWidth / 2, 12, { align: "right}`);
+  doc.text(`IKICIRO: ${class.value}", pageWidth / 2, 12, { align: "right` });
+
+
+  let y = 18;
+  // SCHOOL & TEACHER INFO
+  doc.setFontSize(10);
+  doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, y);
+  doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });
+  y += 8;
+     
+
+  // EXTRACT TABLES
+  const tables = document.querySelectorAll("#lessonPlanContent table");
+  if (!tables.length) {
+    alert("No tables found in lesson plan.");
+    return;
+  }
+
+  function flattenCellContent(td) {
+    let html = td.innerHTML.trim();
+    html = html.replace(/<li>/gi, "• ").replace(/<\/li>/gi, "\n");
+    html = html.replace(/<br\s*\/?>/gi, "\n");
+    html = html.replace(/<[^>]*>/g, "");
+    return html;
+  }
+
+  function extractTableFlattened(table) {
+    const head = [], body = [], rowSpans = [];
+    table.querySelectorAll("thead tr").forEach(tr => {
+      const row = [];
+      tr.querySelectorAll("th").forEach(th => row.push(th.innerText.trim()));
+      head.push(row);
+    });
+    table.querySelectorAll("tbody tr").forEach(tr => {
+      const row = [];
+      let colIndex = 0;
+      tr.querySelectorAll("td").forEach(td => {
+        while (rowSpans[colIndex] && rowSpans[colIndex].rowsLeft > 0) {
+          row.push(rowSpans[colIndex].value);
+          rowSpans[colIndex].rowsLeft--;
+          colIndex++;
+        }
+        const value = flattenCellContent(td);
+        const colspan = parseInt(td.getAttribute("colspan") || "1", 10);
+        const rowspan = parseInt(td.getAttribute("rowspan") || "1", 10);
+        for (let c = 0; c < colspan; c++) row.push(value);
+        if (rowspan > 1) for (let c = 0; c < colspan; c++) rowSpans[colIndex + c] = { value, rowsLeft: rowspan - 1 };
+        colIndex += colspan;
+      });
+      while (rowSpans[colIndex] && rowSpans[colIndex].rowsLeft > 0) {
+        row.push(rowSpans[colIndex].value);
+        rowSpans[colIndex].rowsLeft--;
+        colIndex++;
+      }
+      body.push(row);
+    });
+    return { head, body };
+  }
+
+  // FIRST TABLE
+  const first = extractTableFlattened(tables[0]);
+  doc.autoTable({
+    head: first.head,
+    body: first.body,
+    startY: y,
+    theme: "grid",
+    styles: { fontSize: 10, cellPadding: 3, overflow: "linebreak" },
+    headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
+    margin: { left: 8, right: 8 },
+    rowPageBreak: "avoid",
+  });
+
+  // REMAINING TABLES (on NEW PAGE)
+  if (tables.length > 1) {
+    doc.addPage();
+    const mergedHead = [], mergedBody = [];
+    for (let i = 1; i < tables.length; i++) {
+      const t = extractTableFlattened(tables[i]);
+      mergedHead.push(...t.head);
+      mergedBody.push(...t.body);
+    }
+    doc.autoTable({
+      head: mergedHead,
+      body: mergedBody,
+      startY: 18,
+      theme: "grid",
+      styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
+      headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
+      margin: { left: 8, right: 8 },
+      rowPageBreak: "avoid",
+    });
+  }
+
+  // SAVE
+  // Get today’s date
+const today = new Date().toISOString().split("T")[0];
+
+// Make the filename safe (replace spaces and special characters in subTopicEng)
+const safeSubTopic = weeklyTheme.value.replace(/[^a-z0-9]/gi, '_');
+
+// Save PDF with desired format
+doc.save(`${safeSubTopic}_daily_plan_${today}.pdf`);
+}
+    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+
+</body>
+    </html>
