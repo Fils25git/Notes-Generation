@@ -539,46 +539,50 @@ function downloadPDFProper() {
   const doc = new jsPDF("landscape", "mm", "a4");
   const pageWidth = doc.internal.pageSize.getWidth();
 
+  // ===== TITLE =====
   doc.setFontSize(14);
-  doc.text("IMBATA NKOMATANYO Y'ICYUMWERU", pageWidth / 2, 12, { 
-  
-doc.setFontSize(10);  
-let y = 18; // starting vertical position  
-doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, y);  
-doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });  
-  
-// Add space below  
-y += 8; // 8mm of space below the names  
-  
-// Next content starts here  
-doc.text("OTHER CONTENT STARTS HERE", 14, y);
-  
+  doc.text("IMBATA NKOMATANYO Y'ICYUMWERU", pageWidth / 2, 12, { align: "center" });
 
+  // ===== SCHOOL & TEACHER INFO =====
+  doc.setFontSize(10);
+  let y = 18;
+
+  doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, y);
+  doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });
+
+  y += 8;
+
+  // ===== EXTRACT TABLES FROM GENERATED PLAN =====
   const tables = document.querySelectorAll("#lessonPlanContent table");
+
   if (!tables.length) {
-    alert("No tables found");
+    alert("No tables found in lesson plan.");
     return;
   }
-
-  let startY = 18;
 
   function extractTable(table) {
     const head = [];
     const body = [];
+
     table.querySelectorAll("thead tr").forEach((tr) => {
       const row = [];
       tr.querySelectorAll("th").forEach((th) => row.push(th.innerText.trim()));
       head.push(row);
     });
+
     table.querySelectorAll("tbody tr").forEach((tr) => {
       const row = [];
       tr.querySelectorAll("td").forEach((td) => row.push(td.innerText.trim()));
       body.push(row);
     });
+
     return { head, body };
   }
 
+  // ===== FIRST TABLE =====
+  let startY = y;
   const first = extractTable(tables[0]);
+
   doc.autoTable({
     head: first.head,
     body: first.body,
@@ -590,33 +594,35 @@ doc.text("OTHER CONTENT STARTS HERE", 14, y);
     rowPageBreak: "avoid",
   });
 
-  startY = doc.lastAutoTable.finalY + 6;
+  // ===== OTHER TABLES MERGED =====
+  let nextY = doc.lastAutoTable.finalY + 6;
 
   if (tables.length > 1) {
     const mergedHead = [];
     const mergedBody = [];
+
     for (let i = 1; i < tables.length; i++) {
       const t = extractTable(tables[i]);
       mergedHead.push(...t.head);
       mergedBody.push(...t.body);
     }
+
     doc.autoTable({
       head: mergedHead,
       body: mergedBody,
-      startY,
+      startY: nextY,
       theme: "grid",
-      styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak"
-        },
+      styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
       headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
       margin: { left: 8, right: 8 },
       rowPageBreak: "avoid",
     });
   }
 
+  // ===== SAVE PDF =====
   const today = new Date().toISOString().split("T")[0];
   doc.save(`Weekly_Plan_${today}.pdf`);
         }
-
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
