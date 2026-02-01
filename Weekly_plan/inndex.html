@@ -582,6 +582,22 @@ y += 8;
     alert("No tables found in lesson plan.");
     return;
   }
+    // Convert HTML content in table cells into plain text with bullets/line breaks
+function flattenCellContent(td) {
+  let html = td.innerHTML.trim();
+
+  // Replace <li> with bullets
+  html = html.replace(/<li>/gi, "• "); 
+  html = html.replace(/<\/li>/gi, "\n"); 
+
+  // Replace <br> with newline
+  html = html.replace(/<br\s*\/?>/gi, "\n");
+
+  // Remove any remaining HTML tags
+  html = html.replace(/<[^>]*>/g, "");
+
+  return html;
+        }
 
   function extractTableFlattened(table) {
   const head = [];
@@ -609,7 +625,7 @@ y += 8;
         colIndex++;
       }
 
-      const value = td.innerText.trim();
+      const value = flattenCellContent(td);
       const colspan = parseInt(td.getAttribute("colspan") || "1", 10);
       const rowspan = parseInt(td.getAttribute("rowspan") || "1", 10);
 
@@ -655,6 +671,10 @@ y += 8;
     margin: { left: 8, right: 8 },
     rowPageBreak: "avoid",
   });
+    // ===== ADD LINE BELOW FIRST TABLE =====
+const lineY = doc.lastAutoTable.finalY + 2; // 2mm below table
+doc.setLineWidth(0.5); // thickness of the line
+doc.line(14, lineY, pageWidth - 14, lineY); // from left margin to right margin
 
   // ===== OTHER TABLES MERGED =====
   let nextY = doc.lastAutoTable.finalY + 6;
