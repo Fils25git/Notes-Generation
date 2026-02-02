@@ -379,44 +379,42 @@ function getNextPlanFile(language, email) {
 
 
     // ===============================
-    // FORM SUBMIT
-    // ===============================
-    document.getElementById("lessonForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
+// FORM SUBMIT
+// ===============================
+document.getElementById("lessonForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        const btn = document.querySelector(".generate-btn");
-        btn.disabled = true;
-        btn.textContent = "Creating...";
+    const btn = document.querySelector(".generate-btn");
+    btn.disabled = true;
+    btn.textContent = "Creating...";
 
-        try {
-            const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
-            const data = await res.json();
+    try {
+        const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
+        const data = await res.json();
 
-            if (data.balance <= 0) {
-                showFloatingMessage("❌ No enough plans remaining. Check your balance");
-                btn.disabled = false;
-                btn.textContent = "Create Daily Plan";
-                return;
-            }
-
-            await fetch("/.netlify/functions/use-lesson-plan", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: userEmail })
-            });
-
-            generateLessonPlan();
-
-        } catch (err) {
-            showFloatingMessage("❌ Network error.");
+        if (data.balance <= 0) {
+            showFloatingMessage("❌ No enough plans remaining. Check your balance");
             btn.disabled = false;
-            btn.textContent = "Create Daily  Plan";
+            btn.textContent = "Create Daily Plan";
+            return;
         }
-        .catch(() => {
-    showFloatingMessage("❌ Failed to load weekly plan.");
-    document.getElementById("resultContainer").classList.add("show"); // show even on error
+
+        await fetch("/.netlify/functions/use-lesson-plan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: userEmail })
+        });
+
+        // ✅ Generate and show plan
+        generateLessonPlan();
+
+    } catch (err) {
+        showFloatingMessage("❌ Network error.");
+    }
+
+    btn.disabled = false;
+    btn.textContent = "Create Daily Plan";
 });
-    });
        function getAutoTeachingMaterials(activity, language) {
     const materials = {
         english: {
