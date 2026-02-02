@@ -319,7 +319,7 @@
             <button class="download-btn" id="editBtn" style="display:none;">Edit</button>
 <button class="download-btn" id="saveBtn" style="display:none;">Save</button>
 <button id="downloadBtn" class="download-btn btn-pdf" onclick="downloadPDFProper()" style="display:none;">📑 Download PDF</button>
-          <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
+          <button class="download-btn btn-pdf" onclick="printLessonPlan()">📑 Save as PDF/Print</button>
             
         </div>
         <div id="lessonPlanContent" class="lesson-plan"></div>
@@ -625,6 +625,13 @@ downloadBtn.style.display = "inline-block";
     function go(path) {
     window.location.href = path;
 }
+       function printLessonPlan() {
+    const content = document.getElementById("lessonPlanContent");
+    content.style.display = "block";  // ensure content is visible
+    setTimeout(() => {
+        window.print();
+    }, 100);  // small delay so browser renders content
+       }
 
 // ===============================
 // DOWNLOAD PDF
