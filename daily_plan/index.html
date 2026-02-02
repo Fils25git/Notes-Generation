@@ -737,6 +737,26 @@ const safeSubTopic = subTopicEng.value.replace(/[^a-z0-9]/gi, '_');
 // Save PDF with desired format
 doc.save(`${safeSubTopic}_daily_plan_${today}.pdf`);
 }
+  // ===============================
+// HANDLE 11:00–11:20 SELECT
+// ===============================
+const lessonArtStorySelect = document.getElementById("lessonArtStory");
+const tmArtStoryInput = document.getElementById("tmArtStory");
+
+lessonArtStorySelect.addEventListener("change", () => {
+    const selectedValue = lessonArtStorySelect.value;
+
+    // Auto-fill teaching aids if empty
+    if (!tmArtStoryInput.value) {
+        if (selectedValue.includes("Art & Culture")) {
+            tmArtStoryInput.value = getAutoTeachingMaterials("art", document.getElementById("language").value || "english");
+        } else if (selectedValue.includes("Storytelling")) {
+            tmArtStoryInput.value = getAutoTeachingMaterials("story", document.getElementById("language").value || "english");
+        } else {
+            tmArtStoryInput.value = "";
+        }
+    }
+});     
     </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
