@@ -101,6 +101,11 @@
     background: #f8fbff;
     padding: 15px;
         }
+        .lesson-input {
+  border-left: 4px solid #4f46e5;
+  padding-left: 8px;
+  margin-bottom: 6px;
+            }
 
       @keyframes slideIn {
         from { transform: translateY(30px); opacity: 0; }
@@ -200,10 +205,15 @@
      <div class="form-group">
 <label class="optonal">Imfashanyigisho/Teaching Aids(Opional)</label>
 <input type="text" id="tmWelcome" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
+         
         </div>
   <br>
 
 <h3>🕗 8:00 – 8:30 |  Tumenye Ibidukikije/Welcoming Time</h3>
+    <div class="form-group lesson-input">
+<label class="required">Isomo rizibandwaho/Lesson (required)</label>
+<input type="text" id="lessonEnvironment" placeholder="e.g, Isuku ku mubiri." required>
+    </div>
     <div class="form-group full-width">
 <label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
 <input type="text" id="tmEnvironment" placeholder="e.g, Ntutazishyiramo systeme irashyiramo izayo">
@@ -211,6 +221,10 @@
     <br>
 
 <h3>🕣 8:30 – 9:00 | Imibare/Numeracy</h3>
+    <div class="form-group lesson-input">
+<label class="required">Isomo rizibandwaho/Lesson (required)</label>
+<input type="text" id="lessonNumeracy" placeholder="e.g, Kubara 1–10." required>
+    </div>
     <div class="form-group">
 <label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
 <input type="text" id="tmNumeracy" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
@@ -218,6 +232,10 @@
     <br>
 
 <h3>🕘 9:00 – 9:30 | Ikinyarwanda</h3>
+    <div class="form-group lesson-input">
+<label class="required">Isomo rizibandwaho/Lesson (required)</label>
+<input type="text" id="lessonKiny" placeholder="e.g, Inyuguti A." required>
+    </div>
        <div class="form-group">
 <label class="optonal">Imfashanyigisho/teaching aids(Opional)</label>
 <input type="text" id="tmKiny" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
@@ -225,33 +243,50 @@
       
     <br>
 <h3>🕤 9:30 – 10:00 | English Oral Communication</h3>
+    <div class="form-group lesson-input">
+<label class="required">Isomo rizibandwaho/Lesson (required)</label>
+<input type="text" id="lessonEng" placeholder="e.g, Parts of the body." required>
+    </div>
     <div class="form-group">
 <label class="optonal">Teaching aids/Imfashanyigisho(Opional)</label>
 <input type="text" id="tmEng" placeholder="e.g, If you dont fill in teaching aids,the systeme will generate some for you">
         </div>
     <br>
 <h3>🕥 10:40 – 11:00 | Imikino yo hanze/Outdoor Plays</h3>
+    <div class="form-group lesson-input">
+<label class="required">Isomo rizibandwaho/Lesson (required)</label>
+<input type="text" id="lessonOutdoor" placeholder="e.g, Kubara hifashishijwe ibikoresho byo hanze." required>
+    </div>
        <div class="form-group">
 <label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
 <input type="text" id="tmOutdoor" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
         </div>
     <br>
 
-<h3>🕚 11:00 – 11:20 | Ubugeni n'umuco/Arts and Culture(Kuwa 1 no kuwa 3)</h3>
-       <div class="form-group">
-<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
-<input type="text" id="tmArt" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
-        </div>
-    <br>
+<h3>🕚 11:00 – 11:20 | Activity (Arts & Culture / Story Time)</h3>
 
-<h3>🕦 11:00 – 11:20 | Kubara Inkuru mu Kinyarwanda/Story Time Kinyarwanda(kuwa 2,4,5)</h3>
-       <div class="form-group">
-<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
-<input type="text" id="tmStory" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
-        </div>
+<!-- Lesson select -->
+<div class="form-group lesson-input">
+    <label class="required">Isomo rizibandwaho / Lesson (required)</label>
+    <select id="lessonArtStory" required>
+        <option value="">Select Lesson</option>
+        <option value="Ubugeni n'umuco / Art & Culture">Ubugeni n'umuco / Art & Culture (Mon, Wed)</option>
+        <option value="Kubara Inkuru mu Kinyarwanda / Storytelling">Kubara Inkuru mu Kinyarwanda / Storytelling (Tue, Thu, Fri)</option>
+    </select>
+</div>
+
+<!-- Teaching aids input -->
+<div class="form-group">
+    <label class="optonal">Imfashanyigisho / Teaching Aids (Optional)</label>
+    <input type="text" id="tmArtStory" placeholder="e.g, Ntutazishyiramo, system irashyiramo izayo">
+</div>
     <br>
 
 <h3>🕛 11:20 – 11:40 | Imikino yo mu nguni/Free corner play</h3>
+    <div class="form-group lesson-input">
+<label class="required">Isomo rizibandwaho/Lesson (required)</label>
+<input type="text" id="lessonCorner" placeholder="e.g, Kubaka inzu." required>
+    </div>
         <div class="form-group">
 <label class="optonal">Imfashanyigisho/Teaching Aids(Opional)</label>
 <input type="text" id="tmCorner" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
@@ -311,6 +346,21 @@ const tmArt = document.getElementById("tmArt");
 const tmStory = document.getElementById("tmStory");
 const tmCorner = document.getElementById("tmCorner");
 const tmClosing = document.getElementById("tmClosing");
+
+       const lessonArtStory = document.getElementById("lessonArtStory");
+const tmArtStory = document.getElementById("tmArtStory");
+
+
+const lessonEnvironment = document.getElementById("lessonEnvironment");
+const lessonNumeracy = document.getElementById("lessonNumeracy");
+const lessonKiny = document.getElementById("lessonKiny");
+const lessonEng = document.getElementById("lessonEng");
+const lessonOutdoor = document.getElementById("lessonOutdoor");
+const lessonArt = document.getElementById("lessonArt");
+const lessonStory = document.getElementById("lessonStory");
+const lessonCorner = document.getElementById("lessonCorner");
+lessonArtStory: document.getElementById("lessonArtStory").value,
+tmArtStory: document.getElementById("tmArtStory").value || getAutoTeachingMaterials("artStory", language),
 
 const lessonPlanContent = document.getElementById("lessonPlanContent");
 const editBtn = document.getElementById("editBtn");
@@ -446,6 +496,10 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
             corner: "Ibikinisho, puzzle, udukoni two kubaka.",
             closing: "Indirimbo zo gusezera, ishusho yo gusuzuma umunsi."
         }
+        artStory: {
+    english: "Crayons, paper, clay, paint for Art & Story book for Storytelling",
+    kinyarwanda: "Amakaramu, impapuro, ibumba, ibitabo by'inkuru"
+       }
     };
 
     return materials[language][activity];
@@ -465,6 +519,15 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
     level: level.value,
     subTopic: subTopic.value,
     subTopicEng: subTopicEng.value,
+
+    lessonEnvironment: lessonEnvironment.value,
+lessonNumeracy: lessonNumeracy.value,
+lessonKiny: lessonKiny.value,
+lessonEng: lessonEng.value,
+lessonOutdoor: lessonOutdoor.value,
+lessonArt: lessonArt.value,
+lessonStory: lessonStory.value,
+lessonCorner: lessonCorner.value,
 
     tmWelcome: tmWelcome.value || getAutoTeachingMaterials("welcome", language),
     tmEnvironment: tmEnvironment.value || getAutoTeachingMaterials("environment", language),
