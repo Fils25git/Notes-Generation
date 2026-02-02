@@ -348,8 +348,6 @@ const tmNumeracy = document.getElementById("tmNumeracy");
 const tmKiny = document.getElementById("tmKiny");
 const tmEng = document.getElementById("tmEng");
 const tmOutdoor = document.getElementById("tmOutdoor");
-const tmArt = document.getElementById("tmArt");
-const tmStory = document.getElementById("tmStory");
 const tmCorner = document.getElementById("tmCorner");
 const tmClosing = document.getElementById("tmClosing");
 
@@ -752,12 +750,10 @@ doc.save(`${safeSubTopic}_daily_plan_${today}.pdf`);
 activityArtStory.addEventListener("change", () => {
     const language = document.getElementById("language").value || "english";
 
-    if (!tmArtStory.value) {
-        if (activityArtStory.value.includes("Art")) {
-            tmArtStory.value = getAutoTeachingMaterials("art", language);
-        } else if (activityArtStory.value.includes("Story")) {
-            tmArtStory.value = getAutoTeachingMaterials("story", language);
-        }
+    if (activityArtStory.value.includes("Art")) {
+        tmArtStory.value = getAutoTeachingMaterials("art", language);
+    } else if (activityArtStory.value.includes("Story")) {
+        tmArtStory.value = getAutoTeachingMaterials("story", language);
     }
 });
     </script>
