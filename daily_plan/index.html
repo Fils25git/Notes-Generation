@@ -532,7 +532,10 @@ lessonCorner: lessonCorner.value,
 
 lessonArtStory: lessonArtStory.value,
 activityArtStory: activityArtStory.value,
-tmArtStory: tmArtStory.value || getAutoTeachingMaterials("artStory", language),
+tmArtStory: tmArtStory.value ||
+    (activityArtStory.value.includes("Art")
+        ? getAutoTeachingMaterials("art", language)
+        : getAutoTeachingMaterials("story", language)),
         
 
     tmWelcome: tmWelcome.value || getAutoTeachingMaterials("welcome", language),
@@ -746,17 +749,14 @@ doc.save(`${safeSubTopic}_daily_plan_${today}.pdf`);
 // ===============================
 
 
-const activityArtStorySelect = document.getElementById("activityArtStory");
-
-activityArtStorySelect.addEventListener("change", () => {
-    const selectedValue = activityArtStorySelect.value;
+activityArtStory.addEventListener("change", () => {
     const language = document.getElementById("language").value || "english";
 
-    if (!tmArtStoryInput.value) {
-        if (selectedValue.includes("Art")) {
-            tmArtStoryInput.value = getAutoTeachingMaterials("art", language);
-        } else if (selectedValue.includes("Story")) {
-            tmArtStoryInput.value = getAutoTeachingMaterials("story", language);
+    if (!tmArtStory.value) {
+        if (activityArtStory.value.includes("Art")) {
+            tmArtStory.value = getAutoTeachingMaterials("art", language);
+        } else if (activityArtStory.value.includes("Story")) {
+            tmArtStory.value = getAutoTeachingMaterials("story", language);
         }
     }
 });
