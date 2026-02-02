@@ -290,7 +290,6 @@
     </div>
 </div>
     <!-- Result -->
-    <img id="staticPartImg" src="img.jpg" style="display:none;">
     <div id="resultContainer" class="result-container">
         <div id="actionButtons" class="download-buttons">
             <button class="download-btn" id="editBtn" style="display:none;">Edit</button>
@@ -396,7 +395,7 @@ function getNextPlanFile(language, email) {
             if (data.balance <= 0) {
                 showFloatingMessage("❌ No enough plans remaining. Check your balance");
                 btn.disabled = false;
-                btn.textContent = "Fetch Daily Plan";
+                btn.textContent = "Create Daily Plan";
                 return;
             }
 
@@ -411,8 +410,12 @@ function getNextPlanFile(language, email) {
         } catch (err) {
             showFloatingMessage("❌ Network error.");
             btn.disabled = false;
-            btn.textContent = "Fetch Daily  Plan";
+            btn.textContent = "Create Daily  Plan";
         }
+        .catch(() => {
+    showFloatingMessage("❌ Failed to load weekly plan.");
+    document.getElementById("resultContainer").classList.add("show"); // show even on error
+});
     });
        function getAutoTeachingMaterials(activity, language) {
     const materials = {
@@ -465,7 +468,7 @@ function getNextPlanFile(language, email) {
     tmNumeracy: tmNumeracy.value || getAutoTeachingMaterials("numeracy", language),
     tmKiny: tmKiny.value || getAutoTeachingMaterials("kinyarwanda", language),
     tmEng: tmEng.value || getAutoTeachingMaterials("english", language),
-    tmNOutdoor: tmOutdoor.value || getAutoTeachingMaterials("outdoor", language),
+    tmOutdoor: tmOutdoor.value || getAutoTeachingMaterials("outdoor", language),
     tmArt: tmArt.value || getAutoTeachingMaterials("art", language),
     tmStory: tmStory.value || getAutoTeachingMaterials("story", language),
     tmCorner: tmCorner.value || getAutoTeachingMaterials("corner", language),
