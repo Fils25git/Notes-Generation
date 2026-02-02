@@ -363,11 +363,7 @@ const lessonNumeracy = document.getElementById("lessonNumeracy");
 const lessonKiny = document.getElementById("lessonKiny");
 const lessonEng = document.getElementById("lessonEng");
 const lessonOutdoor = document.getElementById("lessonOutdoor");
-const lessonArt = document.getElementById("lessonArt");
-const lessonStory = document.getElementById("lessonStory");
 const lessonCorner = document.getElementById("lessonCorner");
-lessonArtStory: document.getElementById("lessonArtStory").value,
-tmArtStory: document.getElementById("tmArtStory").value || getAutoTeachingMaterials("artStory", language),
 
 const lessonPlanContent = document.getElementById("lessonPlanContent");
 const editBtn = document.getElementById("editBtn");
@@ -502,7 +498,7 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
             story: "Igitabo cy'inkuru, udukino tw'intoki, amashusho.",
             corner: "Ibikinisho, puzzle, udukoni two kubaka.",
             closing: "Indirimbo zo gusezera, ishusho yo gusuzuma umunsi."
-        }
+        },
         artStory: {
     english: "Crayons, paper, clay, paint for Art & Story book for Storytelling",
     kinyarwanda: "Amakaramu, impapuro, ibumba, ibitabo by'inkuru"
@@ -532,9 +528,11 @@ lessonNumeracy: lessonNumeracy.value,
 lessonKiny: lessonKiny.value,
 lessonEng: lessonEng.value,
 lessonOutdoor: lessonOutdoor.value,
-lessonArt: lessonArt.value,
-lessonStory: lessonStory.value,
 lessonCorner: lessonCorner.value,
+
+lessonArtStory: lessonArtStory.value,
+activityArtStory: activityArtStory.value,
+tmArtStory: tmArtStory.value || getAutoTeachingMaterials("artStory", language),
         
 
     tmWelcome: tmWelcome.value || getAutoTeachingMaterials("welcome", language),
@@ -543,8 +541,6 @@ lessonCorner: lessonCorner.value,
     tmKiny: tmKiny.value || getAutoTeachingMaterials("kinyarwanda", language),
     tmEng: tmEng.value || getAutoTeachingMaterials("english", language),
     tmOutdoor: tmOutdoor.value || getAutoTeachingMaterials("outdoor", language),
-    tmArt: tmArt.value || getAutoTeachingMaterials("art", language),
-    tmStory: tmStory.value || getAutoTeachingMaterials("story", language),
     tmCorner: tmCorner.value || getAutoTeachingMaterials("corner", language),
     tmClosing: tmClosing.value || getAutoTeachingMaterials("closing", language)
 };
@@ -748,23 +744,22 @@ doc.save(`${safeSubTopic}_daily_plan_${today}.pdf`);
   // ===============================
 // HANDLE 11:00–11:20 SELECT
 // ===============================
-const lessonArtStorySelect = document.getElementById("lessonArtStory");
-const tmArtStoryInput = document.getElementById("tmArtStory");
 
-lessonArtStorySelect.addEventListener("change", () => {
-    const selectedValue = lessonArtStorySelect.value;
 
-    // Auto-fill teaching aids if empty
+const activityArtStorySelect = document.getElementById("activityArtStory");
+
+activityArtStorySelect.addEventListener("change", () => {
+    const selectedValue = activityArtStorySelect.value;
+    const language = document.getElementById("language").value || "english";
+
     if (!tmArtStoryInput.value) {
-        if (selectedValue.includes("Art & Culture")) {
-            tmArtStoryInput.value = getAutoTeachingMaterials("art", document.getElementById("language").value || "english");
-        } else if (selectedValue.includes("Storytelling")) {
-            tmArtStoryInput.value = getAutoTeachingMaterials("story", document.getElementById("language").value || "english");
-        } else {
-            tmArtStoryInput.value = "";
+        if (selectedValue.includes("Art")) {
+            tmArtStoryInput.value = getAutoTeachingMaterials("art", language);
+        } else if (selectedValue.includes("Story")) {
+            tmArtStoryInput.value = getAutoTeachingMaterials("story", language);
         }
     }
-});     
+});
     </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
