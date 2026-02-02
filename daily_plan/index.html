@@ -668,20 +668,25 @@ downloadBtn.style.display = "inline-block";
   const doc = new jsPDF("landscape", "mm", "a4");
   const pageWidth = doc.internal.pageSize.getWidth();
 
-  // TITLE
-  doc.setFontSize(14);
-  doc.text("IMBATA Y'IBIKORWA BY'UMUNSI", pageWidth / 2, 12, { align: "center" });
+let y = 12; // start at top
 
-  let y = 18;
- doc.setFontSize(14);
-  doc.text(`ITARIKI: ${date.value}`, pageWidth - 14, 12, { align: "right" });
-doc.text(`IKICIRO: ${level.value}`, pageWidth - 14, 18, { align: "right" });
+// Title
+doc.setFontSize(14);
+doc.text("IMBATA Y'IBIKORWA BY'UMUNSI/Daily Plan", pageWidth / 2, y, { align: "center" });
+y += 10; // move down
 
-  // SCHOOL & TEACHER INFO
-  doc.setFontSize(10);
-  doc.text(`AMAZINA Y'UMUREZI: ${teacherName.value}`, 14, y);
-  doc.text(`IZINA RY'ISHURI: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });
-  y += 8;
+// Date and Level
+doc.setFontSize(12);
+doc.text(`ITARIKI/Date: ${date.value}`, pageWidth - 14, y, { align: "right" });
+y += 6;
+doc.text(`IKICIRO/Level: ${level.value}`, pageWidth - 14, y, { align: "right" });
+y += 12; // leave space before next section
+
+// School & Teacher
+doc.setFontSize(10);
+doc.text(`AMAZINA Y'UMUREZI/Teacher's Name: ${teacherName.value}`, 14, y);
+doc.text(`IZINA RY'ISHURI/School Name: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });
+y += 10; // ready for tables or content
      
 
   // EXTRACT TABLES
