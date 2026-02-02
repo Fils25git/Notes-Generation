@@ -626,11 +626,32 @@ downloadBtn.style.display = "inline-block";
     window.location.href = path;
 }
        function printLessonPlan() {
-    const content = document.getElementById("lessonPlanContent");
-    content.style.display = "block";  // ensure content is visible
-    setTimeout(() => {
-        window.print();
-    }, 100);  // small delay so browser renders content
+    const content = document.getElementById("lessonPlanContent").innerHTML;
+
+    // Open a new window
+    const printWindow = window.open('', '_blank', 'width=900,height=700');
+    
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Lesson Plan</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                table { border-collapse: collapse; width: 100%; }
+                table, th, td { border: 1px solid #000; }
+                th, td { padding: 8px; text-align: left; }
+            </style>
+        </head>
+        <body>
+            ${content}
+        </body>
+        </html>
+    `);
+
+    printWindow.document.close(); // finish writing
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
        }
 
 // ===============================
