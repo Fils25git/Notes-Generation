@@ -151,7 +151,7 @@
    
     <!-- Form -->
     <div class="form-container">
-        <p><b>Fill in the required fields below To Fetch Weekly Plan</b></p><br>
+        <p><b>Fill in the required fields below To Fetch create daily Plan</b></p><br>
         
 <form id="lessonForm">
 <div class="form-grid">
@@ -355,6 +355,7 @@ const tmClosing = document.getElementById("tmClosing");
 
        const lessonArtStory = document.getElementById("lessonArtStory");
 const tmArtStory = document.getElementById("tmArtStory");
+const activityArtStory = document.getElementById("activityArtStory")
 
 
 const lessonEnvironment = document.getElementById("lessonEnvironment");
@@ -534,6 +535,7 @@ lessonOutdoor: lessonOutdoor.value,
 lessonArt: lessonArt.value,
 lessonStory: lessonStory.value,
 lessonCorner: lessonCorner.value,
+        
 
     tmWelcome: tmWelcome.value || getAutoTeachingMaterials("welcome", language),
     tmEnvironment: tmEnvironment.value || getAutoTeachingMaterials("environment", language),
