@@ -630,7 +630,8 @@ downloadBtn.style.display = "inline-block";
 
     // Open a new window
     const printWindow = window.open('', '_blank', 'width=900,height=700');
-    
+
+    // Write content to new window
     printWindow.document.write(`
         <html>
         <head>
@@ -647,6 +648,16 @@ downloadBtn.style.display = "inline-block";
         </body>
         </html>
     `);
+
+    // Ensure the document is fully loaded before printing
+    printWindow.document.close();
+    printWindow.focus();
+
+    printWindow.onload = function() {
+        printWindow.print();
+        printWindow.close();
+    };
+       }
 
     printWindow.document.close(); // finish writing
     printWindow.focus();
