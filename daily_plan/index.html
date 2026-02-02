@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fila Assistant - CBC Weekly plan Generator</title>
+    <title>Fila Assistant - CBC Daily plan Generator</title>
     <meta property="og:type" content="website" />
 <meta property="og:title" content="Fila Assistant" />
 <meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
@@ -95,24 +95,7 @@
 }
         
       
-        body{
-            background: linear-gradient(135deg, #6dd5fa, #2980b9);
-        }
-      .floating-message {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: #e74c3c;
-        color: #fff;
-        padding: 18px 22px;
-        border-radius: 14px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        display: none;
-        z-index: 9999;
-        animation: slideIn 0.6s ease;
-        max-width: 300px;
-        line-height: 1.6;
-      }
+        
         #lessonPlanContent[contenteditable="true"] {
     border: 2px dashed #007bff;
     background: #f8fbff;
@@ -311,6 +294,27 @@
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
    <script>
+       const schoolName = document.getElementById("schoolName");
+const teacherName = document.getElementById("teacherName");
+const date = document.getElementById("date");
+const level = document.getElementById("level");
+const subTopic = document.getElementById("subTopic");
+const subTopicEng = document.getElementById("subTopicEng");
+
+const tmWelcome = document.getElementById("tmWelcome");
+const tmEnvironment = document.getElementById("tmEnvironment");
+const tmNumeracy = document.getElementById("tmNumeracy");
+const tmKiny = document.getElementById("tmKiny");
+const tmEng = document.getElementById("tmEng");
+const tmOutdoor = document.getElementById("tmOutdoor");
+const tmArt = document.getElementById("tmArt");
+const tmStory = document.getElementById("tmStory");
+const tmCorner = document.getElementById("tmCorner");
+const tmClosing = document.getElementById("tmClosing");
+
+const lessonPlanContent = document.getElementById("lessonPlanContent");
+const editBtn = document.getElementById("editBtn");
+const saveBtn = document.getElementById("saveBtn");
     // ===============================
     // AUTH CHECK
     // ===============================
@@ -490,8 +494,12 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
             // ✅ Show result
             const resultContainer = document.getElementById("resultContainer");
 resultContainer.classList.add("show");
+            
 
 resultContainer.scrollIntoView({ behavior: "smooth" });
+            editBtn.style.display = "inline-block";
+saveBtn.style.display = "inline-block";
+downloadBtn.style.display = "inline-block";
             // ✅ Auto save
             autoSavePlan(template, language, data.subTopicEng);
         })
