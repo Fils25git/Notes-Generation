@@ -15,25 +15,50 @@
 
     <style>
         /* ================= PRINT ONLY LESSON PLAN ================= */
+/* ================= CLEAN PRINT MODE ================= */
 @media print {
 
-  body * {
-    visibility: hidden;
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
   }
 
-  #lessonPlanContent,
-  #lessonPlanContent * {
-    visibility: visible;
+  /* Hide everything */
+  .container,
+  .form-container,
+  .header,
+  .download-buttons,
+  footer {
+    display: none !important;
   }
 
+  /* Show ONLY lesson plan */
   #lessonPlanContent {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
-        }
+  /* Prevent table breaking */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    page-break-inside: avoid;
+  }
+
+  tr, td, th {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+}
         .profile-icon {
     font-size:28px; color:#4f46e5; cursor:pointer;
 }
