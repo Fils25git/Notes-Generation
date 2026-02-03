@@ -16,50 +16,7 @@
     <style>
         /* ================= PRINT ONLY LESSON PLAN ================= */
 /* ================= CLEAN PRINT MODE ================= */
-@media print {
-
-  html, body {
-    height: auto !important;
-    overflow: visible !important;
-    background: #fff !important;
-  }
-
-  /* Hide everything */
-  .container,
-  .form-container,
-  .header,
-  .download-buttons,
-  footer {
-    display: none !important;
-  }
-
-  /* Show ONLY lesson plan */
-  #lessonPlanContent {
-    display: block !important;
-    position: static !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* Prevent table breaking */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    page-break-inside: avoid;
-  }
-
-  tr, td, th {
-    page-break-inside: avoid;
-    page-break-after: auto;
-  }
-
-  @page {
-    size: A4 landscape;
-    margin: 10mm;
-  }
-}
-        .profile-icon {
+      .profile-icon {
     font-size:28px; color:#4f46e5; cursor:pointer;
 }
 /*Responsive footer */
@@ -113,29 +70,7 @@
         /* ===============================
    FORCE SINGLE-PAGE PDF
 =============================== */
-@media print {
 
-  body {
-    background: #fff !important;
-  }
-
-
-  #lessonPlanContent {
-    position: static;
-    width: 100%;
-    font-size: 12px;
-  }
-
-  @page {
-    size: A4 landscape; /* horizontal like you wanted */
-    margin: 10mm;
-  }
-
-  table, tr, td {
-    page-break-inside: avoid;
-  }
-}
-        
       
         
         #lessonPlanContent[contenteditable="true"] {
@@ -149,10 +84,10 @@
   margin-bottom: 6px;
             }
 
-      @keyframes slideIn {
+@keyframes slideIn {
         from { transform: translateY(30px); opacity: 0; }
         to { transform: translateY(0); opacity: 1; }
-      }
+}
 
       .floating-message a {
         color: #fff;
@@ -167,10 +102,6 @@
     animation: fadeIn 0.4s ease-in-out;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
     </style>
 </head>
 <body>
