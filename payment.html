@@ -178,7 +178,7 @@
 <div class="container">
   <button id="backBtn"> 《《 Back</button>
   
-  <h2>Buy Lesson Plans</h2>
+  <h2>Buy Lesson Plans(daily Plans)</h2>
   
 
   <!-- Current balance display -->
@@ -271,7 +271,7 @@ async function refreshBalance() {
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch balance");
         const data = await res.json();
-        currentBalanceEl.innerText = `${data.balance} lesson plan${data.balance === 1 ? '' : 's'}`;
+        currentBalanceEl.innerText = `${data.balance} lesson(daily) plan${data.balance === 1 ? '' : 's'}`;
     } catch(err){
         console.error("Error refreshing balance:", err);
         currentBalanceEl.innerText = "Error loading";
@@ -313,7 +313,7 @@ customPayBtn.addEventListener('click', () => {
         return;
     }
 
-    showFloatingMessage(`You will get ${lessons} lesson plans`);
+    showFloatingMessage(`You will get ${lessons} lesson plans (daily plans)`);
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
     confirmPaymentBtn.disabled = true;
     setTimeout(()=> confirmPaymentBtn.disabled = false, 10000);
