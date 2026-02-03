@@ -484,9 +484,6 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
     } catch (err) {
         showFloatingMessage("❌ Network error.");
     }
-
-    btn.disabled = false;
-    btn.textContent = "Create Daily Plan";
 });
        function getAutoTeachingMaterials(activity, language) {
     const materials = {
