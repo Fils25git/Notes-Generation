@@ -263,7 +263,6 @@ textarea:focus {
     text-align: center;
 }
 
-/* ==========================
    RESPONSIVE
 ========================== */
 @media (max-width: 500px) {
@@ -273,5 +272,30 @@ textarea:focus {
 
     .double-input {
         flex-direction: row;
+    }
+}
+
+/* ==========================
+   PRINT STYLING
+========================== */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .header,
+    .form-container,
+    .download-buttons {
+        display: none !important;
+    }
+
+    .result-container {
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .lesson-plan {
+        font-size: 9pt;
     }
 }
