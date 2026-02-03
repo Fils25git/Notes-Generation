@@ -14,6 +14,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
+        /* ================= PRINT ONLY LESSON PLAN ================= */
+@media print {
+
+  body * {
+    visibility: hidden;
+  }
+
+  #lessonPlanContent,
+  #lessonPlanContent * {
+    visibility: visible;
+  }
+
+  #lessonPlanContent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+        }
         .profile-icon {
     font-size:28px; color:#4f46e5; cursor:pointer;
 }
