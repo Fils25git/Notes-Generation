@@ -260,21 +260,23 @@ function calculateLessons(amount){
 }
 function generateUSSD(amount){ return USSD_BASE + amount + "%23"; } // encoded # to fix dialer
   async function initiatePayment(amount) {
+  async function initiatePayment(amount) {
   const reference = "INIT" + Date.now();
 
   try {
-    await fetch("/.netlify/functions/initiate-payment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phone: userPhone,
-        email: userEmail,
-        amount,
-        lessons: calculateLessons(amount),
-        reference
-      })
-    });
-  } catch (err) {
+  await fetch("/.netlify/functions/initiate-payment", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    phone: userPhone,
+    email: userEmail,
+    amount,
+    lessons: calculateLessons(amount),
+    reference,
+    type: "daily"   // 🔥 IMPORTANT
+  })
+});
+    } catch (err) {
     console.log("Initiate payment error:", err);
   }
   }
