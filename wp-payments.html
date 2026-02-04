@@ -177,27 +177,26 @@ function calculateLessons(amount){
 }
 function generateUSSD(amount){ return USSD_BASE + amount + "%23"; }
 
-  async function initiatePayment(amount) {
-  const reference = "INIT" + Date.now();
-
-  try {
-  await fetch("/.netlify/functions/initiate-payment", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    phone: userPhone,
-    email: userEmail,
+  async function initiateWeeklyPayment(amount, lessons, reference, user_id) {
+  const body = {
+    phone: localStorage.getItem("user_phone"),
+    email: localStorage.getItem("user_email"),
     amount,
-    lessons: calculateLessons(amount),
+    lessons,
     reference,
-    type: "weekly"   // 🔥 IMPORTANT
-  })
-});
-    } catch (err) {
-    console.log("Initiate payment error:", err);
-  }
-  }
+    user_id,
+    plan: "weekly"  // important: tells server to insert into 'weekly_plan_payments'
+  };
 
+  const res = await fetch("/.netlify/functions/initiate-payment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  const text = await res.text();
+  console.log("Weekly payment response:", text);
+}
 // --- Fetch balance ---
 async function refreshBalance() {
     const identifier = userEmail || userPhone || "";
