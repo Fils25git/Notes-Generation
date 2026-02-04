@@ -259,6 +259,25 @@ function calculateLessons(amount){
     return null;
 }
 function generateUSSD(amount){ return USSD_BASE + amount + "%23"; } // encoded # to fix dialer
+  async function initiatePayment(amount) {
+  const reference = "INIT" + Date.now();
+
+  try {
+    await fetch("/.netlify/functions/initiate-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phone: userPhone,
+        email: userEmail,
+        amount,
+        lessons: calculateLessons(amount),
+        reference
+      })
+    });
+  } catch (err) {
+    console.log("Initiate payment error:", err);
+  }
+  }
 
 // --- Fetch current balance ---
 async function refreshBalance() {
@@ -283,6 +302,7 @@ packages.forEach(btn => {
     btn.addEventListener('click', () => {
         selectedAmount = parseInt(btn.dataset.amount);
         const lessons = calculateLessons(selectedAmount);
+      initiatePayment(selectedAmount);
 
         if(!lessons){
             showFloatingMessage("Amount too low. Minimum is 20 RWF", 'error');
@@ -304,6 +324,7 @@ packages.forEach(btn => {
 customPayBtn.addEventListener('click', () => {
     selectedAmount = parseInt(customAmountInput.value);
     const lessons = calculateLessons(selectedAmount);
+  initiatePayment(selectedAmount);
 
     if(!lessons){
         showFloatingMessage("Amount too low. Minimum is 20 RWF", 'error');
