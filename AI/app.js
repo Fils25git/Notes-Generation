@@ -1,56 +1,76 @@
-const API_KEY = "AIzaSyCJkAD5a7rEb_TL6cd7KuSR2aQIvYFlB7k";
+const API_KEY = "AIzaSyDLbu-YxuDnylBN6plUb6SEhGbj8fC6Alw"; // 🔴 replace key again after regenerating
 
 async function generate() {
-  const title = document.getElementById("prompt").value;
+  const title = document.getElementById("prompt").value.trim();
   const output = document.getElementById("output");
 
-  output.textContent = "Generating...";
+  if (!title) {
+    output.textContent = "Please enter a lesson title.";
+    return;
+  }
 
-  // 🔴 THIS IS THE HIDDEN PROMPT (your rules)
+  output.textContent = "Generating lesson notes...";
+
   const fullPrompt = `
-You are a professional Rwandan CBC teacher(To mean you have to refer to rwanda curriculumn, books, and syllabus from differents Sites of government).
+You are a professional Rwandan CBC teacher.
+You strictly follow Rwanda CBC curriculum, syllabus, and approved learning standards.
 
-The user will only provide the LESSON TITLE.
-You must generate full classroom notes automatically.
+The user will ONLY provide the lesson title.
+You must generate complete classroom notes automatically.
 
 STRICT RULES:
 - Do NOT ask questions
-- Do NOT explain what you are doing
+- Do NOT explain your process
 - Do NOT talk to the user
-- Directly write teaching notes
-- Write long, detailed content
-- Use simple English suitable for primary students
+- Write long, detailed teaching notes
+- Use simple English suitable for primary learners
 
-FORMAT:
+OUTPUT FORMAT (CLEAN HTML ONLY):
 
-LESSON TITLE: ${title}
+<h2>LESSON TITLE: ${title}</h2>
 
-1. Introduction
-(Short engaging introduction for learners)
+<h3>Introduction</h3>
+<p>Short engaging introduction.</p>
 
-2. Objectives
-(2 or 3 learning objectives)
+<h3>Objectives</h3>
+<ul>
+  <li>Objective 1</li>
+  <li>Objective 2</li>
+  <li>Objective 3</li>
+</ul>
 
-3. Key Vocabulary
-(Important terms with meanings)
+<h3>Key Vocabulary</h3>
+<ul>
+  <li>Word – meaning</li>
+</ul>
 
-4. Lesson Content / Notes
-(Very detailed explanation — many paragraphs)
+<h3>Lesson Notes</h3>
+<p>Very detailed explanation in multiple paragraphs.</p>
 
-5. Examples
-(Real life examples)
+<h3>Examples</h3>
+<ul>
+  <li>Real-life example</li>
+</ul>
 
-6. Classroom Activities
-(Teacher + learner activities)
+<h3>Classroom Activities</h3>
+<ul>
+  <li>Teacher activity</li>
+  <li>Learner activity</li>
+</ul>
 
-7. Assessment Questions
-(Questions to ask learners)
+<h3>Assessment Questions</h3>
+<ul>
+  <li>Question 1</li>
+</ul>
 
-8. Homework
-(Simple exercise)
+<h3>Homework</h3>
+<p>Simple homework task.</p>
 
-Write as a real teacher preparing notes, not as AI.
+Do NOT use markdown.
+Do NOT write explanations.
+Only output the lesson notes.
 `;
+
   try {
     const response = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY,
@@ -60,25 +80,24 @@ Write as a real teacher preparing notes, not as AI.
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-  contents: [
-    {
-      parts: [{ text: fullPrompt }]
-    }
-  ],
-  generationConfig: {
-    temperature: 0.7,
-    maxOutputTokens: 2048
-  }
-})
+          contents: [
+            {
+              parts: [{ text: fullPrompt }]
             }
-          ]
+          ],
+          generationConfig: {
+            temperature: 0.6,
+            maxOutputTokens: 2048
+          }
         })
       }
     );
 
     const data = await response.json();
-    output.textContent =
-      data.candidates[0].content.parts[0].text;
+
+    output.innerHTML =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No content generated.";
 
   } catch (error) {
     output.textContent = "Error: " + error.message;
