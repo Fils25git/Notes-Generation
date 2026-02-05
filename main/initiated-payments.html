@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Payments</title>
+
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 15px; }
+  h2 { text-align: center; margin-bottom: 15px; }
+  .table-wrapper { overflow-x: auto; background: #fff; border-radius: 12px; padding: 10px; }
+  table { width: 100%; border-collapse: collapse; min-width: 900px; }
+  th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
+  th { background: #007bff; color: #fff; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  button { padding: 6px 12px; margin: 3px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
+  .approve { background: #28a745; color: #fff; }
+  .reject { background: #dc3545; color: #fff; }
+  button.disabled { background: #6c757d !important; cursor: not-allowed; }
+  #bulkActions { display: none; text-align: center; margin-bottom: 10px; }
+  #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+  .toast { min-width: 260px; margin-bottom: 10px; padding: 14px 18px; border-radius: 12px; color: #fff; font-weight: 600; display: flex; justify-content: space-between; animation: slideIn 0.4s ease, fadeOut 0.4s ease 9.6s forwards; }
+  .toast.success { background: #28a745; }
+  .toast.error { background: #dc3545; }
+  .toast .close { cursor: pointer; font-size: 18px; }
+  @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { to { opacity: 0; transform: translateX(120%); } }
+  @media (max-width: 600px) { button { font-size: 12px; padding: 6px 10px; } }
+</style>
+</head>
+  <script>
+const ADMIN_EMAIL = "iraturinze02@gmail.com"; // 🔴 PUT YOUR REAL EMAIL HERE
+
+const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+const email = localStorage.getItem("user_email");
+
+// 1️⃣ Not logged in → go to login
+if (!isLoggedIn) {
+    localStorage.setItem("redirectAfterLogin", "admin.html");
+    window.location.replace("login.html");
+}
+
+// 2️⃣ Logged in but NOT admin → kick out
+if (email !== ADMIN_EMAIL) {
+    alert("Access denied. Admin only.");
+    window.location.replace("index.html");
+}
+</script>
+
+<body>
+
+<h2>Admin Dashboard – Pending Payments</h2>
+
+<div id="bulkActions">
+  <button id="bulkApprove" class="approve">Approve Selected</button>
+  <button id="bulkReject" class="reject">Reject Selected</button>
+</div>
+
+<div class="table-wrapper">
+<table id="paymentsTable">
+  <thead>
+    <tr>
+      <th><input type="checkbox" id="selectAll"></th>
+      <th>ID</th>
+      <th>Full Name</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Amount (RWF)</th>
+      <th>Status</th>
+      <th>Time</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+/* ============================= TOAST ============================= */
+function showToast(msg, type = "success") {
+  const t = document.createElement("div");
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${msg}</span><span class="close">&times;</span>`;
+  document.getElementById("toastContainer").appendChild(t);
+  t.querySelector(".close").onclick = () => t.remove();
+  setTimeout(() => t.remove(), 10000);
+}
+
+/* ============================= LOAD PAYMENTS ============================= */
+/* ============================= LOAD PAYMENTS (TEMP DEBUG) ============================= */
+async function loadPayments() {
+  const tbody = document.querySelector("#paymentsTable tbody");
+  tbody.innerHTML = "";
+
+  try {
+    // Fetch both payment lists in parallel
+    const [res1, res2] = await Promise.all([
+      fetch("/.netlify/functions/get-payments?status=initiated"),
+      fetch("/.netlify/functions/wp-get-payments?status=initiated")
+    ]);
+
+    if (!res1.ok || !res2.ok) {
+      const err1 = await res1.json().catch(()=>({}));
+      const err2 = await res2.json().catch(()=>({}));
+      showToast("Failed to load payments!\n" + JSON.stringify({err1, err2}, null, 2));
+      return;
+    }
+
+    const payments1 = await res1.json();
+    const payments2 = await res2.json();
+
+    // Merge both arrays
+    const payments = [...payments1, ...payments2];
+
+    if (!payments.length) {
+      showToast("No initiated payments found.");
+      return;
+    }
+
+    // Sort by newest first
+    payments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    payments.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><input type="checkbox" class="rowCheck" data-id="${p.id}"></td>
+        <td>${p.id}</td>
+        <td>${p.full_name || "-"}</td>
+        <td>${p.email || "-"}</td>
+        <td>${p.phone}</td>
+        <td>${p.amount}</td>
+        <td>${p.status}</td>
+        <td>${new Date(p.created_at).toLocaleString()}</td>
+        <td>
+          <button class="approve" data-id="${p.id}">Approve</button>
+          <button class="reject" data-id="${p.id}">Reject</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    attachButtons();
+    document.getElementById("selectAll").checked = false;
+    document.getElementById("bulkActions").style.display = "none";
+
+  } catch (err) {
+    showToast("Network or JS error:\n" + err);
+  }
+}
+
+/* ============================= SINGLE ACTIONS ============================= */
+function attachButtons() {
+  document.querySelectorAll(".approve").forEach(btn => {
+    btn.onclick = async () => {
+      btn.classList.add("disabled");
+      btn.textContent = "Approving...";
+      await fetch("/.netlify/functions/approve-payment", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ ids: [btn.dataset.id] })
+      });
+      showToast("Payment approved");
+      loadPayments();
+    };
+  });
+
+  document.querySelectorAll(".reject").forEach(btn => {
+    btn.onclick = async () => {
+      btn.classList.add("disabled");
+      btn.textContent = "Rejecting...";
+      await fetch("/.netlify/functions/reject-payment", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ ids: [btn.dataset.id] })
+      });
+      showToast(" initiated Payment rejected");
+      loadPayments();
+    };
+  });
+}
+
+/* ============================= BULK SELECTION ============================= */
+document.getElementById("selectAll").addEventListener("change", e => {
+  document.querySelectorAll(".rowCheck").forEach(cb => cb.checked = e.target.checked);
+  document.getElementById("bulkActions").style.display =
+    document.querySelectorAll(".rowCheck:checked").length ? "block" : "none";
+});
+
+document.addEventListener("change", e => {
+  if (e.target.classList.contains("rowCheck")) {
+    document.getElementById("bulkActions").style.display =
+      document.querySelectorAll(".rowCheck:checked").length ? "block" : "none";
+  }
+});
+
+/* ============================= BULK ACTIONS ============================= */
+async function bulkAction(action) {
+  const ids = [...document.querySelectorAll(".rowCheck:checked")].map(cb => cb.dataset.id);
+  if (!ids.length) return;
+  const endpoint = action === "approve" ? "/.netlify/functions/approve-payment" : "/.netlify/functions/reject-payment";
+
+  await fetch(endpoint, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ ids })
+  });
+
+  showToast(`Selected payments ${action}d`);
+  loadPayments();
+}
+
+document.getElementById("bulkApprove").onclick = () => bulkAction("approve");
+document.getElementById("bulkReject").onclick = () => bulkAction("reject");
+
+/* ============================= INIT ============================= */
+loadPayments();
+</script>
+
+</body>
+</html>
