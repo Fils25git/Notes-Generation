@@ -1,59 +1,55 @@
-import { Client } from "pg";
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.NEON_DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // required for Neon
+});
 
 export async function handler(event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method not allowed' };
   }
-
-  const { phone, email, amount, lessons, reference, user_id, plan } = JSON.parse(event.body);
-  // 'plan' will be 'weekly' or 'daily'
-
-  if (!user_id) {
-    return { statusCode: 400, body: "Missing user_id" };
-  }
-
-  const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
-
-  // Choose table based on plan
-  const table = plan === "weekly" ? "weekly_plan_payments" : "payments";
 
   try {
-    await client.connect();
+    const { phone, email, amount, lessons } = JSON.parse(event.body);
 
-    // Ensure user exists
-    const userCheck = await client.query("SELECT id FROM users WHERE id = $1", [user_id]);
-    if (!userCheck.rows.length) {
-      return { statusCode: 400, body: "Invalid user_id" };
+    if (!phone || !amount || !lessons) {
+      return { statusCode: 400, body: 'Missing required fields' };
     }
 
-    // Prevent duplicate initiations within 5 minutes
-    const check = await client.query(
-      `SELECT id FROM ${table} 
-       WHERE phone = $1 AND amount = $2 AND status = 'initiated'
-       AND created_at > NOW() - INTERVAL '5 minutes'`,
-      [phone, amount]
+    // 1️⃣ Get user by phone or email
+    let userRes = await pool.query(
+      'SELECT id FROM users WHERE phone=$1 OR email=$2',
+      [phone, email || null]
     );
 
-    if (check.rows.length) {
-      return { statusCode: 200, body: "Payment already initiated recently." };
+    let userId;
+    if (userRes.rows.length > 0) {
+      userId = userRes.rows[0].id;
+    } else {
+      // Create user if not exists
+      const newUser = await pool.query(
+        'INSERT INTO users(phone, email, balance) VALUES($1, $2, 0) RETURNING id',
+        [phone, email || null]
+      );
+      userId = newUser.rows[0].id;
     }
 
-    // Insert payment
-    await client.query(
-      `INSERT INTO ${table} (phone, email, amount, lessons, status, reference, user_id)
-       VALUES ($1, $2, $3, $4, 'initiated', $5, $6)`,
-      [phone, email, amount, lessons, reference, user_id]
+    // 2️⃣ Insert pending payment
+    const reference = 'LP' + Date.now();
+    await pool.query(
+      `INSERT INTO payments(user_id, phone, amount, lessons, status, reference, created_at)
+       VALUES($1, $2, $3, $4, 'initiated', $5, NOW())`,
+      [userId, phone, amount, lessons, reference]
     );
 
-    return { statusCode: 200, body: "Payment request recorded" };
+    return {
+      statusCode: 200,
+      body: 'Payment initiated successfully.'
+    };
 
   } catch (err) {
-    console.error("Insert failed:", err);
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
-  } finally {
-    await client.end();
+    console.error(err);
+    return { statusCode: 500, body: 'Server error: ' + err.message };
   }
-}
+            }
