@@ -25,9 +25,10 @@
 
   <script>
     const output = document.getElementById("output");
+
     document.getElementById("generateBtn").addEventListener("click", async () => {
       const title = document.getElementById("prompt").value.trim();
-      if(!title){ output.textContent="Please enter a lesson title."; return;}
+      if (!title) { output.textContent="Please enter a lesson title."; return; }
 
       output.textContent = "Generating lesson notes...";
 
@@ -37,9 +38,12 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title })
         });
+
+        if (!res.ok) throw new Error("Failed to fetch notes");
+
         const data = await res.json();
         output.innerHTML = data.notes;
-      } catch(err){
+      } catch (err) {
         output.textContent = "Error: " + err.message;
       }
     });
