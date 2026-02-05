@@ -95,9 +95,21 @@ Only output the lesson notes.
 
     const data = await response.json();
 
-    output.innerHTML =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "No content generated.";
+    console.log("Full API response:", data); // 🔍 check console for debugging
+
+if (!data || !data.candidates || data.candidates.length === 0) {
+  output.textContent = "No content generated. Check console for full response.";
+  return;
+}
+
+const text = data.candidates[0].content?.parts?.[0]?.text;
+
+if (!text) {
+  output.textContent = "No content generated. Check console for full response.";
+  return;
+}
+
+output.innerHTML = text;
 
   } catch (error) {
     output.textContent = "Error: " + error.message;
