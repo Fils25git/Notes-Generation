@@ -18,15 +18,14 @@ export async function handler(event) {
   try {
     await client.connect();
 
-    // 1️⃣ Reject payments in "payments" table
+    // Instead of updating rejected payments, we just delete them
     const resPayments = await client.query(
-      "UPDATE payments SET status='rejected', approved_at=NOW() WHERE id = ANY($1::int[]) AND status='initiated'",
+      "DELETE FROM payments WHERE id = ANY($1::int[]) AND status='initiated'",
       [ids]
     );
 
-    // 2️⃣ Reject payments in "weekly_plan_payments" table
     const resWeekly = await client.query(
-      "UPDATE weekly_plan_payments SET status='rejected', approved_at=NOW() WHERE id = ANY($1::int[]) AND status='initiated'",
+      "DELETE FROM weekly_plan_payments WHERE id = ANY($1::int[]) AND status='initiated'",
       [ids]
     );
 
@@ -34,7 +33,7 @@ export async function handler(event) {
       return { statusCode: 400, body: JSON.stringify({ success: false, message: "No initiated payments found for selected IDs" }) };
     }
 
-    return { statusCode: 200, body: JSON.stringify({ success: true, message: "Payments rejected successfully." }) };
+    return { statusCode: 200, body: JSON.stringify({ success: true, message: "initiated payments cleared successfully." }) };
 
   } catch (err) {
     console.error(err);
@@ -42,4 +41,4 @@ export async function handler(event) {
   } finally {
     await client.end();
   }
-        }
+}
