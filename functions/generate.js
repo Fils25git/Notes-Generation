@@ -3,13 +3,17 @@ import fetch from "node-fetch";
 
 export async function handler(event, context) {
   try {
-    const { title } = JSON.parse(event.body);
+    const body = JSON.parse(event.body);
+    const title = body?.title?.trim();
 
     if (!title) {
-      return { statusCode: 400, body: "Lesson title is required." };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ notes: "Lesson title is required." }),
+      };
     }
 
-    const API_KEY = process.env.GEMINI_KEY; // Set this in Netlify env vars
+    const API_KEY = process.env.GEMINI_KEY;
     const MODEL = "models/gemini-2.5-flash";
 
     const fullPrompt = `
@@ -86,13 +90,19 @@ Only output the lesson notes.
 
     const data = await response.json();
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "No notes generated.";
+    // ✅ Safely extract notes
+    const notes =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No notes were generated for this lesson.";
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ notes: text }),
+      body: JSON.stringify({ notes }),
     };
   } catch (error) {
-    return { statusCode: 500, body: "Error: " + error.message };
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ notes: "Error: " + error.message }),
+    };
   }
-}
+  }
