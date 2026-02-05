@@ -156,7 +156,7 @@ function attachButtons() {
     btn.onclick = async () => {
       btn.classList.add("disabled");
       btn.textContent = "Approving...";
-      await fetch("/.netlify/functions/approve-payment", {
+      await fetch("/.netlify/functions/approve-initiated", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({ ids: [btn.dataset.id] })
@@ -170,7 +170,7 @@ function attachButtons() {
     btn.onclick = async () => {
       btn.classList.add("disabled");
       btn.textContent = "Rejecting...";
-      await fetch("/.netlify/functions/reject-payment", {
+      await fetch("/.netlify/functions/reject-initiated", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({ ids: [btn.dataset.id] })
@@ -199,7 +199,7 @@ document.addEventListener("change", e => {
 async function bulkAction(action) {
   const ids = [...document.querySelectorAll(".rowCheck:checked")].map(cb => cb.dataset.id);
   if (!ids.length) return;
-  const endpoint = action === "approve" ? "/.netlify/functions/approve-payment" : "/.netlify/functions/reject-payment";
+  const endpoint = action === "approve" ? "/.netlify/functions/approve-payment" : "/.netlify/functions/reject-initiated";
 
   await fetch(endpoint, {
     method: "POST",
