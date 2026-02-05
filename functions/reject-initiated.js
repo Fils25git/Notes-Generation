@@ -4,9 +4,7 @@ export async function handler(event) {
   if (event.httpMethod !== "POST") 
     return { statusCode: 405, body: JSON.stringify({ success: false, message: "Method not allowed" }) };
 
-  const body = JSON.parse(event.body || "{}");
-  const ids = body.ids || [];
-
+  const { items = [] } = JSON.parse(event.body || "{}");
   if (!ids.length) 
     return { statusCode: 400, body: JSON.stringify({ success: false, message: "No IDs provided" }) };
 
