@@ -199,17 +199,22 @@ async function refreshBalance() {
 // --- Handle package buttons ---
 packages.forEach(btn => {
     btn.addEventListener('click', () => {
+packages.forEach(btn => {
+    btn.addEventListener('click', async () => { // <-- async added here
         selectedAmount = parseInt(btn.dataset.amount);
         const lessons = calculateLessons(selectedAmount);
         if(!lessons){
             showFloatingMessage("Amount too low. Minimum is 250 RWF", 'error');
-            resultEl.innerText = ""; ussdEl.innerHTML = ""; confirmPaymentBtn.disabled = true;
+            resultEl.innerText = ""; 
+            ussdEl.innerHTML = ""; 
+            confirmPaymentBtn.disabled = true;
             return;
         }
       
-const phone = userPhone || "unknown";
+        const phone = userPhone || "unknown";
         const email = userEmail || null;
 
+        // 🔥 await can work now because function is async
         await fetch('/.netlify/functions/wp-initiate-payment', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -220,6 +225,7 @@ const phone = userPhone || "unknown";
                 lessons
             })
         });
+
         showFloatingMessage(`You will get ${lessons} weekly plans`);
         ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>
         N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
@@ -229,27 +235,31 @@ const phone = userPhone || "unknown";
 });
 
 // --- Handle custom amount ---
-customPayBtn.addEventListener('click', () => {
+customPayBtn.addEventListener('click', async () => { // <-- async added here
     selectedAmount = parseInt(customAmountInput.value);
     const lessons = calculateLessons(selectedAmount);
     if(!lessons){
         showFloatingMessage("Amount too low. Minimum is 250 RWF", 'error');
-        resultEl.innerText = ""; ussdEl.innerHTML = ""; confirmPaymentBtn.disabled = true;
+        resultEl.innerText = ""; 
+        ussdEl.innerHTML = ""; 
+        confirmPaymentBtn.disabled = true;
         return;
     }
-  const phone = userPhone || "unknown";
-        const email = userEmail || null;
 
-        await fetch('/.netlify/functions/wp-initiate-payment', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                phone,
-                email,
-                amount: selectedAmount,
-                lessons
-            })
-        });
+    const phone = userPhone || "unknown";
+    const email = userEmail || null;
+
+    await fetch('/.netlify/functions/wp-initiate-payment', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            phone,
+            email,
+            amount: selectedAmount,
+            lessons
+        })
+    });
+
   
     showFloatingMessage(`You will get ${lessons} weekly plans`);
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>
