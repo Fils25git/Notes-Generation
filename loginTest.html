@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login to Fila Assistant</title>
+    <meta property="og:type" content="website" />
+<meta property="og:title" content="Fila Assistant" />
+<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
+<meta property="og:image" content="https://www.fleduacademy.com/logo.png" />
+<meta property="og:url" content="https://www.fleduacademy.com" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+
+<style>
+* { box-sizing: border-box; margin:0; padding:0; }
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #6dd5fa, #2980b9);
+    display:flex; justify-content:center; align-items:center; min-height:100vh;
+}
+form {
+    background:#fff;
+    padding:40px 30px;
+    border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.2);
+    width:100%;
+    max-width:450px;
+    text-align:center;
+}
+h2 { color:#333; margin-bottom:25px; font-size:28px; }
+input {
+    width:100%;
+    padding:14px 12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:16px;
+}
+input:focus { outline:none; border-color:#007bff; }
+button {
+    width:100%;
+    padding:15px;
+    margin-top:20px;
+    background: linear-gradient(to right, #007bff, #00c6ff);
+    color:#fff; border:none; border-radius:12px;
+    font-size:18px; cursor:pointer;
+}
+.show-pass { font-size:14px; margin-top:8px; display:flex; align-items:center; }
+.show-pass input { width:auto; margin-right:6px; }
+.links { font-size:14px; margin-top:15px; }
+.links a { color:#007bff; text-decoration:none; }
+#floatingMessage {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 12px;
+    color: white;
+    display: none;
+    font-weight: bold;
+    z-index: 9999;
+}
+</style>
+    <style>
+.whatsapp-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #25D366;
+    color: white;
+    font-size: 28px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: 0.3s;
+}
+
+.whatsapp-btn:hover {
+    transform: scale(1.1);
+}
+    </style>
+</head>
+
+<body>
+
+<form id="loginForm">
+    <h1>Welcome Back!</h1>
+    <h2>Login to Fila Assistant</h2>
+    <div id="g_id_onload"
+     data-client_id="865324398264-9nsjr3svqa2d81h4tfg6mforcid7u8uj.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse">
+</div>
+
+<div class="g_id_signin" data-type="standard"></div>
+
+
+    <input type="email" name="email" placeholder="Enter your email" required>
+    <input type="password" name="password" placeholder="Enter your password" required>
+
+    <div class="show-pass">
+        <input type="checkbox" id="togglePassword">
+        <label for="togglePassword">Show Password</label>
+    </div>
+
+    <button type="submit">Login</button>
+
+    <p>
+        Forgot your password? <a href="forgot.html" class="links">Reset</a><br><br>
+        New here? <a href="create.html" class="links">Create Account</a>
+    </p>
+</form>
+
+<div id="floatingMessage"></div>
+<!-- WhatsApp Button -->
+<a href="https://wa.me/250786728623?text=Hello%20I%20need%20help%20with%20Fila%20Assistant" target="_blank" class="whatsapp-btn">
+    <i class="fab fa-whatsapp"></i>
+</a>
+<script>
+const toggle = document.getElementById("togglePassword");
+const passwordInput = document.querySelector('[name="password"]');
+const floatingMsg = document.getElementById("floatingMessage");
+
+toggle.addEventListener("change", () => {
+    passwordInput.type = toggle.checked ? "text" : "password";
+});
+
+function showFloatingMessage(msg, type="success") {
+    floatingMsg.textContent = msg;
+    floatingMsg.style.background = type === "success" ? "#28a745" : "#dc3545";
+    floatingMsg.style.display = "block";
+    setTimeout(() => floatingMsg.style.display = "none", 4000);
+}
+
+/* AUTO-REDIRECT IF ALREADY LOGGED IN */
+const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+if (isLoggedIn) {
+    const lastPage = localStorage.getItem("lastPage") || "index.html";
+    window.location.href = lastPage;
+}
+
+/* LOGIN FORM SUBMISSION */
+document.getElementById("loginForm").addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const email = e.target.email.value.trim();
+    const password = e.target.password.value;
+
+    try {
+        const res = await fetch("/.netlify/functions/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            /* Save login state */
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("auth_token", data.token);
+            localStorage.setItem("user_email", data.email);
+
+            showFloatingMessage("Login successful!");
+
+            /* Redirect to intended page */
+            const redirectTo = localStorage.getItem("redirectAfterLogin") || "index.html";
+            localStorage.removeItem("redirectAfterLogin");
+            localStorage.setItem("lastPage", redirectTo);
+
+            setTimeout(() => window.location.href = redirectTo, 1000);
+        } else {
+            showFloatingMessage(data.error || "Login failed", "error");
+        }
+    } catch (err) {
+        showFloatingMessage(err.message, "error");
+    }
+});
+
+  function handleCredentialResponse(response) {
+    const data = parseJwt(response.credential);
+
+    // save session
+    localStorage.setItem("user", JSON.stringify(data));
+    localStorage.setItem("isLoggedIn", "true");
+
+    // IMPORTANT: do NOT reload same page
+    window.location.replace("../index.html");
+  }
+
+function parseJwt (token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+  }
+</script>
+
+</body>
+</html>
