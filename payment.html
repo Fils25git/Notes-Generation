@@ -281,10 +281,9 @@ async function refreshBalance() {
 
 // --- Handle package buttons ---
 packages.forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
         selectedAmount = parseInt(btn.dataset.amount);
         const lessons = calculateLessons(selectedAmount);
-      initiatePayment(selectedAmount);
 
         if(!lessons){
             showFloatingMessage("Amount too low. Minimum is 20 RWF", 'error');
@@ -305,17 +304,16 @@ packages.forEach(btn => {
 
         showFloatingMessage(`You will get ${lessons} lesson plans`);
         ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a><br>
-        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>290400<b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
+        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>290400</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
         confirmPaymentBtn.disabled = true;
         setTimeout(()=> confirmPaymentBtn.disabled = false, 30000);
     });
 });
 
 // --- Handle custom amount ---
-customPayBtn.addEventListener('click', () => {
+customPayBtn.addEventListener('click', async () => {
     selectedAmount = parseInt(customAmountInput.value);
-    const lessons = calculateLessons(selectedAmount);
-  initiatePayment(selectedAmount);
+    const lessons = calculateLessons(selectedAmount)
 
     if(!lessons){
         showFloatingMessage("Amount too low. Minimum is 20 RWF", 'error');
@@ -334,7 +332,7 @@ const phone = userPhone || "unknown";
         });
 
     showFloatingMessage(`You will get ${lessons} lesson plans (daily plans)`);
-    ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a>`;
+    ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>290400</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
     confirmPaymentBtn.disabled = true;
     setTimeout(()=> confirmPaymentBtn.disabled = false, 10000);
 });
@@ -342,7 +340,7 @@ const phone = userPhone || "unknown";
 // --- Confirm payment ---
 confirmPaymentBtn.addEventListener('click', async () => {
     const now = Date.now();
-    if(now - pageLoadTime < 30000){ 
+    if(now - pageLoadTime < 10000){ 
         showFloatingMessage("Wait 10 seconds before confirming payment", 'error');
         return;
     }
