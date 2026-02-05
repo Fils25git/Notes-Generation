@@ -198,9 +198,7 @@ async function refreshBalance() {
 
 // --- Handle package buttons ---
 packages.forEach(btn => {
-    btn.addEventListener('click', () => {
-packages.forEach(btn => {
-    btn.addEventListener('click', async () => { // <-- async added here
+    btn.addEventListener('click', async () => {
         selectedAmount = parseInt(btn.dataset.amount);
         const lessons = calculateLessons(selectedAmount);
         if(!lessons){
@@ -214,18 +212,11 @@ packages.forEach(btn => {
         const phone = userPhone || "unknown";
         const email = userEmail || null;
 
-        // 🔥 await can work now because function is async
         await fetch('/.netlify/functions/wp-initiate-payment', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                phone,
-                email,
-                amount: selectedAmount,
-                lessons
-            })
+            body: JSON.stringify({ phone, email, amount: selectedAmount, lessons })
         });
-
         showFloatingMessage(`You will get ${lessons} weekly plans`);
         ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>
         N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
