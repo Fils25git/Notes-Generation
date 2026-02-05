@@ -139,11 +139,7 @@ function showFloatingMessage(msg, type="success") {
     setTimeout(() => floatingMsg.style.display = "none", 4000);
 }
 
-/* AUTO-REDIRECT IF ALREADY LOGGED IN */
-const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-if (isLoggedIn) {
-    const lastPage = localStorage.getItem("lastPage") || "index.html";
-    window.location.href = lastPage;
+
 }
 
 /* LOGIN FORM SUBMISSION */
