@@ -60,7 +60,12 @@ if (email !== ADMIN_EMAIL) {
 <table id="paymentsTable">
   <thead>
     <tr>
-      <th><input type="checkbox" id="selectAll"></th>
+      <th><input 
+  type="checkbox" 
+  class="rowCheck" 
+  data-id="${p.id}" 
+  data-source="${p.source}"
+></th>
       <th>ID</th>
       <th>Full Name</th>
       <th>Email</th>
@@ -108,9 +113,15 @@ async function loadPayments() {
       return;
     }
 
-    const payments1 = await res1.json();
-    const payments2 = await res2.json();
+    const payments1 = (await res1.json()).map(p => ({
+  ...p,
+  source: "payments"
+}));
 
+const payments2 = (await res2.json()).map(p => ({
+  ...p,
+  source: "weekly"
+}));
     // Merge both arrays
     const payments = [...payments1, ...payments2];
 
@@ -160,7 +171,7 @@ function attachButtons() {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({ ids: [btn.dataset.id] })
-      });
+})
       showToast("Payment approved");
       loadPayments();
     };
@@ -197,14 +208,17 @@ document.addEventListener("change", e => {
 
 /* ============================= BULK ACTIONS ============================= */
 async function bulkAction(action) {
-  const ids = [...document.querySelectorAll(".rowCheck:checked")].map(cb => cb.dataset.id);
+  const items = [...document.querySelectorAll(".rowCheck:checked")].map(cb => ({
+  id: Number(cb.dataset.id),
+  source: cb.dataset.source
+}));
   if (!ids.length) return;
   const endpoint = action === "approve" ? "/.netlify/functions/approve-payment" : "/.netlify/functions/reject-initiated";
 
   await fetch(endpoint, {
     method: "POST",
     headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ ids })
+    body: JSON.stringify({ items })
   });
 
   showToast(`Selected payments ${action}d`);
