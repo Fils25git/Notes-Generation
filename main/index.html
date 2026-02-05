@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Fila Assistant – Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -147,35 +147,13 @@
     </div>
   </div>
   </main>
-  <div id="g_id_onload"
-     data-client_id="865324398264-9nsjr3svqa2d81h4tfg6mforcid7u8uj.apps.googleusercontent.com"
-     data-callback="handleCredentialResponse">
-</div>
-
-<div class="g_id_signin" data-type="standard"></div>
 
     <footer>
       © 2026 Fila Assistant· Admin Panel
     </footer>
   </div>
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (!user) {
-        // not logged in → show buttons only
-        return;
-    }
-
-    // logged in → show profile
-    document.body.insertAdjacentHTML("beforeend", `
-        <div style="position:fixed;bottom:10px;right:10px;background:#fff;padding:10px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,.2)">
-            <b>${user.name}</b><br>
-            ${user.email}<br>
-            <img src="${user.picture}" width="60">
-        </div>
-    `);
-});
+  
   const authBar = document.getElementById("authBar");
 const profileIcon = document.getElementById("profileIcon");
 const toast = document.getElementById("toast");
@@ -210,26 +188,7 @@ function showToast(msg){
     window.location.href = "index.html";
   }
   
-function handleCredentialResponse(response) {
-    const data = parseJwt(response.credential);
 
-    // save session
-    localStorage.setItem("user", JSON.stringify(data));
-    localStorage.setItem("isLoggedIn", "true");
-
-    // IMPORTANT: do NOT reload same page
-    window.location.replace("../index.html");
-  }
-
-function parseJwt (token) {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-}
 </script>
 
 
