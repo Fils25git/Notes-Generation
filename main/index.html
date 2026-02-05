@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Fila Assistant – Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -146,6 +147,12 @@
     </div>
   </div>
   </main>
+  <div id="g_id_onload"
+     data-client_id="865324398264-9nsjr3svqa2d81h4tfg6mforcid7u8uj.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse">
+</div>
+
+<div class="g_id_signin" data-type="standard"></div>
 
     <footer>
       © 2026 Fila Assistant· Admin Panel
@@ -185,6 +192,41 @@ function showToast(msg){
     localStorage.removeItem('lastPage');
     window.location.href = "index.html";
   }
+  
+function handleCredentialResponse(response) {
+    const data = parseJwt(response.credential);
+
+    console.log("User Info:", data);
+
+    // Save user session
+    localStorage.setItem("user", JSON.stringify(data));
+
+    // Redirect to dashboard
+    window.location.href = "dashboard.html";
+}
+
+function parseJwt (token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
+  const user = JSON.parse(localStorage.getItem("user"));
+
+if(!user){
+   location.href="login.html";
+}
+
+document.body.innerHTML += `
+<h2>Welcome ${user.name}</h2>
+<p>${user.email}</p>
+<img src="${user.picture}" width="80">
+`;
+</script>
+
 
 </script>
 </body>
