@@ -184,16 +184,31 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
     }
 });
 
-  function handleCredentialResponse(response) {
-    const data = parseJwt(response.credential);
+  async function handleCredentialResponse(response) {
+    try{
+        const res = await fetch("/.netlify/functions/google-login", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ credential: response.credential })
+        });
 
-    // save session
-    localStorage.setItem("user", JSON.stringify(data));
-    localStorage.setItem("isLoggedIn", "true");
+        const data = await res.json();
 
-    // IMPORTANT: do NOT reload same page
-    window.location.replace("../index.html");
-  }
+        if(!res.ok) throw new Error(data.error || "Google login failed");
+
+        // unified login storage
+        localStorage.setItem("auth_token", data.token);
+        localStorage.setItem("user_email", data.email);
+
+        const redirectTo = localStorage.getItem("redirectAfterLogin") || "index.html";
+        localStorage.removeItem("redirectAfterLogin");
+
+        window.location.href = redirectTo;
+
+    }catch(err){
+        showFloatingMessage(err.message, "error");
+    }
+                }
 
 function parseJwt (token) {
     const base64Url = token.split('.')[1];
