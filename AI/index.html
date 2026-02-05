@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fila Assistant – AI</title>
+  <style>
+/* Page */
+body{
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg,#e8f0ff,#f6fbff);
+  margin:0;
+  padding:30px;
+  display:flex;
+  justify-content:center;
+}
+
+/* Main container */
+.container{
+  width:900px;
+  max-width:95%;
+  background:white;
+  padding:25px 30px;
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.12);
+}
+
+/* Title */
+h2{
+  text-align:center;
+  margin-bottom:20px;
+  color:#1a3d7c;
+}
+
+/* Textarea */
+textarea{
+  width:100%;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid #cfd8ea;
+  font-size:16px;
+  resize:vertical;
+  outline:none;
+  transition:0.2s;
+}
+
+textarea:focus{
+  border-color:#4a7cff;
+  box-shadow:0 0 0 3px rgba(74,124,255,0.15);
+}
+
+/* Button */
+button{
+  margin-top:15px;
+  width:100%;
+  padding:14px;
+  font-size:17px;
+  font-weight:600;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#4a7cff,#2f5de0);
+  color:white;
+  cursor:pointer;
+  transition:0.25s;
+}
+
+button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px rgba(47,93,224,0.35);
+}
+
+/* Output lesson area */
+#output{
+  margin-top:25px;
+  padding:25px;
+  background:#fbfcff;
+  border-radius:12px;
+  border:1px solid #e2e8ff;
+  line-height:1.7;
+  font-size:16px;
+  color:#222;
+}
+
+/* Lesson formatting */
+#output h2{
+  color:#2f5de0;
+  border-bottom:2px solid #dbe3ff;
+  padding-bottom:6px;
+}
+
+#output h3{
+  margin-top:22px;
+  color:#1c2f5a;
+}
+
+#output ul{
+  padding-left:22px;
+}
+
+#output li{
+  margin-bottom:6px;
+}
+
+#output p{
+  margin:10px 0;
+}
+
+/* Mobile */
+@media(max-width:600px){
+  body{padding:15px;}
+  .container{padding:20px;}
+}
+  </style>
+</head>
+<body>
+<div class="container">
+
+<h2>Gemini Lesson Plan Generator</h2>
+
+<textarea id="prompt" rows="4"
+placeholder="Enter lesson topic (e.g. Parts of a plant)"></textarea>
+
+<button onclick="generate()">Generate Lesson Notes</button>
+
+<div id="output"></div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
