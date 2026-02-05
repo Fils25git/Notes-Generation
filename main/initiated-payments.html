@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard - Payments</title>
+<title> Admin Dashboard - Payments</title>
 
 <style>
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 15px; }
@@ -108,15 +108,9 @@ async function loadPayments() {
       return;
     }
 
-    const payments1 = (await res1.json()).map(p => ({
-  ...p,
-  source: "payments"
-}));
+    const payments1 = await res1.json();
+    const payments2 = await res2.json();
 
-const payments2 = (await res2.json()).map(p => ({
-  ...p,
-  source: "weekly"
-}));
     // Merge both arrays
     const payments = [...payments1, ...payments2];
 
@@ -131,12 +125,7 @@ const payments2 = (await res2.json()).map(p => ({
     payments.forEach(p => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <input 
-  type="checkbox" 
-  class="rowCheck" 
-  data-id="${p.id}" 
-  data-source="${p.source}"
->
+        <td><input type="checkbox" class="rowCheck" data-id="${p.id}"></td>
         <td>${p.id}</td>
         <td>${p.full_name || "-"}</td>
         <td>${p.email || "-"}</td>
@@ -171,7 +160,7 @@ function attachButtons() {
         method: "POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify({ ids: [btn.dataset.id] })
-})
+      });
       showToast("Payment approved");
       loadPayments();
     };
@@ -208,17 +197,14 @@ document.addEventListener("change", e => {
 
 /* ============================= BULK ACTIONS ============================= */
 async function bulkAction(action) {
-  const items = [...document.querySelectorAll(".rowCheck:checked")].map(cb => ({
-  id: Number(cb.dataset.id),
-  source: cb.dataset.source
-}));
+  const ids = [...document.querySelectorAll(".rowCheck:checked")].map(cb => cb.dataset.id);
   if (!ids.length) return;
   const endpoint = action === "approve" ? "/.netlify/functions/approve-payment" : "/.netlify/functions/reject-initiated";
 
   await fetch(endpoint, {
     method: "POST",
     headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ items })
+    body: JSON.stringify({ ids })
   });
 
   showToast(`Selected payments ${action}d`);
