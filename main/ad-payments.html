@@ -104,7 +104,7 @@ async function loadPayments() {
     if (!res1.ok || !res2.ok) {
       const err1 = await res1.json().catch(()=>({}));
       const err2 = await res2.json().catch(()=>({}));
-      alert("Failed to load payments!\n" + JSON.stringify({err1, err2}, null, 2));
+      showToast("Failed to load payments!\n" + JSON.stringify({err1, err2}, null, 2));
       return;
     }
 
