@@ -225,6 +225,10 @@ packages.forEach(btn => {
             resultEl.innerText = ""; ussdEl.innerHTML = ""; confirmPaymentBtn.disabled = true;
             return;
         }
+      const reference = "INIT" + Date.now();
+const userId = localStorage.getItem("user_id");
+
+initiateWeeklyPayment(selectedAmount, lessons, reference, userId);
         showFloatingMessage(`You will get ${lessons} weekly plans`);
         ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>
         N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
@@ -242,6 +246,10 @@ customPayBtn.addEventListener('click', () => {
         resultEl.innerText = ""; ussdEl.innerHTML = ""; confirmPaymentBtn.disabled = true;
         return;
     }
+  const reference = "INIT" + Date.now();
+const userId = localStorage.getItem("user_id");
+
+initiateWeeklyPayment(selectedAmount, lessons, reference, userId);
     showFloatingMessage(`You will get ${lessons} weekly plans`);
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>
         N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720<b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
