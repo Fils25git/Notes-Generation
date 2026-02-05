@@ -60,12 +60,7 @@ if (email !== ADMIN_EMAIL) {
 <table id="paymentsTable">
   <thead>
     <tr>
-      <th><input 
-  type="checkbox" 
-  class="rowCheck" 
-  data-id="${p.id}" 
-  data-source="${p.source}"
-></th>
+      <th><input type="checkbox" id="selectAll"></th>
       <th>ID</th>
       <th>Full Name</th>
       <th>Email</th>
@@ -136,7 +131,12 @@ const payments2 = (await res2.json()).map(p => ({
     payments.forEach(p => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><input type="checkbox" class="rowCheck" data-id="${p.id}"></td>
+        <input 
+  type="checkbox" 
+  class="rowCheck" 
+  data-id="${p.id}" 
+  data-source="${p.source}"
+>
         <td>${p.id}</td>
         <td>${p.full_name || "-"}</td>
         <td>${p.email || "-"}</td>
