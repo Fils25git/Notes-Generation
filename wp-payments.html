@@ -177,26 +177,7 @@ function calculateLessons(amount){
 }
 function generateUSSD(amount){ return USSD_BASE + amount + "%23"; }
 
-  async function initiateWeeklyPayment(amount, lessons, reference, user_id) {
-  const body = {
-    phone: localStorage.getItem("user_phone"),
-    email: localStorage.getItem("user_email"),
-    amount,
-    lessons,
-    reference,
-    user_id,
-    plan: "weekly"  // important: tells server to insert into 'weekly_plan_payments'
-  };
 
-  const res = await fetch("/.netlify/functions/initiate-payment", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
-
-  const text = await res.text();
-  console.log("Weekly payment response:", text);
-}
 // --- Fetch balance ---
 async function refreshBalance() {
     const identifier = userEmail || userPhone || "";
@@ -225,10 +206,20 @@ packages.forEach(btn => {
             resultEl.innerText = ""; ussdEl.innerHTML = ""; confirmPaymentBtn.disabled = true;
             return;
         }
-      const reference = "INIT" + Date.now();
-const userId = localStorage.getItem("user_id");
+      
+const phone = userPhone || "unknown";
+        const email = userEmail || null;
 
-initiateWeeklyPayment(selectedAmount, lessons, reference, userId);
+        await fetch('/.netlify/functions/wp-initiate-payment', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                phone,
+                email,
+                amount: selectedAmount,
+                lessons
+            })
+        });
         showFloatingMessage(`You will get ${lessons} weekly plans`);
         ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>
         N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
@@ -246,13 +237,23 @@ customPayBtn.addEventListener('click', () => {
         resultEl.innerText = ""; ussdEl.innerHTML = ""; confirmPaymentBtn.disabled = true;
         return;
     }
-  const reference = "INIT" + Date.now();
-const userId = localStorage.getItem("user_id");
+  const phone = userPhone || "unknown";
+        const email = userEmail || null;
 
-initiateWeeklyPayment(selectedAmount, lessons, reference, userId);
+        await fetch('/.netlify/functions/wp-initiate-payment', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                phone,
+                email,
+                amount: selectedAmount,
+                lessons
+            })
+        });
+  
     showFloatingMessage(`You will get ${lessons} weekly plans`);
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>
-        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720<b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
+        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
     confirmPaymentBtn.disabled = true;
     setTimeout(()=> confirmPaymentBtn.disabled = false, 10000);
 });
