@@ -159,6 +159,23 @@
     </footer>
   </div>
 <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (!user) {
+        // not logged in → show buttons only
+        return;
+    }
+
+    // logged in → show profile
+    document.body.insertAdjacentHTML("beforeend", `
+        <div style="position:fixed;bottom:10px;right:10px;background:#fff;padding:10px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,.2)">
+            <b>${user.name}</b><br>
+            ${user.email}<br>
+            <img src="${user.picture}" width="60">
+        </div>
+    `);
+});
   const authBar = document.getElementById("authBar");
 const profileIcon = document.getElementById("profileIcon");
 const toast = document.getElementById("toast");
@@ -196,14 +213,13 @@ function showToast(msg){
 function handleCredentialResponse(response) {
     const data = parseJwt(response.credential);
 
-    console.log("User Info:", data);
-
-    // Save user session
+    // save session
     localStorage.setItem("user", JSON.stringify(data));
+    localStorage.setItem("isLoggedIn", "true");
 
-    // Redirect to dashboard
-    window.location.href = "../index.html";
-}
+    // IMPORTANT: do NOT reload same page
+    window.location.replace("../index.html");
+  }
 
 function parseJwt (token) {
     const base64Url = token.split('.')[1];
@@ -214,15 +230,6 @@ function parseJwt (token) {
 
     return JSON.parse(jsonPayload);
 }
-  const user = JSON.parse(localStorage.getItem("user"));
-
-}
-
-document.body.innerHTML += `
-<h2>Welcome ${user.name}</h2>
-<p>${user.email}</p>
-<img src="${user.picture}" width="80">
-`;
 </script>
 
 
