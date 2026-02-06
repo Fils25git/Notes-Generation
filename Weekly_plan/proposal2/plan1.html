@@ -44,40 +44,16 @@
             margin: 4px 0;
             padding-left: 18px;
         }
-		.diagram{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-}
+
 		.diagram-wrapper {
     position: relative;
     width: 100%;
-    max-width: 500px;
-    aspect-ratio: 1 / 1;
-    margin: auto;
-		}
-.box{
-    background:white;
-    border:2px solid #333;
-    border-radius:20px;
-    padding:10px;
-    min-height:90px;
+    max-width: 560px;
+    aspect-ratio: 1 / 1.25; /* More vertical breathing room */
+    margin: 25px auto;
 }
-.center{
-    border-color:#2b7cff;
-			}
-	.box {
-    position: absolute;
-    width: 30%;
-    padding: 8px;
-    font-size: clamp(10px, 2.5vw, 14px);
-    text-align: center;
-    border: 2px solid #333;
-    border-radius: 12px;
-    background: white;
-    font-weight: bold;
-	}
 
+/* SVG lines */
 .lines {
     position: absolute;
     width: 100%;
@@ -85,36 +61,45 @@
 }
 
 .lines line {
-    stroke: #333;
+    stroke: #444;
     stroke-width: 2;
 }
 
-/* BOX STYLE */
+/* Boxes */
 .box {
     position: absolute;
-    width: 150px;
-    padding: 10px;
+    width: 24%;
+    padding: 6px 5px;
+    font-size: clamp(10px, 2.2vw, 14px);
     text-align: center;
     border: 2px solid #333;
-    border-radius: 15px;
-    background: white;
+    border-radius: 14px;
+    background: #fff;
     font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
 
-/* POSITIONS */
-.center { top: 42%; left: 37%; border-color:#2b7cff; }
+/* CENTER */
+.center {
+    top: 44%;
+    left: 38%;
+    border-color: #2b7cff;
+    width: 26%;
+}
 
-.top { top: 0%; left: 37%; }
+/* OUTER BOX POSITIONS — PUSHED OUTWARD */
+.top { top: -2%; left: 38%; }
 
-.left { top: 40%; left: 0%; }
+.left { top: 42%; left: -2%; }
 
-.right { top: 40%; right: 0%; }
+.right { top: 42%; right: -2%; }
 
-.bottom { bottom: 0%; left: 37%; }
+.bottom { bottom: -2%; left: 38%; }
 
-.bottom-left { bottom: 18%; left: 0%; }
+.bottom-left { bottom: 20%; left: -2%; }
 
-.bottom-right { bottom: 18%; right: 0%; }
+.bottom-right { bottom: 20%; right: -2%; }
+	
     </style>
 </head>
 
@@ -126,13 +111,13 @@
     <div class="diagram-wrapper">
         
         <!-- SVG LINES -->
-        <svg class="lines" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <line x1="50" y1="50" x2="50" y2="5" />
-<line x1="50" y1="50" x2="5" y2="50" />
-<line x1="50" y1="50" x2="95" y2="50" />
-<line x1="50" y1="50" x2="50" y2="95" />
-<line x1="50" y1="50" x2="15" y2="85" />
-<line x1="50" y1="50" x2="85" y2="85" />
+<svg class="lines" viewBox="0 0 100 120" preserveAspectRatio="none">
+    <line x1="50" y1="60" x2="50" y2="6" />
+    <line x1="50" y1="60" x2="6"  y2="60" />
+    <line x1="50" y1="60" x2="94" y2="60" />
+    <line x1="50" y1="60" x2="50" y2="114" />
+    <line x1="50" y1="60" x2="8"  y2="92" />
+    <line x1="50" y1="60" x2="92" y2="92" />
         </svg>
 
         <!-- BOXES -->
