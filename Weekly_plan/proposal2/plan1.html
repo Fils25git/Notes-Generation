@@ -57,25 +57,69 @@
     min-height:90px;
 }
 .center{
-    grid-column:span 2;
     border-color:#2b7cff;
 			}
+		.diagram-wrapper {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    margin: auto;
+}
+
+.lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.lines line {
+    stroke: #333;
+    stroke-width: 2;
+}
+
+/* BOX STYLE */
+.box {
+    position: absolute;
+    width: 150px;
+    padding: 10px;
+    text-align: center;
+    border: 2px solid #333;
+    border-radius: 15px;
+    background: white;
+    font-weight: bold;
+}
+
+/* POSITIONS */
+.center { top: 200px; left: 175px; border-color:#2b7cff; }
+.top { top: 10px; left: 175px; }
+.left { top: 175px; left: 10px; }
+.right { top: 175px; right: 10px; }
+.bottom { bottom: 10px; left: 175px; }
+.bottom-left { bottom: 120px; left: 10px; }
+.bottom-right { bottom: 120px; right: 10px; }
     </style>
 </head>
 
 <body>
-<div class="container">
-    <div id="themeWebOutput" margin-bottom:20px;">
-    <h3 style="text-align:center">IMBATANKOMATANYO</h3>
-    <div class="diagram">
+	<div class="container">
+	<div id="themeWebOutput"  margin-bottom:20px;">
+    <h3 style="text-align:center">WEEKLY THEME WEB</h3>
 
-        <div class="box">
-            <b>IMIBARE</b>
-            <div id="out_mibare"><p>{{isomo_0830}}</p></div>
-        </div>
-        <div class="box">
-            <b>INDIMI</b>
-            <div id="out_indimi">
+    <div class="diagram-wrapper">
+        
+        <!-- SVG LINES -->
+        <svg class="lines" viewBox="0 0 500 500" preserveAspectRatio="none">
+            <line x1="250" y1="250" x2="80"  y2="80" />
+            <line x1="250" y1="250" x2="420" y2="80" />
+            <line x1="250" y1="250" x2="80"  y2="420" />
+            <line x1="250" y1="250" x2="420" y2="420" />
+            <line x1="250" y1="250" x2="250" y2="40" />
+            <line x1="250" y1="250" x2="250" y2="460" />
+        </svg>
+
+        <!-- BOXES -->
+        <div class="box top"><b>INDIMI</b>
+			<div id="out_indimi">
                 <p>
                     <ul>
                         <li>Ikinyarwanda:{{isomo_0900}}</li>
@@ -83,35 +127,41 @@
                     </ul>
                 </p>
             </div>
-        </div>
-        <div class="box"><b>IBONEZABUZIMA</b><div id="out_ibonezabuzima">
+		</div>
+        <div class="box left"> <b>IMIBARE</b>
+			<div id="out_mibare"><p>{{isomo_0830}}</p>
+			</div>
+		</div>
+        <div class="box right"><b>IBONEZABUZIMA</b><div id="out_ibonezabuzima">
 			{{isomo_iboneza}}
 		</div></div>
-        <div class="box">
-            <b>UBUMENYI BW'IBIDUKIKIJE</b><br>
+        <div class="box bottom"><b>UBUMENYI BW'IBIDUKIKIJE</b><br>
           <div id="out_ubuvumbyi">
               <p>
                    {{isomo_0800}}
               </p>
           </div></div>
-          <div class="box"><b>UBUGENI N' UMUCO</b>
+        <div class="box bottom-left"><b>UBUGENI N' UMUCO</b>
               <div id="out_ubushobozi">
                 {{isomo_1100}}
               </div></div>
-        <div class="box"><b>ITERAMBERE MU MBAMUTIMA N'IMIBANIRE N'ABANDI</b>
+        <div class="box bottom-right"><b>ITERAMBERE MU MBAMUTIMA N'IMIBANIRE N'ABANDI</b>
 			<div id="out_iterambere">
 				{{isomo_iterambere}}
-			</div></div>
-        
-        <div class="box center">Insanganyamatsiko nini:{{mainTopic}}<br>
+			</div>
+		</div>
+
+        <div class="box center">
+            <b>Insanganyamatsiko nini:</b>{{mainTopic}}<br>
             Insanganyamatsiko nto:{{subTopic}}
-            <div id="out_theme">Umwaka wa:{{level}}<br>
-            Igihembwe cya:{{term}}<br>
-            Icyumweru cya:{{week}}</div>
+            <div id="out_theme"><b>Umwaka wa:</b>{{level}}<br>
+            <b>Igihembwe cya:</b>{{term}}<br>
+            <b>Icyumweru cya:</b>{{week}}</div>
         </div>
 
     </div>
-    </div>
+	</div>
+    
 
 
 <!-- ================= GENERAL INFORMATION TABLE ================= -->
