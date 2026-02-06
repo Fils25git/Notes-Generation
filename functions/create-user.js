@@ -3,45 +3,48 @@ import bcrypt from "bcryptjs";
 
 export async function handler(event) {
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ error: "Method not allowed" })
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
+  const {
+    name,
+    email,
+    password,
+    role,
+    phone,
+    recoveryEmail,
+    secretQuestion,
+    secretAnswer
+  } = JSON.parse(event.body || "{}");
+
+  if (!name || !email || !password || !secretQuestion || !secretAnswer) {
+    return { statusCode: 400, body: JSON.stringify({ error: "Missing required fields" }) };
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+  const cleanPhone = phone ? phone.trim() : null;
+
+  const client = new Client({
+    connectionString: process.env.NEON_DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+
   try {
-    const {
-      name,
-      email,
-      password,
-      role,
-      phone,
-      recoveryEmail,
-      secretQuestion,
-      secretAnswer
-    } = JSON.parse(event.body || "{}");
+    await client.connect();
 
-    if (!email || !password || !secretQuestion || !secretAnswer) {
-      return {
-        statusCode: 400,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Missing required fields" })
-      };
+    // 🔍 CHECK IF EMAIL OR PHONE EXISTS
+    const existing = await client.query(
+      `SELECT id FROM users WHERE LOWER(email) = $1 OR phone = $2`,
+      [cleanEmail, cleanPhone]
+    );
+
+    if (existing.rows.length > 0) {
+      await client.end();
+      return { statusCode: 409, body: JSON.stringify({ error: "Email or phone already registered" }) };
     }
-
-    // ✅ NORMALIZE EMAIL (VERY IMPORTANT)
-    const cleanEmail = email.toLowerCase().trim();
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const hashedAnswer = await bcrypt.hash(secretAnswer.toLowerCase().trim(), 10);
-
-    const client = new Client({
-      connectionString: process.env.NEON_DATABASE_URL,
-      ssl: { rejectUnauthorized: false }
-    });
-
-    await client.connect();
 
     const res = await client.query(
       `INSERT INTO users
@@ -49,11 +52,11 @@ export async function handler(event) {
        VALUES ($1,$2,$3,$4,$5,$6,0,$7,$8)
        RETURNING id`,
       [
-        name || null,
+        name.trim(),
         cleanEmail,
         hashedPassword,
         role || "user",
-        phone || null,
+        cleanPhone,
         recoveryEmail || null,
         secretQuestion,
         hashedAnswer
@@ -62,21 +65,16 @@ export async function handler(event) {
 
     await client.end();
 
-    return {
-      statusCode: 201,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ success: true, userId: res.rows[0].id })
-    };
+    return { statusCode: 201, body: JSON.stringify({ success: true, userId: res.rows[0].id }) };
 
   } catch (err) {
-    console.error(err);
+    await client.end();
 
-    return {
-      statusCode: 409,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        error: "Email or phone already registered"
-      })
-    };
+    // If DB unique constraint triggers
+    if (err.code === "23505") {
+      return { statusCode: 409, body: JSON.stringify({ error: "Email already exists" }) };
+    }
+
+    return { statusCode: 500, body: JSON.stringify({ error: "Server error" }) };
   }
-        }
+          }
