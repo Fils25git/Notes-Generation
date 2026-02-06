@@ -44,11 +44,72 @@
             margin: 4px 0;
             padding-left: 18px;
         }
+		.diagram{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+.box{
+    background:white;
+    border:2px solid #333;
+    border-radius:20px;
+    padding:10px;
+    min-height:90px;
+}
+.center{
+    grid-column:span 2;
+    border-color:#2b7cff;
+			}
     </style>
 </head>
 
 <body>
 <div class="container">
+    <div id="themeWebOutput" style="display:none; margin-bottom:20px;">
+    <h3 style="text-align:center">IMBATANKOMATANYO</h3>
+    <div class="diagram">
+
+        <div class="box">
+            <b>IMIBARE</b>
+            <div id="out_mibare"><p>{{isomo_0830}}</p></div>
+        </div>
+        <div class="box">
+            <b>INDIMI</b>
+            <div id="out_indimi">
+                <p>
+                    <ul>
+                        <li>Ikinyarwanda:{{isomo_0900}}</li>
+                        <li>English:{{isomo_0930}}</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+        <div class="box"><b>IBONEZABUZIMA</b><div id="out_ibonezabuzima">
+			{{isomo_iboneza}}
+		</div></div>
+        <div class="box">
+            <b>UBUMENYI BW'IBIDUKIKIJE</b><br>
+          <div id="out_ubuvumbyi">
+              <p>
+                   {{isomo_0800}}
+              </p>
+          </div></div>
+          <div class="box"><b>UBUGENI N' UMUCO</b>
+              <div id="out_ubushobozi">
+                {{isomo_1100}}
+              </div></div>
+        <div class="box"><b>ITERAMBERE MU MBAMUTIMA N'IMIBANIRE N'ABANDI</b>
+			<div id="out_iterambere"></div></div>
+        {{isomo_iterambere}}
+        <div class="box center">Insanganyamatsiko nini:{{mainTopic}}<br>
+            Insanganyamatsiko nto:{{subTopic}}
+            <div id="out_theme">Umwaka wa:{{level}}<br>
+            Igihembwe cya:{{term}}<br>
+            Icyumweru cya:{{week}}</div>
+        </div>
+
+    </div>
+    </div>
 
 
 <!-- ================= GENERAL INFORMATION TABLE ================= -->
