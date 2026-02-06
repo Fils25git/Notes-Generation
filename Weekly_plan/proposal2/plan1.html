@@ -49,6 +49,13 @@
     grid-template-columns:1fr 1fr;
     gap:15px;
 }
+		.diagram-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    aspect-ratio: 1 / 1;
+    margin: auto;
+		}
 .box{
     background:white;
     border:2px solid #333;
@@ -59,12 +66,17 @@
 .center{
     border-color:#2b7cff;
 			}
-		.diagram-wrapper {
-    position: relative;
-    width: 500px;
-    height: 500px;
-    margin: auto;
-}
+	.box {
+    position: absolute;
+    width: 30%;
+    padding: 8px;
+    font-size: clamp(10px, 2.5vw, 14px);
+    text-align: center;
+    border: 2px solid #333;
+    border-radius: 12px;
+    background: white;
+    font-weight: bold;
+	}
 
 .lines {
     position: absolute;
@@ -90,13 +102,13 @@
 }
 
 /* POSITIONS */
-.center { top: 200px; left: 175px; border-color:#2b7cff; }
-.top { top: 10px; left: 175px; }
-.left { top: 175px; left: 10px; }
-.right { top: 175px; right: 10px; }
-.bottom { bottom: 10px; left: 175px; }
-.bottom-left { bottom: 120px; left: 10px; }
-.bottom-right { bottom: 120px; right: 10px; }
+.center { top: 40%; left: 35%; border-color:#2b7cff; }
+.top { top: 2%; left: 35%; }
+.left { top: 35%; left: 2%; }
+.right { top: 35%; right: 2%; }
+.bottom { bottom: 2%; left: 35%; }
+.bottom-left { bottom: 20%; left: 2%; }
+.bottom-right { bottom: 20%; right: 2%; }
     </style>
 </head>
 
@@ -108,13 +120,13 @@
     <div class="diagram-wrapper">
         
         <!-- SVG LINES -->
-        <svg class="lines" viewBox="0 0 500 500" preserveAspectRatio="none">
-            <line x1="250" y1="250" x2="80"  y2="80" />
-            <line x1="250" y1="250" x2="420" y2="80" />
-            <line x1="250" y1="250" x2="80"  y2="420" />
-            <line x1="250" y1="250" x2="420" y2="420" />
-            <line x1="250" y1="250" x2="250" y2="40" />
-            <line x1="250" y1="250" x2="250" y2="460" />
+        <svg class="lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <line x1="50" y1="50" x2="50" y2="5" />
+<line x1="50" y1="50" x2="5" y2="50" />
+<line x1="50" y1="50" x2="95" y2="50" />
+<line x1="50" y1="50" x2="50" y2="95" />
+<line x1="50" y1="50" x2="15" y2="85" />
+<line x1="50" y1="50" x2="85" y2="85" />
         </svg>
 
         <!-- BOXES -->
