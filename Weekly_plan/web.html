@@ -101,6 +101,13 @@
         text-decoration: underline;
         font-weight: bold;
               }
+        #resultContainer {
+  display: none;
+                                    }
+        #resultContainer.show {
+    display: block;
+    animation: fadeIn 0.4s ease-in-out;
+            }
     </style>
 </head>
 <body>
@@ -352,7 +359,6 @@
     </div>
 </div>
     <!-- Result -->
-    <img id="staticPartImg" src="img.jpg" style="display:none;">
     <div id="resultContainer" class="result-container">
         <div id="actionButtons" class="download-buttons">
             <button class="download-btn" id="editBtn" style="display:none;">Edit</button>
