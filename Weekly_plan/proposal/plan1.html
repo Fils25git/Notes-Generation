@@ -49,6 +49,77 @@
 
 <body>
 <div class="container">
+    
+	<div id="themeWebOutput"  margin-bottom:20px;">
+    <h3 style="text-align:center">IMBATA  NKOMATANYO Y'ICYUMWERU</h3>
+
+   <div class="diagram-wrapper">
+        
+<svg class="lines" viewBox="0 0 100 120" preserveAspectRatio="none">
+
+    <!-- TOP (INDIMI) -->
+    <line x1="70" y1="70" x2="70" y2="10" />
+
+    <!-- LEFT (IMIBARE) -->
+    <line x1="70" y1="70" x2="25" y2="35" />
+
+    <!-- RIGHT (IBONEZABUZIMA) -->
+    <line x1="70" y1="70" x2="200" y2="-40" />
+
+    <!-- BOTTOM (UBUMENYI BW'IBIDUKIKIJE) -->
+    <line x1="70" y1="70" x2="70" y2="100" />
+    <!-- BOTTOM-LEFT (UBUGENI N'UMUCO) -->
+    <line x1="60" y1="70" x2="10" y2="88" />
+
+    <!-- BOTTOM-RIGHT (ITERAMBERE) -->
+    <line x1="90" y1="70" x2="120" y2="100" />
+
+</svg>
+
+        <!-- BOXES -->
+        <div class="box top"><b>INDIMI</b>
+			<div id="out_indimi">
+                <p>
+                    <ul>
+                        <li>Ikinyarwanda:{{isomo_time_0900}}</li><br>
+                        <li>English:{{isomo_time_0930}}</li>
+                    </ul>
+                </p>
+            </div>
+		</div>
+        <div class="box left"> <b>IMIBARE</b>
+			<div id="out_mibare"><p>{{isomo_time_0830}}</p>
+			</div>
+		</div>
+        <div class="box right"><b>IBONEZABUZIMA</b><div id="out_ibonezabuzima">
+			{{isomo_time_1040}}
+		</div></div>
+        <div class="box bottom"><b>UBUMENYI BW'IBIDUKIKIJE</b><br>
+          <div id="out_ubuvumbyi">
+              <p>
+                   {{isomo_time_0800}}
+              </p>
+          </div></div>
+        <div class="box bottom-left"><b>UBUGENI N' UMUCO</b>
+              <div id="out_ubushobozi">
+                {{isomo_time_1100}}
+              </div></div>
+        <div class="box bottom-right"><b>ITERAMBERE MU MBAMUTIMA N'IMIBANIRE N'ABANDI</b>
+			<div id="out_iterambere">
+				{{isomo_iterambere}}
+			</div>
+		</div>
+
+        <div class="box center">
+            <b>Insanganyamatsiko nini:</b>{{mainTopic}}<br>
+            <b>Insanganyamatsiko nto</b>:{{subTopic}}
+            <div id="out_theme"><b>Umwaka wa:</b>{{level}}<br>
+            <b>Igihembwe cya:</b>{{term}}<br>
+            <b>Icyumweru cya:</b>{{week}}</div>
+        </div>
+
+    </div>
+    </div>
 
 
 <!-- ================= GENERAL INFORMATION TABLE ================= -->
@@ -288,7 +359,7 @@ AKARUHUKO (BREAK)
 <tr>
 <td class="time-slot">10:40 - 11:00</td>
 <td class="activity-type" id="activity_time_1040">{{activity_time_1040}}</td>
-<td>Imikino yo hanze</td>
+<td>Imikino yo hanze(Ibonezabuzima)</td>
 <td id="ibindi_byigwa_1040">{{ibindi_byigwa_1040}}</td>
 <td>
 Imikino yo hanze ifasha abana gusobanukirwa {{isomo_time_1040}},
