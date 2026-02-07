@@ -340,18 +340,7 @@ textarea:focus {
 .bottom-left { bottom: 25%; left: 4%; }
 
 .bottom-right { bottom: 20%; right: -50%; }
-	   RESPONSIVE
-========================== */
-@media (max-width: 500px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .double-input {
-        flex-direction: row;
-    }
-}
-
+	   
 /* ==========================
    PRINT STYLING
 ========================== */
