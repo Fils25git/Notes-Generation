@@ -533,7 +533,7 @@ function copyToWord() {
 // ===============================
 // DOWNLOAD PDF
 // ===============================
-    function downloadPDFProper() {
+    async function downloadPDFProper() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF("landscape", "mm", "a4");
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -544,12 +544,19 @@ function copyToWord() {
 
   let y = 18;
 
-  // STATIC IMAGE
-  const staticImg = document.getElementById("staticPartImg");
-  if (staticImg) {
-    doc.addImage(staticImg, "JPEG", 14, y, 180, 90);
-    y += 95;
-  }
+  // 🔥 CAPTURE DIAGRAM AS IMAGE
+  const diagram = document.getElementById("themWebOutput");
+  if (diagram) {
+    const canvas = await html2canvas(diagram, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL("image/png");
+
+    const imgWidth = pageWidth - 20;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    doc.addImage(imgData, "PNG", 10, y, imgWidth, imgHeight);
+    y += imgHeight + 8;
+        }
+
 
   // SCHOOL & TEACHER INFO
   doc.setFontSize(10);
@@ -651,6 +658,7 @@ doc.save(`${safeSubTopic}_weekly_plan_${today}.pdf`);
 }
     </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 
 </body>
