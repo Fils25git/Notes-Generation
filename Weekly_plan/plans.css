@@ -275,4 +275,105 @@ textarea:focus {
         flex-direction: row;
     }
 }
+ .diagram-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 900px;   /* larger than before */
+    aspect-ratio: 1 / 1.1;
+    margin: auto;
+		}
+		#themeWebOutput {
+    width: 100vw;               /* full screen width */
+    margin-left: calc(-50vw + 50%); /* escape container limits */
+    padding: 20px 10px;
+    box-sizing: border-box;
+    background: #f9f9f9;
+		}
+
+/* SVG lines */
+.lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.lines line {
+    stroke: #444;
+    stroke-width: 2;
+}
+
+/* Boxes */
+.box {
+    position: absolute;
+    width: 40%;
+    padding: 15px 25px;
+    font-size: clamp(10px, 2.2vw, 14px);
+    text-align: left;
+    border: 2px solid #333;
+    border-radius: 14px;
+    background: #fff;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+.box b,
+.box strong {
+    text-decoration: underline;
+}
+/* CENTER */
+.center {
+    top: 44%;
+    left: 50%;
+    border-color: #2b7cff;
+    width: 45%;
+}
+
+/* OUTER BOX POSITIONS — PUSHED OUTWARD */
+.top { top: 7%; left: 50%; }
+
+.left { top: 25%; left: 4%; }
+
+.right { top: 30%; right: -50%; }
+
+.bottom { bottom: 5%; left: 50%; }
+
+.bottom-left { bottom: 25%; left: 4%; }
+
+.bottom-right { bottom: 20%; right: -50%; }
+	   RESPONSIVE
+========================== */
+@media (max-width: 500px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .double-input {
+        flex-direction: row;
+    }
+}
+
+/* ==========================
+   PRINT STYLING
+========================== */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .header,
+    .form-container,
+    .download-buttons {
+        display: none !important;
+    }
+
+    .result-container {
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .lesson-plan {
+        font-size: 9pt;
+    }
+    }
 
