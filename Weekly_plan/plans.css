@@ -345,6 +345,22 @@ textarea:focus {
    PRINT STYLING
 ========================== */
 @media print {
+	
+    .diagram-wrapper {
+        position: relative !important;
+        aspect-ratio: auto !important;
+        height: 900px !important;   /* give it real height */
+        width: 100% !important;
+    }
+
+    .box {
+        position: absolute !important;
+    }
+
+    .lines {
+        position: absolute !important;
+    }
+
     body {
         background: white;
         padding: 0;
