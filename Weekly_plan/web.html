@@ -619,7 +619,7 @@ function copyToWord() {
   let y = 18;
 
   // 🔥 CAPTURE DIAGRAM AS IMAGE
-  const diagram = document.getElementById("themWebOutput");
+  const diagram = document.getElementById("themeWebOutput");
   if (diagram) {
     const canvas = await html2canvas(diagram, { scale: 2, useCORS: true });
     const imgData = canvas.toDataURL("image/png");
