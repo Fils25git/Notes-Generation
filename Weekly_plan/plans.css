@@ -361,6 +361,10 @@ textarea:focus {
         position: absolute !important;
     }
 
+    ==========================
+   PRINT STYLING
+========================== */
+
     body {
         background: white;
         padding: 0;
@@ -380,5 +384,4 @@ textarea:focus {
     .lesson-plan {
         font-size: 9pt;
     }
-    }
-
+}
