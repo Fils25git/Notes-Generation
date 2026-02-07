@@ -65,34 +65,6 @@
         text-decoration: underline;
         font-weight: bold;
       }
-        /* ===============================
-   FORCE SINGLE-PAGE PDF
-=============================== */
-@media print {
-
-  body {
-    background: #fff !important;
-  }
-
-  body > *:not(#lessonPlanContent) {
-    display: none !important;
-  }
-
-  #lessonPlanContent {
-    position: static;
-    width: 100%;
-    font-size: 12px;
-  }
-
-  @page {
-    size: A4 landscape; /* horizontal like you wanted */
-    margin: 10mm;
-  }
-
-  table, tr, td {
-    page-break-inside: avoid;
-  }
-}
         
       
         body{
@@ -389,6 +361,8 @@
             <button class="download-btn" id="editBtn" style="display:none;">Edit</button>
 <button class="download-btn" id="saveBtn" style="display:none;">Save</button>
 <button id="downloadBtn" class="download-btn btn-pdf" onclick="downloadPDFProper()" style="display:none;">📑 Download PDF</button>
+            <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
+            
             
         </div>
         <div id="lessonPlanContent" class="lesson-plan"></div>
