@@ -7,6 +7,7 @@ const API_KEYS = [
 ];
 
 exports.handler = async (event) => {
+
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -19,7 +20,9 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { title } = JSON.parse(event.body || "{}");
+
+    const { title, level, classLevel, subject } = JSON.parse(event.body || "{}");
+
     if (!title) {
       return {
         statusCode: 400,
@@ -28,12 +31,16 @@ exports.handler = async (event) => {
       };
     }
 
+    const safeLevel = level || "Primary";
+    const safeClass = classLevel || "P4";
+    const safeSubject = subject || "General Studies";
+
     let data;
     let lastError;
 
-    // Try each key until one works
     for (const key of API_KEYS) {
       try {
+
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${key}`,
           {
@@ -49,13 +56,13 @@ Include:
 2. Objectives
 3. Detailed Lesson Notes 
 4. Examples
-Do **not** include instructions for the teacher. Lesson notes must be longer section than others. depend on CBC new revised students books, and syllabus. also never provide notes when input provided seems to be not relating to lesson title
+Do **not** include instructions for the teacher. Lesson notes must be longer section than others. depend on CBC new revised students books, and syllabus. 
 Output only HTML that can be directly displayed to students. No extra explanations.`
             }]
               }],
               generationConfig: {
                 temperature: 0.6,
-                maxOutputTokens: 2048
+                maxOutputTokens: 4500
               }
             })
           }
@@ -63,16 +70,16 @@ Output only HTML that can be directly displayed to students. No extra explanatio
 
         data = await response.json();
 
-        // If API returns quota error, throw to try next key
         if (data.error && ["PERMISSION_DENIED","RESOURCE_EXHAUSTED"].includes(data.error.status)) {
           lastError = data.error;
           continue;
         }
 
-        break; // Success
+        break;
+
       } catch (err) {
         lastError = err;
-        continue; // try next key
+        continue;
       }
     }
 
@@ -87,18 +94,16 @@ Output only HTML that can be directly displayed to students. No extra explanatio
     const notes = data.candidates?.[0]?.content?.parts?.[0]?.text || "AI returned empty response";
 
     return {
-  statusCode: 200,
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    debug: data
-  })
-};
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ notes })
+    };
 
   } catch (err) {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: err.message })
+      body: JSON.stringify({ error: err.stack })
     };
   }
 };
