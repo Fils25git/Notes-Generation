@@ -87,10 +87,12 @@ Output only HTML that can be directly displayed to students. No extra explanatio
     const notes = data.candidates?.[0]?.content?.parts?.[0]?.text || "AI returned empty response";
 
     return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ notes })
-    };
+  statusCode: 200,
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    debug: data
+  })
+};
 
   } catch (err) {
     return {
