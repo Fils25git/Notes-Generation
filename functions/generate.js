@@ -1,6 +1,5 @@
 exports.handler = async (event) => {
 
-  // CORS HEADERS
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
@@ -8,35 +7,38 @@ exports.handler = async (event) => {
     "Content-Type": "application/json"
   };
 
-  // VERY IMPORTANT (browser sends preflight first)
   if (event.httpMethod === "OPTIONS") {
-    return {
-      statusCode: 200,
-      headers,
-      body: ""
-    };
+    return { statusCode: 200, headers, body: "" };
   }
 
   try {
-    if (event.httpMethod !== "POST") {
-      return { statusCode: 405, headers, body: "Method Not Allowed" };
-    }
-
     const { title } = JSON.parse(event.body || "{}");
-
     if (!title) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ error: "No title provided" })
-      };
+      return { statusCode: 400, headers, body: JSON.stringify({ error: "No title" }) };
     }
 
-    const notes = `
-      <h2>Lesson Notes</h2>
-      <p>Generated successfully for:</p>
-      <b>${title}</b>
-    `;
+    // CALL GEMINI
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=" + process.env.GEMINI_KEY,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Create detailed primary school lesson notes for: ${title}.
+Include introduction, explanation, examples, activities and conclusion.`
+            }]
+          }]
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    const notes =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "AI returned empty response";
 
     return {
       statusCode: 200,
