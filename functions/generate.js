@@ -21,7 +21,7 @@ exports.handler = async (event) => {
 
   try {
 
-    const { title, level, classLevel, subject } = JSON.parse(event.body || "{}");
+    const { title, level, classLevel, subject, email } = JSON.parse(event.body || "{}");
 
     if (!title) {
       return {
@@ -30,35 +30,35 @@ exports.handler = async (event) => {
         body: JSON.stringify({ error: "No lesson title provided" })
       };
     }
-    const email = JSON.parse(event.body).email;
+
+    // --- Fetch user info
     const [rows] = await db.query(
-"SELECT balance,last_note_date,daily_note_used,notes_package FROM users WHERE email=?",
-[email]
-);
+      "SELECT balance,last_note_date,daily_note_used,notes_package FROM users WHERE email=?",
+      [email]
+    );
 
-if (!rows.length)
-return response(403,{error:"User not found"});
+    if (!rows.length) return response(403, { error: "User not found" });
 
-let user = rows[0];
-const today = new Date().toISOString().slice(0,10);
+    let user = rows[0];
+    const today = new Date().toISOString().slice(0, 10);
 
-// reset daily usage
-if (user.last_note_date !== today) {
-  await db.query(
-    "UPDATE users SET daily_note_used=0,last_note_date=? WHERE email=?",
-    [today,email]
-  );
-  user.daily_note_used=0;
-}
+    // --- Reset daily usage if new day
+    if (user.last_note_date !== today) {
+      await db.query(
+        "UPDATE users SET daily_note_used=0,last_note_date=? WHERE email=?",
+        [today, email]
+      );
+      user.daily_note_used = 0;
+    }
 
-let mode=null;
+    // --- Determine mode
+    let mode = null;
+    if (user.notes_package > 0) mode = "package";
+    else if (user.balance >= 5 && user.daily_note_used === 0) mode = "daily";
 
-if (user.notes_package > 0) mode="package";
-else if (user.balance>=5 && user.daily_note_used===0) mode="daily";
+    if (!mode) return response(403, { error: "Daily limit reached" });
 
-if (!mode)
-return response(403,{error:"Daily limit reached"});
-
+    // --- Safe fallback values
     const safeLevel = level || "Primary";
     const safeClass = classLevel || "P4";
     const safeSubject = subject || "General Studies";
@@ -66,6 +66,7 @@ return response(403,{error:"Daily limit reached"});
     let data;
     let lastError;
 
+    // --- Try all API keys
     for (const key of API_KEYS) {
       try {
 
@@ -78,15 +79,15 @@ return response(403,{error:"Daily limit reached"});
               contents: [{
                 parts: [{
                   text: `You are a professional Rwandan CBC teacher.
-Create a complete primary school lesson plan for ${level} ${classLevel}, subject ${subject}, topic ${title}.
+Create a complete primary school lesson plan for ${safeLevel} ${safeClass}, subject ${safeSubject}, topic ${title}.
 Include:
 1. Introduction
 2. Objectives
-3. Detailed Lesson Notes 
+3. Detailed Lesson Notes
 4. Examples
-Do **not** include instructions for the teacher. Lesson notes must be longer section than others. depend on CBC new revised students books, and syllabus. 
+Do **not** include instructions for the teacher. Lesson notes must be longer section than others. Depend on CBC revised syllabus and student books.
 Output only HTML that can be directly displayed to students. No extra explanations.`
-            }]
+                }]
               }],
               generationConfig: {
                 temperature: 0.6,
@@ -98,6 +99,7 @@ Output only HTML that can be directly displayed to students. No extra explanatio
 
         data = await response.json();
 
+        // --- Handle quota/permission errors
         if (data.error && ["PERMISSION_DENIED","RESOURCE_EXHAUSTED"].includes(data.error.status)) {
           lastError = data.error;
           continue;
@@ -121,19 +123,19 @@ Output only HTML that can be directly displayed to students. No extra explanatio
 
     const notes = data.candidates?.[0]?.content?.parts?.[0]?.text || "AI returned empty response";
 
+    // --- Deduct usage BEFORE returning
+    if (mode === "package") {
+      await db.query("UPDATE users SET notes_package = notes_package - 1 WHERE email = ?", [email]);
+    } else if (mode === "daily") {
+      await db.query("UPDATE users SET daily_note_used = 1 WHERE email = ?", [email]);
+    }
+
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({ notes })
     };
-    
-if (mode==="package") {
-  await db.query("UPDATE users SET notes_package=notes_package-1 WHERE email=?",[email]);
-}
 
-if (mode==="daily") {
-  await db.query("UPDATE users SET daily_note_used=1 WHERE email=?",[email]);
-      }
   } catch (err) {
     return {
       statusCode: 500,
