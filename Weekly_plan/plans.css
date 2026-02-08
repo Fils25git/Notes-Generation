@@ -305,15 +305,23 @@ textarea:focus {
 /* Boxes */
 .box {
     position: absolute;
-    width: 40%;
-    padding: 15px 25px;
-    font-size: clamp(10px, 2.2vw, 14px);
+    width: 20%;
+    height: 120px;              /* fixed height */
+    padding: 10px 12px;
+    font-size: 14px;            /* starting size */
     text-align: left;
     border: 2px solid #333;
     border-radius: 14px;
     background: #fff;
     font-weight: bold;
     box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+
+    overflow: hidden;           /* required for shrinking */
 }
 
 .box b,
@@ -323,24 +331,24 @@ textarea:focus {
 /* CENTER */
 .center {
     top: 44%;
-    left: 50%;
+    left: 20%;
     border-color: #2b7cff;
     width: 45%;
 }
 
 /* OUTER BOX POSITIONS — PUSHED OUTWARD */
-.top { top: 7%; left: 50%; }
+.top { top: 15%; left: 30%; width:200px}
 
-.left { top: 25%; left: 4%; }
+.left { top: 20%; left: 1%; }
 
-.right { top: 30%; right: -50%; }
+.right { top: 25%; right: 1%; }
 
-.bottom { bottom: 5%; left: 50%; }
+.bottom { bottom: 20%; left: 75%; }
 
-.bottom-left { bottom: 25%; left: 4%; }
+.bottom-left { bottom: 10%; left: 1%; }
 
-.bottom-right { bottom: 20%; right: -50%; }
-	   
+.bottom-right { bottom: 8%; right: 31%; width:200px }
+	
 /* ==========================
    PRINT STYLING
 ========================== */
