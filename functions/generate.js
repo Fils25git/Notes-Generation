@@ -1,22 +1,19 @@
-// netlify/functions/generateNotes.js
-import fetch from "node-fetch";
-
-export async function handler(event, context) {
+export async function handler(event) {
   try {
-    const body = JSON.parse(event.body);
-    const title = body?.title?.trim();
+    const body = JSON.parse(event.body || "{}");
+    const title = body.title;
 
     if (!title) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ notes: "Lesson title is required." }),
+        body: JSON.stringify({ error: "No lesson title provided" })
       };
     }
 
     const API_KEY = process.env.GEMINI_KEY;
     const MODEL = "models/gemini-2.5-flash";
 
-    const fullPrompt = `
+        const fullPrompt = `
 You are a professional Rwandan CBC teacher.
 You strictly follow Rwanda CBC curriculum, syllabus, and approved learning standards.
 
@@ -76,33 +73,36 @@ Do NOT write explanations.
 Only output the lesson notes.
     `;
 
+
+    // ✅ Native fetch (NO node-fetch needed)
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/${MODEL}:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: fullPrompt }] }],
-          generationConfig: { temperature: 0.6, maxOutputTokens: 2048 },
-        }),
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.6, maxOutputTokens: 2048 }
+        })
       }
     );
 
     const data = await response.json();
 
-    // ✅ Safely extract notes
     const notes =
       data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "No notes were generated for this lesson.";
+      "No notes generated";
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ notes }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ notes })
     };
-  } catch (error) {
+
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ notes: "Error: " + error.message }),
+      body: JSON.stringify({ error: err.message })
     };
   }
-  }
+        }
