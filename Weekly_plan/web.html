@@ -712,38 +712,37 @@ if (diagram) {
   }
 
   // FIRST TABLE
-  const first = extractTableFlattened(tables[0]);
-  doc.autoTable({
-    head: first.head,
-    body: first.body,
-    startY: y,
-    theme: "grid",
-    styles: { fontSize: 10, cellPadding: 3, overflow: "linebreak" },
-    headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
-    margin: { left: 8, right: 8 },
-    rowPageBreak: "avoid",
-  });
+  let currentY = y; // start after diagram
 
-  // REMAINING TABLES (on NEW PAGE)
-  if (tables.length > 1) {
-    doc.addPage();
-    const mergedHead = [], mergedBody = [];
-    for (let i = 1; i < tables.length; i++) {
-      const t = extractTableFlattened(tables[i]);
-      mergedHead.push(...t.head);
-      mergedBody.push(...t.body);
-    }
-    doc.autoTable({
-      head: mergedHead,
-      body: mergedBody,
-      startY: 18,
-      theme: "grid",
-      styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
-      headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
-      margin: { left: 8, right: 8 },
-      rowPageBreak: "avoid",
-    });
-  }
+// First table
+const first = extractTableFlattened(tables[0]);
+doc.autoTable({
+  head: first.head,
+  body: first.body,
+  startY: currentY,
+  theme: "grid",
+  styles: { fontSize: 10, cellPadding: 3, overflow: "linebreak" },
+  headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
+  margin: { left: 8, right: 8 },
+  rowPageBreak: "avoid",
+});
+
+// Update currentY to the bottom of the last table
+currentY = doc.lastAutoTable.finalY + 5; // add small gap
+
+// Second table
+const second = extractTableFlattened(tables[1]);
+doc.autoTable({
+  head: second.head,
+  body: second.body,
+  startY: currentY,
+  theme: "grid",
+  styles: { fontSize: 10, cellPadding: 3, overflow: "linebreak" },
+  headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
+  margin: { left: 8, right: 8 },
+  rowPageBreak: "avoid",
+});
+		}
 
   // SAVE
   // Get today’s date
