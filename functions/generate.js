@@ -36,9 +36,23 @@ Include introduction, explanation, examples, activities and conclusion.`
 
     const data = await response.json();
 
-    const notes =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "AI returned empty response";
+    let notes = "AI returned empty response";
+
+try {
+  if (data.candidates && data.candidates.length > 0) {
+    const parts = data.candidates[0].content.parts;
+
+    notes = parts
+      .map(p => p.text || "")
+      .join("\n")
+      .trim();
+  }
+
+  if (!notes) notes = "AI returned empty response";
+
+} catch (e) {
+  notes = "Failed to read AI response";
+      }
 
     return {
       statusCode: 200,
