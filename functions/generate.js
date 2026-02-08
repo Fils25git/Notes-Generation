@@ -55,10 +55,12 @@ try {
       }
 
     return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ notes })
-    };
+  statusCode: 200,
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    debug: data
+  })
+};
 
   } catch (err) {
     return {
