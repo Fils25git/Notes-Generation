@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!res.ok) throw new Error("Failed to fetch notes");
 
             const data = await res.json();
-            const notes = data.notes || "AI returned empty response";
+output.textContent = JSON.stringify(data, null, 2);|| "AI returned empty response";
 
             createNoteBubble(notes);
 
