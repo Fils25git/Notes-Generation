@@ -42,7 +42,8 @@
         if (!res.ok) throw new Error("Failed to fetch notes");
 
         const data = await res.json();
-output.textContent = JSON.stringify(data, null, 2);
+    output.innerHTML = data.notes;
+
       } catch (err) {
         output.textContent = "Error: " + err.message;
       }
