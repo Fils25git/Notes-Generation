@@ -34,14 +34,15 @@ Create a complete primary school lesson plan for ${level} ${classLevel}, subject
 Include:
 1. Introduction
 2. Objectives
-3. Detailed Lesson Notes
+3. Detailed Lesson Notes 
 4. Examples
-Output **HTML only**, properly formatted for web display. No extra explanations.`
+Do **not** include instructions for the teacher. Lesson notes must be longer section than others. depend on CBC new revised students books, and syllabus. 
+Output only HTML that can be directly displayed to students. No extra explanations.`
             }]
           }],
           generationConfig: {
             temperature: 0.6,
-            maxOutputTokens: 3000
+            maxOutputTokens: 4500
           }
         })
       }
