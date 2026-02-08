@@ -1,108 +1,54 @@
-export async function handler(event) {
+exports.handler = async (event) => {
+
+  // CORS HEADERS
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Content-Type": "application/json"
+  };
+
+  // VERY IMPORTANT (browser sends preflight first)
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers,
+      body: ""
+    };
+  }
+
   try {
-    const body = JSON.parse(event.body || "{}");
-    const title = body.title;
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, headers, body: "Method Not Allowed" };
+    }
+
+    const { title } = JSON.parse(event.body || "{}");
 
     if (!title) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "No lesson title provided" })
+        headers,
+        body: JSON.stringify({ error: "No title provided" })
       };
     }
 
-    const API_KEY = process.env.GEMINI_KEY;
-    const MODEL = "models/gemini-2.5-flash";
-
-        const fullPrompt = `
-You are a professional Rwandan CBC teacher.
-You strictly follow Rwanda CBC curriculum, syllabus, and approved learning standards.
-
-The user will ONLY provide the lesson title.
-You must generate complete classroom notes automatically.
-
-STRICT RULES:
-- Do NOT ask questions
-- Do NOT explain your process
-- Do NOT talk to the user
-- Write long, detailed teaching notes
-- Use simple English suitable for primary learners
-
-OUTPUT FORMAT (CLEAN HTML ONLY):
-
-<h2>LESSON TITLE: ${title}</h2>
-
-<h3>Introduction</h3>
-<p>Short engaging introduction.</p>
-
-<h3>Objectives</h3>
-<ul>
-  <li>Objective 1</li>
-  <li>Objective 2</li>
-  <li>Objective 3</li>
-</ul>
-
-<h3>Key Vocabulary</h3>
-<ul>
-  <li>Word – meaning</li>
-</ul>
-
-<h3>Lesson Notes</h3>
-<p>Very detailed explanation in multiple paragraphs.</p>
-
-<h3>Examples</h3>
-<ul>
-  <li>Real-life example</li>
-</ul>
-
-<h3>Classroom Activities</h3>
-<ul>
-  <li>Teacher activity</li>
-  <li>Learner activity</li>
-</ul>
-
-<h3>Assessment Questions</h3>
-<ul>
-  <li>Question 1</li>
-</ul>
-
-<h3>Homework</h3>
-<p>Simple homework task.</p>
-
-Do NOT use markdown.
-Do NOT write explanations.
-Only output the lesson notes.
+    const notes = `
+      <h2>Lesson Notes</h2>
+      <p>Generated successfully for:</p>
+      <b>${title}</b>
     `;
-
-
-    // ✅ Native fetch (NO node-fetch needed)
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/${MODEL}:generateContent?key=${API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.6, maxOutputTokens: 2048 }
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    const notes =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "No notes generated";
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ notes })
     };
 
   } catch (err) {
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({ error: err.message })
     };
   }
-        }
+};
