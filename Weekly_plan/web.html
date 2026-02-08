@@ -619,22 +619,42 @@ function copyToWord() {
 
   // TITLE
   doc.setFontSize(14);
-  doc.text("IMBATA NKOMATANYO Y'ICYUMWERU", pageWidth / 2, 12, { align: "center" });
+const titleY = 12; // title Y position
+doc.text("IMBATA NKOMATANYO Y'ICYUMWERU", pageWidth / 2, titleY, { align: "center" });
 
-  let y = 18;
+// Start diagram immediately after title
+let y = titleY; // no extra space
 
-  // 🔥 CAPTURE DIAGRAM AS IMAGE
-  const diagram = document.getElementById("diagram");
-  if (diagram) {
-    const canvas = await html2canvas(diagram, { scale: 2, useCORS: true });
+// 🔥 CAPTURE DIAGRAM AS IMAGE
+const diagram = document.getElementById("diagram");
+if (diagram) {
+    // Make a larger canvas for better resolution
+    const canvas = await html2canvas(diagram, { scale: 3, useCORS: true });
     const imgData = canvas.toDataURL("image/png");
 
-    const imgWidth = pageWidth - 20;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const pageWidth  = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin     = 10;
+    const maxWidth   = pageWidth - margin * 2;
+    const maxHeight  = pageHeight - 30; // leave space for title
 
-    doc.addImage(imgData, "PNG", 10, y, imgWidth, imgHeight);
+    const ratio = canvas.width / canvas.height;
+
+    let imgWidth  = maxWidth;
+    let imgHeight = imgWidth / ratio;
+
+    // If height is too big, scale by height
+    if (imgHeight > maxHeight) {
+        imgHeight = maxHeight;
+        imgWidth  = imgHeight * ratio;
+    }
+
+    // Center horizontally
+    const x = (pageWidth - imgWidth) / 2;
+
+    doc.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
     y += imgHeight + 8;
-        }
+}
 
 
   // SCHOOL & TEACHER INFO
