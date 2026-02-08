@@ -34,12 +34,8 @@ Create a complete primary school lesson plan for ${level} ${classLevel}, subject
 Include:
 1. Introduction
 2. Objectives
-3. Key Vocabulary
-4. Detailed Lesson Notes
-5. Examples
-6. Classroom Activities
-7. Assessment Questions
-8. Homework
+3. Detailed Lesson Notes
+4. Examples
 Output **HTML only**, properly formatted for web display. No extra explanations.`
             }]
           }],
