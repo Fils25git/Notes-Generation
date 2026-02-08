@@ -97,51 +97,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- SEND MESSAGE
     async function sendMessage() {
-    const text = input.value.trim();
-    if (!text) return systemBubble("⚠ Type a lesson or unit title.");
+        const text = input.value.trim();
+        if (!text) return systemBubble("⚠ Type a lesson or unit title.");
 
-    userBubble(text);
+        userBubble(text);
 
-    systemBubble(`⏳ Generating notes for <b>${text}</b>...`);
+        systemBubble(`⏳ Generating notes for <b>${text}</b>...`);
 
-    try {
-        const level = localStorage.getItem("level");
-        const classLevel = localStorage.getItem("classLevel");
-        const subject = localStorage.getItem("subject");
+        try {
+            const level = localStorage.getItem("level");
+            const classLevel = localStorage.getItem("classLevel");
+            const subject = localStorage.getItem("subject");
 
-        // Call Netlify AI function
-        const res = await fetch("/.netlify/functions/generate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                title: text, 
-                level, 
-                classLevel, 
-                subject 
-            })
-        });
+            // Call your Netlify AI function
+            const res = await fetch("/.netlify/functions/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    title: text, 
+                    level, 
+                    classLevel, 
+                    subject 
+                })
+            });
 
-        if (!res.ok) throw new Error(`Failed to fetch notes (${res.status})`);
+            if (!res.ok) throw new Error("Failed to fetch notes");
 
-        const data = await res.json();
+            const data = await res.json();
+            const notes = data.notes || "AI returned empty response";
 
-        // Show raw debug response first
-        const debugHTML = `<pre style="background:#f4f4f4; padding:10px; border-radius:5px; font-size:12px; overflow:auto;">
-${JSON.stringify(data, null, 2)}
-</pre>`;
-        systemBubble(debugHTML);
+            createNoteBubble(notes);
 
-        // Get notes from AI
-        const notes = data.notes || "AI returned empty response";
+        } catch (err) {
+            systemBubble(`❌ Error: ${err.message}`);
+        }
 
-        createNoteBubble(notes);
-
-    } catch (err) {
-        systemBubble(`❌ Error: ${err.message}`);
+        input.value = "";
     }
 
-    input.value = "";
-}
     function createNoteBubble(html) {
         const bubble = document.createElement("div");
         bubble.className = "bubble system";
