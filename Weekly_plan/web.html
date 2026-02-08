@@ -530,7 +530,7 @@ lessonForm.addEventListener("submit", async (e) => {
 
     // 3️⃣ Prepare form data
     const formData = {};
-    lessonForm.querySelectorAll("input, select").forEach((el) => {
+    lessonForm.querySelectorAll("input, select, textarea").forEach((el) => {
       formData[el.id] = el.value || "";
     });
 
@@ -539,12 +539,17 @@ lessonForm.addEventListener("submit", async (e) => {
       templateText = templateText.replace(
         new RegExp(`{{\\s*${key}\\s*}}`, "g"),
         formData[key]
+		  
       );
     }
+let diagramHTML = document.getElementById("themeWebOutput").outerHTML;
 
+for (const key in formData) {
+  const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
+  diagramHTML = diagramHTML.replace(regex, formData[key]);
+		}
     // 5️⃣ Display plan
-    lessonPlanContent.innerHTML =
-    document.getElementById("themeWebOutput").outerHTML + templateText;
+    lessonPlanContent.innerHTML = diagramHTML + templateText;
     resultContainer.classList.add("show");
       document.getElementById("resultContainer").style.display = "block";
       document.getElementById("downloadBtn").style.display = "inline-block";
