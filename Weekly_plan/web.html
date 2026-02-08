@@ -376,21 +376,21 @@
 <svg class="lines" viewBox="0 0 100 120" preserveAspectRatio="none">
 
     <!-- TOP (INDIMI) -->
-    <line x1="70" y1="70" x2="70" y2="10" />
+    <line x1="48" y1="70" x2="48" y2="25" />
 
     <!-- LEFT (IMIBARE) -->
-    <line x1="70" y1="70" x2="25" y2="35" />
+    <line x1="22" y1="60" x2="5" y2="35" />
 
     <!-- RIGHT (IBONEZABUZIMA) -->
-    <line x1="70" y1="70" x2="200" y2="-40" />
+    <line x1="67" y1="55" x2="80" y2="45" />
 
     <!-- BOTTOM (UBUMENYI BW'IBIDUKIKIJE) -->
-    <line x1="70" y1="70" x2="70" y2="100" />
+    <line x1="48" y1="70" x2="48" y2="90" />
     <!-- BOTTOM-LEFT (UBUGENI N'UMUCO) -->
-    <line x1="60" y1="70" x2="10" y2="88" />
+    <line x1="22" y1="70" x2="10" y2="88" />
 
     <!-- BOTTOM-RIGHT (ITERAMBERE) -->
-    <line x1="90" y1="70" x2="120" y2="100" />
+    <line x1="60" y1="70" x2="80" y2="85" />
 
 </svg>
 
@@ -409,7 +409,7 @@
 			<div id="out_mibare"><p>{{isomo_time_0830}}</p>
 			</div>
 		</div>
-        <div class="box right"><b>IBONEZABUZIMA</b><div id="out_ibonezabuzima">
+        <div class="box right"><b>IBONEZABUZIMA<br></b><div id="out_ibonezabuzima"><br>
 			{{isomo_time_1040}}
 		</div></div>
         <div class="box bottom"><b>UBUMENYI BW'IBIDUKIKIJE</b><br>
@@ -419,11 +419,11 @@
               </p>
           </div></div>
         <div class="box bottom-left"><b>UBUGENI N' UMUCO</b>
-              <div id="out_ubushobozi">
+              <div id="out_ubushobozi"><br>
                 {{isomo_time_1100}}
               </div></div>
         <div class="box bottom-right"><b>ITERAMBERE MU MBAMUTIMA N'IMIBANIRE N'ABANDI</b>
-			<div id="out_iterambere">
+			<div id="out_iterambere"><br>
 				{{isomo_iterambere}}
 			</div>
 		</div>
@@ -730,6 +730,25 @@ const safeSubTopic = subTopicEng.value.replace(/[^a-z0-9]/gi, '_');
 // Save PDF with desired format
 doc.save(`${safeSubTopic}_weekly_plan_${today}.pdf`);
 }
+		function fitText(box) {
+    let minFont = 8;   // smallest allowed
+    let maxFont = 14;  // starting size
+    let fontSize = maxFont;
+
+    /*box.style.fontSize = fontSize + "px";*/
+
+    while (box.scrollHeight > box.clientHeight && fontSize > minFont) {
+        fontSize--;
+        box.style.fontSize = fontSize + "px";
+    }
+}
+
+function fitAllBoxes() {
+    document.querySelectorAll(".box").forEach(box => fitText(box));
+}
+
+// Run after content loads
+window.addEventListener("load", fitAllBoxes);
     </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
