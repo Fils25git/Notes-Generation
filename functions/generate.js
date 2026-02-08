@@ -6,23 +6,21 @@ exports.handler = async (event) => {
     "Content-Type": "application/json"
   };
 
-  // Handle preflight OPTIONS request
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers, body: "" };
   }
 
   try {
-    const { title } = JSON.parse(event.body || "{}");
+    const { title, level, classLevel, subject } = JSON.parse(event.body || "{}");
 
-    if (!title) {
+    if (!title || !level || !classLevel || !subject) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: "No lesson title provided" })
+        body: JSON.stringify({ error: "Missing title, level, classLevel, or subject" })
       };
     }
 
-    // Call Gemini API
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_KEY}`,
       {
@@ -32,14 +30,22 @@ exports.handler = async (event) => {
           contents: [{
             parts: [{
               text: `You are a professional Rwandan CBC teacher.
-Create detailed primary school lesson notes for: ${title}.
-Include introduction, objectives, key vocabulary, lesson notes, examples, classroom activities, assessment questions, and homework. 
-Output HTML only, no explanations.`
+Create a complete primary school lesson plan for ${level} ${classLevel}, subject ${subject}, topic ${title}.
+Include:
+1. Introduction
+2. Objectives
+3. Key Vocabulary
+4. Detailed Lesson Notes
+5. Examples
+6. Classroom Activities
+7. Assessment Questions
+8. Homework
+Output **HTML only**, properly formatted for web display. No extra explanations.`
             }]
           }],
           generationConfig: {
             temperature: 0.6,
-            maxOutputTokens: 2048
+            maxOutputTokens: 3000
           }
         })
       }
