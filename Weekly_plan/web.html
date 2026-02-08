@@ -371,7 +371,7 @@
 			<div id="themeWebOutput"  margin-bottom:20px;">
     <h3 style="text-align:center">IMBATA  NKOMATANYO Y'ICYUMWERU</h3>
 
-   <div class="diagram-wrapper">
+   <div id="diagram" class="diagram-wrapper">
         
 <svg class="lines" viewBox="0 0 100 120" preserveAspectRatio="none">
 
@@ -619,7 +619,7 @@ function copyToWord() {
   let y = 18;
 
   // 🔥 CAPTURE DIAGRAM AS IMAGE
-  const diagram = document.getElementById("themeWebOutput");
+  const diagram = document.getElementById("diagram");
   if (diagram) {
     const canvas = await html2canvas(diagram, { scale: 2, useCORS: true });
     const imgData = canvas.toDataURL("image/png");
