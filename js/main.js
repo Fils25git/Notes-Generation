@@ -99,6 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function sendMessage() {
         const text = input.value.trim();
         if (!text) return systemBubble("⚠ Type a lesson or unit title.");
+        const email = localStorage.getItem("user_email");
 
         userBubble(text);
 
