@@ -123,8 +123,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             });
 
-            if (!res.ok) throw new Error("Failed to fetch notes");
+            const data = await res.json();
 
+if (!res.ok) {
+    systemBubble(`❌ ${data.error || "Server error"}`);
+    return;
+}
             const data = await res.json();
             const notes = data.notes || "AI returned empty response";
 
