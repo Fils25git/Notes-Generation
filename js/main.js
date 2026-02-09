@@ -194,7 +194,6 @@ input.addEventListener("keydown", e => {
 });
 
 async function sendMessageWithAuth() {
-
     if (!requireAuth("send a note")) return;
 
     const userEmail = localStorage.getItem("user_email");
@@ -205,26 +204,27 @@ async function sendMessageWithAuth() {
 
     try {
         const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
-        const data = await res.json();
 
         if (!res.ok) {
             systemBubble("⚠ Could not verify balance.");
             return;
         }
 
+        const data = await res.json();
+
         if (data.balance <= 4) {
             showFloatingMessage("❌ You must have at least 5 lesson plans remaining on your balance to fetch notes. Please buy lesson plans.");
             return;
         }
 
-        // ✅ ONLY HERE we call AI
+        // ✅ Only here we call AI
         sendMessage();
 
     } catch (err) {
+        console.error(err);
         systemBubble("⚠ Balance server not reachable.");
     }
-                          }
-
+            }
     input.addEventListener("input", () => {});
 
     changeBtn.onclick = () => {
