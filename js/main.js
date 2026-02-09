@@ -194,28 +194,46 @@ input.addEventListener("keydown", e => {
 });
 
 async function sendMessageWithAuth() {
+
     if (!requireAuth("send a note")) return;
 
     const userEmail = localStorage.getItem("user_email");
     if (!userEmail) {
-        systemBubble("❌ User email missing. Please login again.");
+        systemBubble("❌ Please login again.");
         return;
     }
 
+    let balanceVerified = false;
+
     try {
-        const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 7000); // 7s safety
 
-        if (!res.ok) {
-            systemBubble("⚠ Could not verify balance.");
-            return;
+        const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`, {
+            signal: controller.signal,
+            cache: "no-store"
+        });
+
+        clearTimeout(timeout);
+
+        if (res.ok) {
+            const data = await res.json();
+
+            if (data.balance <= 4) {
+                showFloatingMessage("❌ You must have at least 5 lesson plans remaining on your balance.");
+                return;
+            }
+
+            balanceVerified = true;
         }
 
-        const data = await res.json();
+    } catch (err) {
+        console.warn("Balance check skipped:", err);
+        // ⚠ IMPORTANT: DO NOT BLOCK USER
+        // We allow request but backend will enforce limits
+    }
 
-        if (data.balance <= 4) {
-            showFloatingMessage("❌ You must have at least 5 lesson plans remaining on your balance to fetch notes. Please buy lesson plans.");
-            return;
-        }
+    // Always allow — backend controls real limit
 
         // ✅ Only here we call AI
         sendMessage();
