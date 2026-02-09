@@ -203,11 +203,9 @@ async function sendMessageWithAuth() {
         return;
     }
 
-    let balanceVerified = false;
-
     try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 7000); // 7s safety
+        const timeout = setTimeout(() => controller.abort(), 7000);
 
         const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`, {
             signal: controller.signal,
@@ -219,24 +217,21 @@ async function sendMessageWithAuth() {
         if (res.ok) {
             const data = await res.json();
 
+            // ONLY block if server CONFIRMS low balance
             if (data.balance <= 4) {
                 showFloatingMessage("❌ You must have at least 5 lesson plans remaining on your balance.");
                 return;
             }
-
-            balanceVerified = true;
         }
 
     } catch (err) {
+        // Important: DO NOT block user
         console.warn("Balance check skipped:", err);
-        // ⚠ IMPORTANT: DO NOT BLOCK USER
-        // We allow request but backend will enforce limits
     }
 
-    // Always allow — backend controls real limit
-
-        // ✅ Only here we call AI
-        sendMessage();
+    // Always continue — backend enforces real limits
+    sendMessage();
+}
 
     } catch (err) {
         console.error(err);
