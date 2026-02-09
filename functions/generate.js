@@ -114,12 +114,9 @@ STRUCTURE (exact order)
 <h1>Topic Title</h1>
 
 <h2>Introduction</h2>
-A short learner-friendly introduction (4–6 sentences only).
+A short learner-friendly introduction (2–4 sentences only).
 
-<h2>Objectives</h2>
-<ul>
-5 clear learning objectives only
-</ul>
+
 
 <h2>Lesson Notes</h2>
 Very detailed but controlled length explanation:
@@ -129,7 +126,7 @@ Very detailed but controlled length explanation:
 - Use age-appropriate language
 - Do NOT repeat ideas
 - Do NOT add teacher instructions
-- Maximum about 900–1200 words equivalent
+- Maximum about 200–400 words equivalent
 
 <h2>Worked Examples</h2>
 Provide 3 clear worked examples with step-by-step explanations suitable for learners.
