@@ -19,8 +19,12 @@ levelSelect.addEventListener("change", () => {
     let classes = [];
     if (levelSelect.value === "Primary") {
         classes = ["P1","P2","P3","P4","P5","P6"];
-    } else if (levelSelect.value === "Ordinary") {
+    } if (levelSelect.value === "Ordinary") {
         classes = ["S1","S2","S3"];
+    }if(levelSelect.value==="GE"){
+        classes =["S4" , "S5", "S6"];
+    } else if(levelSelect.value==="TTC") {
+        classes= ["Y1", "Y2", "Y3"];
     }
 
     classes.forEach(c => {
@@ -45,11 +49,17 @@ classSelect.addEventListener("change", () => {
 
     let subjects = [];
     if (levelSelect.value === "Primary") {
-        subjects = ["English","Kinyarwanda","Mathematics","Social and Religious Studies","Science and Elementary Technology"];
-    } else if (levelSelect.value === "Ordinary") {
-        subjects = ["English","Kinyarwanda","Mathematics","Biology","Chemistry","Physics","History and Citizenship","Geography","Entrepreneurship"];
+        subjects = ["English","Mathematics","SRSE","SET", "French"];
+    } if (levelSelect.value === "Ordinary") {
+        subjects = ["English","Kinyarwanda","Mathematics","Biology","Chemistry","Physics","History","Geography","Entrepreneurship", "ICT", "Kiswahili", "French"];
+    } if (levelSelect.value==="GE") {
+        subjects = 
+            ["English","Mathematics","Biology","Chemistry","Physics","History","Geography","Entrepreneurship", "ICT", "Kiswahili", "French", "General Studies"];
+    } else if (levelSelect.value==="TTC") {
+        subjects=
+            
+["English","Mathematics","Biology","Chemistry","Physics","History","Geography","Entrepreneurship", "ICT", "Kiswahili", "French", "Integrated Science", "Teaching Methodologies", "Foundation of Education", "Inclusive Education"];
     }
-
     subjects.forEach(s => {
         const opt = document.createElement("option");
         opt.value = s;
@@ -76,5 +86,5 @@ startBtn.addEventListener("click", () => {
     localStorage.setItem("subject", subjectSelect.value);
     localStorage.setItem("selectionDone", "true");
 
-    window.location.href = "index.html";
+    window.location.href = "app.html";
 });
