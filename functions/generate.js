@@ -46,7 +46,7 @@ exports.handler = async (event) => {
        SET daily_note_used = daily_note_used + 1,
            last_note_date = $1
        WHERE email = $2
-         AND (daily_note_used < 1 OR last_note_date < $1)
+         AND (daily_note_used < 5 OR last_note_date < $1)
        RETURNING daily_note_used, notes_package, balance`,
       [today, email]
     );
@@ -61,7 +61,7 @@ exports.handler = async (event) => {
     // --- Determine mode
     let mode = null;
     if (user.notes_package > 0) mode = "package";
-    else if (user.daily_note_used <= 1) mode = "daily";
+    else if (user.daily_note_used <= 5) mode = "daily";
 
     if (!mode) {
       await db.end();
