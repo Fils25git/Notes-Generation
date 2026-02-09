@@ -121,7 +121,7 @@ document.getElementById('fetchQuestionBtn').addEventListener('click', async () =
         const data = await res.json();
 
         if (res.ok && data.question) {
-            secretQuestionLabel.textContent = data.question;
+            secretQuestionLabel.textContent = "What was the name of  your first" + data.question;
             questionStep.classList.remove('hidden');
         } else {
             msg.textContent = data.error || "User not found";
