@@ -49,22 +49,37 @@ exports.handler = async (event) => {
     const user = rows[0];
     const today = new Date().toISOString().slice(0, 10);
 
-    if (user.last_note_date !== today) {
-      await db.query(
-        `UPDATE users SET daily_note_used = 0, last_note_date = $1 WHERE email = $2`,
-        [today, email]
-      );
-      user.daily_note_used = 0;
-    }
+    // --- Reset daily usage if new day
+if (user.last_note_date !== today) {
+  await db.query(
+    `UPDATE users SET daily_note_used = 0, last_note_date = $1 WHERE email = $2`,
+    [today, email]
+  );
+  user.daily_note_used = 0;
+}
 
-    let mode = null;
-    if (user.notes_package > 0) mode = "package";
-    else if (user.balance >= 5 && user.daily_note_used === 0) mode = "daily";
+// --- Determine mode
+let mode = null;
+if (user.notes_package > 0) mode = "package";
+else if (user.balance >= 5 && user.daily_note_used < 1) mode = "daily";  // <1 is key!
 
-    if (!mode) {
-      await db.end();
-      return response(403, { error: "Daily limit reached" });
-    }
+if (!mode) {
+  await db.end();
+  return response(403, { error: "Daily limit reached" });
+}
+
+// --- Deduct usage
+if (mode === "package") {
+  await db.query(
+    `UPDATE users SET notes_package = notes_package - 1 WHERE email = $1`,
+    [email]
+  );
+} else if (mode === "daily") {
+  await db.query(
+    `UPDATE users SET daily_note_used = daily_note_used + 1 WHERE email = $1`,
+    [email]
+  );
+      }
 
     const safeLevel = level || "Primary";
     const safeClass = classLevel || "P4";
