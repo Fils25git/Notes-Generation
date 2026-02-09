@@ -117,7 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     title: text, 
                     level, 
                     classLevel, 
-                    subject 
+                    subject,
+                    email
                 })
             });
 
@@ -192,7 +193,7 @@ async function sendMessageWithAuth() {
 
     if (!requireAuth("send a note")) return;
 
-    const userEmail = localStorage.getItem("userEmail");
+    const userEmail = localStorage.getItem("user_email");
     if (!userEmail) {
         systemBubble("❌ User email missing. Please login again.");
         return;
