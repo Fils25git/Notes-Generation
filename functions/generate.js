@@ -3,12 +3,7 @@ import { Client } from "pg";
 function response(statusCode, body) {
   return {
     statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Access-Control-Allow-Methods": "POST, OPTIONS"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   };
 }
@@ -22,105 +17,108 @@ const API_KEYS = [
 ];
 
 exports.handler = async (event) => {
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Content-Type": "application/json",
+  };
+
   if (event.httpMethod === "OPTIONS") {
-    return response(200, {});
+    return { statusCode: 200, headers, body: "" };
   }
 
   try {
     const { title, level, classLevel, subject, email } = JSON.parse(event.body || "{}");
 
-    if (!title) return response(400, { error: "No lesson title provided" });
-    if (!email) return response(400, { error: "User email missing" });
+    if (!title) return { statusCode: 400, headers, body: JSON.stringify({ error: "No lesson title provided" }) };
+    if (!email) return { statusCode: 400, headers, body: JSON.stringify({ error: "Email required" }) };
 
+    // --- Connect to DB
     const db = new Client({ connectionString: process.env.NEON_DATABASE_URL });
     await db.connect();
 
+    const today = new Date().toISOString().slice(0, 10);
+
+    // --- Atomically increment daily_note_used only if user hasn't fetched today
     const { rows } = await db.query(
-      `SELECT balance, last_note_date, daily_note_used, notes_package 
-       FROM users WHERE email=$1`,
-      [email]
+      `UPDATE users
+       SET daily_note_used = daily_note_used + 1,
+           last_note_date = $1
+       WHERE email = $2
+         AND (daily_note_used < 1 OR last_note_date < $1)
+       RETURNING daily_note_used, notes_package, balance`,
+      [today, email]
     );
 
     if (!rows.length) {
       await db.end();
-      return response(403, { error: "User not found" });
+      return response(403, { error: "Daily limit reached. Try tomorrow or buy a package." });
     }
 
     const user = rows[0];
-    const today = new Date().toISOString().slice(0, 10);
 
-    // --- Reset daily usage if new day
-if (user.last_note_date !== today) {
-  await db.query(
-    `UPDATE users SET daily_note_used = 0, last_note_date = $1 WHERE email = $2`,
-    [today, email]
-  );
-  user.daily_note_used = 0;
-}
+    // --- Determine mode
+    let mode = null;
+    if (user.notes_package > 0) mode = "package";
+    else if (user.daily_note_used <= 1) mode = "daily";
 
-// --- Determine mode
-let mode = null;
-if (user.notes_package > 0) mode = "package";
-else if (user.balance >= 5 && user.daily_note_used < 1) mode = "daily";  // <1 is key!
+    if (!mode) {
+      await db.end();
+      return response(403, { error: "No lesson fetches left today." });
+    }
 
-if (!mode) {
-  await db.end();
-  return response(403, { error: "Daily limit reached" });
-}
+    // --- Deduct package if used
+    if (mode === "package") {
+      await db.query(`UPDATE users SET notes_package = notes_package - 1 WHERE email = $1`, [email]);
+    }
 
-// --- Deduct usage
-if (mode === "package") {
-  await db.query(
-    `UPDATE users SET notes_package = notes_package - 1 WHERE email = $1`,
-    [email]
-  );
-} else if (mode === "daily") {
-  await db.query(
-    `UPDATE users SET daily_note_used = daily_note_used + 1 WHERE email = $1`,
-    [email]
-  );
-      }
-
+    // --- Safe fallback values
     const safeLevel = level || "Primary";
     const safeClass = classLevel || "P4";
     const safeSubject = subject || "General Studies";
 
-    let data, lastError;
+    let data;
+    let lastError;
 
+    // --- Try all API keys
     for (const key of API_KEYS) {
       try {
-        const res = await fetch(
+        const apiRes = await fetch(
           `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${key}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              contents: [{ parts: [{ text: `You are a professional Rwandan CBC teacher.
+              contents: [{
+                parts: [{
+                  text: `You are a professional Rwandan CBC teacher.
 Create a complete primary school lesson plan for ${safeLevel} ${safeClass}, subject ${safeSubject}, topic ${title}.
 Include:
 1. Introduction
 2. Objectives
 3. Detailed Lesson Notes
 4. Examples
-Do **not** include instructions for the teacher. Lesson notes must be longer section than others. Depend on CBC revised syllabus and student books.
-Output only HTML that can be directly displayed to students. No extra explanations.`
-                }] }],
+Do **not** include instructions for the teacher. Lesson notes must be the longest section. Depend on CBC revised syllabus and student books.
+Output only HTML.`
+                }]
+              }],
               generationConfig: { temperature: 0.6, maxOutputTokens: 4500 }
             })
           }
         );
 
-        data = await res.json();
+        data = await apiRes.json();
 
-        if (data.error && ["PERMISSION_DENIED","RESOURCE_EXHAUSTED"].includes(data.error.status)) {
+        if (data.error && ["PERMISSION_DENIED", "RESOURCE_EXHAUSTED"].includes(data.error.status)) {
           lastError = data.error;
           continue;
         }
 
         break;
+
       } catch (err) {
         lastError = err;
-        continue;
       }
     }
 
@@ -129,18 +127,12 @@ Output only HTML that can be directly displayed to students. No extra explanatio
       return response(500, { error: lastError?.message || "All API keys failed" });
     }
 
-    const notes = data.candidates[0]?.content?.parts?.[0]?.text || "AI returned empty response";
-
-    if (mode === "package") {
-      await db.query(`UPDATE users SET notes_package = notes_package - 1 WHERE email = $1`, [email]);
-    } else if (mode === "daily") {
-      await db.query(`UPDATE users SET daily_note_used = 1 WHERE email = $1`, [email]);
-    }
+    const notes = data.candidates?.[0]?.content?.parts?.[0]?.text || "AI returned empty response";
 
     await db.end();
     return response(200, { notes });
 
   } catch (err) {
-    return response(500, { error: err.stack });
+    return { statusCode: 500, headers, body: JSON.stringify({ error: err.stack }) };
   }
 };
