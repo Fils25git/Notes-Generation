@@ -129,7 +129,6 @@ if (!res.ok) {
     systemBubble(`❌ ${data.error || "Server error"}`);
     return;
 }
-            const data = await res.json();
             const notes = data.notes || "AI returned empty response";
 
             createNoteBubble(notes);
