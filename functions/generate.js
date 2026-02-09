@@ -1,3 +1,12 @@
+import { Client } from "pg";
+
+function response(statusCode, body) {
+  return {
+    statusCode,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  };
+}
 const API_KEYS = [
   process.env.GEMINI_KEY1,
   process.env.GEMINI_KEY2,
@@ -32,10 +41,16 @@ exports.handler = async (event) => {
     }
 
     // --- Fetch user info
-    const [rows] = await db.query(
-      "SELECT balance,last_note_date,daily_note_used,notes_package FROM users WHERE email=?",
-      [email]
-    );
+    const db = new Client({
+  connectionString: process.env.NEON_DATABASE_URL,
+});
+await db.connect();
+
+const { rows } = await db.query(
+  `SELECT balance,last_note_date,daily_note_used,notes_package 
+   FROM users WHERE email=$1`,
+  [email]
+);
 
     if (!rows.length) return response(403, { error: "User not found" });
 
@@ -44,12 +59,14 @@ exports.handler = async (event) => {
 
     // --- Reset daily usage if new day
     if (user.last_note_date !== today) {
-      await db.query(
-        "UPDATE users SET daily_note_used=0,last_note_date=? WHERE email=?",
-        [today, email]
-      );
-      user.daily_note_used = 0;
-    }
+  await db.query(
+    `UPDATE users 
+     SET daily_note_used = 0, last_note_date = $1 
+     WHERE email = $2`,
+    [today, email]
+  );
+  user.daily_note_used = 0;
+      }
 
     // --- Determine mode
     let mode = null;
@@ -125,11 +142,20 @@ Output only HTML that can be directly displayed to students. No extra explanatio
 
     // --- Deduct usage BEFORE returning
     if (mode === "package") {
-      await db.query("UPDATE users SET notes_package = notes_package - 1 WHERE email = ?", [email]);
-    } else if (mode === "daily") {
-      await db.query("UPDATE users SET daily_note_used = 1 WHERE email = ?", [email]);
-    }
-
+  await db.query(
+    `UPDATE users 
+     SET notes_package = notes_package - 1 
+     WHERE email = $1`,
+    [email]
+  );
+} else if (mode === "daily") {
+  await db.query(
+    `UPDATE users 
+     SET daily_note_used = 1 
+     WHERE email = $1`,
+    [email]
+  );
+}
     return {
       statusCode: 200,
       headers,
