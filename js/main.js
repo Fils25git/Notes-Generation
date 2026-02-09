@@ -232,12 +232,6 @@ async function sendMessageWithAuth() {
     // Always continue — backend enforces real limits
     sendMessage();
 }
-
-    } catch (err) {
-        console.error(err);
-        systemBubble("⚠ Balance server not reachable.");
-    }
-            }
     input.addEventListener("input", () => {});
 
     changeBtn.onclick = () => {
