@@ -145,7 +145,7 @@ IMPORTANT
 - Keep explanations complete but concise to fit within limits.`
                 }]
               }],
-              generationConfig: { temperature: 0.6, maxOutputTokens: 6000 }
+              generationConfig: { temperature: 0.6, maxOutputTokens: 3500 }
             })
           }
         );
