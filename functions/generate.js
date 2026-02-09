@@ -92,18 +92,60 @@ exports.handler = async (event) => {
             body: JSON.stringify({
               contents: [{
                 parts: [{
-                  text: `You are a professional Rwandan CBC teacher.
-Create a complete primary school lesson plan for ${safeLevel} ${safeClass}, subject ${safeSubject}, topic ${title}.
-Include:
-1. Introduction
-2. Objectives
-3. Detailed Lesson Notes
-4. Examples
-Do **not** include instructions for the teacher. Lesson notes must be the longest section. Depend on CBC revised syllabus and student books.
-Output only HTML.`
+                  text: `You are a professional Rwandan CBC primary school teacher.
+
+Generate a COMPLETE and FINISHED lesson plan for:
+Level: ${safeLevel}
+Class: ${safeClass}
+Subject: ${safeSubject}
+Topic: ${title}
+
+STRICT RULES (must follow exactly):
+
+GENERAL
+- Follow Rwanda Competence Based Curriculum (CBC).
+- Adapt language difficulty to the learner level (Nursery = very simple sentences, Upper Primary = detailed explanations).
+- The response MUST be complete and MUST NOT stop mid-sentence.
+- Output ONLY clean HTML (no markdown, no explanations outside HTML).
+- Total response should be moderate in size to avoid truncation.
+
+STRUCTURE (exact order)
+
+<h1>Topic Title</h1>
+
+<h2>Introduction</h2>
+A short learner-friendly introduction (4–6 sentences only).
+
+<h2>Objectives</h2>
+<ul>
+5 clear learning objectives only
+</ul>
+
+<h2>Lesson Notes</h2>
+Very detailed but controlled length explanation:
+- Organized with subheadings using <h3>
+- Use paragraphs and bullet points
+- Include examples inside the notes
+- Use age-appropriate language
+- Do NOT repeat ideas
+- Do NOT add teacher instructions
+- Maximum about 900–1200 words equivalent
+
+<h2>Worked Examples</h2>
+Provide 3 clear worked examples with step-by-step explanations suitable for learners.
+
+<h2>Exercises</h2>
+Provide ONLY 5 questions.
+No answers.
+Mix difficulty (easy → moderate).
+
+IMPORTANT
+- End the HTML properly.
+- Never cut off the response.
+- Keep explanations complete but concise to fit within limits.`
                 }]
               }],
-              generationConfig: { temperature: 0.6, maxOutputTokens: 4500 }
+              generationConfig: { temperature: 0.6, maxOutputTokens: 6000 }
             })
           }
         );
