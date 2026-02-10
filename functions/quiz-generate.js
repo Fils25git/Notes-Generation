@@ -86,21 +86,22 @@ exports.handler = async (event) => {
     }
 
     // --- Safe fallback values
-    const safeLevel = level || "Primary";
-    const safeClass = classLevel || "P4";
-    const safeSubject = subject || "General Studies";
-    const safeQuestions = numberOfQuestions || 5;
-const safeSequence = sequence || "N/A";
-const safeMarks = totalMarks || "Not specified";
+    // --- Safe fallback values
+const safeLevel = level || "Primary";
+const safeClass = classLevel || "P4";
+const safeSubject = subject || "General Studies";
+const safeMarks = Number(marks) || 0;
 
     // --- Quiz logic (PLACE HERE)
     // --- Question count based on marks
 let questionCount;
 
-if (marks <= 10) questionCount = 5;
-else if (marks <= 20) questionCount = 10;
-else if (marks <= 30) questionCount = 15;
-else questionCount = 20; // 50 marks
+const numericMarks = Number(marks);
+
+if (numericMarks <= 10) questionCount = 5;
+else if (numericMarks <= 20) questionCount = 10;
+else if (numericMarks <= 30) questionCount = 15;
+else questionCount = 20;
 
     let quizInstruction = "";
 
