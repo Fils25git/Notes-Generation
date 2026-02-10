@@ -293,10 +293,67 @@ RULES
     }
 
     // -------------------- RETURN STEP 1 RESULT --------------------
+    let html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${title} – Quiz</title>
+<style>
+body { font-family: Arial, sans-serif; }
+h1, h2 { text-align: center; }
+.question { margin-bottom: 15px; }
+</style>
+</head>
+<body>
+
+<h1>${title}</h1>
+<p><strong>Level:</strong> ${safeLevel} |
+<strong>Class:</strong> ${safeClass} |
+<strong>Subject:</strong> ${safeSubject}</p>
+
+<h2>Instructions</h2>
+<p>Answer all questions carefully.</p>
+
+<h2>Questions</h2>
+`;
+    const chunks = chunkArray(quizPlan, 5);
+let startNumber = 1;
+
+for (const chunk of chunks) {
+  let chunkHTML;
+
+  for (const key of API_KEYS) {
+    try {
+      const prompt = buildStep2Prompt({
+        title,
+        safeLevel,
+        safeClass,
+        safeSubject,
+        chunk,
+        startNumber
+      });
+
+      chunkHTML = await generateQuestionChunk(prompt, key);
+      if (chunkHTML) break;
+
+    } catch (err) {
+      continue;
+    }
+  }
+
+  if (!chunkHTML) {
     await db.end();
-    return response(200, {
-      quizPlan
-    });
+    return response(500, { error: "Failed generating questions" });
+  }
+
+  html += chunkHTML;
+  startNumber += chunk.length;
+}
+    html += `
+</body>
+</html>
+`;
 
   } catch (err) {
     if (db) await db.end();
