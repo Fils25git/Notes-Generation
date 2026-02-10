@@ -81,9 +81,10 @@ quizTypeSelect.addEventListener("change", () => {
 
     [5,10,15,20,30,50].forEach(n => numberSelect.appendChild(new Option(`${n} Questions`, n)));
     numberSelect.disabled = false;
+
+    updateStartButton(); // ✅ add this
 });
 
-// ===== NUMBER OF QUESTIONS → SEQUENCE =====
 numberSelect.addEventListener("change", () => {
     resetFlowFrom(numberSelect);
     if (!numberSelect.value) return;
@@ -92,17 +93,20 @@ numberSelect.addEventListener("change", () => {
         .forEach(([v,t]) => sequenceSelect.appendChild(new Option(t,v)));
 
     sequenceSelect.disabled = false;
+
+    localStorage.setItem("numberOfQuestions", numberSelect.value); // ✅ save selection
+    updateStartButton(); // ✅ add this
 });
 
-// ===== SEQUENCE → MARKS =====
 sequenceSelect.addEventListener("change", () => {
     resetFlowFrom(sequenceSelect);
     if (!sequenceSelect.value) return;
 
     [5,10,15,20,30,50].forEach(m => marksSelect.appendChild(new Option(`${m} Marks`, m)));
     marksSelect.disabled = false;
-});
 
+    updateStartButton(); // ✅ add this
+});
 // ===== MARKS → START BUTTON =====
 marksSelect.addEventListener("change", updateStartButton);
 
