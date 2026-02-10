@@ -355,8 +355,10 @@ for (const chunk of chunks) {
 </html>
 `;
 
-  } catch (err) {
-    if (db) await db.end();
-    return response(500, { error: err.message });
-  }
-};
+await db.end();
+return response(200, { quiz: html });
+
+} catch (err) {
+  if (db) await db.end();
+  return response(500, { error: err.message });
+        }
