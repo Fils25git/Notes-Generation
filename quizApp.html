@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fila Assistant - Quiz</title>
+    <meta property="og:type" content="website" />
+<meta property="og:title" content="Fila Assistant" />
+<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
+<meta property="og:image" content="https://www.fleduacademy.com/logo.png" />
+<meta property="og:url" content="https://www.fleduacademy.com" />
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/index.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+    <div class="header-left">
+        <img src="logo.png" alt="Logo" class="logo-img">
+        <h2 class="app-title">Fila Assistant</h2>
+    </div>
+
+    <div class="current-selection">
+        <span id="currentSelection">Loading...</span>
+        <button id="changeSelectionBtn" title="Change selection">
+            <i class="fas fa-arrows-rotate"></i>
+        </button>
+    </div>
+
+    <div class="header-right">
+        <button id="menuToggle" class="menu-toggle" title="Menu">
+            <i class="fas fa-ellipsis-v"></i>
+        </button>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main id="outputArea"></main>
+
+<!-- FOOTER -->
+<footer style="background: #f4f6f8;">
+    <input
+        type="text"
+        id="noteInput"
+        placeholder="Type lessons or Topics you want quiz from ..."
+        autocomplete="off"
+    />
+    <button id="sendBtn">
+        <i class="fas fa-paper-plane"></i>
+    </button>
+</footer>
+
+<!-- OVERLAY -->
+<div class="menu-overlay"></div>
+
+<!-- APP MENU -->
+<div id="appMenu" class="app-menu hidden">
+
+    <div class="menu-section">
+
+        <button id="lessonPlanBtn">
+            <i class="fas fa-file-alt"></i>
+            <span>Fetch notes</span>
+        </button>
+    </div>
+
+    <div class="menu-section">
+        <button id="termsBtn">
+            <i class="fas fa-file-contract"></i>
+            <span>Terms & Privacy</span>
+        </button>
+
+        <button id="privacyBtn">
+            <i class="fas fa-shield-alt"></i>
+            <span>Privacy Policy</span>
+        </button>
+    </div>
+
+</div>
+
+<!-- SCRIPTS -->
+<script src="js/main.js"></script>
+<script src="js/index.js"></script>
+
+</body>
+</html>
