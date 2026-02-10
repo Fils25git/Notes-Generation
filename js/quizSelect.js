@@ -58,16 +58,16 @@ subjectSelect.addEventListener("change", () => {
     if (!subjectSelect.value) return;
 
     const mixed = new OptionGroup("Mixed Question Formats", [
-        ["scenario_comprehension", "Scenario + Closed + Open"],
+        ["scenario_comprehension", "Scenario/Text with comprehension questions + Closed + Open"],
         ["true_false", "True/False + MCQ"],
-        ["mcq", "MCQ + Open Ended"],
+        ["mcq", "Multiple Choices questions + Open Ended Questions"],
         ["openClosed", "Open + True/False + MCQ"]
     ]);
 
     const closedOnly = new OptionGroup("Single Format", [
-        ["tf_only", "True / False Only"],
-        ["mcq_only", "Multiple Choice Only"],
-        ["openEnded", "Open Ended Only"]
+        ["tf_only", "True / False Questions Only"],
+        ["mcq_only", "Multiple Choice Questions Only"],
+        ["openEnded", "Open Ended Questions Only"]
     ]);
 
     quizTypeSelect.append(mixed.el, closedOnly.el);
