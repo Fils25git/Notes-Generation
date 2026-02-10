@@ -109,7 +109,7 @@ switch (quizType) {
 
   // Mixed formats
   case "scenario_comprehension":
-    quizInstruction = "Start with a short scenario or passage, then ask comprehension questions, followed by closed and open-ended questions.";
+    quizInstruction = "Start with one scenario or passage(for full paper)- Scenario can be short, medium or long, depending to the How many marks ${marks} and questions ${numberOfQuestions} the paper must have  then ask comprehension questions, followed by closed and open-ended questions.";
     break;
 
   case "true_false":
@@ -186,6 +186,8 @@ Ordering rule: ${sequenceInstruction}
 STRICT RULES (MUST FOLLOW EXACTLY)
 
 GENERAL
+-Add marks/mark after each question e.g, Question/2 Marks
+- Depend 
 - Follow Rwanda Competence Based Curriculum (CBC).
 - Adapt difficulty to learner level and subject.
 - DO NOT include answers.
@@ -222,14 +224,19 @@ FINAL VALIDATION (VERY IMPORTANT)
 Before finishing, verify:
 1. Count questions again → must equal ${questionCount}
 2. No answers exist anywhere
+3. If there is Scenario in Instruction, it is the one that starts the paper and it is only one and comprehension questions
+4. There is marks after each question to show how many marks it weighs
+5.Verify if paper is full and is not cut off
+6. Total marks equal ${marks} and tota number of questions equal ${numberOfQuestions}
 3. HTML is complete and properly closed
+
 
 IMPORTANT
 - Never cut off output
-- End the HTML properly`
+- End the HTML properly.`
                 }]
               }],
-              generationConfig: { temperature: 0.6, maxOutputTokens: 3500 }
+              generationConfig: { temperature: 0.6, maxOutputTokens: 5500 }
             })
           }
         );
