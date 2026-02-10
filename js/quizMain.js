@@ -123,10 +123,10 @@ const subject = localStorage.getItem("subject");
 const quizType = localStorage.getItem("quizType");
 const questionSequence = localStorage.getItem("questionSequence");
 const marks = localStorage.getItem("marks");
-            if (!numberOfQuestions) {
+          /*  if (!numberOfQuestions) {
     systemBubble("❌ Question count not set. Please reselect quiz settings.");
     return;
-}
+}*/
 
             // Call your Netlify AI function
             const res = await fetch("/.netlify/functions/quiz-generate", {
