@@ -15,7 +15,11 @@ function resetSelect(selectEl, placeholder) {
     selectEl.innerHTML = `<option value="">--Select ${placeholder}--</option>`;
     selectEl.disabled = true;
 }
-
+function resetQuizFlow() {
+    resetSelect(selectNumber, "Exercises Type");
+    resetSelect(selectSequence, "Question Sequences");
+    resetSelect(selectMarks, "Marks weight");
+}
 // ===== Populate Class options based on Level =====
 levelSelect.addEventListener("change", () => {
     resetSelect(classSelect, "Class");
@@ -72,9 +76,102 @@ classSelect.addEventListener("change", () => {
         subjectSelect.appendChild(opt);
     });
 
-    subjectSelect.disabled = !subjects.length;
-    updateStartButton();
+    resetQuizFlow();
+
+subjectSelect.addEventListener("change", () => {
+    if (!subjectSelect.value) {
+        resetQuizFlow();
+        return;
+    }
+
+    populateQuizTypes();
 });
+    function populateQuizTypes() {
+    selectNumber.innerHTML = `<option value="">--Select Exercises Type--</option>`;
+
+    const mixed = document.createElement("optgroup");
+    mixed.label = "Mixed Question Formats";
+    mixed.innerHTML = `
+        <option value="scenario_comprehension">Scenario + Comprehension</option>
+        <option value="true_false">True or False</option>
+        <option value="mcq">Multiple Choice</option>
+        <option value="open">Open-ended Questions</option>
+    `;
+
+    const closedOnly = document.createElement("optgroup");
+    closedOnly.label = "Only Closed Questions";
+    closedOnly.innerHTML = `
+        <option value="tf_only">True / False Only</option>
+        <option value="mcq_only">Multiple Choices Questions Only</option>
+    `;
+
+    const closedOpen = document.createElement("optgroup");
+    closedOpen.label = "Closed + Open-ended";
+    closedOpen.innerHTML = `
+        <option value="mcq_open">MCQ + Open</option>
+        <option value="tf_open">T/F + Open</option>
+    `;
+
+    selectNumber.append(mixed, closedOnly, closedOpen);
+    selectNumber.disabled = false;
+    }
+
+    selectNumber.addEventListener("change", () => {
+    resetSelect(selectSequence, "Question Sequences");
+    resetSelect(selectMarks, "Marks weight");
+
+    if (!selectNumber.value) return;
+
+    const numbers =
+        levelSelect.value === "Primary"
+            ? [5, 10, 15]
+            : [10, 20, 30];
+
+    selectSequence.innerHTML = `<option value="">--Select Number of Questions--</option>`;
+
+    numbers.forEach(n => {
+        const opt = document.createElement("option");
+        opt.value = n;
+        opt.textContent = `${n} Questions`;
+        selectSequence.appendChild(opt);
+    });
+
+    selectSequence.disabled = false;
+});
+    selectSequence.addEventListener("change", () => {
+    resetSelect(selectMarks, "Marks weight");
+
+    if (!selectSequence.value) return;
+
+    const sequences = [
+        { value: "progressive", text: "Easy → Medium → Hard" },
+        { value: "random", text: "Random Order" },
+        { value: "by_type", text: "Grouped by Question Type" }
+    ];
+
+    selectMarks.innerHTML = `<option value="">--Select Question Sequence--</option>`;
+
+    sequences.forEach(seq => {
+        const opt = document.createElement("option");
+        opt.value = seq.value;
+        opt.textContent = seq.text;
+        selectMarks.appendChild(opt);
+    });
+
+    selectMarks.disabled = false;
+});
+    selectMarks.addEventListener("change", updateStartButton);
+
+function updateStartButton() {
+    startBtn.disabled = !(
+        levelSelect.value &&
+        classSelect.value &&
+        subjectSelect.value &&
+        selectNumber.value &&
+        selectSequence.value &&
+        selectMarks.value
+    );
+}
 
 // ===== Enable Start button only when all selections are made =====
 function updateStartButton() {
@@ -89,6 +186,9 @@ startBtn.addEventListener("click", () => {
     localStorage.setItem("level", levelSelect.value);
     localStorage.setItem("classLevel", classSelect.value);
     localStorage.setItem("subject", subjectSelect.value);
+    localStorage.setItem("quizType", selectNumber.value);
+localStorage.setItem("questionCount", selectSequence.value);
+localStorage.setItem("questionFlow", selectMarks.value);
     localStorage.setItem("selectionDone", "true");
 
     window.location.href = "app.html";
