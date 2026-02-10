@@ -142,7 +142,7 @@ startBtn.addEventListener("click", () => {
     localStorage.setItem("marks", marksSelect.value);
     localStorage.setItem("selectionDone", "true");
 
-    window.location.href = "app.html";
+    window.location.href = "quizApp.html";
 });
 
 // ===== SMALL HELPER CLASS =====
