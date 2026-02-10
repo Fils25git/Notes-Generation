@@ -15,7 +15,76 @@ const API_KEYS = [
   process.env.GEMINI_KEY4,
   process.env.GEMINI_KEY5,
 ];
+function chunkArray(arr, size) {
+  const chunks = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
+}
+function buildStep2Prompt({
+  title,
+  safeLevel,
+  safeClass,
+  safeSubject,
+  chunk,
+  startNumber
+}) {
+  return `
+You are a professional Rwandan CBC teacher.
 
+TASK:
+Generate learner QUESTIONS ONLY.
+DO NOT generate answers.
+DO NOT generate explanations.
+DO NOT generate teacher notes.
+
+OUTPUT:
+Return ONLY clean HTML.
+NO markdown.
+NO code blocks.
+NO extra text.
+
+QUIZ DETAILS
+Level: ${safeLevel}
+Class: ${safeClass}
+Subject: ${safeSubject}
+Topic: ${title}
+
+QUESTIONS TO GENERATE
+${JSON.stringify(chunk, null, 2)}
+
+RULES
+- Start numbering from ${startNumber}
+- Add marks after each question (e.g. Question /2 Marks)
+- MCQ must have 4 options (A–D)
+- True/False must show (True / False)
+- Open-ended must leave <br><br>
+- Scenario must appear BEFORE its questions
+- Language must be age-appropriate
+- HTML must be valid and closed
+`;
+}
+
+async function generateQuestionChunk(prompt, apiKey) {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.5,
+          maxOutputTokens: 1500
+        }
+      })
+    }
+  );
+
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text;
+}
 exports.handler = async (event) => {
   const headers = {
     "Access-Control-Allow-Origin": "*",
