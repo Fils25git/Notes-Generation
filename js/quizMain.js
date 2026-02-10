@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    let numberOfQuestions = 0; // ✅ Declare once at the top
 
     const outputArea = document.getElementById("outputArea");
     const input = document.getElementById("noteInput");
@@ -28,31 +29,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Check selection
     let numberOfQuestions;
-    const isNotesPage = location.pathname.endsWith("app.html");
-    if (isNotesPage) {
-        const level = localStorage.getItem("level");
-const classLevel = localStorage.getItem("classLevel");
-const subject = localStorage.getItem("subject");
-const quizType = localStorage.getItem("quizType");
-const questionSequence = localStorage.getItem("questionSequence");
-const marks = localStorage.getItem("marks");
-        // --- Calculate number of questions from marks
-let numberOfQuestions;
-const safeMarks = Number(marks);
+    // --- Check selection
+const isNotesPage = location.pathname.endsWith("app.html");
+if (isNotesPage) {
+    const level = localStorage.getItem("level");
+    const classLevel = localStorage.getItem("classLevel");
+    const subject = localStorage.getItem("subject");
+    const quizType = localStorage.getItem("quizType");
+    const questionSequence = localStorage.getItem("questionSequence");
+    const marks = localStorage.getItem("marks");
 
-if (safeMarks <= 10) numberOfQuestions = 5;
-else if (safeMarks <= 20) numberOfQuestions = 10;
-else if (safeMarks <= 30) numberOfQuestions = 15;
-else numberOfQuestions = 20;
+    // --- Calculate number of questions from marks (assign to outer variable)
+    const safeMarks = Number(marks);
 
-        if (!level || !classLevel || !subject || !quizType || !questionSequence || !marks) {
-    window.location.href = "quizSelect.html";
-    return;
-}
-        if (currentSelectionEl) {
-            currentSelectionEl.textContent = `${classLevel} | ${subject}`;
-        }
+    if (safeMarks <= 10) numberOfQuestions = 5;
+    else if (safeMarks <= 20) numberOfQuestions = 10;
+    else if (safeMarks <= 30) numberOfQuestions = 15;
+    else numberOfQuestions = 20;
+
+    if (!level || !classLevel || !subject || !quizType || !questionSequence || !marks) {
+        window.location.href = "quizSelect.html";
+        return;
     }
+
+    if (currentSelectionEl) {
+        currentSelectionEl.textContent = `${classLevel} | ${subject}`;
+    }
+}
 
     let currentNotesHTML = "";
 
