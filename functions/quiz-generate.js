@@ -42,6 +42,9 @@ exports.handler = async (event) => {
 
     if (!title) return { statusCode: 400, headers, body: JSON.stringify({ error: "No lesson title provided" }) };
     if (!email) return { statusCode: 400, headers, body: JSON.stringify({ error: "Email required" }) };
+    if (!quizType || !questionSequence || !marks) {
+  return response(400, { error: "Quiz configuration incomplete" });
+    }
 
     // --- Connect to DB
     const db = new Client({ connectionString: process.env.NEON_DATABASE_URL });
@@ -91,6 +94,63 @@ const safeSequence = sequence || "N/A";
 const safeMarks = totalMarks || "Not specified";
 
     // --- Quiz logic (PLACE HERE)
+    // --- Question count based on marks
+let questionCount;
+
+if (marks <= 10) questionCount = 5;
+else if (marks <= 20) questionCount = 10;
+else if (marks <= 30) questionCount = 15;
+else questionCount = 20; // 50 marks
+
+    let quizInstruction = "";
+
+switch (quizType) {
+
+  // Mixed formats
+  case "scenario_comprehension":
+    quizInstruction = "Start with a short scenario or passage, then ask comprehension questions, followed by closed and open-ended questions.";
+    break;
+
+  case "true_false":
+    quizInstruction = "Mix True/False questions with Multiple Choice questions.";
+    break;
+
+  case "mcq":
+    quizInstruction = "Mix Multiple Choice questions and Open-ended questions.";
+    break;
+
+  case "openClosed":
+    quizInstruction = "Mix Open-ended, True/False, and Multiple Choice questions.";
+    break;
+
+
+  // Single format
+  case "tf_only":
+    quizInstruction = "Generate ONLY True or False questions.";
+    break;
+
+  case "mcq_only":
+    quizInstruction = "Generate ONLY Multiple Choice Questions with 4 options (A–D).";
+    break;
+
+  case "openEnded":
+    quizInstruction = "Generate ONLY open-ended questions.";
+    break;
+
+  default:
+    quizInstruction = "Generate a balanced mix of question types.";
+}
+  let sequenceInstruction = "";
+
+if (questionSequence === "progressive") {
+  sequenceInstruction = "Arrange questions from easy to difficult.";
+}
+else if (questionSequence === "by_type") {
+  sequenceInstruction = "Group questions by their type.";
+}
+else {
+  sequenceInstruction = "Randomize the question order.";
+}  
 
     let data;
     let lastError;
@@ -122,34 +182,50 @@ Total marks: ${marks}
 Question format rule: ${quizInstruction}
 Ordering rule: ${sequenceInstruction}
 
-STRICT RULES (must follow exactly):
+STRICT RULES (MUST FOLLOW EXACTLY)
 
 GENERAL
 - Follow Rwanda Competence Based Curriculum (CBC).
-- Adapt difficulty to learner level.
+- Adapt difficulty to learner level and subject.
 - DO NOT include answers.
 - DO NOT include explanations.
-- Output ONLY clean HTML (no markdown, no extra text).
+- DO NOT include marking guide.
+- DO NOT include teacher notes.
+- Output ONLY clean HTML (no markdown, no code block, no extra text).
 
-STRUCTURE (exact order):
+STRUCTURE (EXACT ORDER ONLY)
 
-<h1>Quiz About ${title}</h1>
+<h1>${title} – Quiz</h1>
 
 <h2>Instructions</h2>
-Short learner-friendly instructions (2–3 lines).
+Write short learner-friendly instructions (2–3 simple lines).
 
 <h2>Questions</h2>
--Depend first on
-- Number questions clearly (1, 2, 3…)
-- Respect the question format rule
-- Respect ordering rule
-- Ensure total questions = ${questionCount}
--Add marks after each question depending to its weight and do not exceed ${marks}
+
+QUESTION RULES
+- Number questions clearly: 1., 2., 3., 4...
+- Total questions MUST equal ${questionCount}
+- Follow exactly: ${quizInstruction}
+- Follow exactly: ${sequenceInstruction}
+- Questions must be concise and clear
+- Avoid repeating the same question style
+- Use age-appropriate vocabulary
+
+FORMATTING RULES
+- Multiple choice must have exactly 4 options labeled A, B, C, D
+- True/False must show: (True / False)
+- Open-ended questions must leave blank lines using <br><br>
+- Scenario/comprehension must include a short passage before its questions
+
+FINAL VALIDATION (VERY IMPORTANT)
+Before finishing, verify:
+1. Count questions again → must equal ${questionCount}
+2. No answers exist anywhere
+3. HTML is complete and properly closed
 
 IMPORTANT
-- End the HTML properly.
-- Never cut off output.
-- Keep questions concise and clear.`
+- Never cut off output
+- End the HTML properly`
                 }]
               }],
               generationConfig: { temperature: 0.6, maxOutputTokens: 3500 }
