@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fila Assistant - Select Class to fetch notes for</title>
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Fila Assistant" />
+<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
+<meta property="og:image" content="https://www.fleduacademy.com/logo.png" />
+<meta property="og:url" content="https://www.fleduacademy.com" />
+    
+    
+<link rel="stylesheet" href="css/style.css">
+<style>
+    /* ===== SELECTION PAGE ===== */
+
+body {
+    font-family: Arial, sans-serif;
+    
+    margin: 0;
+    padding-top: 60px;
+    background: linear-gradient(135deg, #6dd5fa, #2980b9);
+}
+
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #f4f6f8;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.logo-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+header h2 {
+    font-size: 18px;
+    color: #0a7a0a;
+}
+Responsive footer */
+  footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+    width: 20%;
+      background: linear-gradient(135deg, #6dd5fa, #2980b9);
+    
+  }
+  footer a {
+    color: #fff;
+    text-decoration: underline;
+    margin: 0 5px;
+    }
+/* Main container */
+.selection-container {
+    max-width: 420px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.selection-container h3 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+/* Labels */
+.selection-container label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #444;
+}
+
+/* Dropdowns */
+.selection-container select {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #fff;
+    outline: none;
+}
+
+/* Disabled dropdown look */
+.selection-container select:disabled {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Focus effect */
+.selection-container select:focus {
+    border-color: #00a859;
+    box-shadow: 0 0 0 2px rgba(0,168,89,0.15);
+}
+
+/* Start button */
+#startBtn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: none;
+    background: #00a859;
+    color: #fff;
+    cursor: pointer;
+}
+
+#startBtn:disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .selection-container {
+        margin: 20px 12px;
+    }
+}
+</style>
+</head>
+<body>
+<header>
+    <img src="logo.png" alt="Fila Assistant Logo" class="logo-img">
+    <h2>Fila Assistant</h2>
+</header>
+
+<main>
+    <div class="selection-container">
+        <h3>Select Quiz criteria</h3>
+
+        <label for="level">Level</label>
+        <select id="level">
+            <option value="">--Select Level--</option>
+            <option value="Primary">Primary</option>
+            <option value="Ordinary">Ordinary Level</option>
+            <option value="GE">General Education(S4-S6)</option>
+            <option value="TTC">Teacher Training College(TTC)</option>
+        </select>
+
+        <label for="classSelect">Class</label>
+        <select id="classSelect" disabled>
+            <option value="">--Select Class--</option>
+        </select>
+
+        <label for="subject">Subject</label>
+        <select id="subject" disabled>
+            <option value="">--Select Subject--</option>
+            <option value="English">English</option>
+        </select>
+
+       <label for="qNumber">Select number and types of Questions</label>
+        <select id="qNumber" disabled>
+            <option value="">--Select Exercises Type--</option>
+        </select>
+
+       <label for="flow">Questions Sequences</label>
+        <select id="flow" disabled>
+            <option value="">--Select Question Sequences--</option>
+        </select>
+      
+       <label for="marks">Select Marks weight</label>
+        <select id="marks" disabled>
+            <option value="">--Select Marks weight--</option>
+        </select>
+
+      
+
+        <button id="startBtn" disabled>Get Quiz</button>
+    </div>
+</main>
+    <footer>
+  &copy; 2026 Fila Assistant | <a href="privacy.html">Privacy</a> | <a href="terms.html">Terms</a>
+    </footer>
+
+<script src="js/quizSelect.js"></script>
+</body>
+</html>
