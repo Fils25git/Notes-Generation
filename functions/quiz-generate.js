@@ -29,7 +29,16 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { title, level, classLevel, subject, email } = JSON.parse(event.body || "{}");
+    const {
+  title,
+  level,
+  classLevel,
+  subject,
+  quizType,
+  questionSequence,
+  marks,
+  email
+} = JSON.parse(event.body || "{}");
 
     if (!title) return { statusCode: 400, headers, body: JSON.stringify({ error: "No lesson title provided" }) };
     if (!email) return { statusCode: 400, headers, body: JSON.stringify({ error: "Email required" }) };
@@ -77,6 +86,11 @@ exports.handler = async (event) => {
     const safeLevel = level || "Primary";
     const safeClass = classLevel || "P4";
     const safeSubject = subject || "General Studies";
+    const safeQuestions = numberOfQuestions || 5;
+const safeSequence = sequence || "N/A";
+const safeMarks = totalMarks || "Not specified";
+
+    // --- Quiz logic (PLACE HERE)
 
     let data;
     let lastError;
@@ -92,54 +106,50 @@ exports.handler = async (event) => {
             body: JSON.stringify({
               contents: [{
                 parts: [{
-                  text: `You are a professional Rwandan CBC primary school teacher.
+                  text: `You are a professional Rwandan CBC teacher.
 
-Generate a COMPLETE and FINISHED lesson plan for:
+Generate a COMPLETE learner assessment (QUIZ), not lesson notes.
+
+QUIZ DETAILS
 Level: ${safeLevel}
 Class: ${safeClass}
 Subject: ${safeSubject}
 Topic: ${title}
 
+QUIZ SETTINGS
+Question count: ${questionCount}
+Total marks: ${marks}
+Question format rule: ${quizInstruction}
+Ordering rule: ${sequenceInstruction}
+
 STRICT RULES (must follow exactly):
 
 GENERAL
 - Follow Rwanda Competence Based Curriculum (CBC).
-- Adapt language difficulty to the learner level (Nursery = very simple sentences, Upper Primary = detailed explanations).
-- The response MUST be complete and MUST NOT stop mid-sentence.
-- Output ONLY clean HTML (no markdown, no explanations outside HTML).
-- Total response should be moderate in size to avoid truncation.
+- Adapt difficulty to learner level.
+- DO NOT include answers.
+- DO NOT include explanations.
+- Output ONLY clean HTML (no markdown, no extra text).
 
-STRUCTURE (exact order)
+STRUCTURE (exact order):
 
-<h1>Topic Title</h1>
+<h1>Quiz About ${title}</h1>
 
-<h2>Introduction</h2>
-A short learner-friendly introduction (2–4 sentences only).
+<h2>Instructions</h2>
+Short learner-friendly instructions (2–3 lines).
 
-
-
-<h2>Lesson Notes</h2>
-Very detailed but controlled length explanation:
-- Organized with subheadings using <h3>
-- Use paragraphs and bullet points
-- Include examples inside the notes
-- Use age-appropriate language
-- Do NOT repeat ideas
-- Do NOT add teacher instructions
-- Maximum about 200–400 words equivalent
-
-<h2>Worked Examples</h2>
-Provide 3 clear worked examples with step-by-step explanations suitable for learners.
-
-<h2>Exercises</h2>
-Provide ONLY 5 questions.
-No answers.
-Mix difficulty (easy → moderate).
+<h2>Questions</h2>
+-Depend first on
+- Number questions clearly (1, 2, 3…)
+- Respect the question format rule
+- Respect ordering rule
+- Ensure total questions = ${questionCount}
+-Add marks after each question depending to its weight and do not exceed ${marks}
 
 IMPORTANT
 - End the HTML properly.
-- Never cut off the response.
-- Keep explanations complete but concise to fit within limits.`
+- Never cut off output.
+- Keep questions concise and clear.`
                 }]
               }],
               generationConfig: { temperature: 0.6, maxOutputTokens: 3500 }
