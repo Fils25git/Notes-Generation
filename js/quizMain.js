@@ -26,9 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
         sendBtn.disabled = false;
         sendBtn.title = "";
     }
-
-    // --- Check selection
-    let numberOfQuestions;
     // --- Check selection
 const isNotesPage = location.pathname.endsWith("quizApp.html");
 if (isNotesPage) {
