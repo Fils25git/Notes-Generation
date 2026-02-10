@@ -1,5 +1,4 @@
-import { Client } from "pg";
-
+const { Client } = require("pg");
 function response(statusCode, body) {
   return {
     statusCode,
