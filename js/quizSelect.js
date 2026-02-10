@@ -74,12 +74,12 @@ subjectSelect.addEventListener("change", () => {
         ["scenario_comprehension", "Scenario and Comprehension + Closed Questions + Open Ended questions "],
         ["true_false", "True or False + Multiple Choices"],
         ["mcq", "Multiple Choice + Open Ended Questions"],
-        ["open", "Open-ended + True or False + Multiple choices"]
+        ["openClosed", "Open-ended + True or False + Multiple choices"]
     ]);
 
     const closedOnly = new OptionGroup("Single Format", [
         ["tf_only", "True / False Only"],
-        ["mcq_only", "Multiple choices Only"]
+        ["mcq_only", "Multiple choices Only"],
         ["openEnded", "Open Ended Questions"
     ]);
 
