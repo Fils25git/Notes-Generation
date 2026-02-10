@@ -30,15 +30,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const isNotesPage = location.pathname.endsWith("app.html");
     if (isNotesPage) {
         const level = localStorage.getItem("level");
-        const classLevel = localStorage.getItem("classLevel");
-        const subject = localStorage.getItem("subject");
-      c
+const classLevel = localStorage.getItem("classLevel");
+const subject = localStorage.getItem("subject");
+const quizType = localStorage.getItem("quizType");
+const questionSequence = localStorage.getItem("questionSequence");
+const marks = localStorage.getItem("marks");
 
-        if (!level || !classLevel || !subject) {
-            window.location.href = "selection.html";
-            return;
-        }
-
+        if (!level || !classLevel || !subject || !quizType || !questionSequence || !marks) {
+    window.location.href = "quizSelect.html";
+    return;
+}
         if (currentSelectionEl) {
             currentSelectionEl.textContent = `${classLevel} | ${subject}`;
         }
@@ -104,24 +105,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         userBubble(text);
 
-        systemBubble(`⏳ Generating notes for <b>${text}</b>...`);
+        systemBubble(`⏳ Generating Quiz for <b>${text}</b>...`);
 
         try {
             const level = localStorage.getItem("level");
-            const classLevel = localStorage.getItem("classLevel");
-            const subject = localStorage.getItem("subject");
+const classLevel = localStorage.getItem("classLevel");
+const subject = localStorage.getItem("subject");
+const quizType = localStorage.getItem("quizType");
+const questionSequence = localStorage.getItem("questionSequence");
+const marks = localStorage.getItem("marks");
 
             // Call your Netlify AI function
             const res = await fetch("/.netlify/functions/quiz-generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
-                    title: text, 
-                    level, 
-                    classLevel, 
-                    subject,
-                    email
-                })
+    title: text, 
+    level, 
+    classLevel, 
+    subject,
+    quizType,
+    questionSequence,
+    marks,
+    email
+})
             });
 
             const data = await res.json();
@@ -239,7 +246,10 @@ async function sendMessageWithAuth() {
         localStorage.removeItem("level");
         localStorage.removeItem("classLevel");
         localStorage.removeItem("subject");
-        location.href = "selection.html";
+        localStorage.removeItem("quizType");
+localStorage.removeItem("questionSequence");
+localStorage.removeItem("marks");
+        location.href = "quizSelect.html";
     };
 
     enableSend(); // ready to send immediately, AI will generate on demand
