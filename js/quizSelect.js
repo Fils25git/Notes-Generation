@@ -71,23 +71,20 @@ subjectSelect.addEventListener("change", () => {
     quizTypeSelect.innerHTML = `<option value="">--Select Exercises Type--</option>`;
 
     const mixed = new OptionGroup("Mixed Question Formats", [
-        ["scenario_comprehension", "Scenario + Comprehension"],
-        ["true_false", "True or False"],
-        ["mcq", "Multiple Choice"],
-        ["open", "Open-ended"]
+        ["scenario_comprehension", "Scenario and Comprehension + Closed Questions + Open Ended questions "],
+        ["true_false", "True or False + Multiple Choices"],
+        ["mcq", "Multiple Choice + Open Ended Questions"],
+        ["open", "Open-ended + True or False + Multiple choices"]
     ]);
 
-    const closedOnly = new OptionGroup("Only Closed Questions", [
+    const closedOnly = new OptionGroup("Single Format", [
         ["tf_only", "True / False Only"],
-        ["mcq_only", "MCQs Only"]
+        ["mcq_only", "Multiple choices Only"]
+        ["openEnded", "Open Ended Questions"
     ]);
 
-    const closedOpen = new OptionGroup("Closed + Open-ended", [
-        ["mcq_open", "MCQ + Open"],
-        ["tf_open", "T/F + Open"]
-    ]);
-
-    quizTypeSelect.append(mixed.el, closedOnly.el, closedOpen.el);
+    
+    quizTypeSelect.append(mixed.el, closedOnly.el);
     quizTypeSelect.disabled = false;
 });
 
