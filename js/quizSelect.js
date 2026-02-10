@@ -18,7 +18,8 @@ function resetQuizFlow() {
     resetSelect(quizTypeSelect, "Exercises Type");
     resetSelect(sequenceSelect, "Question Sequence");
     resetSelect(marksSelect, "Marks Weight");
-    resetSelect(numberSelect, "Number of Questions");
+    numberSelect.value = "";
+numberSelect.disabled = true;
 }
 
 // ===== LEVEL → CLASS =====
