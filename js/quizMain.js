@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- Check selection
     let numberOfQuestions;
     // --- Check selection
-const isNotesPage = location.pathname.endsWith("app.html");
+const isNotesPage = location.pathname.endsWith("quizApp.html");
 if (isNotesPage) {
     const level = localStorage.getItem("level");
     const classLevel = localStorage.getItem("classLevel");
