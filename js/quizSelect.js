@@ -15,12 +15,15 @@ function resetSelect(selectEl, placeholder) {
 }
 
 function resetQuizFlow() {
+    function resetQuizFlow() {
     resetSelect(quizTypeSelect, "Exercises Type");
     resetSelect(sequenceSelect, "Question Sequence");
     resetSelect(marksSelect, "Marks Weight");
-    numberSelect.value = "";
-numberSelect.disabled = true;
-}
+
+    // Reset number of questions (JS controlled)
+    numberSelect.innerHTML = `<option value="">--Select Number of Questions--</option>`;
+    numberSelect.disabled = true;
+    }
 
 // ===== LEVEL → CLASS =====
 levelSelect.addEventListener("change", () => {
@@ -114,7 +117,7 @@ sequenceSelect.addEventListener("change", () => {
     resetSelect(marksSelect, "Marks Weight");
     if (!sequenceSelect.value) return;
 
-    [10, 20, 30, 50].forEach(m => {
+    [5, 10, 15, 20, 30, 50].forEach(m => {
         marksSelect.appendChild(new Option(`${m} Marks`, m));
     });
 
@@ -124,11 +127,21 @@ sequenceSelect.addEventListener("change", () => {
 // ===== FINAL VALIDATION =====
 // ===== MARKS → NUMBER OF QUESTIONS =====
 // ===== MARKS → NUMBER OF QUESTIONS =====
+// ===== MARKS → NUMBER OF QUESTIONS =====
 marksSelect.addEventListener("change", () => {
     if (!marksSelect.value) return;
 
-    numberSelect.disabled = false; // ✅ ENABLE HERE
-    updateStartButton();
+    // Clear & add options
+    numberSelect.innerHTML = `<option value="">--Select Number of Questions--</option>`;
+
+    [5, 10, 15, 20, 30, 50].forEach(n => {
+        numberSelect.appendChild(
+            new Option(`${n} Questions`, n)
+        );
+    });
+
+    // ENABLE HERE ✅
+    numberSelect.disabled = false;
 });
 // ===== NUMBER OF QUESTIONS → START BUTTON =====
 numberSelect.addEventListener("change", updateStartButton);
