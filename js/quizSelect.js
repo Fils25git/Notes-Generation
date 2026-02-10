@@ -80,7 +80,7 @@ subjectSelect.addEventListener("change", () => {
     const closedOnly = new OptionGroup("Single Format", [
         ["tf_only", "True / False Only"],
         ["mcq_only", "Multiple choices Only"],
-        ["openEnded", "Open Ended Questions"
+        ["openEnded", "Open Ended Questions"]
     ]);
 
     
