@@ -35,6 +35,14 @@ const subject = localStorage.getItem("subject");
 const quizType = localStorage.getItem("quizType");
 const questionSequence = localStorage.getItem("questionSequence");
 const marks = localStorage.getItem("marks");
+        // --- Calculate number of questions from marks
+let numberOfQuestions;
+const safeMarks = Number(marks);
+
+if (safeMarks <= 10) numberOfQuestions = 5;
+else if (safeMarks <= 20) numberOfQuestions = 10;
+else if (safeMarks <= 30) numberOfQuestions = 15;
+else numberOfQuestions = 20;
 
         if (!level || !classLevel || !subject || !quizType || !questionSequence || !marks) {
     window.location.href = "quizSelect.html";
@@ -127,6 +135,7 @@ const marks = localStorage.getItem("marks");
     quizType,
     questionSequence,
     marks,
+    numberOfQuestions, // ✅ ADD THIS LINE
     email
 })
             });
