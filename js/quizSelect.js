@@ -5,6 +5,7 @@ const subjectSelect = document.getElementById("subject");
 const quizTypeSelect = document.getElementById("qNumber");
 const sequenceSelect = document.getElementById("flow");
 const marksSelect = document.getElementById("marks");
+const numberSelect = document.getElementById("numberOfQuestions");
 const startBtn = document.getElementById("startBtn");
 
 // ===== HELPERS =====
@@ -17,6 +18,7 @@ function resetQuizFlow() {
     resetSelect(quizTypeSelect, "Exercises Type");
     resetSelect(sequenceSelect, "Question Sequence");
     resetSelect(marksSelect, "Marks Weight");
+    resetSelect(numberSelect, "Number of Questions");
 }
 
 // ===== LEVEL → CLASS =====
@@ -119,11 +121,16 @@ sequenceSelect.addEventListener("change", () => {
 });
 
 // ===== FINAL VALIDATION =====
+// ===== MARKS → NUMBER OF QUESTIONS =====
 marksSelect.addEventListener("change", () => {
-    // Enable numberOfQuestions
-    const numberSelect = document.getElementById("numberOfQuestions");
+    resetSelect(numberSelect, "Number of Questions");
+    if (!marksSelect.value) return;
+
     numberSelect.disabled = false;
+    updateStartButton();
 });
+// ===== NUMBER OF QUESTIONS → START BUTTON =====
+numberSelect.addEventListener("change", updateStartButton);
 function updateStartButton() {
     startBtn.disabled = !(
         levelSelect.value &&
@@ -131,7 +138,8 @@ function updateStartButton() {
         subjectSelect.value &&
         quizTypeSelect.value &&
         sequenceSelect.value &&
-        marksSelect.value
+        marksSelect.value &&
+        numberSelect.value
     );
 }
 
