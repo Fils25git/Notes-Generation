@@ -123,11 +123,11 @@ sequenceSelect.addEventListener("change", () => {
 
 // ===== FINAL VALIDATION =====
 // ===== MARKS → NUMBER OF QUESTIONS =====
+// ===== MARKS → NUMBER OF QUESTIONS =====
 marksSelect.addEventListener("change", () => {
-    resetSelect(numberSelect, "Number of Questions");
     if (!marksSelect.value) return;
 
-    numberSelect.disabled = false;
+    numberSelect.disabled = false; // ✅ ENABLE HERE
     updateStartButton();
 });
 // ===== NUMBER OF QUESTIONS → START BUTTON =====
