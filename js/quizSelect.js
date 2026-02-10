@@ -14,7 +14,6 @@ function resetSelect(selectEl, placeholder) {
     selectEl.disabled = true;
 }
 
-function resetQuizFlow() {
     function resetQuizFlow() {
     resetSelect(quizTypeSelect, "Exercises Type");
     resetSelect(sequenceSelect, "Question Sequence");
