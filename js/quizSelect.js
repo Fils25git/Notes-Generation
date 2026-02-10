@@ -92,9 +92,24 @@ subjectSelect.addEventListener("change", () => {
     quizTypeSelect.append(mixed.el, closedOnly.el);
     quizTypeSelect.disabled = false;
 });
+quizTypeSelect.addEventListener("change", () => {
+    if (!marksSelect.value) return;
+
+    // Clear & add options
+    numberSelect.innerHTML = `<option value="">--Select Number of Questions--</option>`;
+
+    [5, 10, 15, 20, 30, 50].forEach(n => {
+        numberSelect.appendChild(
+            new Option(`${n} Questions`, n)
+        );
+    });
+
+    // ENABLE HERE ✅
+    numberSelect.disabled = false;
+});
 
 // ===== QUIZ TYPE → SEQUENCE =====
-quizTypeSelect.addEventListener("change", () => {
+numberSelect.addEventListener("change", () => {
     resetSelect(sequenceSelect, "Question Sequence");
     resetSelect(marksSelect, "Marks Weight");
 
@@ -121,27 +136,14 @@ sequenceSelect.addEventListener("change", () => {
     });
 
     marksSelect.disabled = false;
+    updateStartButton();
 });
 
 // ===== FINAL VALIDATION =====
 // ===== MARKS → NUMBER OF QUESTIONS =====
 // ===== MARKS → NUMBER OF QUESTIONS =====
 // ===== MARKS → NUMBER OF QUESTIONS =====
-marksSelect.addEventListener("change", () => {
-    if (!marksSelect.value) return;
 
-    // Clear & add options
-    numberSelect.innerHTML = `<option value="">--Select Number of Questions--</option>`;
-
-    [5, 10, 15, 20, 30, 50].forEach(n => {
-        numberSelect.appendChild(
-            new Option(`${n} Questions`, n)
-        );
-    });
-
-    // ENABLE HERE ✅
-    numberSelect.disabled = false;
-});
 // ===== NUMBER OF QUESTIONS → START BUTTON =====
 numberSelect.addEventListener("change", updateStartButton);
 function updateStartButton() {
