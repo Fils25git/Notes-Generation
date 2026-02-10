@@ -109,7 +109,7 @@ switch (quizType) {
 
   // Mixed formats
   case "scenario_comprehension":
-    quizInstruction = "Start with one scenario or passage(for full paper)- Scenario can be short, medium or long, depending to the How many marks ${marks} and questions ${numberOfQuestions} the paper must have  then ask comprehension questions, followed by closed and open-ended questions.";
+    quizInstruction = `Start with one scenario or passage(for full paper)- Scenario can be short, medium or long, depending to the How many marks ${marks} and questions ${questionCount} the paper must have  then ask comprehension questions, followed by closed and open-ended questions.`;
     break;
 
   case "true_false":
@@ -227,7 +227,7 @@ Before finishing, verify:
 3. If there is Scenario in Instruction, it is the one that starts the paper and it is only one and comprehension questions
 4. There is marks after each question to show how many marks it weighs
 5.Verify if paper is full and is not cut off
-6. Total marks equal ${marks} and tota number of questions equal ${numberOfQuestions}
+6. Total marks equal ${marks} and tota number of questions equal ${questionCount}
 3. HTML is complete and properly closed
 
 
