@@ -119,8 +119,11 @@ sequenceSelect.addEventListener("change", () => {
 });
 
 // ===== FINAL VALIDATION =====
-marksSelect.addEventListener("change", updateStartButton);
-
+marksSelect.addEventListener("change", () => {
+    // Enable numberOfQuestions
+    const numberSelect = document.getElementById("numberOfQuestions");
+    numberSelect.disabled = false;
+});
 function updateStartButton() {
     startBtn.disabled = !(
         levelSelect.value &&
@@ -131,6 +134,7 @@ function updateStartButton() {
         marksSelect.value
     );
 }
+
 
 // ===== START =====
 startBtn.addEventListener("click", () => {
