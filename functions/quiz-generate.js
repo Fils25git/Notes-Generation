@@ -33,17 +33,20 @@ function buildStep2Prompt({
   return `
 You are a professional Rwandan CBC teacher.
 
-TASK:
-Generate learner QUESTIONS ONLY.
-DO NOT generate answers.
-DO NOT generate explanations.
-DO NOT generate teacher notes.
+Generate learner QUESTIONS based on the provided plan.
 
-OUTPUT:
-Return ONLY clean HTML.
-NO markdown.
-NO code blocks.
-NO extra text.
+STRICT RULES:
+- Generate QUESTIONS ONLY
+- Do NOT generate answers
+- Do NOT generate explanations
+- Do NOT add notes
+- Follow numbering exactly starting from ${startNumber}
+- Respect marks exactly
+- Scenario must appear BEFORE its questions
+- MCQ must have options A–D
+- True/False must show (True / False)
+- Open-ended must leave two blank lines
+- Language must be age appropriate
 
 QUIZ DETAILS
 Level: ${safeLevel}
@@ -51,22 +54,14 @@ Class: ${safeClass}
 Subject: ${safeSubject}
 Topic: ${title}
 
-QUESTIONS TO GENERATE
+QUESTION PLAN
 ${JSON.stringify(chunk, null, 2)}
 
-RULES
-- Start numbering from ${startNumber}
-- Add marks after each question (e.g. Question /2 Marks)
-- MCQ must have 4 options (A–D)
-- True/False must show (True / False)
-- Open-ended must leave <br><br>
-- Scenario must appear BEFORE its questions
-- Language must be age-appropriate
-- HTML must be valid and closed
-OUTPUT FORMAT:
-Return ONLY a valid JSON array.
-Do NOT include any extra text, explanations, or notes.
-Do NOT wrap in markdown, quotes, or code blocks.
+OUTPUT FORMAT (VERY IMPORTANT)
+Return ONLY VALID HTML.
+Do NOT return JSON.
+Do NOT wrap in markdown.
+Do NOT add explanations.
 `;
 }
 
@@ -90,7 +85,8 @@ async function generateQuestionChunk(prompt, apiKey) {
 );
 
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text;
+  const parts = data.candidates?.[0]?.content?.parts || [];
+return parts.map(p => p.text || "").join("").trim();
 }
 exports.handler = async (event) => {
   const headers = {
