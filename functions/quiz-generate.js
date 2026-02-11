@@ -359,31 +359,39 @@ h1, h2 { text-align: center; }
     const chunks = chunkArray(quizPlan, 5);
 let startNumber = 1;
 
-for (const chunk of chunks) {
-  let chunkHTML;
-
-  for (const key of API_KEYS) {
-    try {
-      const prompt = buildStep2Prompt({
-        title,
-        safeLevel,
-        safeClass,
-        safeSubject,
-        chunk,
-        startNumber
-      });
-
-      chunkHTML = await generateQuestionChunk(prompt, key);
-      if (chunkHTML) break;
-
-    } catch (err) {
-      continue;
+// Helper: retry for empty response
+async function generateQuestionChunkWithRetry(prompt, keys, retries = 2) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    for (const key of keys) {
+      try {
+        const text = await generateQuestionChunk(prompt, key);
+        if (text?.trim()) return text; // return if valid
+      } catch (err) {
+        continue; // try next key
+      }
     }
+    // wait 1 second before retry
+    await new Promise(r => setTimeout(r, 1000));
   }
+  return null; // failed after all retries
+}
+
+// Use this in your main loop
+for (const chunk of chunks) {
+  const prompt = buildStep2Prompt({
+    title,
+    safeLevel,
+    safeClass,
+    safeSubject,
+    chunk,
+    startNumber
+  });
+
+  const chunkHTML = await generateQuestionChunkWithRetry(prompt, API_KEYS);
 
   if (!chunkHTML) {
     await db.end();
-    return response(500, { error: "Failed generating questions" });
+    return response(500, { error: "Failed generating questions after retries" });
   }
 
   html += chunkHTML;
