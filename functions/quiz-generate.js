@@ -68,13 +68,13 @@ RULES
 
 async function generateQuestionChunk(prompt, apiKey) {
   const res = await fetch(
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
   {
     method: "POST",
     headers: {
-  "Content-Type": "application/json",
-  "x-goog-api-key": apiKey   // ✅ FIX HERE TOO
-},
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey   // ✅ Keep your API key here
+    },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
@@ -253,13 +253,14 @@ let debugData = []; // collect info for debugging
 
 for (const key of API_KEYS) {
   try {
+
     const res = await fetch(
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
   {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-goog-api-key": key   // ✅ THIS IS THE FIX
+      "x-goog-api-key": key   // ✅ Keep your API key
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: step1Prompt }] }],
