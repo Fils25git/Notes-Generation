@@ -72,7 +72,7 @@ async function generateQuestionChunk(prompt, apiKey) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${key}`  // <-- add this
+      "Authorization": `Bearer ${apikey}`  // <-- add this
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
@@ -258,7 +258,7 @@ for (const key of API_KEYS) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${key}`
+      "Authorization": `Bearer ${apikey}`
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: step1Prompt }] }],
