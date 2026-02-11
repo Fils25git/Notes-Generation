@@ -63,6 +63,10 @@ RULES
 - Scenario must appear BEFORE its questions
 - Language must be age-appropriate
 - HTML must be valid and closed
+OUTPUT FORMAT:
+Return ONLY a valid JSON array.
+Do NOT include any extra text, explanations, or notes.
+Do NOT wrap in markdown, quotes, or code blocks.
 `;
 }
 
@@ -244,6 +248,10 @@ RULES
 - Scenario (if any) MUST be question 1 and ONLY one.
 - Total questions MUST equal ${questionCount}.
 - Total marks MUST equal ${marks}.
+OUTPUT FORMAT:
+Return ONLY a valid JSON array.
+Do NOT include any extra text, explanations, or notes.
+Do NOT wrap in markdown, quotes, or code blocks.
 `;
 
     // -------------------- AI CALL --------------------
