@@ -263,6 +263,7 @@ for (const key of API_KEYS) {
 
     const data = await res.json();
     debugData.push({ key, data }); // store response for debugging
+    debugData.push({ key, prompt: step1Prompt, data });
 
     if (data.error) {
       lastError = data.error;
