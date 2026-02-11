@@ -148,7 +148,12 @@ const marks = localStorage.getItem("marks");
             const data = await res.json();
 
 if (!res.ok) {
-    systemBubble(`❌ ${data.error || "Server error"}`);
+    console.log("FULL ERROR:", data);
+
+    systemBubble(
+        `❌ ${data.error || "Server error"}\n\n` +
+        `DETAILS:\n${JSON.stringify(data.lastError || data.debugData || data, null, 2)}`
+    );
     return;
 }
             const notes = data.notes || "AI returned empty response";
