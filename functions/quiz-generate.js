@@ -67,19 +67,22 @@ RULES
 
 async function generateQuestionChunk(prompt, apiKey) {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.5,
-          maxOutputTokens: 1500
-        }
-      })
-    }
-  );
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${key}`  // <-- add this
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.5,
+        maxOutputTokens: 1500
+      }
+    })
+  }
+);
 
   const data = await res.json();
   return data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -250,16 +253,19 @@ let debugData = []; // collect info for debugging
 for (const key of API_KEYS) {
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${key}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: step1Prompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 2000 }
-        })
-      }
-    );
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${key}`
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: step1Prompt }] }],
+      generationConfig: { temperature: 0.3, maxOutputTokens: 2000 }
+    })
+  }
+);
 
     const data = await res.json();
     debugData.push({ key, data }); // store response for debugging
