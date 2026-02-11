@@ -281,12 +281,11 @@ for (const key of API_KEYS) {
 if (!quizPlanText) {
   await db.end();
   return response(500, { 
-    error: "Failed to generate quiz plan", 
+    error: "Failed to generate quiz plan",
     lastError: lastError?.message || lastError,
-    debugData 
+    debugData // add this array to collect API responses
   });
-  }
-
+}
     // -------------------- VALIDATION --------------------
     let quizPlan;
     try {
