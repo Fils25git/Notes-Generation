@@ -272,7 +272,7 @@ for (const key of API_KEYS) {
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: step1Prompt }] }],
-      generationConfig: { temperature: 0.3, maxOutputTokens: 2000 }
+      generationConfig: { temperature: 0.3, maxOutputTokens: 4000 }
     })
   }
 );
