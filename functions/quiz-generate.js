@@ -120,18 +120,28 @@ exports.handler = async (event) => {
     // -------------------- DB --------------------
     db = new Client({ connectionString: process.env.NEON_DATABASE_URL });
     await db.connect();
+    await db.query(
+  `
+  UPDATE users
+  SET daily_note_used = 0
+  WHERE email = $1
+    AND last_note_date IS DISTINCT FROM $2
+  `,
+  [email, today]
+);
 
     const today = new Date().toISOString().slice(0, 10);
-
-    const { rows } = await db.query(
-      `UPDATE users
-       SET daily_note_used = daily_note_used + 1,
-           last_note_date = $1
-       WHERE email = $2
-         AND (daily_note_used < 5 OR last_note_date < $1)
-       RETURNING daily_note_used, notes_package`,
-      [today, email]
-    );
+const { rows } = await db.query(
+  `
+  UPDATE users
+  SET daily_note_used = daily_note_used + 1,
+      last_note_date = $1
+  WHERE email = $2
+    AND daily_note_used < 5
+  RETURNING daily_note_used, notes_package
+  `,
+  [today, email]
+);
 
     if (!rows.length) {
       await db.end();
