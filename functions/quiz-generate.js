@@ -120,6 +120,9 @@ exports.handler = async (event) => {
     // -------------------- DB --------------------
     db = new Client({ connectionString: process.env.NEON_DATABASE_URL });
     await db.connect();
+    
+
+    const today = new Date().toISOString().slice(0, 10);
     await db.query(
   `
   UPDATE users
@@ -129,8 +132,6 @@ exports.handler = async (event) => {
   `,
   [email, today]
 );
-
-    const today = new Date().toISOString().slice(0, 10);
 const { rows } = await db.query(
   `
   UPDATE users
