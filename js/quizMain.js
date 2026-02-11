@@ -156,8 +156,10 @@ if (!res.ok) {
     );
     return;
 }
-            const notes = data.notes || "AI returned empty response";
-
+            
+            
+            
+            const notes = data.quiz || "AI returned empty response";
             createNoteBubble(notes);
 
         } catch (err) {
