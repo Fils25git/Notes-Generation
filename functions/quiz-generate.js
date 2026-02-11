@@ -71,9 +71,9 @@ async function generateQuestionChunk(prompt, apiKey) {
   {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apikey}`  // <-- add this
-    },
+  "Content-Type": "application/json",
+  "x-goog-api-key": apiKey   // ✅ FIX HERE TOO
+},
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
@@ -258,7 +258,7 @@ for (const key of API_KEYS) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${apikey}`
+      "x-goog-api-key": key   // ✅ THIS IS THE FIX
     },
     body: JSON.stringify({
       contents: [{ parts: [{ text: step1Prompt }] }],
