@@ -244,43 +244,48 @@ RULES
 
     // -------------------- AI CALL --------------------
     let quizPlanText;
-    let lastError;
+let lastError;
+let debugData = []; // collect info for debugging
 
-    for (const key of API_KEYS) {
-      try {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${key}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: step1Prompt }] }],
-              generationConfig: {
-                temperature: 0.3,
-                maxOutputTokens: 800
-              }
-            })
-          }
-        );
-
-        const data = await res.json();
-        if (data.error) {
-          lastError = data.error;
-          continue;
-        }
-
-        quizPlanText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (quizPlanText) break;
-
-      } catch (err) {
-        lastError = err;
+for (const key of API_KEYS) {
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${key}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: step1Prompt }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 2000 }
+        })
       }
+    );
+
+    const data = await res.json();
+    debugData.push({ key, data }); // store response for debugging
+
+    if (data.error) {
+      lastError = data.error;
+      continue;
     }
 
-    if (!quizPlanText) {
-      await db.end();
-      return response(500, { error: "Failed to generate quiz plan" });
-    }
+    quizPlanText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (quizPlanText) break;
+
+  } catch (err) {
+    lastError = err;
+    debugData.push({ key, error: err.message });
+  }
+}
+
+if (!quizPlanText) {
+  await db.end();
+  return response(500, { 
+    error: "Failed to generate quiz plan", 
+    lastError: lastError?.message || lastError,
+    debugData 
+  });
+  }
 
     // -------------------- VALIDATION --------------------
     let quizPlan;
