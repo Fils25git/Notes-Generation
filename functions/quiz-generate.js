@@ -13,7 +13,8 @@ const API_KEYS = [
   process.env.GEMINI_KEY3,
   process.env.GEMINI_KEY4,
   process.env.GEMINI_KEY5,
-];
+].filter(k => k && k.length > 10);
+
 function chunkArray(arr, size) {
   const chunks = [];
   for (let i = 0; i < arr.length; i += size) {
@@ -266,6 +267,11 @@ for (const key of API_KEYS) {
     })
   }
 );
+    if (!res.ok) {
+  const errText = await res.text();
+  debugData.push({ key, status: res.status, errText });
+  continue;
+}
 
     const data = await res.json();
     debugData.push({ key, data }); // store response for debugging
@@ -276,7 +282,10 @@ for (const key of API_KEYS) {
       continue;
     }
 
-    quizPlanText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (data.candidates && data.candidates.length > 0) {
+  const parts = data.candidates[0].content?.parts || [];
+  quizPlanText = parts.map(p => p.text || "").join("").trim();
+}
     if (quizPlanText) break;
 
   } catch (err) {
