@@ -361,3 +361,4 @@ return response(200, { quiz: html });
   if (db) await db.end();
   return response(500, { error: err.message });
         }
+};
