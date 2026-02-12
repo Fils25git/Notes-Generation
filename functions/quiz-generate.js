@@ -111,6 +111,7 @@ exports.handler = async (event) => {
       subject,
       quizType,
       questionSequence,
+      numberOfQuestions,
       marks,
       email
     } = JSON.parse(event.body || "{}");
@@ -169,12 +170,12 @@ const { rows } = await db.query(
     const numericMarks = Number(marks);
 
     // -------------------- QUESTION COUNT --------------------
-    let questionCount;
-    if (numericMarks <= 10) questionCount = 5;
-    else if (numericMarks <= 20) questionCount = 10;
-    else if (numericMarks <= 30) questionCount = 15;
-    else questionCount = 15; // HARD CAP (important)
+    const questionCount = Number(eventBody.numberOfQuestions);
 
+if (!questionCount || questionCount < 1 || questionCount > 50) {
+  await db.end();
+  return response(400, { error: "Invalid question count" });
+}
     // -------------------- QUIZ RULES --------------------
     let quizInstruction = "";
     switch (quizType) {
