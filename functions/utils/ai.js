@@ -64,7 +64,14 @@ Return ONLY JSON array:
 [q,type,marks]
 `;
 
-const text = await callGemini(prompt, 3000);
+let text = await callGemini(prompt, 3000);
+
+// ✅ Strip Markdown backticks if any
+text = text.replace(/^```json\s*/i, "")
+           .replace(/^```/i, "")
+           .replace(/```$/i, "")
+           .trim();
+
 return JSON.parse(text);
 };
 
