@@ -170,7 +170,7 @@ const { rows } = await db.query(
     const numericMarks = Number(marks);
 
     // -------------------- QUESTION COUNT --------------------
-    const questionCount = Number(eventBody.numberOfQuestions);
+    const questionCount = Number(numberOfQuestions);
 
 if (!questionCount || questionCount < 1 || questionCount > 50) {
   await db.end();
@@ -221,13 +221,7 @@ if (!questionCount || questionCount < 1 || questionCount > 50) {
   marks
 });
     // -------------------- VALIDATION --------------------
-    let quizPlan;
-    try {
-      quizPlan = JSON.parse(quizPlanText);
-    } catch {
-      await db.end();
-      return response(500, { error: "Invalid quiz plan JSON" });
-    }
+    let quizPlan = plan; // plan comes from generateQuizPlan()
 
     if (quizPlan.length !== questionCount) {
       await db.end();
