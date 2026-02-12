@@ -212,102 +212,14 @@ if (!questionCount || questionCount < 1 || questionCount > 50) {
     }
 
     // -------------------- STEP 1 PROMPT --------------------
-    const step1Prompt = `
-You are a professional Rwandan CBC teacher.
-
-TASK:
-Create a QUIZ PLAN ONLY.
-DO NOT generate questions.
-DO NOT generate HTML.
-DO NOT explain anything.
-
-QUIZ DETAILS
-Level: ${safeLevel}
-Class: ${safeClass}
-Subject: ${safeSubject}
-Topic: ${title}
-
-REQUIREMENTS
-- Total questions: ${questionCount}
-- Total marks: ${marks}
-- Question rule: ${quizInstruction}
-- Ordering rule: ${sequenceInstruction}
-
-OUTPUT FORMAT
-Return ONLY a valid JSON array.
-
-Each object must contain:
-- q (number)
-- type (scenario | mcq | true_false | open)
-- marks (number)
-
-RULES
-- Scenario (if any) MUST be question 1 and ONLY one.
-- Total questions MUST equal ${questionCount}.
-- Total marks MUST equal ${marks}.
-OUTPUT FORMAT:
-Return ONLY a valid JSON array.
-Do NOT include any extra text, explanations, or notes.
-Do NOT wrap in markdown, quotes, or code blocks.
-`;
-
-    // -------------------- AI CALL --------------------
-    let quizPlanText;
-let lastError;
-let debugData = []; // collect info for debugging
-
-for (const key of API_KEYS) {
-  try {
-
-    const res = await fetch(
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": key   // ✅ Keep your API key
-    },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: step1Prompt }] }],
-      generationConfig: { temperature: 0.3, maxOutputTokens: 4000 }
-    })
-  }
-);
-    if (!res.ok) {
-  const errText = await res.text();
-  debugData.push({ key, status: res.status, errText });
-  continue;
-}
-
-    const data = await res.json();
-    debugData.push({ key, data }); // store response for debugging
-    debugData.push({ key, prompt: step1Prompt, data });
-
-    if (data.error) {
-      lastError = data.error;
-      continue;
-    }
-
-    if (data.candidates && data.candidates.length > 0) {
-  const parts = data.candidates[0].content?.parts || [];
-  quizPlanText = parts.map(p => p.text || "").join("").trim();
-}
-    if (quizPlanText) break;
-
-  } catch (err) {
-    lastError = err;
-    debugData.push({ key, error: err.message });
-  }
-}
-
-if (!quizPlanText) {
-  await db.end();
-  return response(500, { 
-    error: "Failed to generate quiz plan",
-    lastError: lastError?.message || lastError,
-    debugData // add this array to collect API responses
-  });
-}
+    const plan = await generateQuizPlan({
+  title,
+  level,
+  classLevel,
+  subject,
+  numberOfQuestions,
+  marks
+});
     // -------------------- VALIDATION --------------------
     let quizPlan;
     try {
