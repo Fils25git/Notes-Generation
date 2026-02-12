@@ -1,4 +1,5 @@
 const { Client } = require("pg");
+const { generateQuizPlan } = require("./utils/ai"); // ✅ new helper
 
 exports.handler = async (event) => {
   const db = new Client({ connectionString: process.env.NEON_DATABASE_URL });
