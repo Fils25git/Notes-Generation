@@ -108,65 +108,80 @@ if (isNotesPage) {
 
     // --- SEND MESSAGE
     async function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return systemBubble("⚠ Type a lesson or unit title.");
-        const email = localStorage.getItem("user_email");
+    const text = input.value.trim();
+    if (!text) return systemBubble("⚠ Type a lesson or unit title.");
+    const email = localStorage.getItem("user_email");
 
-        userBubble(text);
+    userBubble(text);
+    systemBubble(`⏳ Generating Quiz for <b>${text}</b>...`);
 
-        systemBubble(`⏳ Generating Quiz for <b>${text}</b>...`);
+    try {
+        const level = localStorage.getItem("level");
+        const classLevel = localStorage.getItem("classLevel");
+        const subject = localStorage.getItem("subject");
+        const quizType = localStorage.getItem("quizType");
+        const questionSequence = localStorage.getItem("questionSequence");
+        const marks = localStorage.getItem("marks");
 
-        try {
-            const level = localStorage.getItem("level");
-const classLevel = localStorage.getItem("classLevel");
-const subject = localStorage.getItem("subject");
-const quizType = localStorage.getItem("quizType");
-const questionSequence = localStorage.getItem("questionSequence");
-const marks = localStorage.getItem("marks");
-          /*  if (!numberOfQuestions) {
-    systemBubble("❌ Question count not set. Please reselect quiz settings.");
-    return;
-}*/
+        // --- STEP 1: Create session ---
+        const sessionRes = await fetch("/.netlify/functions/createQuizSession", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title: text,
+                level,
+                classLevel,
+                subject,
+                quizType,
+                questionSequence,
+                marks,
+                numberOfQuestions,
+                email
+            })
+        });
 
-            // Call your Netlify AI function
-            const res = await fetch("/.netlify/functions/quiz-generate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-    title: text, 
-    level, 
-    classLevel, 
-    subject,
-    quizType,
-    questionSequence,
-    marks,
-    numberOfQuestions, // ✅ ADD THIS LINE
-    email
-})
-            });
-
-            const data = await res.json();
-
-if (!res.ok) {
-    console.log("FULL ERROR:", data);
-
-    systemBubble(
-        `❌ ${data.error || "Server error"}\n\n` +
-        `DETAILS:\n${JSON.stringify(data.lastError || data.debugData || data, null, 2)}`
-    );
-    return;
-}
-            
-            
-            
-            const notes = data.quiz || "AI returned empty response";
-            createNoteBubble(notes);
-
-        } catch (err) {
-            systemBubble(`❌ Error: ${err.message}`);
+        if (!sessionRes.ok) {
+            const errData = await sessionRes.json();
+            return systemBubble(`❌ Failed to create quiz session: ${errData.error}`);
         }
 
-        input.value = "";
+        const { sessionId } = await sessionRes.json();
+
+        // --- STEP 2: Generate questions chunks ---
+        let allQuestionsHTML = "";
+        let finished = false;
+
+        while (!finished) {
+            const chunkRes = await fetch("/.netlify/functions/generateQuizChunk", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sessionId })
+            });
+
+            if (!chunkRes.ok) {
+                const errData = await chunkRes.json();
+                return systemBubble(`❌ Failed generating questions: ${errData.error}`);
+            }
+
+            const chunkData = await chunkRes.json();
+
+            // If no HTML returned, we reached the end
+            if (!chunkData || !chunkData.question_html) {
+                finished = true;
+                break;
+            }
+
+            allQuestionsHTML += chunkData.question_html;
+        }
+
+        // --- STEP 3: Show quiz ---
+        createNoteBubble(allQuestionsHTML);
+
+    } catch (err) {
+        systemBubble(`❌ Error: ${err.message}`);
+    }
+
+    input.value = "";
     }
 
     function createNoteBubble(html) {
