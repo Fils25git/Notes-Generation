@@ -47,9 +47,13 @@ export async function handler(event) {
     );
 
     return {
-      statusCode: 200,
-      body: JSON.stringify({ token, email: user.email.toLowerCase() })
-    };
+  statusCode: 200,
+  body: JSON.stringify({
+    token,
+    email: user.email.toLowerCase(),
+    id: user.id   // 👈 ADD THIS
+  })
+};
 
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
