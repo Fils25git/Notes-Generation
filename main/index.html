@@ -146,6 +146,7 @@
 </a>
     </div>
   </div>
+    <span id="onlineUsers">0</span> users online
   </main>
 
     <footer>
@@ -171,6 +172,14 @@ if (isLoggedIn){
     `;
     profileIcon.style.display = "none";
 }
+  async function loadOnlineUsers() {
+  const res = await fetch("/.netlify/functions/get-online-count");
+  const data = await res.json();
+  document.getElementById("onlineUsers").textContent = data.onlineUsers;
+}
+
+setInterval(loadOnlineUsers, 10000); // refresh every 10 seconds
+loadOnlineUsers();
 
 /* Toast */
 function showToast(msg){
