@@ -414,15 +414,24 @@ function go(page){
     const userId = localStorage.getItem("userId");
 
 if (userId) {
-  setInterval(() => {
-    fetch("/.netlify/functions/update-active", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId }),
-    });
-  }, 30000); // every 30 seconds
+
+  async function updateActive() {
+    try {
+      await fetch("/.netlify/functions/update-active", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+    } catch (err) {
+      console.error("Active update failed:", err);
+    }
+  }
+
+  // Run immediately
+  updateActive();
+
+  // Then every 30 seconds
+  setInterval(updateActive, 30000);
     }
 
 /* Logout */
