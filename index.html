@@ -411,6 +411,19 @@ document.querySelectorAll('.card[data-page]').forEach(card => {
 function go(page){
     window.location.href = page;
 }
+    const userId = localStorage.getItem("userId");
+
+if (userId) {
+  setInterval(() => {
+    fetch("/.netlify/functions/update-active", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    });
+  }, 30000); // every 30 seconds
+    }
 
 /* Logout */
 function logout(){
