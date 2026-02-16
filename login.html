@@ -157,8 +157,9 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
         if (res.ok) {
             /* Save login state */
             localStorage.setItem("isLoggedIn", "true");
-            localStorage.setItem("auth_token", data.token);
-            localStorage.setItem("user_email", data.email);
+localStorage.setItem("auth_token", data.token);
+localStorage.setItem("user_email", data.email);
+localStorage.setItem("userId", data.id);  // 👈 ADD THIS
 
             showFloatingMessage("Login successful!");
 
