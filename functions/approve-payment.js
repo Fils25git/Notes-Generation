@@ -68,6 +68,13 @@ export async function handler(event) {
 
           const lessonsInt = parseInt(payment.lessons, 10) || 0;
 const bonusLessons = Math.floor(lessonsInt * 0.10);
+          console.log({
+  paymentId: payment.id,
+  userId: payment.user_id,
+  lessons: payment.lessons,
+  referrerId,
+  bonus: Math.floor(payment.lessons * 0.10)
+});
           if (bonusLessons > 0) {
 
             if (payment.type === "weekly") {
