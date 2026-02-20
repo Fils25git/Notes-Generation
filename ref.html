@@ -7,33 +7,27 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-/* Reset & basic styles */
 * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', Arial, sans-serif; }
 body { background: linear-gradient(135deg, #6dd5fa, #2980b9); min-height:100vh; display:flex; justify-content:center; align-items:center; }
 .container { background:#fff; padding:40px 30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.2); width:100%; max-width:500px; text-align:center; }
 h1 { color:#333; margin-bottom:15px; font-size:28px; }
 p { color:#555; margin-bottom:20px; font-size:16px; }
-
-/* How it works box */
 .how-it-works { background:#f1f8ff; border-left:5px solid #007bff; border-radius:10px; padding:15px 20px; margin-bottom:25px; text-align:left; }
 .how-it-works h3 { font-size:20px; color:#007bff; margin-bottom:10px; text-align:center; }
 .how-it-works ul { list-style:none; padding-left:0; }
 .how-it-works li { margin-bottom:10px; display:flex; align-items:flex-start; gap:10px; }
 .how-it-works i { color:#007bff; font-size:18px; margin-top:2px; }
-
-/* Referral input and button */
 input { width:100%; padding:14px 12px; border:1px solid #ccc; border-radius:10px; font-size:16px; margin-bottom:15px; }
 input:focus { border-color:#007bff; outline:none; }
 button { padding:14px 20px; font-size:16px; background: linear-gradient(to right, #007bff, #00c6ff); color:#fff; border:none; border-radius:12px; cursor:pointer; transition:0.3s; }
 button:hover { background: linear-gradient(to right, #0056b3, #00a0cc); }
 .alert { margin-top:10px; font-size:14px; color:#28a745; font-weight:600; display:none; }
-
-/* Share buttons */
 .share-buttons { margin-top:20px; display:flex; justify-content:center; gap:15px; }
 .share-buttons a { display:flex; align-items:center; justify-content:center; width:50px; height:50px; border-radius:50%; color:#fff; font-size:22px; text-decoration:none; transition:0.3s; }
 .share-whatsapp { background:#25D366; }
 .share-telegram { background:#0088cc; }
 .share-buttons a:hover { transform: scale(1.1); }
+.referral-code { font-weight:bold; font-size:20px; margin-bottom:15px; color:#007bff; }
 </style>
 </head>
 
@@ -41,17 +35,20 @@ button:hover { background: linear-gradient(to right, #0056b3, #00a0cc); }
 
 <div class="container">
     <h1>Invite Friends & Earn Bonuses!</h1>
-    <p>Share your referral link and get rewards when colleague sign up and buy any plans!</p>
+    <p>Share your referral link and get rewards when invitee buys any lesson plan or weekly plan!</p>
 
-    <!-- ✅ How it works box -->
     <div class="how-it-works">
         <h3>How it works</h3>
         <ul>
-            <li><i class="fas fa-user-plus"></i> Invite your friends using your referral link.</li>
-            <li><i class="fas fa-clipboard-check"></i> Your colleague buy any plan and get their  20% of bought plans.</li>
-            <li><i class="fas fa-gift"></i> You receive bonus lessons for every successful payments of your invitee!</li>
+            <li><i class="fas fa-user-plus"></i> Invite your friends using your referral link or code.</li>
+            <li><i class="fas fa-clipboard-check"></i> Your colleague sign up and get  bonus .</li>
+            <li><i class="fas fa-gift"></i> You receive bonus lessons for every successful payment of your invitee!</li>
         </ul>
     </div>
+
+    <!-- Display referral code -->
+    <p>Your referral code:</p>
+    <div class="referral-code" id="referralCode">Loading...</div>
 
     <input type="text" id="referralLink" readonly placeholder="Generating your referral link...">
     <button id="copyReferral"><i class="fas fa-copy"></i> Copy Link</button>
@@ -69,36 +66,56 @@ button:hover { background: linear-gradient(to right, #0056b3, #00a0cc); }
 
 <script>
 async function loadReferralLink() {
-    const email = localStorage.getItem('user_email'); // logged-in user email
-    const phone = localStorage.getItem('userPhone'); // optional
+    const email = localStorage.getItem('user_email') || '';
+    const phone = localStorage.getItem('userPhone') || '';
 
-    const query = new URLSearchParams({ email, phone });
-    const res = await fetch(`/.netlify/functions/get-referral-code?${query.toString()}`);
-    const data = await res.json();
-
+    const codeDiv = document.getElementById('referralCode');
     const input = document.getElementById('referralLink');
     const whatsappBtn = document.getElementById('whatsappShare');
     const telegramBtn = document.getElementById('telegramShare');
 
-    if (data.success && data.referralCode) {
-        const link = `${window.location.origin}/create.html?ref=${data.referralCode}`;
-        input.value = link;
-
-        // Update share buttons
-        const text = encodeURIComponent(`Join me on Fila Assistant and get free lessons plans! Sign up here: ${link}`);
-        whatsappBtn.href = `https://wa.me/?text=${text}`;
-        telegramBtn.href = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
-    } else {
-        input.value = 'Referral link not available';
+    if (!email && !phone) {
+        codeDiv.textContent = 'Please log in to see your referral code';
+        input.value = 'Please log in';
         whatsappBtn.style.display = 'none';
         telegramBtn.style.display = 'none';
+        return;
+    }
+
+    try {
+        const query = new URLSearchParams({ email, phone });
+        const res = await fetch(`/.netlify/functions/get-referral-code?${query.toString()}`);
+        const data = await res.json();
+
+        if (data.success && data.referralCode) {
+            const code = data.referralCode;
+            codeDiv.textContent = code;
+
+            const link = `${window.location.origin}/create.html?ref=${code}`;
+            input.value = link;
+
+            const text = encodeURIComponent(`Join me on Fila Assistant and get lesson plans! Sign up here: ${link}`);
+            whatsappBtn.href = `https://wa.me/?text=${text}`;
+            telegramBtn.href = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
+            whatsappBtn.style.display = 'flex';
+            telegramBtn.style.display = 'flex';
+        } else {
+            codeDiv.textContent = 'Referral code not available';
+            input.value = 'Referral link not available';
+            whatsappBtn.style.display = 'none';
+            telegramBtn.style.display = 'none';
+        }
+    } catch (err) {
+        console.error('Error loading referral code:', err);
+        codeDiv.textContent = 'Referral code not available';
+        input.value = 'Referral link not available';
     }
 }
 
 document.getElementById('copyReferral').addEventListener('click', () => {
     const input = document.getElementById('referralLink');
     input.select();
-    input.setSelectionRange(0, 99999); // mobile
+    input.setSelectionRange(0, 99999); 
     navigator.clipboard.writeText(input.value);
 
     const alertMsg = document.getElementById('alertMsg');
@@ -110,4 +127,4 @@ loadReferralLink();
 </script>
 
 </body>
-          </html>
+</html>
