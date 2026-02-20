@@ -277,7 +277,8 @@ document.getElementById('signupForm').addEventListener('submit', async e => {
                 phone: form.phone.value.trim(),
                 recoveryEmail: form.recoveryEmail.value.trim(),
                 secretQuestion: form.secretQuestion.value,
-                secretAnswer: form.secretAnswer.value.trim()
+                secretAnswer: form.secretAnswer.value.trim(),
+referralCode: form.referralCode.value.trim() || null
             })
         });
 
