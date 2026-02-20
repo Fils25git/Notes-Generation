@@ -66,8 +66,8 @@ export async function handler(event) {
 
         if (referrerId) {
 
-          const bonusLessons = Math.floor(payment.lessons * 0.10);
-
+          const lessonsInt = parseInt(payment.lessons, 10) || 0;
+const bonusLessons = Math.floor(lessonsInt * 0.10);
           if (bonusLessons > 0) {
 
             if (payment.type === "weekly") {
