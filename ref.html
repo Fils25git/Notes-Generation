@@ -81,11 +81,11 @@ async function loadReferralLink() {
     const telegramBtn = document.getElementById('telegramShare');
 
     if (data.success && data.referralCode) {
-        const link = `${window.location.origin}/signup.html?ref=${data.referralCode}`;
+        const link = `${window.location.origin}/create.html?ref=${data.referralCode}`;
         input.value = link;
 
         // Update share buttons
-        const text = encodeURIComponent(`Join me on Fila Assistant and get free lessons! Sign up here: ${link}`);
+        const text = encodeURIComponent(`Join me on Fila Assistant and get free lessons plans! Sign up here: ${link}`);
         whatsappBtn.href = `https://wa.me/?text=${text}`;
         telegramBtn.href = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
     } else {
