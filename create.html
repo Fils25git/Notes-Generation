@@ -176,6 +176,9 @@ p a, .terms a {
 <label>Phone Number <span>*</span></label>
 <input type="tel" name="phone" placeholder="e.g. 078xxxxxxx" required>
 
+    <label>Referral Code(Optional)</label>
+<input type="text" name="referralCode" placeholder="Enter referral code If someone invited you">
+    
 <label>Recovery Email</label>
 <input type="email" name="recoveryEmail" placeholder="Optional recovery email">
 
@@ -236,6 +239,14 @@ secretSelect.addEventListener('change', () => {
         }
     });
 });
+    // Auto-fill referral code from URL ?ref=XXXX
+const urlParams = new URLSearchParams(window.location.search);
+const refFromUrl = urlParams.get("ref");
+
+if (refFromUrl) {
+    const refInput = document.querySelector('[name="referralCode"]');
+    refInput.value = refFromUrl;
+        }
 
 document.getElementById('signupForm').addEventListener('submit', async e => {
     e.preventDefault();
