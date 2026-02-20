@@ -16,7 +16,7 @@ export async function handler(event) {
 
     // 1️⃣ Get user
     const userRes = await pool.query(
-      'SELECT id FROM users WHERE email=$1 OR phone=$2',
+      'SELECT id, balance FROM users WHERE email=$1 OR phone=$2',
       [email || '', phone || '']
     );
 
@@ -24,9 +24,9 @@ export async function handler(event) {
       return { statusCode: 404, body: JSON.stringify({ balance: 0, success: false }) };
     }
 
-    const userId = userRes.rows[0].id;
+    const { id: userId, balance: currentBalance } = userRes.rows[0];
 
-    // 2️⃣ Total approved lessons purchased
+    // 2️⃣ Total approved lessons purchased (normal payments)
     const paymentRes = await pool.query(
       'SELECT COALESCE(SUM(lessons),0) AS total_purchased FROM payments WHERE user_id=$1 AND status=$2',
       [userId, 'approved']
@@ -40,16 +40,19 @@ export async function handler(event) {
     );
     const totalUsed = parseInt(usageRes.rows[0].total_used, 10);
 
-    // 4️⃣ Calculate available balance
-    const balance = totalPurchased - totalUsed;
+    // 4️⃣ Referral bonuses = current balance - totalPurchased + totalUsed
+    const referralBonus = currentBalance - totalPurchased + totalUsed;
+
+    // 5️⃣ Final balance including bonuses
+    const finalBalance = totalPurchased + (referralBonus > 0 ? referralBonus : 0) - totalUsed;
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ balance: balance >= 0 ? balance : 0, success: true })
+      body: JSON.stringify({ balance: finalBalance >= 0 ? finalBalance : 0, success: true })
     };
 
   } catch (err) {
     console.error(err);
     return { statusCode: 500, body: JSON.stringify({ balance: 0, success: false }) };
   }
-              }
+}
