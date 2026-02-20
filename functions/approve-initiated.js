@@ -18,46 +18,95 @@ export async function handler(event) {
   try {
     await client.connect();
 
-    // 1️⃣ Fetch pending payments from BOTH tables
+    // 1️⃣ Fetch initiated payments
     const resPayments = await client.query(
-      "SELECT * FROM payments WHERE id = ANY($1::int[]) AND status='initiated'",
+      "SELECT *, 'normal' as type FROM payments WHERE id = ANY($1::int[]) AND status='initiated'",
       [ids]
     );
+
     const resWeekly = await client.query(
-      "SELECT * FROM weekly_plan_payments WHERE id = ANY($1::int[]) AND status='initiated'",
+      "SELECT *, 'weekly' as type FROM weekly_plan_payments WHERE id = ANY($1::int[]) AND status='initiated'",
       [ids]
     );
 
     const allPayments = [...resPayments.rows, ...resWeekly.rows];
 
     if (!allPayments.length) {
-      return { statusCode: 400, body: JSON.stringify({ success: false, message: "No initiated payments found for selected IDs" }) };
+      return { 
+        statusCode: 400, 
+        body: JSON.stringify({ success: false, message: "No initiated payments found for selected IDs" }) 
+      };
     }
 
-    // 2️⃣ Update user balances (or weekly_plan if weekly plan table)
+    // 2️⃣ Process each payment
     for (const payment of allPayments) {
-      if (resWeekly.rows.find(wp => wp.id === payment.id)) {
-        // Weekly plan payments → update weekly_plan column
+
+      // ✅ Add lessons to buyer
+      if (payment.type === "weekly") {
         await client.query(
           "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
           [payment.lessons, payment.user_id]
         );
       } else {
-        // Regular payments → update balance
         await client.query(
           "UPDATE users SET balance = balance + $1 WHERE id=$2",
           [payment.lessons, payment.user_id]
         );
       }
+
+      // ✅ Apply referral bonus (if not already applied)
+      if (!payment.referral_applied) {
+
+        const refCheck = await client.query(
+          "SELECT referred_by FROM users WHERE id=$1",
+          [payment.user_id]
+        );
+
+        const referrerId = refCheck.rows[0]?.referred_by;
+
+        if (referrerId) {
+
+          const bonusLessons = Math.floor(payment.lessons * 0.20);
+
+          if (bonusLessons > 0) {
+
+            if (payment.type === "weekly") {
+              await client.query(
+                "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
+                [bonusLessons, referrerId]
+              );
+            } else {
+              await client.query(
+                "UPDATE users SET balance = balance + $1 WHERE id=$2",
+                [bonusLessons, referrerId]
+              );
+            }
+
+            // Mark referral as applied
+            if (payment.type === "weekly") {
+              await client.query(
+                "UPDATE weekly_plan_payments SET referral_applied=true WHERE id=$1",
+                [payment.id]
+              );
+            } else {
+              await client.query(
+                "UPDATE payments SET referral_applied=true WHERE id=$1",
+                [payment.id]
+              );
+            }
+          }
+        }
+      }
     }
 
-    // 3️⃣ Approve all payments in both tables
+    // 3️⃣ Approve payments
     if (resPayments.rows.length) {
       await client.query(
         "UPDATE payments SET status='approved', approved_at=NOW() WHERE id = ANY($1::int[])",
         [resPayments.rows.map(p => p.id)]
       );
     }
+
     if (resWeekly.rows.length) {
       await client.query(
         "UPDATE weekly_plan_payments SET status='approved', approved_at=NOW() WHERE id = ANY($1::int[])",
@@ -65,7 +114,10 @@ export async function handler(event) {
       );
     }
 
-    return { statusCode: 200, body: JSON.stringify({ success: true, message: "Payments approved successfully." }) };
+    return { 
+      statusCode: 200, 
+      body: JSON.stringify({ success: true, message: "Payments approved successfully." }) 
+    };
 
   } catch (err) {
     console.error(err);
@@ -73,4 +125,4 @@ export async function handler(event) {
   } finally {
     await client.end();
   }
-        }
+      }
