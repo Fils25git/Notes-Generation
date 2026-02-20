@@ -87,6 +87,7 @@ const bonusLessons = Math.floor(lessonsInt * 0.10);
                 "UPDATE users SET balance = balance + $1 WHERE id=$2",
                 [bonusLessons, referrerId]
               );
+              console.log("Bonus update result:", result.rowCount);
             }
 
             // ✅ Mark referral as applied
@@ -95,6 +96,7 @@ const bonusLessons = Math.floor(lessonsInt * 0.10);
                 "UPDATE weekly_plan_payments SET referral_applied=true WHERE id=$1",
                 [payment.id]
               );
+              console.log("Bonus update result:", result.rowCount);
             } else {
               await client.query(
                 "UPDATE payments SET referral_applied=true WHERE id=$1",
