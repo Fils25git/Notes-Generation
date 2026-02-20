@@ -19,8 +19,8 @@ export async function handler(event) {
 
     // 1️⃣ Get user ID
     const userRes = email
-      ? await pool.query('SELECT id FROM users WHERE email = $1', [email])
-      : await pool.query('SELECT id FROM users WHERE phone = $1', [phone]);
+      ? await pool.query('SELECT id, weekly_plan FROM users WHERE email = $1', [email])
+      : await pool.query('SELECT id, weekly_plan FROM users WHERE phone = $1', [phone]);
 
     if (userRes.rows.length === 0) {
       return {
@@ -30,6 +30,7 @@ export async function handler(event) {
     }
 
     const userId = userRes.rows[0].id;
+    const currentWeeklyPlan = parseInt(userRes.rows[0].weekly_plan || 0, 10);
 
     // 2️⃣ Total approved weekly plans purchased
     const purchaseRes = await pool.query(
@@ -50,7 +51,8 @@ export async function handler(event) {
     const purchased = parseInt(purchaseRes.rows[0].total, 10);
     const used = parseInt(usageRes.rows[0].used, 10);
 
-    const weeklyBalance = purchased - used;
+    // 4️⃣ Include referral bonuses already in users.weekly_plan
+    const weeklyBalance = currentWeeklyPlan - used;
 
     return {
       statusCode: 200,
@@ -67,4 +69,4 @@ export async function handler(event) {
       body: JSON.stringify({ weeklyBalance: 0, success: false })
     };
   }
-}
+      }
