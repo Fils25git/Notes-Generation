@@ -66,14 +66,14 @@ export async function handler(event) {
 
         if (referrerId) {
 
-          const lessonsInt = parseInt(payment.lessons, 10) || 0;
-const bonusLessons = Math.floor(lessonsInt * 0.10);
+          const lessonsInt = parseInt(payment.lessons, 20) || 0;
+const bonusLessons = Math.floor(lessonsInt * 0.20);
           console.log({
   paymentId: payment.id,
   userId: payment.user_id,
   lessons: payment.lessons,
   referrerId,
-  bonus: Math.floor(payment.lessons * 0.10)
+  bonus: Math.floor(payment.lessons * 0.20)
 });
           if (bonusLessons > 0) {
 
