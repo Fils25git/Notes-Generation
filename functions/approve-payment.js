@@ -78,18 +78,18 @@ const bonusLessons = Math.floor(lessonsInt * 0.10);
           if (bonusLessons > 0) {
 
             if (payment.type === "weekly") {
-              await client.query(
-                "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
-                [bonusLessons, referrerId]
-              );
-              console.log("Bonus update result:", result.rowCount);
-            } else {
-              await client.query(
-                "UPDATE users SET balance = balance + $1 WHERE id=$2",
-                [bonusLessons, referrerId]
-              );
-              console.log("Bonus update result:", result.rowCount);
-            }
+  const result = await client.query(
+    "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
+    [bonusLessons, referrerId]
+  );
+  console.log("Bonus update result:", result.rowCount);
+} else {
+  const result = await client.query(
+    "UPDATE users SET balance = balance + $1 WHERE id=$2",
+    [bonusLessons, referrerId]
+  );
+  console.log("Bonus update result:", result.rowCount);
+          }
 
             // ✅ Mark referral as applied
             if (payment.type === "weekly") {
