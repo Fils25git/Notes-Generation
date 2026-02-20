@@ -14,7 +14,8 @@ export async function handler(event) {
     phone,
     recoveryEmail,
     secretQuestion,
-    secretAnswer
+    secretAnswer,
+    referralCode   // ✅ added
   } = JSON.parse(event.body || "{}");
 
   if (!name || !email || !password || !secretQuestion || !secretAnswer) {
@@ -43,13 +44,30 @@ export async function handler(event) {
       return { statusCode: 409, body: JSON.stringify({ error: "Email or phone already registered" }) };
     }
 
+    // ✅ Check referral code (if provided)
+    let referredById = null;
+
+    if (referralCode) {
+      const refUser = await client.query(
+        "SELECT id FROM users WHERE referral_code = $1",
+        [referralCode.trim()]
+      );
+
+      if (refUser.rows.length > 0) {
+        referredById = refUser.rows[0].id;
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const hashedAnswer = await bcrypt.hash(secretAnswer.toLowerCase().trim(), 10);
 
+    // ✅ Generate referral code for new user
+    const newReferralCode = "REF" + Date.now();
+
     const res = await client.query(
       `INSERT INTO users
-       (name, email, password, role, phone, recovery_email, balance, secret_question, secret_answer_hash)
-       VALUES ($1,$2,$3,$4,$5,$6,0,$7,$8)
+       (name, email, password, role, phone, recovery_email, balance, secret_question, secret_answer_hash, referral_code, referred_by)
+       VALUES ($1,$2,$3,$4,$5,$6,0,$7,$8,$9,$10)
        RETURNING id`,
       [
         name.trim(),
@@ -59,22 +77,30 @@ export async function handler(event) {
         cleanPhone,
         recoveryEmail || null,
         secretQuestion,
-        hashedAnswer
+        hashedAnswer,
+        newReferralCode,   // $9
+        referredById       // $10
       ]
     );
 
     await client.end();
 
-    return { statusCode: 201, body: JSON.stringify({ success: true, userId: res.rows[0].id }) };
+    return { 
+      statusCode: 201, 
+      body: JSON.stringify({ 
+        success: true, 
+        userId: res.rows[0].id,
+        referralCode: newReferralCode   // optional: return it to frontend
+      }) 
+    };
 
   } catch (err) {
     await client.end();
 
-    // If DB unique constraint triggers
     if (err.code === "23505") {
       return { statusCode: 409, body: JSON.stringify({ error: "Email already exists" }) };
     }
 
     return { statusCode: 500, body: JSON.stringify({ error: "Server error" }) };
   }
-          }
+        }
