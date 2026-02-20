@@ -36,20 +36,56 @@ export async function handler(event) {
 
     // 2️⃣ Update user balances (or weekly_plan if weekly plan table)
     for (const payment of allPayments) {
+
+  // 1️⃣ Add lessons to buyer
+  if (resWeekly.rows.find(wp => wp.id === payment.id)) {
+
+    await client.query(
+      "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
+      [payment.lessons, payment.user_id]
+    );
+
+  } else {
+
+    await client.query(
+      "UPDATE users SET balance = balance + $1 WHERE id=$2",
+      [payment.lessons, payment.user_id]
+    );
+  }
+
+  // 2️⃣ Check if buyer was referred by someone
+  const refCheck = await client.query(
+    "SELECT referred_by FROM users WHERE id=$1",
+    [payment.user_id]
+  );
+
+  const referrerId = refCheck.rows[0]?.referred_by;
+
+  if (referrerId) {
+
+    const bonusLessons = Math.floor(payment.lessons * 0.10);
+
+    if (bonusLessons > 0) {
+
       if (resWeekly.rows.find(wp => wp.id === payment.id)) {
-        // Weekly plan payments → update weekly_plan column
+
         await client.query(
           "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
-          [payment.lessons, payment.user_id]
+          [bonusLessons, referrerId]
         );
+
       } else {
-        // Regular payments → update balance
+
         await client.query(
           "UPDATE users SET balance = balance + $1 WHERE id=$2",
-          [payment.lessons, payment.user_id]
+          [bonusLessons, referrerId]
         );
+
       }
+
     }
+  }
+       }
 
     // 3️⃣ Approve all payments in both tables
     if (resPayments.rows.length) {
