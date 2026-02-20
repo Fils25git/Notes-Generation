@@ -69,7 +69,7 @@ button:hover { background: linear-gradient(to right, #0056b3, #00a0cc); }
 
 <script>
 async function loadReferralLink() {
-    const email = localStorage.getItem('userEmail'); // logged-in user email
+    const email = localStorage.getItem('user_Email'); // logged-in user email
     const phone = localStorage.getItem('userPhone'); // optional
 
     const query = new URLSearchParams({ email, phone });
