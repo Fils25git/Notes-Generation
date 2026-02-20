@@ -27,10 +27,14 @@ export async function handler(event) {
     if (userRes.rows.length > 0) {
       userId = userRes.rows[0].id;
     } else {
-      const newUser = await pool.query(
-        'INSERT INTO users(phone, email, balance) VALUES($1, $2, 0) RETURNING id',
-        [phone, email || null]
-      );
+      const referralCode = 'REF' + Date.now();
+
+const newUser = await pool.query(
+  `INSERT INTO users(phone, email, balance, referral_code)
+   VALUES($1, $2, 0, $3)
+   RETURNING id`,
+  [phone, email || null, referralCode]
+);
       userId = newUser.rows[0].id;
     }
 
