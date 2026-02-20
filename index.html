@@ -244,7 +244,8 @@ footer {
 }
     /* Top-right channel wrapper */
 .channel-wrapper {
-    position: absolute;
+    position: fixed;
+    top:90;
     margin-bottom:40px;
     right: 7px;
     display: flex;
@@ -276,6 +277,19 @@ footer {
 .channel-wrapper .channel-btn:hover {
     transform: scale(1.1);
 }
+    @keyframes gentleShake {
+  0% { transform: translateX(0); }
+  15% { transform: translateX(-4px); }
+  30% { transform: translateX(4px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+
+.shake {
+  animation: gentleShake 0.5s ease-in-out;
+}
 
 /* Mobile adjustment */
 @media(max-width:600px){
@@ -290,6 +304,7 @@ footer {
         font-size: 18px;
     }
     }
+    
 
 /* MOBILE */
 @media(max-width:600px){ .profile-icon{display:block;} }
@@ -515,6 +530,20 @@ function closeVideo() {
     document.getElementById("videoModal").style.display = "none";
 }
 </script>
+    <script>
+const channelBtn = document.querySelector('.channel-wrapper');
+
+function triggerShake() {
+  channelBtn.classList.add('shake');
+  
+  setTimeout(() => {
+    channelBtn.classList.remove('shake');
+  }, 500); // matches animation duration
+}
+
+// Shake every 6–8 seconds
+setInterval(triggerShake, 800);
+    </script>
     <script src="/js/presence.js"></script>
 <div id="videoModal" class="video-modal">
     <span class="close-video" onclick="closeVideo()">&times;</span>
