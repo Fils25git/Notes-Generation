@@ -248,7 +248,7 @@
     const folder = planFolders[language] || "proposals";
 
     // English has 15 plans, others have 10
-    const totalPlans = language === "english" ? 15 : 10;
+    const totalPlans = language === "english" ? 1: 10;
 
     const storageKey = `last_plan_${language}_${email}`;
     let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
