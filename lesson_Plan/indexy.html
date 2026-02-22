@@ -215,7 +215,7 @@
     <!-- Result -->
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
-            <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
+            <<button id="downloadOnePage" class="download-btn btn-word">📄 Download 1 Page</button>
             <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
     <button id="editBtn" Class="download-btn">✏️ Edit</button>
     <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
@@ -432,6 +432,20 @@ async function improveAndSave(originalContent, language, title) {
         await autoSavePlan(originalContent, language, title);
     }
   }
+    document.getElementById("downloadOnePage").addEventListener("click", () => {
+    const element = document.getElementById("lessonPlanContent");
+
+    const opt = {
+        margin:       10,       // mm
+        filename:     `${document.getElementById("lessonTitle").value || 'LessonPlan'}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(element).save();
+});
     // ===============================
     // AUTO SAVE FUNCTION (DATABASE)
     // ===============================
