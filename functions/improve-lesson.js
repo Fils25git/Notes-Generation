@@ -59,7 +59,7 @@ Improve the language of this lesson plan:
 - Do NOT change structure.
 - Do NOT remove sections.
 - Do NOT add new content.
-- Maintain the lenght to be on one page full.
+- Maintain the length to be only one full page.
 
 Lesson Plan:
 ${lesson_text}
