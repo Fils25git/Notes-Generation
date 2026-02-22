@@ -89,7 +89,8 @@ ${lesson_text}
     }
 
     if (!data || !data.candidates) {
-      return response(500, { error: lastError?.message || "All API keys failed" });
+  return response(200, { improved_text: null });
+
     }
 
     const improved_text =
