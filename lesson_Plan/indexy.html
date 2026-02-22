@@ -399,7 +399,9 @@ async function improveAndSave(originalContent, language, title) {
         const improved = data.improved_text;
 
         // Replace on page
-        lessonPlanContent.innerHTML = improved;
+        if (improved && improved.length > 100) {
+    lessonPlanContent.innerHTML = improved;
+    }
 
         // Save improved version
         await autoSavePlan(improved, language, title);
