@@ -53,7 +53,7 @@ Improve the language of this lesson plan:
 - Only improve wording.
 
 Lesson Plan:
-${lesson_text}
+${lesson_content}
 `
                 }]
               }],
