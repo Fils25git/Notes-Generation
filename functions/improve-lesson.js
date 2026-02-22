@@ -50,16 +50,20 @@ exports.handler = async (event) => {
               contents: [{
                 parts: [{
                   text: `
-You are an expert English teacher.
+You are an expert Rwandan  CBC  teacher of mentioned subject.
 
-Improve the language of this lesson plan:
-- Correct grammar mistakes.
-- Improve clarity.
-- Use better vocabulary.
-- Do NOT change structure.
-- Do NOT remove sections.
-- Do NOT add new content.
-- Maintain the length to be only one full page.
+Improve grammar, clarity, and vocabulary of the following lesson plan.
+
+CRITICAL INSTRUCTIONS:
+- Do NOT summarize.
+- Do NOT shorten.
+- Do NOT remove any sentence.
+- Do NOT remove any section.
+- Keep the EXACT same structure.
+- Keep the EXACT same number of sections.
+- Keep the SAME length or LONGER.
+- Return the FULL improved lesson plan.
+- Do NOT stop early.
 
 Lesson Plan:
 ${lesson_text}
