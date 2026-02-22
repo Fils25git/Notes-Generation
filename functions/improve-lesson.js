@@ -1,9 +1,12 @@
-import { Client } from "pg";
-
 function response(statusCode, body) {
   return {
     statusCode,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(body),
   };
 }
@@ -17,19 +20,25 @@ const API_KEYS = [
 ];
 
 exports.handler = async (event) => {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Content-Type": "application/json",
-  };
-
   if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 200, headers, body: "" };
+    return response(200, {});
   }
 
-  
-    // --- Try all API keys
+  if (event.httpMethod !== "POST") {
+    return response(405, { error: "Method not allowed" });
+  }
+
+  try {
+    const body = JSON.parse(event.body);
+    const { lesson_text } = body;
+
+    if (!lesson_text) {
+      return response(400, { error: "Missing lesson_text" });
+    }
+
+    let data;
+    let lastError;
+
     for (const key of API_KEYS) {
       try {
         const apiRes = await fetch(
@@ -40,7 +49,7 @@ exports.handler = async (event) => {
             body: JSON.stringify({
               contents: [{
                 parts: [{
-                  text: `const prompt = `
+                  text: `
 You are an expert English teacher.
 
 Improve the language of this lesson plan:
@@ -48,16 +57,19 @@ Improve the language of this lesson plan:
 - Improve clarity.
 - Use better vocabulary.
 - Do NOT change structure.
-- Do NOT remove any section.
+- Do NOT remove sections.
 - Do NOT add new content.
-- Only improve wording.
+- Maintain the lenght to be on one page full.
 
 Lesson Plan:
-${lesson_content}
+${lesson_text}
 `
                 }]
               }],
-              generationConfig: { temperature: 0.6, maxOutputTokens: 3500 }
+              generationConfig: {
+                temperature: 0.6,
+                maxOutputTokens: 3500
+              }
             })
           }
         );
@@ -77,16 +89,16 @@ ${lesson_content}
     }
 
     if (!data || !data.candidates) {
-      await db.end();
       return response(500, { error: lastError?.message || "All API keys failed" });
     }
 
-    const notes = data.candidates?.[0]?.content?.parts?.[0]?.text || "AI returned empty response";
+    const improved_text =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "AI returned empty response";
 
-    await db.end();
-    return response(200, { notes });
+    return response(200, { improved_text });
 
   } catch (err) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.stack }) };
+    return response(500, { error: err.message });
   }
 };
