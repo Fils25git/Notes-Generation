@@ -65,6 +65,25 @@
         text-decoration: underline;
         font-weight: bold;
       }
+        @media print {
+    body {
+        margin: 0;
+    }
+
+    .container,
+    .form-container,
+    .download-buttons {
+        display: none;
+    }
+
+    #resultContainer {
+        display: block;
+    }
+
+    .lesson-plan {
+        page-break-inside: avoid;
+    }
+        }
     </style>
 </head>
 <body>
