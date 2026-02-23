@@ -14,7 +14,7 @@ export async function handler(event) {
       return { statusCode: 400, body: 'Missing user identifier' };
     }
 
-    // 1️⃣ Get user ID
+    // 1️⃣ Get user
     const userRes = await pool.query(
       'SELECT id FROM users WHERE email=$1 OR phone=$2',
       [email || '', phone || '']
@@ -26,17 +26,19 @@ export async function handler(event) {
 
     const userId = userRes.rows[0].id;
 
-    // 2️⃣ Total approved lessons purchased by user
+    // 2️⃣ Total approved lessons purchased
     const paymentRes = await pool.query(
       'SELECT COALESCE(SUM(lessons),0) AS total_purchased FROM payments WHERE user_id=$1 AND status=$2',
       [userId, 'approved']
     );
     const totalPurchased = parseInt(paymentRes.rows[0].total_purchased, 10);
 
-    // 3️⃣ Total referral bonuses earned (user referred others)
+    // 3️⃣ Total referral bonuses
     const bonusRes = await pool.query(
-      'SELECT COALESCE(SUM(lessons * 0.10),0) AS total_bonus FROM payments WHERE referred_by=$1 AND referral_applied=true AND status=$2',
-      [userId, 'approved']
+      `SELECT COALESCE(SUM(LESSONS * 0.10), 0) AS total_bonus
+       FROM payments
+       WHERE user_id=$1 AND referral_applied=true AND status='approved'`,
+      [userId]
     );
     const totalBonus = Math.floor(parseFloat(bonusRes.rows[0].total_bonus) || 0);
 
@@ -47,7 +49,7 @@ export async function handler(event) {
     );
     const totalUsed = parseInt(usageRes.rows[0].total_used, 10);
 
-    // 5️⃣ Final balance = purchased + referral bonuses - used
+    // 5️⃣ Final balance including referral bonuses
     const finalBalance = totalPurchased + totalBonus - totalUsed;
 
     return {
@@ -56,7 +58,7 @@ export async function handler(event) {
     };
 
   } catch (err) {
-    console.error('Get balance error:', err);
+    console.error(err);
     return { statusCode: 500, body: JSON.stringify({ balance: 0, success: false }) };
   }
-      }
+}
