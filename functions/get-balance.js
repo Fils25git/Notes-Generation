@@ -14,9 +14,9 @@ export async function handler(event) {
       return { statusCode: 400, body: 'Missing user identifier' };
     }
 
-    // 1️⃣ Get user
+    // 1️⃣ Get user ID
     const userRes = await pool.query(
-      'SELECT id, balance FROM users WHERE email=$1 OR phone=$2',
+      'SELECT id FROM users WHERE email=$1 OR phone=$2',
       [email || '', phone || '']
     );
 
@@ -24,7 +24,7 @@ export async function handler(event) {
       return { statusCode: 404, body: JSON.stringify({ balance: 0, success: false }) };
     }
 
-    const { id: userId, balance: currentBalance } = userRes.rows[0];
+    const userId = userRes.rows[0].id;
 
     // 2️⃣ Total approved lessons purchased (normal payments)
     const paymentRes = await pool.query(
@@ -33,18 +33,22 @@ export async function handler(event) {
     );
     const totalPurchased = parseInt(paymentRes.rows[0].total_purchased, 10);
 
-    // 3️⃣ Total lessons used
+    // 3️⃣ Total referral bonuses (normal payments)
+    const bonusRes = await pool.query(
+      'SELECT COALESCE(SUM(lessons * 0.10),0) AS total_bonus FROM payments WHERE user_id=$1 AND referral_applied=true AND status=$2',
+      [userId, 'approved']
+    );
+    const totalBonus = Math.floor(parseFloat(bonusRes.rows[0].total_bonus) || 0);
+
+    // 4️⃣ Total lessons used
     const usageRes = await pool.query(
       'SELECT COALESCE(SUM(lessons_used),0) AS total_used FROM lesson_usage WHERE user_id=$1',
       [userId]
     );
     const totalUsed = parseInt(usageRes.rows[0].total_used, 10);
 
-    // 4️⃣ Referral bonuses = current balance - totalPurchased + totalUsed
-    const referralBonus = currentBalance - totalPurchased + totalUsed;
-
     // 5️⃣ Final balance including bonuses
-    const finalBalance = totalPurchased + (referralBonus > 0 ? referralBonus : 0) - totalUsed;
+    const finalBalance = totalPurchased + totalBonus - totalUsed;
 
     return {
       statusCode: 200,
@@ -55,4 +59,4 @@ export async function handler(event) {
     console.error(err);
     return { statusCode: 500, body: JSON.stringify({ balance: 0, success: false }) };
   }
-}
+                                             }
