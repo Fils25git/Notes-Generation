@@ -31,11 +31,11 @@ export async function handler(event) {
       'SELECT COALESCE(SUM(lessons),0) AS total_purchased FROM payments WHERE user_id=$1 AND status=$2',
       [userId, 'approved']
     );
-    const totalPurchased = parseInt(paymentRes.rows[0].total_purchased, 10);
+    const totalPurchased = parseInt(paymentRes.rows[0].total_purchased, 20);
 
     // 3️⃣ Total referral bonuses (normal payments)
     const bonusRes = await pool.query(
-      'SELECT COALESCE(SUM(lessons * 0.10),0) AS total_bonus FROM payments WHERE user_id=$1 AND referral_applied=true AND status=$2',
+      'SELECT COALESCE(SUM(lessons * 0.20),0) AS total_bonus FROM payments WHERE user_id=$1 AND referral_applied=true AND status=$2',
       [userId, 'approved']
     );
     const totalBonus = Math.floor(parseFloat(bonusRes.rows[0].total_bonus) || 0);
