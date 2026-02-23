@@ -82,6 +82,25 @@ td, th {
     padding: 6px;
     vertical-align: top;
 }
+        .compact-mode {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+}
+
+.compact-mode table {
+    font-size: 9px !important;
+}
+
+.compact-mode td,
+.compact-mode th {
+    padding: 3px !important;
+}
+
+.compact-mode h1,
+.compact-mode h2,
+.compact-mode h3 {
+    margin: 4px 0 !important;
+}
     </style>
 </head>
 <body>
@@ -446,8 +465,10 @@ async function improveAndSave(originalContent, language, title) {
         return;
     }
 
-    const { jsPDF } = window.jspdf;
+    // 🔥 Enable compact mode temporarily
+    element.classList.add("compact-mode");
 
+    const { jsPDF } = window.jspdf;
     const pdf = new jsPDF("p", "mm", "a4");
 
     const canvas = await html2canvas(element, {
@@ -463,6 +484,9 @@ async function improveAndSave(originalContent, language, title) {
     pdf.addImage(imgData, "JPEG", 0, 0, pageWidth, pageHeight);
 
     pdf.save(`${document.getElementById("lessonTitle").value || "LessonPlan"}.pdf`);
+
+    // 🔥 Remove compact mode after export
+    element.classList.remove("compact-mode");
 });
     // ===============================
     // AUTO SAVE FUNCTION (DATABASE)
