@@ -17,10 +17,10 @@ export async function handler(event) {
       };
     }
 
-    // 1️⃣ Get user ID and current weekly_plan (bonuses included)
+    // 1️⃣ Get user ID
     const userRes = email
-      ? await pool.query('SELECT id, weekly_plan FROM users WHERE email = $1', [email])
-      : await pool.query('SELECT id, weekly_plan FROM users WHERE phone = $1', [phone]);
+      ? await pool.query('SELECT id FROM users WHERE email = $1', [email])
+      : await pool.query('SELECT id FROM users WHERE phone = $1', [phone]);
 
     if (userRes.rows.length === 0) {
       return {
@@ -30,7 +30,6 @@ export async function handler(event) {
     }
 
     const userId = userRes.rows[0].id;
-    const bonusWeeklyPlan = parseInt(userRes.rows[0].weekly_plan || 0, 10);
 
     // 2️⃣ Total approved weekly plans purchased
     const purchaseRes = await pool.query(
@@ -40,8 +39,6 @@ export async function handler(event) {
       [userId]
     );
 
-    const purchased = parseInt(purchaseRes.rows[0].total, 10);
-
     // 3️⃣ Total weekly plans used
     const usageRes = await pool.query(
       `SELECT COALESCE(SUM(lessons_used), 0) AS used
@@ -50,10 +47,10 @@ export async function handler(event) {
       [userId]
     );
 
+    const purchased = parseInt(purchaseRes.rows[0].total, 10);
     const used = parseInt(usageRes.rows[0].used, 10);
 
-    // 4️⃣ Final weekly balance = purchased + bonuses - used
-    const weeklyBalance = purchased + bonusWeeklyPlan - used;
+    const weeklyBalance = purchased - used;
 
     return {
       statusCode: 200,
