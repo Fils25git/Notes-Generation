@@ -17,7 +17,7 @@
         .profile-icon {
     font-size:28px; color:#4f46e5; cursor:pointer;
 }
-        Responsive footer */
+        /*Responsive footer */
   footer {
     margin-top: 20px;
     text-align: center;
@@ -65,24 +65,12 @@
         text-decoration: underline;
         font-weight: bold;
       }
-        @media print {
-    body {
-        margin: 0;
-    }
-
-    .container,
-    .form-container,
-    .download-buttons {
-        display: none;
-    }
-
-    #resultContainer {
-        display: block;
-    }
-
-    .lesson-plan {
-        page-break-inside: avoid;
-    }
+        .lesson-plan {
+    width: 180mm;  /* A4 width */
+    font-size: 12px;
+    line-height: 1.3;
+    page-break-inside: avoid;
+    overflow: hidden;   /* cut off excess */
         }
     </style>
 </head>
@@ -230,6 +218,7 @@
 
 
 <!-- Netlify Identity -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <script>
@@ -418,7 +407,11 @@ async function improveAndSave(originalContent, language, title) {
         const improved = data.improved_text;
 
         // Replace on page
-        if (improved && improved.length > 100) {
+        if (
+    improved &&
+    improved.length >= originalContent.length * 0.95 &&
+    improved.length <= originalContent.length * 1.1
+) {
     lessonPlanContent.innerHTML = improved;
     }
 
@@ -434,12 +427,16 @@ async function improveAndSave(originalContent, language, title) {
   }
     document.getElementById("downloadOnePage").addEventListener("click", () => {
     const element = document.getElementById("lessonPlanContent");
+    if (!element.innerHTML.trim()) {
+        alert("No lesson plan to download!");
+        return;
+    }
 
     const opt = {
-        margin:       10,       // mm
+        margin:       10,
         filename:     `${document.getElementById("lessonTitle").value || 'LessonPlan'}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
+        html2canvas:  { scale: 1.5 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
     };
