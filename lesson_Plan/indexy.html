@@ -66,12 +66,22 @@
         font-weight: bold;
       }
         .lesson-plan {
-    width: 180mm;  /* A4 width */
-    font-size: 12px;
-    line-height: 1.3;
-    page-break-inside: avoid;
-    overflow: visible;   /* cut off excess */
-        }
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 6px;
+    vertical-align: top;
+}
     </style>
 </head>
 <body>
@@ -425,7 +435,8 @@ async function improveAndSave(originalContent, language, title) {
         await autoSavePlan(originalContent, language, title);
     }
   }
-    document.getElementById("downloadOnePage").addEventListener("click", () => {
+    document.getElementById("downloadOnePage").addEventListener("click", async () => {
+
     const element = document.getElementById("lessonPlanContent");
 
     if (!element.innerHTML.trim()) {
@@ -433,22 +444,32 @@ async function improveAndSave(originalContent, language, title) {
         return;
     }
 
-    const opt = {
-        margin: 5,
-        filename: `${document.getElementById("lessonTitle").value || 'LessonPlan'}.pdf`,
-        image: { type: 'jpeg', quality: 1 },
-        html2canvas: { 
-            scale: 2,
-            useCORS: true
-        },
-        jsPDF: { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: 'portrait' 
-        }
-    };
+    // Clone content so we don't disturb original
+    const clone = element.cloneNode(true);
+    clone.style.width = "794px"; // A4 width in px approx
+    clone.style.padding = "20px";
+    clone.style.background = "white";
 
-    html2pdf().set(opt).from(element).save();
+    document.body.appendChild(clone);
+
+    const canvas = await html2canvas(clone, {
+        scale: 2,
+        useCORS: true
+    });
+
+    document.body.removeChild(clone);
+
+    const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pageWidth = 210;
+    const pageHeight = 297;
+
+    pdf.addImage(imgData, "JPEG", 0, 0, pageWidth, pageHeight);
+
+    pdf.save(`${document.getElementById("lessonTitle").value || "LessonPlan"}.pdf`);
 });
     // ===============================
     // AUTO SAVE FUNCTION (DATABASE)
