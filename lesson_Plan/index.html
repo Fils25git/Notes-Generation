@@ -17,7 +17,7 @@
         .profile-icon {
     font-size:28px; color:#4f46e5; cursor:pointer;
 }
-        Responsive footer */
+        /*Responsive footer */
   footer {
     margin-top: 20px;
     text-align: center;
@@ -65,6 +65,42 @@
         text-decoration: underline;
         font-weight: bold;
       }
+        .lesson-plan {
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 6px;
+    vertical-align: top;
+}
+        .compact-mode {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+}
+
+.compact-mode table {
+    font-size: 9px !important;
+}
+
+.compact-mode td,
+.compact-mode th {
+    padding: 3px !important;
+}
+
+.compact-mode h1,
+.compact-mode h2,
+.compact-mode h3 {
+    margin: 4px 0 !important;
+}
     </style>
 </head>
 <body>
@@ -87,7 +123,7 @@
    
     <!-- Form -->
     <div class="form-container">
-        <p><b>Fill in the required fields below To Fetch Lesson Plan</b></p><br>
+        <p><b>Fill in the required fields below To make Lesson Plan</b></p><br>
         <form id="lessonForm">
             <div class="form-grid">
 
@@ -196,7 +232,7 @@
     <!-- Result -->
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
-            <button class="download-btn btn-word" onclick="copyToWord()">📄 Copy to Word</button>
+            <button id="downloadOnePage" class="download-btn btn-word">📄 Download 1 Page</button>
             <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
     <button id="editBtn" Class="download-btn">✏️ Edit</button>
     <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
@@ -211,6 +247,9 @@
 
 
 <!-- Netlify Identity -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <script>
@@ -248,7 +287,7 @@
     const folder = planFolders[language] || "proposals";
 
     // English has 15 plans, others have 10
-    const totalPlans = language === "english" ? 15 : 10;
+    const totalPlans = language === "english" ? 15: 10;
 
     const storageKey = `last_plan_${language}_${email}`;
     let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
@@ -365,18 +404,90 @@
     }
 
                 lessonPlanContent.innerHTML = template;
-                resultContainer.classList.add("show");
-                resultContainer.scrollIntoView({ behavior: "smooth" });
+resultContainer.classList.add("show");
+resultContainer.scrollIntoView({ behavior: "smooth" });
 
-                // 🔥 AUTO SAVE TO DATABASE USING EMAIL ONLY
-                autoSavePlan(template, language, data.lessonTitle);
+// 🔥 Improve automatically before saving
+improveAndSave(template, language, data.lessonTitle);
 
             })
             .catch(() => {
                 showFloatingMessage("❌ Failed to load lesson plan.");
             });
     }
+async function improveAndSave(originalContent, language, title) {
 
+    try {
+        const res = await fetch("/.netlify/functions/improve-lesson", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                lesson_text: originalContent
+            })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            console.error("AI FAILED:", data);
+            // If AI fails, still save original
+            await autoSavePlan(originalContent, language, title);
+            return;
+        }
+
+        const improved = data.improved_text;
+
+        // Replace on page
+        if (
+    improved &&
+    improved.length >= originalContent.length * 0.99 &&
+    improved.length <= originalContent.length * 1.1
+) {
+    lessonPlanContent.innerHTML = improved;
+    }
+
+        // Save improved version
+        await autoSavePlan(improved, language, title);
+
+    } catch (err) {
+        console.error("AI ERROR:", err);
+
+        // Fallback: save original
+        await autoSavePlan(originalContent, language, title);
+    }
+  }
+    document.getElementById("downloadOnePage").addEventListener("click", async () => {
+
+    const element = document.getElementById("lessonPlanContent");
+
+    if (!element.innerHTML.trim()) {
+        alert("No lesson plan to download!");
+        return;
+    }
+
+    // 🔥 Enable compact mode temporarily
+    element.classList.add("compact-mode");
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true
+    });
+
+    const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+    const pageWidth = 210;
+    const pageHeight = 297;
+
+    pdf.addImage(imgData, "JPEG", 0, 0, pageWidth, pageHeight);
+
+    pdf.save(`${document.getElementById("lessonTitle").value || "LessonPlan"}.pdf`);
+
+    // 🔥 Remove compact mode after export
+    element.classList.remove("compact-mode");
+});
     // ===============================
     // AUTO SAVE FUNCTION (DATABASE)
     // ===============================
@@ -436,4 +547,4 @@
     <script src="../js/presence.js"></script>
 
 </body>
-    </html>
+                            </html>
