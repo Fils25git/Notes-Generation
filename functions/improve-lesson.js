@@ -72,7 +72,7 @@ ${lesson_text}
               }],
               generationConfig: {
                 temperature: 0,
-                maxOutputTokens: 3500
+                maxOutputTokens: 5500
               }
             })
           }
