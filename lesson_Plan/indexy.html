@@ -228,7 +228,9 @@ td, th {
 
 
 <!-- Netlify Identity -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
 <script>
@@ -444,25 +446,16 @@ async function improveAndSave(originalContent, language, title) {
         return;
     }
 
-    // Clone content so we don't disturb original
-    const clone = element.cloneNode(true);
-    clone.style.width = "794px"; // A4 width in px approx
-    clone.style.padding = "20px";
-    clone.style.background = "white";
+    const { jsPDF } = window.jspdf;
 
-    document.body.appendChild(clone);
+    const pdf = new jsPDF("p", "mm", "a4");
 
-    const canvas = await html2canvas(clone, {
+    const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true
     });
 
-    document.body.removeChild(clone);
-
     const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF("p", "mm", "a4");
 
     const pageWidth = 210;
     const pageHeight = 297;
