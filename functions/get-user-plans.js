@@ -1,4 +1,4 @@
-import pkg from "pg";
+/*import pkg from "pg";
 const { Pool } = pkg;
 
 const pool = new Pool({
@@ -41,4 +41,4 @@ export async function handler(event) {
       body: JSON.stringify([])
     };
   }
-}
+}*/
