@@ -33,32 +33,23 @@ export async function handler(event) {
     );
     const totalPurchased = parseInt(paymentRes.rows[0].total_purchased, 10);
 
-    // 3️⃣ Total referral bonuses
-    const bonusRes = await pool.query(
-      `SELECT COALESCE(SUM(LESSONS * 0.10), 0) AS total_bonus
-       FROM payments
-       WHERE user_id=$1 AND referral_applied=true AND status='approved'`,
-      [userId]
-    );
-    const totalBonus = Math.floor(parseFloat(bonusRes.rows[0].total_bonus) || 0);
-
-    // 4️⃣ Total lessons used
+    // 3️⃣ Total lessons used
     const usageRes = await pool.query(
       'SELECT COALESCE(SUM(lessons_used),0) AS total_used FROM lesson_usage WHERE user_id=$1',
       [userId]
     );
     const totalUsed = parseInt(usageRes.rows[0].total_used, 10);
 
-    // 5️⃣ Final balance including referral bonuses
-    const finalBalance = totalPurchased + totalBonus - totalUsed;
+    // 4️⃣ Calculate available balance
+    const balance = totalPurchased - totalUsed;
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ balance: finalBalance >= 0 ? finalBalance : 0, success: true })
+      body: JSON.stringify({ balance: balance >= 0 ? balance : 0, success: true })
     };
 
   } catch (err) {
     console.error(err);
     return { statusCode: 500, body: JSON.stringify({ balance: 0, success: false }) };
   }
-}
+    }
