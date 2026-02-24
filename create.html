@@ -285,14 +285,16 @@ referralCode: form.referralCode.value.trim() || null
         const text = await res.text();
 
         if (res.ok) {
+            // 2️⃣ Send welcome email via Resend
             await fetch("/.netlify/functions/sendEmail", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    email: user.email,
-    name: user.name
-  })
-});
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: form.email.value.trim(),
+                    name: form.name.value.trim()
+                })
+            });
+
             showFloatingMessage("Account created! Redirecting...", "success");
             setTimeout(() => {
                 window.location.href = "login.html";
