@@ -1,18 +1,29 @@
 import { Client } from "pg";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function handler(event) {
-  if (event.httpMethod !== "POST") 
-    return { statusCode: 405, body: JSON.stringify({ success: false, message: "Method not allowed" }) };
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ success: false, message: "Method not allowed" }),
+    };
+  }
 
   const body = JSON.parse(event.body || "{}");
   const ids = body.ids || [];
 
-  if (!ids.length) 
-    return { statusCode: 400, body: JSON.stringify({ success: false, message: "No IDs provided" }) };
+  if (!ids.length) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ success: false, message: "No IDs provided" }),
+    };
+  }
 
-  const client = new Client({ 
-    connectionString: process.env.NEON_DATABASE_URL, 
-    ssl: { rejectUnauthorized: false } 
+  const client = new Client({
+    connectionString: process.env.NEON_DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
   });
 
   try {
@@ -32,31 +43,36 @@ export async function handler(event) {
     const allPayments = [...resPayments.rows, ...resWeekly.rows];
 
     if (!allPayments.length) {
-      return { 
-        statusCode: 400, 
-        body: JSON.stringify({ success: false, message: "No initiated payments found for selected IDs" }) 
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          success: false,
+          message: "No initiated payments found for selected IDs",
+        }),
       };
     }
 
     // 2️⃣ Process each payment
     for (const payment of allPayments) {
 
+      const lessonsInt = parseInt(payment.lessons, 10) || 0;
+      const amountInt = parseInt(payment.amount, 10) || 0;
+
       // ✅ Add lessons to buyer
       if (payment.type === "weekly") {
         await client.query(
           "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
-          [payment.lessons, payment.user_id]
+          [lessonsInt, payment.user_id]
         );
       } else {
         await client.query(
           "UPDATE users SET balance = balance + $1 WHERE id=$2",
-          [payment.lessons, payment.user_id]
+          [lessonsInt, payment.user_id]
         );
       }
 
-      // ✅ Apply referral bonus (if not already applied)
+      // ✅ Apply referral bonus if not already applied
       if (!payment.referral_applied) {
-
         const refCheck = await client.query(
           "SELECT referred_by FROM users WHERE id=$1",
           [payment.user_id]
@@ -65,11 +81,9 @@ export async function handler(event) {
         const referrerId = refCheck.rows[0]?.referred_by;
 
         if (referrerId) {
-
-          const bonusLessons = Math.floor(payment.lessons * 0.20);
+          const bonusLessons = Math.floor(lessonsInt * 0.20);
 
           if (bonusLessons > 0) {
-
             if (payment.type === "weekly") {
               await client.query(
                 "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
@@ -82,7 +96,7 @@ export async function handler(event) {
               );
             }
 
-            // Mark referral as applied
+            // Mark referral applied
             if (payment.type === "weekly") {
               await client.query(
                 "UPDATE weekly_plan_payments SET referral_applied=true WHERE id=$1",
@@ -96,6 +110,46 @@ export async function handler(event) {
             }
           }
         }
+      }
+
+      // ✅ Fetch user info for email
+      const userRes = await client.query(
+        "SELECT name, email FROM users WHERE id=$1",
+        [payment.user_id]
+      );
+
+      const user = userRes.rows[0];
+
+      if (user?.email) {
+        const planType =
+          payment.type === "weekly" ? "Weekly Plans" : "Lesson Plans";
+
+        await resend.emails.send({
+          from: "Fila Assistant <fila@fleduacademy.com>", // verified domain
+          to: user.email,
+          subject: "Payment Approved - Fila Assistant 🎉",
+          html: `
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+              <h2 style="color:#2196f3;">Hello ${user.name} 👋</h2>
+              <p>Thank you for purchasing a <strong>${planType}</strong> on <strong>Fila Assistant</strong>!</p>
+              <p><strong>Payment Details:</strong></p>
+              <ul>
+                <li>Plan Type: ${planType}</li>
+                <li>Lessons Added: ${lessonsInt}</li>
+                <li>Amount Paid: RWF ${amountInt.toLocaleString()}</li>
+                <li>Date: ${new Date(payment.created_at).toLocaleString()}</li>
+              </ul>
+              <p>You can now access your lessons or weekly plan immediately in your balance dashboard.</p>
+              <a href="https://fleduacademy.com/balance.html"
+                 style="display:inline-block; margin-top:15px; padding:10px 15px; background:#2196f3; color:white; text-decoration:none; border-radius:5px;">
+                 Go to Dashboard
+              </a>
+              <p style="margin-top:20px; font-size:12px; color:#555;">
+                If you did not make this purchase, please contact support immediately.
+              </p>
+            </div>
+          `
+        });
       }
     }
 
@@ -114,15 +168,21 @@ export async function handler(event) {
       );
     }
 
-    return { 
-      statusCode: 200, 
-      body: JSON.stringify({ success: true, message: "Payments approved successfully." }) 
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        success: true,
+        message: "Initiated payments approved successfully.",
+      }),
     };
 
   } catch (err) {
-    console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ success: false, message: "Server error" }) };
+    console.error("Approve initiated error:", err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ success: false, message: "Server error" }),
+    };
   } finally {
     await client.end();
   }
-      }
+}
