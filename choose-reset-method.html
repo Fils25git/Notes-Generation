@@ -6,128 +6,247 @@
 <title>Reset Password - Fila Assistant</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  body {
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    margin: 0;
     background: linear-gradient(135deg, #6dd5fa, #2980b9);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-  }
+}
 
-  #floatingChoice {
-    background: #fff;
-    padding: 35px 30px;
-    border-radius: 20px;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-    max-width: 420px;
-    width: 90%;
-    text-align: center;
-    animation: fadeIn 0.6s ease-in-out;
-  }
-
-  #floatingChoice h2 {
-    color: #2196f3;
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-
-  #floatingChoice p {
-    font-size: 16px;
-    margin-bottom: 25px;
-    color: #555;
-  }
-
-  #floatingChoice button {
-    margin: 10px 0;
-    padding: 14px 0;
+.container {
     width: 100%;
+    max-width: 400px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    padding: 30px 25px;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 26px;
+    color: #2196f3;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 12px 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+input:focus {
+    border-color: #2196f3;
+    outline: none;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    background: linear-gradient(to right, #2196f3, #00c6ff);
+    color: white;
     border: none;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 18px;
     cursor: pointer;
-    color: #fff;
-    background: linear-gradient(to right, #2196f3, #00c6ff);
     transition: 0.3s;
-  }
+}
 
-  #floatingChoice button:hover {
+button:hover {
     background: linear-gradient(to right, #1976d2, #009acd);
-  }
+}
 
-  #message {
-    margin-top: 20px;
-    font-weight: bold;
+.show-pass {
+    margin-top: 8px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.show-pass input {
+    width: auto;
+    margin-right: 6px;
+}
+
+#floatingMessage {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #28a745;
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 12px;
     display: none;
-    font-size: 15px;
-  }
+    font-weight: bold;
+    z-index: 1000;
+}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+.method-choice, .email-reset, .password-reset {
+    display: none;
+}
 
-  @media (max-width: 500px) {
-    #floatingChoice {
-      padding: 25px 20px;
-    }
-    #floatingChoice h2 {
-      font-size: 22px;
-    }
-    #floatingChoice p {
-      font-size: 14px;
-    }
-  }
+.method-choice.active, .email-reset.active, .password-reset.active {
+    display: block;
+}
 </style>
 </head>
 <body>
 
-<div id="floatingChoice">
-  <h2>Reset Your Password</h2>
-  <p>Please choose how you want to reset your password:</p>
-  <button id="secretBtn"><i class="fas fa-question-circle"></i> Answer Secret Question</button>
-  <button id="emailBtn"><i class="fas fa-envelope"></i> Send Reset Email</button>
-  <div id="message"></div>
+<div class="container">
+    <h2>Reset Your Password</h2>
+
+    <!-- Step 1: Choose Method -->
+    <div class="method-choice active">
+        <p style="text-align:center; margin-bottom: 20px;">Choose how you want to reset your password:</p>
+        <button id="useSecret" type="button">Answer Secret Question</button>
+        <button id="useEmail" type="button">Send Reset Email</button>
+    </div>
+
+    <!-- Step 2: Enter email for token reset -->
+    <div class="email-reset">
+        <label>Email Address <span>*</span></label>
+        <input type="email" id="resetEmail" placeholder="Enter your email" required>
+        <button id="sendToken" type="button">Send Reset Email</button>
+    </div>
+
+    <!-- Step 3: Reset password with token -->
+    <form id="resetForm" class="password-reset">
+        <input type="hidden" name="email" value="">
+        <input type="hidden" name="token" value="">
+        <label>New Password <span>*</span></label>
+        <input type="password" name="password" required minlength="6">
+        <label>Confirm Password <span>*</span></label>
+        <input type="password" name="confirmPassword" required minlength="6">
+
+        <div class="show-pass">
+            <input type="checkbox" id="togglePassword">
+            <label for="togglePassword">Show Password</label>
+        </div>
+
+        <button type="submit">Reset Password</button>
+    </form>
 </div>
 
+<div id="floatingMessage"></div>
+
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-const email = urlParams.get('email');
-const messageDiv = document.getElementById('message');
+const floatingMsg = document.getElementById('floatingMessage');
+function showFloatingMessage(message, type="success") {
+    floatingMsg.textContent = message;
+    floatingMsg.style.background = type === "success" ? "#28a745" : "#dc3545";
+    floatingMsg.style.display = "block";
+    setTimeout(() => floatingMsg.style.display = "none", 4000);
+}
 
-// Secret Question button redirects user
-document.getElementById('secretBtn').addEventListener('click', () => {
-  window.location.href = `forgot.html?email=${encodeURIComponent(email)}`;
+// Step 1 buttons
+document.getElementById("useSecret").addEventListener("click", () => {
+    window.location.href = "forgot.html";
 });
 
-// Email Token button sends reset email
-document.getElementById('emailBtn').addEventListener('click', async () => {
-  messageDiv.style.display = 'block';
-  messageDiv.style.color = '#2196f3';
-  messageDiv.textContent = 'Sending reset email...';
+document.getElementById("useEmail").addEventListener("click", () => {
+    document.querySelector(".method-choice").classList.remove("active");
+    document.querySelector(".email-reset").classList.add("active");
+});
 
-  try {
-    const res = await fetch('/.netlify/functions/sendResetEmail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      messageDiv.style.color = '#28a745';
-      messageDiv.textContent = 'Reset email sent! Check your inbox.';
-    } else {
-      messageDiv.style.color = '#dc3545';
-      messageDiv.textContent = data.error || 'Error sending reset email.';
+// Step 2: Send token email
+document.getElementById("sendToken").addEventListener("click", async () => {
+    const email = document.getElementById("resetEmail").value.trim();
+    if (!email) {
+        showFloatingMessage("Please enter your email", "error");
+        return;
     }
-  } catch (err) {
-    messageDiv.style.color = '#dc3545';
-    messageDiv.textContent = err.message;
-  }
-});
-</script>
 
+    try {
+        const res = await fetch("/.netlify/functions/sendResetEmail", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            showFloatingMessage("Reset email sent! Check your inbox.", "success");
+        } else {
+            showFloatingMessage(data.error || "Error sending email", "error");
+        }
+    } catch (err) {
+        showFloatingMessage(err.message, "error");
+    }
+});
+
+// Step 3: Show password reset form when token & email are in URL
+const urlParams = new URLSearchParams(window.location.search);
+const token = urlParams.get("token");
+const emailParam = urlParams.get("email");
+if (token && emailParam) {
+    document.querySelector(".method-choice").classList.remove("active");
+    document.querySelector(".password-reset").classList.add("active");
+    document.querySelector('[name="token"]').value = token;
+    document.querySelector('[name="email"]').value = emailParam;
+}
+
+// Toggle password visibility
+const toggle = document.getElementById('togglePassword');
+const password = document.querySelector('[name="password"]');
+const confirmPassword = document.querySelector('[name="confirmPassword"]');
+if (toggle) {
+    toggle.addEventListener('change', () => {
+        const type = toggle.checked ? 'text' : 'password';
+        password.type = type;
+        confirmPassword.type = type;
+    });
+}
+
+// Step 3: Reset password form submission
+const resetForm = document.getElementById('resetForm');
+if (resetForm) {
+    resetForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const form = e.target;
+
+        if (form.password.value !== form.confirmPassword.value) {
+            showFloatingMessage("Passwords do not match", "error");
+            return;
+        }
+
+        try {
+            const res = await fetch('/.netlify/functions/resetPassword', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: form.email.value,
+                    token: form.token.value,
+                    password: form.password.value
+                })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                showFloatingMessage("Password reset successful! Redirecting...", "success");
+                setTimeout(() => window.location.href = 'login.html', 1500);
+            } else {
+                showFloatingMessage(data.error || 'Error resetting password', "error");
+            }
+        } catch (err) {
+            showFloatingMessage(err.message, "error");
+        }
+    });
+}
+</script>
 </body>
-</html>
+  </html>
