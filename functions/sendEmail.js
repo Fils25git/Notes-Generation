@@ -7,7 +7,7 @@ export async function handler(event) {
     const { email, name } = JSON.parse(event.body);
 
     const data = await resend.emails.send({
-      from: "FL EduAcademy <noreply@fleduacademy.com>",
+      from: "Fila Assistant <fila@fleduacademy.com>",
       to: email,
       subject: "🎉 Welcome to Fila Assistant!",
       html: `
