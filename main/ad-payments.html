@@ -152,34 +152,72 @@ async function loadPayments() {
 
 /* ============================= SINGLE ACTIONS ============================= */
 function attachButtons() {
+  // ✅ Approve buttons
   document.querySelectorAll(".approve").forEach(btn => {
     btn.onclick = async () => {
       btn.classList.add("disabled");
       btn.textContent = "Approving...";
-      await fetch("/.netlify/functions/approve-payment", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ ids: [btn.dataset.id] })
-      });
-      showToast("Payment approved");
-      loadPayments();
+
+      try {
+        // 1️⃣ Approve payment
+        const approveRes = await fetch("/.netlify/functions/approve-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: [btn.dataset.id] })
+        });
+
+        if (!approveRes.ok) throw new Error("Failed to approve payment");
+
+        // Expect backend to return payment info: email, name, amount, planType
+        const paymentData = await approveRes.json();
+
+        showToast("Payment approved");
+
+        // 2️⃣ Send professional thank-you email
+        await fetch("/.netlify/functions/send-thank-you", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: paymentData.email,
+            name: paymentData.name,
+            amount: paymentData.amount,
+            planType: paymentData.planType
+          })
+        });
+
+        showToast(`Thank-you email sent to ${paymentData.name}`, "success");
+
+        // 3️⃣ Reload payments
+        loadPayments();
+      } catch (err) {
+        showToast(err.message, "error");
+        btn.classList.remove("disabled");
+        btn.textContent = "Approve";
+      }
     };
   });
 
+  // ❌ Reject buttons stay the same
   document.querySelectorAll(".reject").forEach(btn => {
     btn.onclick = async () => {
       btn.classList.add("disabled");
       btn.textContent = "Rejecting...";
-      await fetch("/.netlify/functions/reject-payment", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ ids: [btn.dataset.id] })
-      });
-      showToast("Payment rejected");
-      loadPayments();
+      try {
+        await fetch("/.netlify/functions/reject-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: [btn.dataset.id] })
+        });
+        showToast("Payment rejected");
+        loadPayments();
+      } catch (err) {
+        showToast(err.message, "error");
+        btn.classList.remove("disabled");
+        btn.textContent = "Reject";
+      }
     };
   });
-}
+  }
 
 /* ============================= BULK SELECTION ============================= */
 document.getElementById("selectAll").addEventListener("change", e => {
