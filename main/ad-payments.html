@@ -173,20 +173,7 @@ function attachButtons() {
 
         showToast("Payment approved");
 
-        // 2️⃣ Send professional thank-you email
-        await fetch("/.netlify/functions/send-thank-you", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: paymentData.email,
-            name: paymentData.name,
-            amount: paymentData.amount,
-            planType: paymentData.planType
-          })
-        });
-
-        showToast(`Thank-you email sent to ${paymentData.name}`, "success");
-
+        
         // 3️⃣ Reload payments
         loadPayments();
       } catch (err) {
