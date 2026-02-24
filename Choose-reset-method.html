@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reset Password - Fila Assistant</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    background: linear-gradient(135deg, #6dd5fa, #2980b9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  #floatingChoice {
+    background: #fff;
+    padding: 35px 30px;
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    animation: fadeIn 0.6s ease-in-out;
+  }
+
+  #floatingChoice h2 {
+    color: #2196f3;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  #floatingChoice p {
+    font-size: 16px;
+    margin-bottom: 25px;
+    color: #555;
+  }
+
+  #floatingChoice button {
+    margin: 10px 0;
+    padding: 14px 0;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #fff;
+    background: linear-gradient(to right, #2196f3, #00c6ff);
+    transition: 0.3s;
+  }
+
+  #floatingChoice button:hover {
+    background: linear-gradient(to right, #1976d2, #009acd);
+  }
+
+  #message {
+    margin-top: 20px;
+    font-weight: bold;
+    display: none;
+    font-size: 15px;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 500px) {
+    #floatingChoice {
+      padding: 25px 20px;
+    }
+    #floatingChoice h2 {
+      font-size: 22px;
+    }
+    #floatingChoice p {
+      font-size: 14px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="floatingChoice">
+  <h2>Reset Your Password</h2>
+  <p>Please choose how you want to reset your password:</p>
+  <button id="secretBtn"><i class="fas fa-question-circle"></i> Answer Secret Question</button>
+  <button id="emailBtn"><i class="fas fa-envelope"></i> Send Reset Email</button>
+  <div id="message"></div>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const email = urlParams.get('email');
+const messageDiv = document.getElementById('message');
+
+// Secret Question button redirects user
+document.getElementById('secretBtn').addEventListener('click', () => {
+  window.location.href = `forgot.html?email=${encodeURIComponent(email)}`;
+});
+
+// Email Token button sends reset email
+document.getElementById('emailBtn').addEventListener('click', async () => {
+  messageDiv.style.display = 'block';
+  messageDiv.style.color = '#2196f3';
+  messageDiv.textContent = 'Sending reset email...';
+
+  try {
+    const res = await fetch('/.netlify/functions/sendResetEmail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      messageDiv.style.color = '#28a745';
+      messageDiv.textContent = 'Reset email sent! Check your inbox.';
+    } else {
+      messageDiv.style.color = '#dc3545';
+      messageDiv.textContent = data.error || 'Error sending reset email.';
+    }
+  } catch (err) {
+    messageDiv.style.color = '#dc3545';
+    messageDiv.textContent = err.message;
+  }
+});
+</script>
+
+</body>
+</html>
