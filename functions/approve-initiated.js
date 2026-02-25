@@ -131,16 +131,16 @@ export async function handler(event) {
           html: `
             <div style="font-family: Arial, sans-serif; padding: 20px;">
               <h2 style="color:#2196f3;">Hello ${user.name} 👋</h2>
-              <p>Thank you for purchasing a <strong>${planType}</strong> on <strong>Fila Assistant</strong>!</p>
+              <p>Thank you for purchasing  <strong>${planType}</strong> on <strong>Fila Assistant</strong>!</p>
               <p><strong>Payment Details:</strong></p>
               <ul>
                 <li>Plan Type: ${planType}</li>
-                <li>Lessons Added: ${lessonsInt}</li>
+                <li>${planType} Added: ${lessonsInt}</li>
                 <li>Amount Paid: RWF ${amountInt.toLocaleString()}</li>
                 <li>Date: ${new Date(payment.created_at).toLocaleString()}</li>
               </ul>
               <p>You can now access your lessons or weekly plan immediately in your balance dashboard.</p>
-              <a href="https://fleduacademy.com/balance.html"
+              <a href="https://fleduacademy.com/index.html"
                  style="display:inline-block; margin-top:15px; padding:10px 15px; background:#2196f3; color:white; text-decoration:none; border-radius:5px;">
                  Go to Dashboard
               </a>
