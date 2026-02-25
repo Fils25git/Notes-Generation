@@ -1,4 +1,4 @@
-/*const { Client } = require("pg");
+const { Client } = require("pg");
 
 exports.handler = async () => {
 
@@ -33,4 +33,4 @@ exports.handler = async () => {
   } finally {
     await client.end();
   }
-};*/
+};
