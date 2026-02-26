@@ -89,37 +89,33 @@ if (!payment.referral_applied) {
     const bonusLessons = Math.floor(lessonsInt * 0.20);
 
     if (bonusLessons > 0) {
+  if (payment.type === "weekly") {
+    // Add lessons + update total weekly referral bonus
+    await client.query(
+      "UPDATE users SET weekly_plan = weekly_plan + $1, total_weekly_referral_bonus = total_weekly_referral_bonus + $1 WHERE id=$2",
+      [bonusLessons, referrerId]
+    );
 
-      // Add bonus to referrer
-      if (payment.type === "weekly") {
-        await client.query(
-          "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
-          [bonusLessons, referrerId]
-        );
+    // Mark payment referral applied + store bonus for record
+    await client.query(
+      `UPDATE weekly_plan_payments SET referral_applied=true, total_bonus=$1 WHERE id=$2`,
+      [bonusLessons, payment.id]
+    );
+  } else {
+    // Add lessons + update total normal referral bonus
+    await client.query(
+      "UPDATE users SET balance = balance + $1, total_referral_bonus = total_referral_bonus + $1 WHERE id=$2",
+      [bonusLessons, referrerId]
+    );
 
-        await client.query(
-          `UPDATE weekly_plan_payments
-           SET referral_applied=true, total_bonus=$1
-           WHERE id=$2`,
-          [bonusLessons, payment.id]
-        );
-
-      } else {
-
-        await client.query(
-          "UPDATE users SET balance = balance + $1 WHERE id=$2",
-          [bonusLessons, referrerId]
-        );
-
-        await client.query(
-          `UPDATE payments
-           SET referral_applied=true, total_bonus=$1
-           WHERE id=$2`,
-          [bonusLessons, payment.id]
-        );
-      }
-    }
+    // Mark payment referral applied + store bonus for record
+    await client.query(
+      `UPDATE payments SET referral_applied=true, total_bonus=$1 WHERE id=$2`,
+      [bonusLessons, payment.id]
+    );
   }
+  }
+ }
 }
 
       // ✅ Fetch user info
