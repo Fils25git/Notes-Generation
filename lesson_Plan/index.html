@@ -343,7 +343,10 @@ td, th {
             const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
             const data = await res.json();
 
-            if (data.balance <= 0) {
+            const balance = Number(data.balance) || 0;
+const referral = Number(data.referralBonus) || 0;
+
+if (balance + referral <= 0) {    
                 showFloatingMessage("❌ No lesson plans remaining.");
                 btn.disabled = false;
                 btn.textContent = "Fetch Lesson Plan";
