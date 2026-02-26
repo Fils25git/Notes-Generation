@@ -11,20 +11,32 @@ export async function handler(event) {
     const phone = event.queryStringParameters?.phone;
 
     if (!email && !phone) {
-      return { statusCode: 400, body: 'Missing user identifier' };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ balance: 0, referralBonus: 0, success: false })
+      };
     }
 
-    // 1️⃣ Get user
-    const userRes = await pool.query(
-      'SELECT id, total_referral_bonus FROM users WHERE email=$1 OR phone=$2',
-      [email || '', phone || '']
-    );
+    // 1️⃣ Get user ID + referral bonus
+    const userRes = email
+      ? await pool.query(
+          'SELECT id, total_referral_bonus FROM users WHERE email = $1',
+          [email]
+        )
+      : await pool.query(
+          'SELECT id, total_referral_bonus FROM users WHERE phone = $1',
+          [phone]
+        );
 
     if (userRes.rows.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ balance: 0, success: false }) };
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ balance: 0, referralBonus: 0, success: false })
+      };
     }
 
-    const { id: userId, total_referral_bonus } = userRes.rows[0];
+    const userId = userRes.rows[0].id;
+    const referralBonus = userRes.rows[0].total_referral_bonus || 0;
 
     // 2️⃣ Total approved lessons purchased
     const paymentRes = await pool.query(
@@ -40,16 +52,23 @@ export async function handler(event) {
     );
     const totalUsed = parseInt(usageRes.rows[0].total_used, 10);
 
-    // 4️⃣ Calculate available balance including referral bonus
-    const balance = totalPurchased - totalUsed + (total_referral_bonus || 0);
+    // 4️⃣ Calculate available balance (without referral bonus)
+    const balance = totalPurchased - totalUsed;
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ balance: balance >= 0 ? balance : 0, success: true })
+      body: JSON.stringify({
+        balance: balance > 0 ? balance : 0,
+        referralBonus: referralBonus,
+        success: true
+      })
     };
 
   } catch (err) {
-    console.error(err);
-    return { statusCode: 500, body: JSON.stringify({ balance: 0, success: false }) };
+    console.error('Lesson balance error:', err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ balance: 0, referralBonus: 0, success: false })
+    };
   }
-           }
+                              }
