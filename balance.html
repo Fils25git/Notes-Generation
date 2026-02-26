@@ -135,25 +135,25 @@ body {
     <div id="lesson-balance" class="balance-card">
       <i class="fas fa-book"></i>
       <h3>Lesson Plans</h3>
-      <p>Loading...</p>
+      <p class="amount">Loading...</p>
     </div>
 
     <div id="lesson-referral" class="balance-card">
       <i class="fas fa-gift"></i>
       <h3>Lesson Plans Referral Bonus</h3>
-      <p>Loading...</p>
+      <p class="amout">Loading...</p>
     </div>
 
     <div id="weekly-balance" class="balance-card">
       <i class="fas fa-calendar-alt"></i>
       <h3>Weekly Plans</h3>
-      <p>Loading...</p>
+      <p class="amout">Loading...</p>
     </div>
 
     <div id="weekly-referral" class="balance-card">
       <i class="fas fa-coins"></i>
       <h3>Weekly Plans Referral Bonus</h3>
-      <p>Loading...</p>
+      <p class="amout">Loading...</p>
     </div>
   </div>
 
@@ -192,25 +192,18 @@ document.getElementById("user-info").innerText =
   `Hello ${getFirstName(userEmail)}`;
 
 // 📘 LESSON PLAN BALANCE
+// 📘 LESSON PLAN BALANCE
 async function fetchLessonBalance(email) {
   try {
-    const res = await fetch(
-      `/.netlify/functions/get-balance?email=${encodeURIComponent(email)}`
-    );
-
+    const res = await fetch(`/.netlify/functions/get-balance?email=${encodeURIComponent(email)}`);
     if (!res.ok) throw new Error("Lesson fetch failed");
-
     const data = await res.json();
 
-    document.getElementById("lesson-balance").innerText =
-  `Lesson Plans: ${data.balance}`;
-
-document.getElementById("lesson-referral").innerText =
-  `Lesson Plans Referral Bonus: ${data.referralBonus}`;
+    document.querySelector("#lesson-balance .amount").innerText = `${data.balance}`;
+    document.querySelector("#lesson-referral .amount").innerText = `${data.referralBonus}`;
     
   } catch (err) {
-    document.getElementById("lesson-balance").innerText =
-      "Failed to load lesson plans";
+    document.querySelector("#lesson-balance .amount").innerText = "Failed to load lesson plans";
     console.error(err);
   }
 }
@@ -218,22 +211,15 @@ document.getElementById("lesson-referral").innerText =
 // 📅 WEEKLY PLAN BALANCE
 async function fetchWeeklyBalance(email) {
   try {
-    const res = await fetch(
-      `/.netlify/functions/wp-get-balance?email=${encodeURIComponent(email)}`
-    );
-
+    const res = await fetch(`/.netlify/functions/wp-get-balance?email=${encodeURIComponent(email)}`);
     if (!res.ok) throw new Error("Weekly fetch failed");
-
     const data = await res.json();
 
-    document.getElementById("weekly-balance").innerText =
-  `Weekly Plans: ${data.weeklyBalance}`;
-
-document.getElementById("weekly-referral").innerText =
-  `Weekly Referral Bonus: ${data.weeklyReferralBonus}`;
+    document.querySelector("#weekly-balance .amount").innerText = `${data.weeklyBalance}`;
+    document.querySelector("#weekly-referral .amount").innerText = `${data.weeklyReferralBonus}`;
+    
   } catch (err) {
-    document.getElementById("weekly-balance").innerText =
-      "Failed to load weekly plans";
+    document.querySelector("#weekly-balance .amount").innerText = "Failed to load weekly plans";
     console.error(err);
   }
 }
