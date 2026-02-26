@@ -181,6 +181,7 @@ function generateUSSD(amount){ return USSD_BASE + amount + "%23"; }
 // --- Fetch balance ---
 async function refreshBalance() {
     const identifier = userEmail || userPhone || "";
+
     try {
         let url = "/.netlify/functions/wp-get-balance";
         if (identifier.includes("@")) url += `?email=${encodeURIComponent(identifier)}`;
@@ -188,14 +189,19 @@ async function refreshBalance() {
 
         const res = await fetch(url);
         const data = await res.json();
-        const weeklyBalance = data.weeklyBalance ?? 0;
-      const referralBonus = data.referralBonus ?? 0;
-        currentBalanceEl.innerText = `${weeklyBalance + referralBonus} weekly plan${weeklyBalance === 1 ? '' : 's'}`;
+
+        const weeklyBalance = Number(data.weeklyBalance) || 0;
+        const referralBonus = Number(data.weeklyReferralBonus) || 0;
+
+        const total = weeklyBalance + referralBonus;
+
+        currentBalanceEl.innerText =
+            `${total} weekly plan${total === 1 ? '' : 's'}`;
     } catch(err){
         console.error(err);
         currentBalanceEl.innerText = "Error loading";
     }
-}
+  }
 
 // --- Handle package buttons ---
 packages.forEach(btn => {
