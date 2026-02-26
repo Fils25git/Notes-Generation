@@ -13,23 +13,30 @@ export async function handler(event) {
     if (!email && !phone) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ weeklyBalance: 0, success: false })
+        body: JSON.stringify({ weeklyBalance: 0, weeklyReferralBonus: 0, success: false })
       };
     }
 
-    // 1️⃣ Get user ID
+    // 1️⃣ Get user ID + referral bonus
     const userRes = email
-      ? await pool.query('SELECT id FROM users WHERE email = $1', [email])
-      : await pool.query('SELECT id FROM users WHERE phone = $1', [phone]);
+      ? await pool.query(
+          'SELECT id, total_weekly_referral_bonus FROM users WHERE email = $1',
+          [email]
+        )
+      : await pool.query(
+          'SELECT id, total_weekly_referral_bonus FROM users WHERE phone = $1',
+          [phone]
+        );
 
     if (userRes.rows.length === 0) {
       return {
         statusCode: 404,
-        body: JSON.stringify({ weeklyBalance: 0, success: false })
+        body: JSON.stringify({ weeklyBalance: 0, weeklyReferralBonus: 0, success: false })
       };
     }
 
     const userId = userRes.rows[0].id;
+    const referralBonus = userRes.rows[0].total_weekly_referral_bonus || 0;
 
     // 2️⃣ Total approved weekly plans purchased
     const purchaseRes = await pool.query(
@@ -56,6 +63,7 @@ export async function handler(event) {
       statusCode: 200,
       body: JSON.stringify({
         weeklyBalance: weeklyBalance > 0 ? weeklyBalance : 0,
+        weeklyReferralBonus: referralBonus,
         success: true
       })
     };
@@ -64,7 +72,7 @@ export async function handler(event) {
     console.error('Weekly balance error:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ weeklyBalance: 0, success: false })
+      body: JSON.stringify({ weeklyBalance: 0, weeklyReferralBonus: 0, success: false })
     };
   }
-}
+      }
