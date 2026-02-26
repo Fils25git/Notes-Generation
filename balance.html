@@ -97,9 +97,16 @@ body {
   <div id="lesson-balance" class="balance-box">
     Loading lesson plans...
   </div>
+  <div id="lesson-referral" class="balance-box">
+  Loading lesson referral bonus...
+  </div>
 
   <div id="weekly-balance" class="balance-box">
     Loading weekly plans...
+  </div>
+
+  <div id="weekly-referral" class="balance-box">
+  Loading weekly referral bonus...
   </div>
 <p id="explanation">
     You can buy more lesson plans or weekly plans below.
@@ -153,8 +160,11 @@ async function fetchLessonBalance(email) {
     const data = await res.json();
 
     document.getElementById("lesson-balance").innerText =
-      `Lesson Plans: ${data.balance}`;
+  `Lesson Plans: ${data.balance}`;
 
+document.getElementById("lesson-referral").innerText =
+  `Lesson Plans Referral Bonus: ${data.referralBonus}`;
+    
   } catch (err) {
     document.getElementById("lesson-balance").innerText =
       "Failed to load lesson plans";
@@ -174,8 +184,10 @@ async function fetchWeeklyBalance(email) {
     const data = await res.json();
 
     document.getElementById("weekly-balance").innerText =
-      `Weekly Plans: ${data.weeklyBalance}`;
+  `Weekly Plans: ${data.weeklyBalance}`;
 
+document.getElementById("weekly-referral").innerText =
+  `Weekly Referral Bonus: ${data.weeklyReferralBonus}`;
   } catch (err) {
     document.getElementById("weekly-balance").innerText =
       "Failed to load weekly plans";
