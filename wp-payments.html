@@ -189,6 +189,7 @@ async function refreshBalance() {
         const res = await fetch(url);
         const data = await res.json();
         const weeklyBalance = data.weeklyBalance ?? 0;
+      const referralBonus = data.referralBonus ?? 0;
         currentBalanceEl.innerText = `${weeklyBalance + referralBonus} weekly plan${weeklyBalance === 1 ? '' : 's'}`;
     } catch(err){
         console.error(err);
