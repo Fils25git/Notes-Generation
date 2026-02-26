@@ -59,6 +59,44 @@ body {
   border-radius: 12px;
   text-decoration: none;
 }
+  .balances {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.balance-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.balance-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+}
+
+.balance-card i {
+  font-size: 28px;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+.balance-card h3 {
+  margin: 8px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.balance-card p {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000;
+  }
 </style>
   <style>
 .whatsapp-btn {
@@ -90,37 +128,42 @@ body {
 <button class="back-btn" onclick="window.location.href='index.html'">⬅ Back</button>
 
 <div class="dashboard">
-  <h2> Here is Your Balance Dashboard</h2>
-
+  <h2>Here is Your Balance Dashboard</h2>
   <p id="user-info">Loading user...</p>
 
-  <div id="lesson-balance" class="balance-box">
-    Loading lesson plans...
-  </div>
-  <div id="lesson-referral" class="balance-box">
-  Loading lesson referral bonus...
+  <div class="balances">
+    <div id="lesson-balance" class="balance-card">
+      <i class="fas fa-book"></i>
+      <h3>Lesson Plans</h3>
+      <p>Loading...</p>
+    </div>
+
+    <div id="lesson-referral" class="balance-card">
+      <i class="fas fa-gift"></i>
+      <h3>Lesson Referral Bonus</h3>
+      <p>Loading...</p>
+    </div>
+
+    <div id="weekly-balance" class="balance-card">
+      <i class="fas fa-calendar-alt"></i>
+      <h3>Weekly Plans</h3>
+      <p>Loading...</p>
+    </div>
+
+    <div id="weekly-referral" class="balance-card">
+      <i class="fas fa-coins"></i>
+      <h3>Weekly Referral Bonus</h3>
+      <p>Loading...</p>
+    </div>
   </div>
 
-  <div id="weekly-balance" class="balance-box">
-    Loading weekly plans...
-  </div>
-
-  <div id="weekly-referral" class="balance-box">
-  Loading weekly referral bonus...
-  </div>
-<p id="explanation">
+  <p id="explanation">
     You can buy more lesson plans or weekly plans below.
-    
   </p>
 
-  <a href="payment.html" class="buy-btn">
-    Buy More Lesson Plans
-  </a><br> 
-  
-  <a href="wp-payments.html" class="buy-btn">
-    📅 Buy More weekly Plans
-  </a>
-  <br>
+  <a href="payment.html" class="buy-btn">Buy More Lesson Plans</a><br> 
+  <a href="wp-payments.html" class="buy-btn">📅 Buy More Weekly Plans</a>
+</div><br>
   Do You have a problem? contact Us: via <br>
   WhatsApp:<b>+250786728623</b><br>
   Call: <b>0786728623</b><br>
