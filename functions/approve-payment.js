@@ -74,49 +74,53 @@ export async function handler(event) {
         );
       }
 
-      // ✅ Referral logic
-      if (!payment.referral_applied) {
+// ✅ Referral logic (refined + total_bonus recording)
+if (!payment.referral_applied) {
 
-        const refCheck = await client.query(
-          "SELECT referred_by FROM users WHERE id=$1",
-          [payment.user_id]
+  const refCheck = await client.query(
+    "SELECT referred_by FROM users WHERE id=$1",
+    [payment.user_id]
+  );
+
+  const referrerId = refCheck.rows[0]?.referred_by;
+
+  if (referrerId) {
+
+    const bonusLessons = Math.floor(lessonsInt * 0.20);
+
+    if (bonusLessons > 0) {
+
+      // Add bonus to referrer
+      if (payment.type === "weekly") {
+        await client.query(
+          "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
+          [bonusLessons, referrerId]
         );
 
-        const referrerId = refCheck.rows[0]?.referred_by;
+        await client.query(
+          `UPDATE weekly_plan_payments
+           SET referral_applied=true, total_bonus=$1
+           WHERE id=$2`,
+          [bonusLessons, payment.id]
+        );
 
-        if (referrerId) {
+      } else {
 
-          const bonusLessons = Math.floor(lessonsInt * 0.20);
+        await client.query(
+          "UPDATE users SET balance = balance + $1 WHERE id=$2",
+          [bonusLessons, referrerId]
+        );
 
-          if (bonusLessons > 0) {
-
-            if (payment.type === "weekly") {
-              await client.query(
-                "UPDATE users SET weekly_plan = weekly_plan + $1 WHERE id=$2",
-                [bonusLessons, referrerId]
-              );
-            } else {
-              await client.query(
-                "UPDATE users SET balance = balance + $1 WHERE id=$2",
-                [bonusLessons, referrerId]
-              );
-            }
-
-            // Mark referral applied
-            if (payment.type === "weekly") {
-              await client.query(
-                "UPDATE weekly_plan_payments SET referral_applied=true WHERE id=$1",
-                [payment.id]
-              );
-            } else {
-              await client.query(
-                "UPDATE payments SET referral_applied=true WHERE id=$1",
-                [payment.id]
-              );
-            }
-          }
-        }
+        await client.query(
+          `UPDATE payments
+           SET referral_applied=true, total_bonus=$1
+           WHERE id=$2`,
+          [bonusLessons, payment.id]
+        );
       }
+    }
+  }
+}
 
       // ✅ Fetch user info
       const userRes = await client.query(
