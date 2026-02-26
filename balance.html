@@ -190,9 +190,7 @@ function getFirstName(email) {
 
 document.getElementById("user-info").innerText =
   `Hello ${getFirstName(userEmail)}`;
-
-// 📘 LESSON PLAN BALANCE
-// 📘 LESSON PLAN BALANCE
+// LESSON PLAN BALANCE
 async function fetchLessonBalance(email) {
   try {
     const res = await fetch(`/.netlify/functions/get-balance?email=${encodeURIComponent(email)}`);
@@ -201,14 +199,13 @@ async function fetchLessonBalance(email) {
 
     document.querySelector("#lesson-balance .amount").innerText = `${data.balance}`;
     document.querySelector("#lesson-referral .amount").innerText = `${data.referralBonus}`;
-    
   } catch (err) {
-    document.querySelector("#lesson-balance .amount").innerText = "Failed to load lesson plans";
-    console.error(err);
+    console.error("Lesson fetch error:", err);
+    document.querySelector("#lesson-balance .amount").innerText = "Failed to load";
   }
 }
 
-// 📅 WEEKLY PLAN BALANCE
+// WEEKLY PLAN BALANCE
 async function fetchWeeklyBalance(email) {
   try {
     const res = await fetch(`/.netlify/functions/wp-get-balance?email=${encodeURIComponent(email)}`);
@@ -217,14 +214,13 @@ async function fetchWeeklyBalance(email) {
 
     document.querySelector("#weekly-balance .amount").innerText = `${data.weeklyBalance}`;
     document.querySelector("#weekly-referral .amount").innerText = `${data.weeklyReferralBonus}`;
-    
   } catch (err) {
-    document.querySelector("#weekly-balance .amount").innerText = "Failed to load weekly plans";
-    console.error(err);
+    console.error("Weekly fetch error:", err);
+    document.querySelector("#weekly-balance .amount").innerText = "Failed to load";
   }
 }
 
-// 🚀 LOAD BOTH
+// LOAD BOTH
 fetchLessonBalance(userEmail);
 fetchWeeklyBalance(userEmail);
 </script>
