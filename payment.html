@@ -178,7 +178,7 @@
 <div class="container">
   <button id="backBtn"> 《《 Back</button>
   
-  <h2>Buy Lesson Plans(daily Plans)</h2>
+  <h2>Buy Lesson Plans/daily Plans</h2>
   
 
   <!-- Current balance display -->
@@ -272,7 +272,7 @@ async function refreshBalance() {
         const res = await fetch(url);
         if (!res.ok) throw new Error("Failed to fetch balance");
         const data = await res.json();
-        currentBalanceEl.innerText = `${data.balance + data.total_referral_bonus} lesson/daily plan${data.balance === 1 ? '' : 's'}`;
+        currentBalanceEl.innerText = `${data.balance + data.referralBonus} lesson/daily plan${data.balance === 1 ? '' : 's'}`;
     } catch(err){
         console.error("Error refreshing balance:", err);
         currentBalanceEl.innerText = "Error loading";
