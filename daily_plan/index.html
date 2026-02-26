@@ -420,8 +420,11 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
     try {
         const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
         const data = await res.json();
+        
+const balance = Number(data.balance) || 0;
+        const referral = Number(data.referralBonus) || 0;
 
-        if (data.balance <= 0) {
+            if (balance + referral <= 0) {
             showFloatingMessage("❌ No enough plans remaining. Check your balance");
             btn.disabled = false;
             btn.textContent = "Create Daily Plan";
