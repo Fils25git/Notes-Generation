@@ -117,10 +117,15 @@
 
 </div>
     <!-- Toast container -->
+    
 <div id="toast" class="fixed bottom-6 right-6 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
 <script src="rwandaLocations.js"></script>
 <script>
+    const token = localStorage.getItem("auth_token");
+const userEmail = localStorage.getItem("user_email");
+if (!token || !userEmail) window.location.href = "../login.html";
+
 // --------------------- MULTI-PAGE WIZARD ---------------------
 let currentPage = 1;
 const totalPages = 3;
