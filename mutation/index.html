@@ -131,14 +131,31 @@ function showPage(page) {
 }
 
 function nextPage() {
+    if (currentPage === 1) {
+        // Validate personal info + current location
+        if (!document.getElementById("full_name").value ||
+            !document.getElementById("phone").value ||
+            !document.getElementById("whatsapp").value) {
+            alert("Please fill all personal information fields.");
+            return;
+        }
+        if (!currProv.value || !currDist.value || !currSect.value) {
+            alert("Please select your current location (province, district, sector).");
+            return;
+        }
+    }
+
+    if (currentPage === 2) {
+        // Validate preferred locations
+        if (prefProv.selectedOptions.length === 0 || prefDist.selectedOptions.length === 0) {
+            alert("Please select at least one preferred province and district.");
+            return;
+        }
+    }
+
     if (currentPage < totalPages) currentPage++;
     showPage(currentPage);
-}
-
-function prevPage() {
-    if (currentPage > 1) currentPage--;
-    showPage(currentPage);
-}
+    }
 
 // --------------------- PREFERRED LOCATIONS LOGIC ---------------------
 const prefProv = document.getElementById("preferred_provinces");
@@ -421,16 +438,61 @@ positions.forEach(pos => {
 document.getElementById("wizardForm").addEventListener("submit", async e => {
     e.preventDefault();
 
+    // --------------------- VALIDATION ---------------------
+    const fullName = document.getElementById("full_name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const whatsapp = document.getElementById("whatsapp").value.trim();
+    const currentProvince = currProv.value;
+    const currentDistrict = currDist.value;
+    const currentSector = currSect.value;
+    const preferredProvinces = Array.from(prefProv.selectedOptions).map(o => o.value);
+    const preferredDistricts = Array.from(prefDist.selectedOptions).map(o => o.value);
+    const preferredSectors = Array.from(prefSect.selectedOptions).map(o => o.value);
+    const positionsSelected = Array.from(document.querySelectorAll('input[name="positions"]:checked')).map(c => c.value);
+
+    if (!fullName || !phone || !whatsapp) {
+        alert("Please fill all personal information fields.");
+        currentPage = 1;
+        showPage(currentPage);
+        return;
+    }
+
+    if (!currentProvince || !currentDistrict || !currentSector) {
+        alert("Please select your current location (province, district, sector).");
+        currentPage = 1;
+        showPage(currentPage);
+        return;
+    }
+
+    if (preferredProvinces.length === 0 || preferredDistricts.length === 0) {
+        alert("Please select at least one preferred province and district.");
+        currentPage = 2;
+        showPage(currentPage);
+        return;
+    }
+
+    if (positionsSelected.length === 0) {
+        alert("Please select at least one teacher position / qualification.");
+        currentPage = 3;
+        showPage(currentPage);
+        return;
+    }
+
+    // --------------------- PREPARE DATA ---------------------
     const data = {
-        full_name: document.getElementById("full_name").value,
-        phone: document.getElementById("phone").value,
-        whatsapp: document.getElementById("whatsapp").value,
-        preferred_provinces: Array.from(prefProv.selectedOptions).map(o => o.value),
-        preferred_districts: Array.from(prefDist.selectedOptions).map(o => o.value),
-        preferred_sectors: Array.from(prefSect.selectedOptions).map(o => o.value),
-        positions: Array.from(document.querySelectorAll('input[name="positions"]:checked')).map(c => c.value)
+        full_name: fullName,
+        phone: phone,
+        whatsapp: whatsapp,
+        current_province: currentProvince,
+        current_district: currentDistrict,
+        current_sector: currentSector,
+        preferred_provinces: preferredProvinces,
+        preferred_districts: preferredDistricts,
+        preferred_sectors: preferredSectors,
+        positions: positionsSelected
     };
 
+    // --------------------- SEND REQUEST ---------------------
     try {
         const res = await fetch("/.netlify/functions/createProfile", {
             method: "POST",
@@ -442,14 +504,22 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
         });
 
         const result = await res.json();
+
+        if (!res.ok) {
+            // Server returned an error (e.g., failed to insert in DB)
+            alert(result.message || "Failed to register your profile. Please try again.");
+            return;
+        }
+
+        // Success
         alert(result.message || "Profile created successfully");
-        if (res.ok) window.location.href = "/exchange/dashboard.html";
+        window.location.href = "/exchange/dashboard.html";
+
     } catch (err) {
         console.error(err);
-        alert("Error creating profile");
+        alert("Error connecting to server. Please check your internet and try again.");
     }
 });
-
 showPage(currentPage);
 </script>
 
