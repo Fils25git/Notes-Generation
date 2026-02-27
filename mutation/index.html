@@ -123,9 +123,10 @@
 <script src="rwandaLocations.js"></script>
 <script>
     const token = localStorage.getItem("auth_token");
-const userEmail = localStorage.getItem("user_email");
-if (!token || !userEmail) window.location.href = "../login.html";
 
+if (!token) {
+    window.location.href = "../login.html";
+    }
 // --------------------- MULTI-PAGE WIZARD ---------------------
 let currentPage = 1;
 const totalPages = 3;
@@ -542,7 +543,7 @@ if (!fullName || !phone || !whatsapp || !currentSchool) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: "Bearer " + localStorage.getItem("token")
+                Authorization: "Bearer " + localStorage.getItem("auth_token")
             },
             body: JSON.stringify(data)
         });
@@ -557,7 +558,7 @@ if (!fullName || !phone || !whatsapp || !currentSchool) {
 
         // Success
         showToast(result.message || "Profile created successfully");
-        window.location.href = "/exchange/dashboard.html";
+        window.location.href = "dashboard.html";
 
     } catch (err) {
         console.error(err);
