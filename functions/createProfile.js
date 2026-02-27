@@ -23,14 +23,14 @@ export async function handler(event, context) {
             preferred_provinces,
             preferred_districts,
             preferred_sectors,
-            positions
+            position // single qualification now
         } = body;
 
         // Basic server-side validation
-        if (!full_name || !phone || !whatsapp || !current_school || !current_province || !current_district || !current_sector || !positions?.length) {
+        if (!full_name || !phone || !whatsapp || !current_school || !current_province || !current_district || !current_sector || !position) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ message: "Missing required fields" })
+                body: JSON.stringify({ message: "Missing required fields or qualification" })
             };
         }
 
@@ -55,7 +55,7 @@ export async function handler(event, context) {
                 preferred_provinces,
                 preferred_districts,
                 preferred_sectors,
-                positions,
+                position,
                 created_at
             ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW())
             RETURNING id
@@ -72,7 +72,7 @@ export async function handler(event, context) {
             JSON.stringify(preferred_provinces),
             JSON.stringify(preferred_districts),
             JSON.stringify(preferred_sectors),
-            positions
+            position
         ];
 
         const result = await client.query(insertProfileQuery, values);
