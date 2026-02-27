@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,137 +12,115 @@
 
     <h1 class="text-2xl font-bold text-blue-700 mb-6">Create Your Exchange Profile</h1>
 
-    <form id="profileForm" class="bg-white rounded-2xl shadow p-6 space-y-6">
+    <form id="wizardForm" class="bg-white rounded-2xl shadow p-6 space-y-6">
 
-        <!-- Name & Contact -->
-        <div>
-            <label class="block font-medium text-gray-700 mb-1">Full Name</label>
-            <input type="text" id="full_name" required
-                class="w-full border-gray-300 rounded-lg p-2" />
-        </div>
-
-        <div>
-            <label class="block font-medium text-gray-700 mb-1">Phone Number</label>
-            <input type="text" id="phone" required
-                class="w-full border-gray-300 rounded-lg p-2" />
-        </div>
-
-        <div>
-            <label class="block font-medium text-gray-700 mb-1">WhatsApp Number</label>
-            <input type="text" id="whatsapp" required
-                class="w-full border-gray-300 rounded-lg p-2" />
-        </div>
-
-        <!-- Current Location -->
-        <div class="grid md:grid-cols-3 gap-4">
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Current Province</label>
-                <select id="current_province" required
-                    class="w-full border-gray-300 rounded-lg p-2"
-                    onchange="loadCurrentDistricts()">
-                    <option value="">Select Province</option>
-                </select>
+        <!-- PAGE 1: Personal Info -->
+        <div class="page" id="page1">
+            <h2 class="text-xl font-semibold mb-4">Step 1: Personal Information</h2>
+            <div class="mb-4">
+                <label class="block font-medium text-gray-700 mb-1">Full Name</label>
+                <input type="text" id="full_name" required
+                    class="w-full border-gray-300 rounded-lg p-2" />
             </div>
-
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Current District</label>
-                <select id="current_district" required
-                    class="w-full border-gray-300 rounded-lg p-2"
-                    onchange="loadCurrentSectors()">
-                    <option value="">Select District</option>
-                </select>
+            <div class="mb-4">
+                <label class="block font-medium text-gray-700 mb-1">Phone Number</label>
+                <input type="text" id="phone" required
+                    class="w-full border-gray-300 rounded-lg p-2" />
             </div>
-
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Current Sector</label>
-                <select id="current_sector" required
-                    class="w-full border-gray-300 rounded-lg p-2">
-                    <option value="">Select Sector</option>
-                </select>
+            <div class="mb-4">
+                <label class="block font-medium text-gray-700 mb-1">WhatsApp Number</label>
+                <input type="text" id="whatsapp" required
+                    class="w-full border-gray-300 rounded-lg p-2" />
+            </div>
+            <div class="flex justify-end">
+                <button type="button" onclick="nextPage()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
+                    Next
+                </button>
             </div>
         </div>
 
-        <!-- Preferred Locations -->
-        <div class="grid md:grid-cols-3 gap-4">
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Preferred Province(s)</label>
-                <select id="preferred_provinces" multiple required
-                    class="w-full border-gray-300 rounded-lg p-2" onchange="loadPreferredDistricts()">
-                </select>
+        <!-- PAGE 2: Preferred Locations -->
+        <div class="page hidden" id="page2">
+            <h2 class="text-xl font-semibold mb-4">Step 2: Preferred Locations</h2>
+
+            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1">Province(s)</label>
+                    <select id="preferred_provinces" multiple class="w-full border-gray-300 rounded-lg p-2"
+                        onchange="loadPreferredDistricts()"></select>
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1">District(s)</label>
+                    <select id="preferred_districts" multiple class="w-full border-gray-300 rounded-lg p-2"
+                        onchange="loadPreferredSectors()"></select>
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1">Sector(s)</label>
+                    <select id="preferred_sectors" multiple class="w-full border-gray-300 rounded-lg p-2"></select>
+                </div>
             </div>
 
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Preferred District(s)</label>
-                <select id="preferred_districts" multiple required
-                    class="w-full border-gray-300 rounded-lg p-2" onchange="loadPreferredSectors()">
-                </select>
-            </div>
-
-            <div>
-                <label class="block font-medium text-gray-700 mb-1">Preferred Sector(s)</label>
-                <select id="preferred_sectors" multiple required
-                    class="w-full border-gray-300 rounded-lg p-2">
-                </select>
+            <div class="flex justify-between">
+                <button type="button" onclick="prevPage()"
+                    class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold">
+                    Back
+                </button>
+                <button type="button" onclick="nextPage()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
+                    Next
+                </button>
             </div>
         </div>
 
-        <div class="text-center">
-            <button type="submit"
-                class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold">
-                Create Profile
-            </button>
+        <!-- PAGE 3: Positions -->
+        <div class="page hidden" id="page3">
+            <h2 class="text-xl font-semibold mb-4">Step 3: Teacher Positions / Qualifications</h2>
+
+            <div id="positionsContainer" class="grid md:grid-cols-2 gap-4 max-h-96 overflow-y-auto mb-4">
+                <!-- Positions checkboxes will load here -->
+            </div>
+
+            <div class="flex justify-between">
+                <button type="button" onclick="prevPage()"
+                    class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold">
+                    Back
+                </button>
+                <button type="submit"
+                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold">
+                    Submit Profile
+                </button>
+            </div>
         </div>
 
     </form>
 
 </div>
 
-<script src="rwandaLocations.js"></script>
+<script src="js/rwandaLocations.js"></script>
 <script>
-// --------------------- CURRENT LOCATION ---------------------
-const curProv = document.getElementById("current_province");
-const curDist = document.getElementById("current_district");
-const curSect = document.getElementById("current_sector");
+// --------------------- MULTI-PAGE WIZARD ---------------------
+let currentPage = 1;
+const totalPages = 3;
 
-function loadCurrentProvinces() {
-    curProv.innerHTML = '<option value="">Select Province</option>';
-    Object.keys(RWANDA_LOCATIONS).forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p;
-        opt.text = p;
-        curProv.add(opt);
-    });
-}
-
-function loadCurrentDistricts() {
-    const prov = curProv.value;
-    curDist.innerHTML = '<option value="">Select District</option>';
-    curSect.innerHTML = '<option value="">Select Sector</option>';
-    if (prov && RWANDA_LOCATIONS[prov]) {
-        Object.keys(RWANDA_LOCATIONS[prov]).forEach(d => {
-            const opt = document.createElement("option");
-            opt.value = d;
-            opt.text = d;
-            curDist.add(opt);
-        });
+function showPage(page) {
+    for (let i = 1; i <= totalPages; i++) {
+        document.getElementById("page" + i).classList.add("hidden");
     }
+    document.getElementById("page" + page).classList.remove("hidden");
 }
 
-function loadCurrentSectors() {
-    const prov = curProv.value;
-    const dist = curDist.value;
-    curSect.innerHTML = '<option value="">Select Sector</option>';
-    if (prov && dist && RWANDA_LOCATIONS[prov][dist]) {
-        RWANDA_LOCATIONS[prov][dist].forEach(s => {
-            const opt = document.createElement("option");
-            opt.value = s;
-            opt.text = s;
-            curSect.add(opt);
-        });
-    }
+function nextPage() {
+    if (currentPage < totalPages) currentPage++;
+    showPage(currentPage);
 }
 
-// --------------------- PREFERRED LOCATIONS ---------------------
+function prevPage() {
+    if (currentPage > 1) currentPage--;
+    showPage(currentPage);
+}
+
+// --------------------- PREFERRED LOCATIONS LOGIC ---------------------
 const prefProv = document.getElementById("preferred_provinces");
 const prefDist = document.getElementById("preferred_districts");
 const prefSect = document.getElementById("preferred_sectors");
@@ -192,20 +169,203 @@ function loadPreferredSectors() {
     });
 }
 
+// Initialize provinces on load
+loadPreferredProvinces();
+
+// --------------------- TEACHER POSITIONS ---------------------
+const positions = [
+  // A0, A1, A2 from your array
+
+  // A0 Level (Bachelor's Degree)
+  {
+    "level": "A0",
+    "title": "English and French Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "English and Kiswahili Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "English and Kinyarwanda Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "English and Literature in English Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Literature in English Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "English Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Kinyarwanda and Literature in English Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Kinyarwanda Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "French and English Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Kiswahili Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Mathematics and Physics Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Mathematics and Chemistry Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Mathematics Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Physics and Biology Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Physics Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Geography and Economics Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Geography and Sport Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Geography and History Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Entrepreneurship and Economics Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Economics Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Psychology Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Creative Performance Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Biology and Chemistry Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Biology and Mathematics"
+  },
+  {
+    "level": "A0",
+    "title": "Physical Education and Sport Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Inclusive and Special Needs Education Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "Mathematics and ICT Teacher"
+  },
+  {
+    "level": "A0",
+    "title": "ICT Teacher"
+  },
+
+  // A1 Level (Advanced Diploma)
+  {
+    "level": "A1",
+    "title": "English and French Teacher"
+  },
+  {
+    "level": "A1",
+    "title": "English and Kiswahili Teacher"
+  },
+  {
+    "level": "A1",
+    "title": "English and Kinyarwanda Teacher"
+  },
+  {
+    "level": "A1",
+    "title": "English Teacher"
+  },
+  {
+    "level": "A1",
+    "title": "Literature in English Teacher"
+  },
+  {
+    "level": "A1",
+    "title": "English and Swahili Teacher"
+  },
+  {
+    "level": "A1",
+    "title": "Mathematics and Physics Teacher"
+  },
+  {
+    "level": "A1",
+    "title": "Physics and Biology Teacher"
+  },
+
+  // A2 Level (Teacher Training College)
+  {
+    "level": "A2",
+    "title": "Languages Teacher A2"
+  },
+  {
+    "level": "A2",
+    "title": "Pre-Primary and Lower Primary Teacher A2"
+  },
+  {
+    "level": "A2",
+    "title": "SME Teacher A2"
+  },
+  {
+    "level": "A2",
+    "title": "SRSE Teacher A2"
+  }
+]
+
+const posContainer = document.getElementById("positionsContainer");
+positions.forEach(pos => {
+    const div = document.createElement("div");
+    div.className = "flex items-center";
+    div.innerHTML = `
+        <input type="checkbox" name="positions" value="${pos.title}" class="mr-2">
+        <label class="text-gray-700">${pos.title} (${pos.level})</label>
+    `;
+    posContainer.appendChild(div);
+});
+
 // --------------------- FORM SUBMISSION ---------------------
-document.getElementById("profileForm").addEventListener("submit", async e => {
+document.getElementById("wizardForm").addEventListener("submit", async e => {
     e.preventDefault();
 
     const data = {
         full_name: document.getElementById("full_name").value,
         phone: document.getElementById("phone").value,
         whatsapp: document.getElementById("whatsapp").value,
-        current_province: curProv.value,
-        current_district: curDist.value,
-        current_sector: curSect.value,
         preferred_provinces: Array.from(prefProv.selectedOptions).map(o => o.value),
         preferred_districts: Array.from(prefDist.selectedOptions).map(o => o.value),
-        preferred_sectors: Array.from(prefSect.selectedOptions).map(o => o.value)
+        preferred_sectors: Array.from(prefSect.selectedOptions).map(o => o.value),
+        positions: Array.from(document.querySelectorAll('input[name="positions"]:checked')).map(c => c.value)
     };
 
     try {
@@ -227,10 +387,8 @@ document.getElementById("profileForm").addEventListener("submit", async e => {
     }
 });
 
-// --------------------- INIT ---------------------
-loadCurrentProvinces();
-loadPreferredProvinces();
+showPage(currentPage);
 </script>
 
 </body>
-              </html>
+    </html>
