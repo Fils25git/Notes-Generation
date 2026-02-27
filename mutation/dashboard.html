@@ -141,12 +141,11 @@ function showToast(message, type="info") {
 // ---------- Initialize ----------
 fetchMatches();
 </script>
-  <script>
-(async function authGuard() {
-  // 1️⃣ Get token from localStorage
+<script>
+(async function () {
   const token = localStorage.getItem("auth_token");
 
-  // 2️⃣ Redirect to login if no token
+  // 1️⃣ If no token → redirect immediately
   if (!token) {
     localStorage.setItem("redirectAfterLogin", window.location.href);
     window.location.href = "login.html";
@@ -154,41 +153,38 @@ fetchMatches();
   }
 
   try {
-    // 3️⃣ Fetch teacher profile
+    // 2️⃣ Verify token with backend
     const res = await fetch("/.netlify/functions/getTeacherProfile", {
       method: "GET",
-      headers: { 
-        "Authorization": `Bearer ${token}` 
+      headers: {
+        "Authorization": "Bearer " + token
       }
     });
 
-    // 4️⃣ If not ok, force logout
+    // 3️⃣ If token invalid or expired → logout
+    if (res.status === 401) {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("userId");
+      localStorage.setItem("redirectAfterLogin", window.location.href);
+      window.location.href = "login.html";
+      return;
+    }
+
+    // 4️⃣ If other error (404 profile not created yet) → DO NOT logout
     if (!res.ok) {
-      throw new Error("Authentication failed. Please log in again.");
+      console.warn("Profile not found or other issue, but user still authenticated.");
+      return;
     }
 
     const data = await res.json();
 
-    // 5️⃣ Store profile globally for page scripts
+    // 5️⃣ Store profile globally
     window.currentTeacherProfile = data.profile;
+    console.log("Authenticated as:", data.profile.full_name);
 
-    // 6️⃣ OPTIONAL: display info somewhere
-    const profileContainer = document.getElementById("profileInfo");
-    if (profileContainer) {
-      profileContainer.innerHTML = `
-        <p><strong>Name:</strong> ${data.profile.full_name}</p>
-        <p><strong>Email:</strong> ${data.profile.email || "N/A"}</p>
-        <p><strong>School:</strong> ${data.profile.current_school}</p>
-        <p><strong>Qualification:</strong> ${data.profile.position}</p>
-      `;
-    }
-
-  } catch (err) {
-    console.error(err);
-    // Clear token & redirect to login
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("userId");
-    alert(err.message);
+  } catch (error) {
+    console.error("Network error:", error);
+    // Only redirect if completely broken
     localStorage.setItem("redirectAfterLogin", window.location.href);
     window.location.href = "login.html";
   }
