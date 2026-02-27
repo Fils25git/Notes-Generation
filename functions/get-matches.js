@@ -1,4 +1,4 @@
-// File: netlify/functions/get-matches.js
+// get-matches.js
 import pkg from "pg";
 const { Pool } = pkg;
 
@@ -14,7 +14,6 @@ export async function handler(event) {
       return { statusCode: 400, body: JSON.stringify({ message: "Missing teacherId" }) };
     }
 
-    // 1. Get current teacher profile
     const profileRes = await pool.query(
       `SELECT * FROM teacher_profiles WHERE user_id = $1`,
       [teacherId]
@@ -22,8 +21,15 @@ export async function handler(event) {
     const profile = profileRes.rows[0];
     if (!profile) return { statusCode: 404, body: JSON.stringify({ message: "Profile not found" }) };
 
-    // 2. Find matching teachers
-    // Match: same preferred province or district and same qualification (position)
+    // Parse preferred locations arrays
+    const preferredProvinces = Array.isArray(profile.preferred_provinces)
+      ? profile.preferred_provinces
+      : JSON.parse(profile.preferred_provinces || '[]');
+
+    const preferredDistricts = Array.isArray(profile.preferred_districts)
+      ? profile.preferred_districts
+      : JSON.parse(profile.preferred_districts || '[]');
+
     const matchesRes = await pool.query(
       `
       SELECT tp.*, sr.status as swap_status
@@ -42,8 +48,8 @@ export async function handler(event) {
       [
         teacherId,
         profile.position,
-        profile.preferred_provinces,
-        profile.preferred_districts
+        preferredProvinces,
+        preferredDistricts
       ]
     );
 
@@ -64,4 +70,4 @@ export async function handler(event) {
     console.error(err);
     return { statusCode: 500, body: JSON.stringify({ message: "Server error" }) };
   }
-}
+        }
