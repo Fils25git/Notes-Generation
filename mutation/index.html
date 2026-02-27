@@ -430,9 +430,9 @@ positions.forEach(pos => {
     const div = document.createElement("div");
     div.className = "flex items-center";
     div.innerHTML = `
-        <input type="checkbox" name="positions" value="${pos.title}" class="mr-2">
-        <label class="text-gray-700">${pos.title} (${pos.level})</label>
-    `;
+    <input type="radio" name="position" value="${pos.title}" class="mr-2">
+    <label class="text-gray-700">${pos.title} (${pos.level})</label>
+`;
     posContainer.appendChild(div);
 });
     function showToast(message, type = "info") {
@@ -479,14 +479,8 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
     const preferredProvinces = Array.from(prefProv.selectedOptions).map(o => o.value);
     const preferredDistricts = Array.from(prefDist.selectedOptions).map(o => o.value);
     const preferredSectors = Array.from(prefSect.selectedOptions).map(o => o.value);
-    const positionsSelected = Array.from(document.querySelectorAll('input[name="positions"]:checked')).map(c => c.value);
-
-    if (!fullName || !phone || !whatsapp) {
-        showToast("Please fill all personal information fields.");
-        currentPage = 1;
-        showPage(currentPage);
-        return;
-    }
+    const positionSelected = document.querySelector('input[name="position"]:checked')?.value;
+    
 
     if (!currentProvince || !currentDistrict || !currentSector) {
         showToast("Please select your current location (province, district, sector).");
@@ -502,11 +496,12 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
         return;
     }
 
-    if (positionsSelected.length === 0) {
-        showToast("Please select at least one teacher position / qualification.");
-        currentPage = 3;
-        showPage(currentPage);
-        return;
+    if (!positionSelected) {
+    showToast("Please select your qualification.");
+    currentPage = 3;
+    showPage(currentPage);
+    return;
+
     }
 
     // --------------------- PREPARE DATA ---------------------
@@ -520,7 +515,7 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
         preferred_provinces: preferredProvinces,
         preferred_districts: preferredDistricts,
         preferred_sectors: preferredSectors,
-        positions: positionsSelected
+        position: positionSelected
     };
 
     // --------------------- SEND REQUEST ---------------------
