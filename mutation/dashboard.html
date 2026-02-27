@@ -141,6 +141,60 @@ function showToast(message, type="info") {
 // ---------- Initialize ----------
 fetchMatches();
 </script>
+  <script>
+(async function authGuard() {
+  // 1️⃣ Get token from localStorage
+  const token = localStorage.getItem("auth_token");
+
+  // 2️⃣ Redirect to login if no token
+  if (!token) {
+    localStorage.setItem("redirectAfterLogin", window.location.href);
+    window.location.href = "login.html";
+    return;
+  }
+
+  try {
+    // 3️⃣ Fetch teacher profile
+    const res = await fetch("/.netlify/functions/getTeacherProfile", {
+      method: "GET",
+      headers: { 
+        "Authorization": `Bearer ${token}` 
+      }
+    });
+
+    // 4️⃣ If not ok, force logout
+    if (!res.ok) {
+      throw new Error("Authentication failed. Please log in again.");
+    }
+
+    const data = await res.json();
+
+    // 5️⃣ Store profile globally for page scripts
+    window.currentTeacherProfile = data.profile;
+
+    // 6️⃣ OPTIONAL: display info somewhere
+    const profileContainer = document.getElementById("profileInfo");
+    if (profileContainer) {
+      profileContainer.innerHTML = `
+        <p><strong>Name:</strong> ${data.profile.full_name}</p>
+        <p><strong>Email:</strong> ${data.profile.email || "N/A"}</p>
+        <p><strong>School:</strong> ${data.profile.current_school}</p>
+        <p><strong>Qualification:</strong> ${data.profile.position}</p>
+      `;
+    }
+
+  } catch (err) {
+    console.error(err);
+    // Clear token & redirect to login
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("userId");
+    alert(err.message);
+    localStorage.setItem("redirectAfterLogin", window.location.href);
+    window.location.href = "login.html";
+  }
+})();
+</script>
+
 
 </body>
 </html>
