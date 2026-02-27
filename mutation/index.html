@@ -122,11 +122,54 @@
 
 <script src="rwandaLocations.js"></script>
 <script>
+    document.addEventListener("DOMContentLoaded", () => {
+    // ✅ Read authentication from localStorage
     const token = localStorage.getItem("auth_token");
+    const userEmail = localStorage.getItem("user_email");
+    const userId = localStorage.getItem("userId");
 
-if (!token) {
-    window.location.href = "../login.html";
+    // 🔒 If any of these are missing, redirect to login
+    if (!token || !userEmail || !userId) {
+        console.warn("User not logged in. Redirecting to login...");
+        window.location.href = "/login.html"; // use absolute path
+        return;
     }
+
+    // ✅ Prefill form fields if data exists in localStorage
+    const fullName = localStorage.getItem("full_name");
+    const phone = localStorage.getItem("phone");
+    const whatsapp = localStorage.getItem("whatsapp");
+    const currentSchool = localStorage.getItem("current_school");
+    const currentProvince = localStorage.getItem("current_province");
+    const currentDistrict = localStorage.getItem("current_district");
+    const currentSector = localStorage.getItem("current_sector");
+
+    if (fullName) document.getElementById("full_name").value = fullName;
+    if (phone) document.getElementById("phone").value = phone;
+    if (whatsapp) document.getElementById("whatsapp").value = whatsapp;
+    if (currentSchool) document.getElementById("current_school").value = currentSchool;
+
+    // For selects, wait for options to load before setting values
+    function setSelectValue(selectId, value) {
+        const select = document.getElementById(selectId);
+        if (select && value) {
+            // Wait until options are loaded
+            const interval = setInterval(() => {
+                if (Array.from(select.options).some(o => o.value === value)) {
+                    select.value = value;
+                    clearInterval(interval);
+                    // Trigger change if needed to load dependent selects
+                    select.dispatchEvent(new Event('change'));
+                }
+            }, 100);
+        }
+    }
+
+    setSelectValue("current_province", currentProvince);
+    setSelectValue("current_district", currentDistrict);
+    setSelectValue("current_sector", currentSector);
+
+});
 // --------------------- MULTI-PAGE WIZARD ---------------------
 let currentPage = 1;
 const totalPages = 3;
