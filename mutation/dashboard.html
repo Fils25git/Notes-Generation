@@ -30,8 +30,12 @@
 
 <script>
 // ---------- Logged-in Teacher ----------
-const myId = localStorage.getItem("teacherId") || "current_teacher_id"; // use real login ID
-
+const myId = localStorage.getItem("userId"); // get the real logged-in teacher's UUID
+if (!myId) {
+  // Redirect to login if not found
+  localStorage.setItem("redirectAfterLogin", window.location.href);
+  window.location.href = "../login.html";
+}
 let matches = [];
 
 // ---------- Render Matches ----------
