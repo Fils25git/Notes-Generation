@@ -1,7 +1,6 @@
 import { Client } from "pg";
 
 export async function handler(event, context) {
-    // Only allow POST
     if (event.httpMethod !== "POST") {
         return {
             statusCode: 405,
@@ -23,10 +22,9 @@ export async function handler(event, context) {
             preferred_provinces,
             preferred_districts,
             preferred_sectors,
-            position // single qualification now
+            position
         } = body;
 
-        // Basic server-side validation
         if (!full_name || !phone || !whatsapp || !current_school || !current_province || !current_district || !current_sector || !position) {
             return {
                 statusCode: 400,
@@ -34,15 +32,12 @@ export async function handler(event, context) {
             };
         }
 
-        // Connect to PostgreSQL using Neon connection string from Netlify env
         const client = new Client({
-            connectionString: process.env.NEON_DATABASE,
-            ssl: { rejectUnauthorized: false }
+            connectionString: process.env.NEON_DATABASE + "&uselibpqcompat=true&sslmode=require"
         });
 
         await client.connect();
 
-        // Insert user profile
         const insertProfileQuery = `
             INSERT INTO teacher_profiles (
                 full_name,
@@ -58,7 +53,7 @@ export async function handler(event, context) {
                 position,
                 created_at
             ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW())
-            RETURNING id
+            RETURNING user_id
         `;
 
         const values = [
@@ -69,9 +64,9 @@ export async function handler(event, context) {
             current_province,
             current_district,
             current_sector,
-            JSON.stringify(preferred_provinces),
-            JSON.stringify(preferred_districts),
-            JSON.stringify(preferred_sectors),
+            preferred_provinces, // pass as array
+            preferred_districts,
+            preferred_sectors,
             position
         ];
 
@@ -83,7 +78,7 @@ export async function handler(event, context) {
             statusCode: 200,
             body: JSON.stringify({
                 message: "Profile created successfully",
-                profileId: result.rows[0].id
+                profileId: result.rows[0].user_id
             })
         };
 
@@ -91,7 +86,7 @@ export async function handler(event, context) {
         console.error("Error creating profile:", error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ message: "Internal server error" })
+            body: JSON.stringify({ message: "Internal server error", error: error.message })
         };
     }
 }
