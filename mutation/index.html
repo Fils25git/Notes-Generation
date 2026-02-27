@@ -158,7 +158,12 @@ function nextPage() {
     if (currentPage < totalPages) currentPage++;
     showPage(currentPage);
     }
-
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        showPage(currentPage);
+    }
+    }
 // --------------------- PREFERRED LOCATIONS LOGIC ---------------------
 const prefProv = document.getElementById("preferred_provinces");
 const prefDist = document.getElementById("preferred_districts");
@@ -480,8 +485,15 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
     const preferredDistricts = Array.from(prefDist.selectedOptions).map(o => o.value);
     const preferredSectors = Array.from(prefSect.selectedOptions).map(o => o.value);
     const positionSelected = document.querySelector('input[name="position"]:checked')?.value;
-    
+const currentSchool = document.getElementById("current_school").value.trim();
 
+// --- Validate Personal Info ---
+if (!fullName || !phone || !whatsapp || !currentSchool) {
+    showToast("Please fill all personal information fields.");
+    currentPage = 1;
+    showPage(currentPage);
+    return;
+    }
     if (!currentProvince || !currentDistrict || !currentSector) {
         showToast("Please select your current location (province, district, sector).");
         currentPage = 1;
@@ -509,6 +521,7 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
         full_name: fullName,
         phone: phone,
         whatsapp: whatsapp,
+        current_school: currentSchool,
         current_province: currentProvince,
         current_district: currentDistrict,
         current_sector: currentSector,
