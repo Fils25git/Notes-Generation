@@ -124,8 +124,13 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
     // ✅ Read authentication from localStorage
-    alert("TOKEN: " + localStorage.getItem("auth_token"));
+    const token = localStorage.getItem("auth_token");
+const userEmail = localStorage.getItem("user_email");
+const userId = localStorage.getItem("userId");
 
+if (!token || !userEmail || !userId) {
+    window.location.href = "/login.html";
+}
     // ✅ Prefill form fields if data exists in localStorage
     const fullName = localStorage.getItem("full_name");
     const phone = localStorage.getItem("phone");
