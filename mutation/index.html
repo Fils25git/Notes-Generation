@@ -116,6 +116,8 @@
     </form>
 
 </div>
+    <!-- Toast container -->
+<div id="toast" class="fixed bottom-6 right-6 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
 <script src="rwandaLocations.js"></script>
 <script>
@@ -433,6 +435,35 @@ positions.forEach(pos => {
     `;
     posContainer.appendChild(div);
 });
+    function showToast(message, type = "info") {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+
+    // Change color based on type
+    switch(type) {
+        case "success":
+            toast.className = "fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg opacity-100 transition-opacity duration-300";
+            break;
+        case "error":
+            toast.className = "fixed bottom-6 right-6 bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg opacity-100 transition-opacity duration-300";
+            break;
+        case "warning":
+            toast.className = "fixed bottom-6 right-6 bg-yellow-500 text-white px-4 py-3 rounded-lg shadow-lg opacity-100 transition-opacity duration-300";
+            break;
+        default:
+            toast.className = "fixed bottom-6 right-6 bg-gray-800 text-white px-4 py-3 rounded-lg shadow-lg opacity-100 transition-opacity duration-300";
+    }
+
+    // Show toast
+    toast.classList.remove("opacity-0");
+    toast.classList.add("opacity-100");
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
+    }, 3000);
+    }
 
 // --------------------- FORM SUBMISSION ---------------------
 document.getElementById("wizardForm").addEventListener("submit", async e => {
@@ -451,28 +482,28 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
     const positionsSelected = Array.from(document.querySelectorAll('input[name="positions"]:checked')).map(c => c.value);
 
     if (!fullName || !phone || !whatsapp) {
-        alert("Please fill all personal information fields.");
+        showToast("Please fill all personal information fields.");
         currentPage = 1;
         showPage(currentPage);
         return;
     }
 
     if (!currentProvince || !currentDistrict || !currentSector) {
-        alert("Please select your current location (province, district, sector).");
+        showToast("Please select your current location (province, district, sector).");
         currentPage = 1;
         showPage(currentPage);
         return;
     }
 
     if (preferredProvinces.length === 0 || preferredDistricts.length === 0) {
-        alert("Please select at least one preferred province and district.");
+        showToast("Please select at least one preferred province and district.");
         currentPage = 2;
         showPage(currentPage);
         return;
     }
 
     if (positionsSelected.length === 0) {
-        alert("Please select at least one teacher position / qualification.");
+        showToast("Please select at least one teacher position / qualification.");
         currentPage = 3;
         showPage(currentPage);
         return;
@@ -507,17 +538,17 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
 
         if (!res.ok) {
             // Server returned an error (e.g., failed to insert in DB)
-            alert(result.message || "Failed to register your profile. Please try again.");
+            showToast(result.message || "Failed to register your profile. Please try again.");
             return;
         }
 
         // Success
-        alert(result.message || "Profile created successfully");
+        showToast(result.message || "Profile created successfully");
         window.location.href = "/exchange/dashboard.html";
 
     } catch (err) {
         console.error(err);
-        alert("Error connecting to server. Please check your internet and try again.");
+        showToast("Error connecting to server. Please check your internet and try again.");
     }
 });
 showPage(currentPage);
