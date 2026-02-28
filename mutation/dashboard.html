@@ -84,7 +84,13 @@ function renderMatches() {
 // ---------- Fetch Matches ----------
 async function fetchMatches() {
   try {
-    const res = await fetch(`/.netlify/functions/get-matches?teacherId=${myId}`);
+    const token = localStorage.getItem("auth_token");
+
+const res = await fetch(`/.netlify/functions/get-matches`, {
+  headers: {
+    "Authorization": "Bearer " + token
+  }
+});
     const data = await res.json();
     matches = data.matches || [];
     renderMatches();
