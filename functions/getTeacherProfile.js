@@ -34,7 +34,7 @@ export async function handler(event) {
   const userId = decoded.userId;
 
   const client = new Client({
-    connectionString: process.env.NEON_DATABASE_URL, // ✅ USE SAME AS LOGIN
+    connectionString: process.env.NEON_DATABASE, // ✅ USE SAME AS LOGIN
     ssl: { rejectUnauthorized: false }
   });
 
