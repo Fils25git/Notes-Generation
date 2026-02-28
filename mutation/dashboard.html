@@ -150,8 +150,15 @@ function displayMyProfile(profile) {
   document.getElementById("myPosition").textContent =
     "Qualification: " + profile.position;
 
-  document.getElementById("myPreferences").textContent =
-    "Preferred Locations: " + profile.preferred_locations?.length + " selected";
+  // Format preferred locations separately
+  const provinces = profile.preferred_provinces?.join(", ") || "None";
+  const districts = profile.preferred_districts?.join(", ") || "None";
+  const sectors = profile.preferred_sectors?.join(", ") || "None";
+
+  document.getElementById("myPreferences").innerHTML =
+    `<strong>Preferred Provinces:</strong> ${provinces}<br>
+     <strong>Preferred Districts:</strong> ${districts}<br>
+     <strong>Preferred Sectors:</strong> ${sectors}`;
 
   document.getElementById("myProfileCard").classList.remove("hidden");
   }
@@ -172,7 +179,6 @@ function showToast(message, type="info") {
 }
 
 // ---------- Initialize ----------
-fetchMatches();
 </script>
 <script>
 (async function () {
@@ -211,11 +217,19 @@ fetchMatches();
 
     const data = await res.json();
 
-    // 5️⃣ Store profile globally
-    window.currentTeacherProfile = data.profile;
-    displayMyProfile(data.profile);
-    console.log("Authenticated as:", data.profile.full_name);
+// Store profile
+window.currentTeacherProfile = data.profile;
 
+// Ensure userId is stored correctly
+localStorage.setItem("userId", data.profile.user_id);
+
+// Display profile
+displayMyProfile(data.profile);
+
+// NOW fetch matches
+fetchMatches();
+
+console.log("Authenticated as:", data.profile.full_name);
   } catch (error) {
     console.error("Network error:", error);
     // Only redirect if completely broken
