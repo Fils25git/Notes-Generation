@@ -191,6 +191,7 @@ function showToast(message, type="info") {
 }
 
 // ---------- Initialize ----------
+  fetchMatches();
 </script>
 <script>
 (async function () {
@@ -240,7 +241,7 @@ localStorage.setItem("userId", myId);
 // displayMyProfile(data.profile);
 
 // NOW fetch matches
-fetchMatches();
+
 
 console.log("Authenticated as:", data.profile.full_name);
   } catch (error) {
