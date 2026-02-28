@@ -1,4 +1,5 @@
 // get-matches.js
+import jwt from "jsonwebtoken";
 import pkg from "pg";
 const { Pool } = pkg;
 
@@ -9,14 +10,28 @@ const pool = new Pool({
 
 export async function handler(event) {
   try {
-    const teacherId = event.queryStringParameters?.teacherId;
+    const authHeader = event.headers.authorization || event.headers.Authorization;
 
-    if (!teacherId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: "Missing teacherId" })
-      };
-    }
+if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  return {
+    statusCode: 401,
+    body: JSON.stringify({ message: "Unauthorized" })
+  };
+}
+
+const token = authHeader.split(" ")[1];
+
+let decoded;
+try {
+  decoded = jwt.verify(token, process.env.JWT_SECRET);
+} catch (err) {
+  return {
+    statusCode: 401,
+    body: JSON.stringify({ message: "Invalid or expired token" })
+  };
+}
+
+const teacherId = decoded.userId;
 
     // 1️⃣ Get logged-in teacher profile
     const profileRes = await pool.query(
@@ -96,7 +111,6 @@ export async function handler(event) {
       swap_status: t.swap_status || "none",
 
       // Only reveal contact if swap is accepted
-      contact: t.swap_status === "accepted" ? t.contact : null
     }));
 
     return {
