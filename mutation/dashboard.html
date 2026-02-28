@@ -152,10 +152,21 @@ function displayMyProfile(profile) {
     "Qualification: " + profile.position;
 
   // Format preferred locations separately
-  const provinces = profile.preferred_provinces?.join(", ") || "None";
-  const districts = profile.preferred_districts?.join(", ") || "None";
-  const sectors = profile.preferred_sectors?.join(", ") || "None";
+  const provincesArray = Array.isArray(profile.preferred_provinces)
+  ? profile.preferred_provinces
+  : JSON.parse(profile.preferred_provinces || "[]");
 
+const districtsArray = Array.isArray(profile.preferred_districts)
+  ? profile.preferred_districts
+  : JSON.parse(profile.preferred_districts || "[]");
+
+const sectorsArray = Array.isArray(profile.preferred_sectors)
+  ? profile.preferred_sectors
+  : JSON.parse(profile.preferred_sectors || "[]");
+
+const provinces = provincesArray.length ? provincesArray.join(", ") : "None";
+const districts = districtsArray.length ? districtsArray.join(", ") : "None";
+const sectors = sectorsArray.length ? sectorsArray.join(", ") : "None";
   document.getElementById("myPreferences").innerHTML =
     `<strong>Preferred Provinces:</strong> ${provinces}<br>
      <strong>Preferred Districts:</strong> ${districts}<br>
