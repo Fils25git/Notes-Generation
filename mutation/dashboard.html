@@ -10,8 +10,17 @@
 
 <div class="max-w-6xl mx-auto p-6">
   <h1 class="text-3xl font-bold text-blue-700 mb-6">Swap Matches Dashboard</h1>
+  <div id="myProfileCard" class="bg-white p-6 rounded-xl shadow mb-6 hidden">
+  <h2 class="text-xl font-bold text-blue-700 mb-2">My Profile</h2>
+  <p id="myName"></p>
+  <p id="mySchool"></p>
+  <p id="myLocation"></p>
+  <p id="myPosition"></p>
+  <p id="myPreferences" class="text-sm text-gray-600 mt-2"></p>
+  </div>
   <div id="matchesContainer" class="grid gap-4"></div>
 </div>
+  
 
 <!-- Teacher Details Modal -->
 <div id="teacherModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
@@ -125,7 +134,27 @@ async function requestSwap(requestedId) {
     showToast(err.message, "error");
   }
 }
+function displayMyProfile(profile) {
+  document.getElementById("myName").textContent =
+    "Name: " + profile.full_name;
 
+  document.getElementById("mySchool").textContent =
+    "School: " + profile.current_school;
+
+  document.getElementById("myLocation").textContent =
+    "Location: " +
+    profile.current_sector + ", " +
+    profile.current_district + ", " +
+    profile.current_province;
+
+  document.getElementById("myPosition").textContent =
+    "Qualification: " + profile.position;
+
+  document.getElementById("myPreferences").textContent =
+    "Preferred Locations: " + profile.preferred_locations?.length + " selected";
+
+  document.getElementById("myProfileCard").classList.remove("hidden");
+  }
 // ---------- Toast ----------
 function showToast(message, type="info") {
   const toast = document.getElementById("toast");
@@ -184,6 +213,7 @@ fetchMatches();
 
     // 5️⃣ Store profile globally
     window.currentTeacherProfile = data.profile;
+    displayMyProfile(data.profile);
     console.log("Authenticated as:", data.profile.full_name);
 
   } catch (error) {
