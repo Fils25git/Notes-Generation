@@ -39,12 +39,7 @@
 
 <script>
 // ---------- Logged-in Teacher ----------
-const myId = localStorage.getItem("userId"); // get the real logged-in teacher's UUID
-if (!myId) {
-  // Redirect to login if not found
-  localStorage.setItem("redirectAfterLogin", window.location.href);
-  window.location.href = "../login.html";
-}
+let myId = null;
 let matches = [];
 
 // ---------- Render Matches ----------
@@ -227,7 +222,8 @@ function showToast(message, type="info") {
 window.currentTeacherProfile = data.profile;
 
 // Ensure userId is stored correctly
-localStorage.setItem("userId", data.profile.user_id);
+myId = data.profile.user_id;
+localStorage.setItem("userId", myId);
 
 // Display profile
 displayMyProfile(data.profile);
