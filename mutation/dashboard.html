@@ -145,14 +145,21 @@ async function handleSwapResponse(requesterId, accept, buttonElem) {
     }
 
 function openChat(receiverId) {
-  // Find the teacher object from matches array
-  const teacher = matches.find(t => t.auth_user_id === receiverId);
-  if (!teacher) {
-    showToast("Teacher not found", "error");
+  // Ensure matches are loaded
+  if (!matches || !matches.length) {
+    showToast("Matches not loaded yet. Try again in a moment.", "error");
     return;
   }
 
-  // Store ID and Name in localStorage for chat page
+  // Convert both to string to avoid type mismatch
+  const teacher = matches.find(t => String(t.auth_user_id) === String(receiverId));
+
+  if (!teacher) {
+    showToast("Teacher not found in current matches.", "error");
+    return;
+  }
+
+  // Store ID and Name
   localStorage.setItem("chatReceiverId", teacher.auth_user_id);
   localStorage.setItem("chatReceiverName", teacher.full_name);
 
