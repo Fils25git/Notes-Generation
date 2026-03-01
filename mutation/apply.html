@@ -636,7 +636,7 @@ try {
     showToast(result.message || "Profile created successfully");
 
     // ✅ Notify all matched teachers immediately
-    await fetch("/.netlify/functions/create-profile", {
+    await fetch("/.netlify/functions/notify-matches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(result.profile || result) // send the newly created profile
