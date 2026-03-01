@@ -117,16 +117,21 @@ function closeModal() {
 // ---------- Request Swap ----------
 async function requestSwap(requestedAuthId) {
   try {
+    const token = localStorage.getItem("auth_token"); // Get JWT
+
     const res = await fetch(`/.netlify/functions/request-swap`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token // <-- MUST HAVE
+      },
       body: JSON.stringify({ requester_id: myId, requested_id: requestedAuthId })
     });
+
     const data = await res.json();
 
     if (!res.ok) throw new Error(data.message || "Failed to send swap request");
 
-    // Update swap_status in front-end
     const t = matches.find(m => m.auth_user_id === requestedAuthId);
     if (t) t.swap_status = "pending";
 
@@ -136,7 +141,7 @@ async function requestSwap(requestedAuthId) {
     console.error(err);
     showToast(err.message, "error");
   }
-}
+  }
 function displayMyProfile(profile) {
   document.getElementById("myName").textContent =
     "Name: " + profile.full_name;
