@@ -101,7 +101,7 @@ const teacherId = decoded.userId;
 
     // 5️⃣ Format results safely (hide contact unless approved)
     const matches = matchesRes.rows.map(t => ({
-      user_id: t.user_id,
+      auth_user_id: t.auth_user_id,
       full_name: t.full_name,
       current_school: t.current_school,
       current_province: t.current_province,
