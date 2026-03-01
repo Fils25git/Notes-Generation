@@ -343,11 +343,11 @@ const positions = [
   },
   {
     "level": "A2",
-    "title": "SME Teacher A2"
+    "title": "Science and Mathematics Teacher A2"
   },
   {
     "level": "A2",
-    "title": "SRSE Teacher A2"
+    "title": "Social and Religious Studies  Teacher A2"
 },
 
   // A0 Level (Bachelor's Degree)
@@ -554,16 +554,28 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
     const preferredDistricts = Array.from(prefDist.selectedOptions).map(o => o.value);
     const preferredSectors = Array.from(prefSect.selectedOptions).map(o => o.value);
     const positionSelected = document.querySelector('input[name="position"]:checked')?.value;
-const currentSchool = document.getElementById("current_school").value.trim();
-    const email = document.getElementById("email").value.trim();
+    const currentSchool = document.getElementById("current_school").value.trim();
 
-// --- Validate Personal Info ---
-if (!fullName || !phone || !whatsapp || !email || !currentSchool) {
-    showToast("Please fill all personal information fields.");
-    currentPage = 1;
-    showPage(currentPage);
-    return;
+    // Prefill email from localStorage if it exists
+    const savedEmail = localStorage.getItem("user_email");
+    if (savedEmail) document.getElementById("email").value = savedEmail;
+
+    // Read the email user may have changed
+    const newEmail = document.getElementById("email").value.trim();
+    localStorage.setItem("user_email", newEmail);
+
+    // Weak userId from localStorage (if you want)
+    //const userId = localStorage.getItem("userId");
+    //console.log("Submitting profile for userId:", userId);
+
+    // --- Validate Personal Info ---
+    if (!fullName || !phone || !whatsapp || !newEmail || !currentSchool) {
+        showToast("Please fill all personal information fields.");
+        currentPage = 1;
+        showPage(currentPage);
+        return;
     }
+
     if (!currentProvince || !currentDistrict || !currentSector) {
         showToast("Please select your current location (province, district, sector).");
         currentPage = 1;
@@ -579,11 +591,10 @@ if (!fullName || !phone || !whatsapp || !email || !currentSchool) {
     }
 
     if (!positionSelected) {
-    showToast("Please select your qualification.");
-    currentPage = 3;
-    showPage(currentPage);
-    return;
-
+        showToast("Please select your qualification.");
+        currentPage = 3;
+        showPage(currentPage);
+        return;
     }
 
     // --------------------- PREPARE DATA ---------------------
@@ -591,7 +602,7 @@ if (!fullName || !phone || !whatsapp || !email || !currentSchool) {
         full_name: fullName,
         phone: phone,
         whatsapp: whatsapp,
-        email:email,
+        email: newEmail,          // use the updated email
         current_school: currentSchool,
         current_province: currentProvince,
         current_district: currentDistrict,
@@ -599,7 +610,8 @@ if (!fullName || !phone || !whatsapp || !email || !currentSchool) {
         preferred_provinces: preferredProvinces,
         preferred_districts: preferredDistricts,
         preferred_sectors: preferredSectors,
-        position: positionSelected
+        position: positionSelected,
+        //userId: userId       // optional weak link to auth DB
     };
 
     // --------------------- SEND REQUEST ---------------------
@@ -616,12 +628,10 @@ if (!fullName || !phone || !whatsapp || !email || !currentSchool) {
         const result = await res.json();
 
         if (!res.ok) {
-            // Server returned an error (e.g., failed to insert in DB)
             showToast(result.message || "Failed to register your profile. Please try again.");
             return;
         }
 
-        // Success
         showToast(result.message || "Profile created successfully");
         window.location.href = "dashboard.html";
 
