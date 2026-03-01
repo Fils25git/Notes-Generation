@@ -144,14 +144,21 @@ async function handleSwapResponse(requesterId, accept, buttonElem) {
   }
     }
 
-function openChat(receiverId, receiverName) {
-  // Store info in localStorage to access on chat page
-  localStorage.setItem("chatReceiverId", receiverId);
-  localStorage.setItem("chatReceiverName", receiverName);
+function openChat(receiverId) {
+  // Find the teacher object from matches array
+  const teacher = matches.find(t => t.auth_user_id === receiverId);
+  if (!teacher) {
+    showToast("Teacher not found", "error");
+    return;
+  }
+
+  // Store ID and Name in localStorage for chat page
+  localStorage.setItem("chatReceiverId", teacher.auth_user_id);
+  localStorage.setItem("chatReceiverName", teacher.full_name);
 
   // Redirect to chat page
   window.location.href = "./chat.html";
-}
+  }
 // ---------- Fetch Matches ----------
 async function fetchMatches() {
   try {
