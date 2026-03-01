@@ -43,23 +43,23 @@ let myId = null;
 let matches = [];
 
 // ---------- Render Matches ----------
-function renderMatches() {
+  function renderMatches() {
   const container = document.getElementById("matchesContainer");
   container.innerHTML = "";
 
   // ---------- Add summary ----------
   // Collect all unique positions from matches
-const positions = [...new Set(matches.map(t => t.position))]; // e.g. ["Math", "English"]
+  const positions = [...new Set(matches.map(t => t.position))]; // e.g. ["Math", "English"]
 
-// Build a readable string
-const positionsStr = positions.length ? positions.join(", ") : "teachers";
+  // Build a readable string
+  const positionsStr = positions.length ? positions.join(", ") : "teachers";
 
-// Then use it in the summary
-const summary = document.createElement("p");
-summary.className = "text-gray-700 font-medium mb-4 col-span-full";
-summary.textContent = `We found ${matches.length} ${positionsStr} who match your permutation criteria. Request them to swap, and send them a message.`;
+  // Then use it in the summary
+  const summary = document.createElement("p");
+  summary.className = "text-gray-700 font-medium mb-4 col-span-full";
+  summary.textContent = `We found ${matches.length} ${positionsStr} who match your permutation criteria. Request them to swap, and send them a message.`;
+  container.appendChild(summary);
 
-container.appendChild(summary);
   if (!matches.length) {
     const msg = document.createElement("p");
     msg.className = "text-gray-600";
@@ -72,17 +72,24 @@ container.appendChild(summary);
     const div = document.createElement("div");
     div.className = "bg-white p-4 rounded-lg shadow flex justify-between items-center mb-4";
 
-    // Button logic
-    let btnClass = "bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700";
-    let btnText = "Request Swap";
-    let btnDisabled = false;
+    // ---------- Determine buttons ----------
+    let buttonsHTML = "";
 
-    if (t.swap_status !== "none") {
-      btnClass = "bg-gray-400 cursor-not-allowed px-3 py-1 rounded";
-      btnText = "Requested";
-      btnDisabled = true;
+    if (t.swap_status === "pending" && t.requester_id === myId) {
+      // You sent the request → show Requested
+      buttonsHTML = `<button class="bg-gray-400 cursor-not-allowed px-3 py-1 rounded">Requested</button>`;
+    } else if (t.swap_status === "pending" && t.requester_id !== myId) {
+      // Someone sent you a request → show Accept/Reject
+      buttonsHTML = `
+        <button onclick="handleSwapResponse('${t.auth_user_id}', true, this)" class="bg-green-600 px-3 py-1 rounded text-white hover:bg-green-700">✅ Accept</button>
+        <button onclick="handleSwapResponse('${t.auth_user_id}', false, this)" class="bg-red-600 px-3 py-1 rounded text-white hover:bg-red-700">❌ Reject</button>
+      `;
+    } else {
+      // Normal request button
+      buttonsHTML = `<button onclick="requestSwap('${t.auth_user_id}', this)" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Request Swap</button>`;
     }
 
+    // ---------- Build card ----------
     div.innerHTML = `
       <div>
         <p class="font-semibold text-lg">${t.full_name}</p>
@@ -91,23 +98,52 @@ container.appendChild(summary);
         <p class="text-sm text-gray-500">Swap Status: <span class="font-medium">${t.swap_status}</span></p>
       </div>
       <div class="flex gap-2">
-        <button   
-          onclick="requestSwap('${t.auth_user_id}', this)"   
-          class="${btnClass}"   
-          ${btnDisabled ? "disabled" : ""}>
-          ${btnText}
-        </button>
+        ${buttonsHTML}
         <button onclick="viewTeacher('${t.auth_user_id}')" class="text-blue-600 hover:underline">👁️ View</button>
-        <button onclick="openChat('${t.auth_user_id}')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-          💬 Chat
-        </button>
+        <button onclick="openChat('${t.auth_user_id}')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">💬 Chat</button>
       </div>
     `;
 
     container.appendChild(div);
   });
-               
+}
+
+// ---------- Handle Accept/Reject ----------
+async function handleSwapResponse(requesterId, accept, buttonElem) {
+  try {
+    const token = localStorage.getItem("auth_token");
+
+    const res = await fetch(`/.netlify/functions/respond-swap`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({
+        requester_id: requesterId,
+        responder_id: myId,
+        accept: accept
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message || "Failed to respond");
+
+    // Update matches array
+    const t = matches.find(m => String(m.auth_user_id) === String(requesterId));
+    if (t) t.swap_status = accept ? "accepted" : "rejected";
+
+    // Update UI
+    buttonElem.parentElement.innerHTML = `<span class="font-medium ${accept ? "text-green-600" : "text-red-600"}">${accept ? "Accepted ✅" : "Rejected ❌"}</span>`;
+
+    showToast(`Swap ${accept ? "accepted" : "rejected"} successfully`, "success");
+  } catch (err) {
+    console.error(err);
+    showToast(err.message, "error");
   }
+    }
+
 function openChat(receiverId, receiverName) {
   // Store info in localStorage to access on chat page
   localStorage.setItem("chatReceiverId", receiverId);
