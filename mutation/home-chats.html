@@ -50,7 +50,7 @@
 
           const info = document.createElement("div");
           info.innerHTML = `
-            <p class="font-semibold text-blue-700">${t.full_name}</p>
+            <p class="font-semibold text-blue-700">${t.name}</p>
             <p class="text-gray-500 text-sm">${t.last_message ? t.last_message.slice(0,50) : 'No messages yet...'}</p>
           `;
 
@@ -66,7 +66,7 @@
           // Navigate to chat when clicked
           card.addEventListener("click", () => {
             localStorage.setItem("chatReceiverId", t.auth_user_id);
-            localStorage.setItem("chatReceiverName", t.full_name);
+            localStorage.setItem("chatReceiverName", t.name);
             window.location.href = "chat.html";
           });
 
