@@ -35,7 +35,7 @@ exports.handler = async (event) => {
       WHERE requester_id = $2
       AND requested_id = $3
       `,
-      [accept ? "accepted" : "rejected", requester_id, responder_id]
+      [accept ? "accepted" : "rejected", requester_id, requested_id]
     );
 
     await client.end();
