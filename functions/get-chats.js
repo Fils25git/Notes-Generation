@@ -58,7 +58,7 @@ export async function handler(event) {
     const query = `
       SELECT DISTINCT ON (t.auth_user_id)
   t.auth_user_id,
-  t.full_name, 
+  t.full_name AS name, 
   m.message AS last_message,
   m.created_at AS last_message_at
 FROM messages m
