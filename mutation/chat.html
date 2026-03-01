@@ -68,7 +68,10 @@ function createBubble(message, isMine) {
   div.appendChild(bubble);
   return div;
 }
-
+function isScrolledToBottom() {
+  const container = chatMessages;
+  return container.scrollHeight - container.scrollTop - container.clientHeight < 50;
+    }
 // Load messages
 let lastMessageId = null; // keep track of last message displayed
 
@@ -148,10 +151,7 @@ async function loadMessages() {
     }
   });
 }
-  function isScrolledToBottom() {
-  const container = chatMessages;
-  return container.scrollHeight - container.scrollTop - container.clientHeight < 50;
-}
+  
   
 // Send message
 sendBtn.addEventListener("click", async () => {
