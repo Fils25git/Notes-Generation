@@ -21,10 +21,71 @@
 
   <script>
     // Ensure we have our logged-in userId
+// Get elements
+const teachersContainer = document.getElementById("teachersContainer");
+const loadingText = document.getElementById("loadingText");
+const refreshBtn = document.getElementById("refreshBtn");
+
+// Your loadChats function stays the same
+async function loadChats() {
+  teachersContainer.innerHTML = '';
+  loadingText.textContent = "Loading chats...";
+  teachersContainer.appendChild(loadingText);
+
+  const token = localStorage.getItem("auth_token"); // your auth token
+
+  try {
+    const res = await fetch(`/.netlify/functions/get-chats`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    const data = await res.json();
+
+    loadingText.remove();
+
+    if (!data.teachers || data.teachers.length === 0) {
+      teachersContainer.innerHTML = '<p class="text-gray-500">No chats found yet.</p>';
+      return;
+    }
+
+    data.teachers.forEach(t => {
+      const card = document.createElement("div");
+      card.className = "bg-white p-4 rounded shadow hover:shadow-md transition cursor-pointer flex justify-between items-center";
+
+      const info = document.createElement("div");
+      info.innerHTML = `
+        <p class="font-semibold text-blue-700">${t.name}</p>
+        <p class="text-gray-500 text-sm">${t.last_message ? t.last_message.slice(0,50) : 'No messages yet...'}</p>
+      `;
+
+      const time = document.createElement("span");
+      time.className = "text-gray-400 text-sm";
+      if (t.last_message_at) {
+        time.textContent = new Date(t.last_message_at).toLocaleString();
+      }
+
+      card.appendChild(info);
+      card.appendChild(time);
+
+      // Navigate to chat when clicked
+      card.addEventListener("click", () => {
+        localStorage.setItem("chatReceiverId", t.auth_user_id);
+        localStorage.setItem("chatReceiverName", t.name);
+        window.location.href = "chat.html";
+      });
+
+      teachersContainer.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error(err);
+    teachersContainer.innerHTML = '<p class="text-red-500">Failed to load chats.</p>';
+  }
+}
+
+// ---------- Ensure userId exists ----------
 let myId = localStorage.getItem("userId");
 
 if (!myId) {
-  // Fetch profile if userId is missing
   const token = localStorage.getItem("auth_token");
   if (token) {
     fetch("/.netlify/functions/getTeacherProfile", {
@@ -34,7 +95,7 @@ if (!myId) {
     .then(data => {
       myId = data.profile.auth_user_id;
       localStorage.setItem("userId", myId);
-      // Now load chats
+      // Load chats after userId is ready
       loadChats();
     })
     .catch(err => {
@@ -45,74 +106,12 @@ if (!myId) {
     teachersContainer.innerHTML = '<p class="text-red-500">Not logged in.</p>';
   }
 } else {
-  // userId exists, just load chats
+  // userId already exists
   loadChats();
-      }
-    const teachersContainer = document.getElementById("teachersContainer");
-    const loadingText = document.getElementById("loadingText");
-    const refreshBtn = document.getElementById("refreshBtn");
+}
 
-    async function loadChats() {
-      teachersContainer.innerHTML = '';
-      loadingText.textContent = "Loading chats...";
-      teachersContainer.appendChild(loadingText);
-
-      const token = localStorage.getItem("auth_token"); // your auth token
-
-      try {
-        const res = await fetch(`/.netlify/functions/get-chats`, {
-          headers: { "Authorization": "Bearer " + token }
-        });
-        const data = await res.json();
-
-        loadingText.remove();
-
-        if (!data.teachers || data.teachers.length === 0) {
-          teachersContainer.innerHTML = '<p class="text-gray-500">No chats found yet.</p>';
-          return;
-        }
-
-        data.teachers.forEach(t => {
-          const card = document.createElement("div");
-          card.className = "bg-white p-4 rounded shadow hover:shadow-md transition cursor-pointer flex justify-between items-center";
-
-          const info = document.createElement("div");
-          info.innerHTML = `
-            <p class="font-semibold text-blue-700">${t.name}</p>
-            <p class="text-gray-500 text-sm">${t.last_message ? t.last_message.slice(0,50) : 'No messages yet...'}</p>
-          `;
-
-          const time = document.createElement("span");
-          time.className = "text-gray-400 text-sm";
-          if (t.last_message_at) {
-            time.textContent = new Date(t.last_message_at).toLocaleString();
-          }
-
-          card.appendChild(info);
-          card.appendChild(time);
-
-          // Navigate to chat when clicked
-          card.addEventListener("click", () => {
-            localStorage.setItem("chatReceiverId", t.auth_user_id);
-            localStorage.setItem("chatReceiverName", t.name);
-            window.location.href = "chat.html";
-          });
-
-          teachersContainer.appendChild(card);
-        });
-
-      } catch (err) {
-        console.error(err);
-        teachersContainer.innerHTML = '<p class="text-red-500">Failed to load chats.</p>';
-      }
-    }
-
-    // Initial load
-    loadChats();
-
-    // Refresh button
-    refreshBtn.addEventListener("click", loadChats);
-  </script>
+// Refresh button
+refreshBtn.addEventListener("click", loadChats);
 
 </body>
 </html>
