@@ -46,14 +46,21 @@
 
 </body>
 
-<script>
+    <script>
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+const sendBtn = document.getElementById("sendBtn");
+const newMsgIndicator = document.getElementById("newMessageIndicator");
+
 let myId = localStorage.getItem("userId");
 let receiverId = localStorage.getItem("chatReceiverId");
 let receiverName = localStorage.getItem("chatReceiverName");
-
 document.getElementById("chatHeader").textContent = `Chat with ${receiverName}`;
 
-// Create bubble
+let lastMessageId = 0; // track last displayed message
+let newMsgCount = 0;
+
+// Create chat bubble
 function createBubble(message, isMine) {
   const div = document.createElement("div");
   div.className = `flex ${isMine ? "justify-end" : "justify-start"}`;
@@ -68,138 +75,112 @@ function createBubble(message, isMine) {
   div.appendChild(bubble);
   return div;
 }
-function isScrolledToBottom() {
-  const container = chatMessages;
-  return container.scrollHeight - container.scrollTop - container.clientHeight < 50;
-    }
-// Load messages
-let lastMessageId = null; // keep track of last message displayed
 
-async function loadMessages() {
-  const token = localStorage.getItem("auth_token");
-  const res = await fetch(`/.netlify/functions/get-messages?receiver_id=${receiverId}`, {
-    headers: { "Authorization": "Bearer " + token }
-  });
-  const data = await res.json();
-  const container = chatMessages;
-
-  const atBottom = isScrolledToBottom();
-
-  data.messages.forEach(m => {
-    if (m.id <= lastMessageId) return; // skip already shown
-    const isMine = String(m.sender_id) === String(myId);
-    const bubble = createBubble(m.message, isMine);
-    container.appendChild(bubble);
-    lastMessageId = m.id;
-
-    // Auto-scroll only if user was at bottom OR it's our message
-    if (atBottom || isMine) {
-      bubble.scrollIntoView({ behavior: "smooth", block: "end" });
-      hideNewMsgIndicator();
-    } else {
-      newMsgCount++;
-      showNewMsgIndicator(newMsgCount);
-    }
-  });
-}
-
-
-  const newMsgIndicator = document.getElementById("newMessageIndicator");
-let newMsgCount = 0;
-
+// Check if user is scrolled near bottom
 function isScrolledToBottom() {
   return chatMessages.scrollHeight - chatMessages.scrollTop <= chatMessages.clientHeight + 20;
 }
 
+// Show floating new message indicator
 function showNewMsgIndicator(count) {
   newMsgIndicator.textContent = `${count} new message${count > 1 ? "s" : ""}`;
   newMsgIndicator.classList.remove("hidden");
 }
 
+// Hide floating new message indicator
 function hideNewMsgIndicator() {
   newMsgCount = 0;
   newMsgIndicator.classList.add("hidden");
 }
 
-// Clicking indicator scrolls to bottom
-newMsgIndicator.addEventListener("click", () => {
+// Scroll to bottom
+function scrollToBottom() {
   chatMessages.scrollTop = chatMessages.scrollHeight;
   hideNewMsgIndicator();
-});
-
-// Modified loadMessages
-async function loadMessages() {
-  const token = localStorage.getItem("auth_token");
-  const res = await fetch(`/.netlify/functions/get-messages?receiver_id=${receiverId}`, {
-    headers: { "Authorization": "Bearer " + token }
-  });
-  const data = await res.json();
-
-  data.messages.forEach(m => {
-    if (m.id <= lastMessageId) return; // skip already shown
-    const isMine = String(m.sender_id) === String(myId);
-    const bubble = createBubble(m.message, isMine);
-    chatMessages.appendChild(bubble);
-    lastMessageId = m.id;
-
-    if (isScrolledToBottom()) {
-      bubble.scrollIntoView({ behavior: "smooth", block: "end" });
-      hideNewMsgIndicator();
-    } else {
-      newMsgCount++;
-      showNewMsgIndicator(newMsgCount);
-    }
-  });
 }
-  
-  
+
+// Click floating indicator => scroll to bottom
+newMsgIndicator.addEventListener("click", scrollToBottom);
+
+// Load and append only new messages
+async function loadMessages() {
+  try {
+    const token = localStorage.getItem("auth_token");
+    const res = await fetch(`/.netlify/functions/get-messages?receiver_id=${receiverId}`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    const data = await res.json();
+
+    const atBottom = isScrolledToBottom();
+
+    data.messages.forEach(m => {
+      if (m.id <= lastMessageId) return; // skip old messages
+
+      const isMine = String(m.sender_id) === String(myId);
+      const bubble = createBubble(m.message, isMine);
+      chatMessages.appendChild(bubble);
+      lastMessageId = m.id;
+
+      if (atBottom || isMine) {
+        bubble.scrollIntoView({ behavior: "smooth", block: "end" });
+        hideNewMsgIndicator();
+      } else {
+        newMsgCount++;
+        showNewMsgIndicator(newMsgCount);
+      }
+    });
+  } catch (err) {
+    console.error("Error loading messages:", err);
+  }
+}
+
 // Send message
-sendBtn.addEventListener("click", async () => {
+async function sendMessage() {
   const message = chatInput.value.trim();
   if (!message) return;
 
-  const token = localStorage.getItem("auth_token");
-  
-  await fetch(`/.netlify/functions/send-message`, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json", 
-      "Authorization": "Bearer " + token 
-    },
-    body: JSON.stringify({ receiver_id: receiverId, message })
-  });
-
   chatInput.value = "";
-  
-  // Force scroll to bottom after sending
-  loadMessages().then(() => {
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  });
-});
 
-// Send with Enter key
-const chatInput = document.getElementById("chatInput");
-const sendBtn = document.getElementById("sendBtn");
+  try {
+    const token = localStorage.getItem("auth_token");
+    await fetch(`/.netlify/functions/send-message`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token 
+      },
+      body: JSON.stringify({ receiver_id: receiverId, message })
+    });
+    await loadMessages();
+    scrollToBottom();
+  } catch (err) {
+    console.error("Error sending message:", err);
+  }
+}
 
-// Mobile-proof solution
+// Send on button click
+sendBtn.addEventListener("click", sendMessage);
+
+// Enter key sends, Shift+Enter new line
 chatInput.addEventListener("keydown", e => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault(); // Prevent default newline
-    sendBtn.click();    // Send message
+  if (e.key === "Enter") {
+    if (!e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
   }
 });
 
-// Fallback: listen to "input" in case some mobile keyboards don't fire keydown
+// Auto-resize textarea
 chatInput.addEventListener("input", () => {
-  // Optional: resize textarea dynamically
   chatInput.style.height = 'auto';
   chatInput.style.height = chatInput.scrollHeight + 'px';
 });
 
-// Auto refresh
+// Auto-refresh every 3s
 setInterval(loadMessages, 3000);
 loadMessages();
-</script>
+  </script>
 
 </body>
   </html>
