@@ -114,7 +114,13 @@
     const res = await fetch("/.netlify/functions/getTeacherProfile", {
       headers: { "Authorization": "Bearer " + token }
     });
-    const profile = await res.json();
+     const data = await res.json();
+    const profile = data.profile;   // ✅ FIXED HERE
+
+    if (!profile) {
+      alert("Profile not found");
+      return;
+    }
 
     document.getElementById("fullName").textContent = profile.full_name || "-";
     document.getElementById("phoneNumber").textContent = profile.phone || "-";
