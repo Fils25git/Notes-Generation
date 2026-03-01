@@ -40,7 +40,7 @@ export async function handler(event) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log("✅ Decoded JWT:", decoded);
 
-    const userId = Number(decoded.id);
+    const userId = Number(decoded.userId);
     console.log("👤 Logged userId:", userId);
 
     console.log("🌍 DB URL exists:", process.env.NEON_DATABASE ? "YES" : "NO");
