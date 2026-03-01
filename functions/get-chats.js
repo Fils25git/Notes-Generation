@@ -56,17 +56,17 @@ export async function handler(event) {
 
     // NEW CLEAN QUERY
     const query = `
-      SELECT DISTINCT ON (u.id)
-        u.id,
-        u.name,
-        m.message AS last_message,
-        m.created_at AS last_message_at
-      FROM messages m
-      JOIN users u 
-        ON (u.id = m.sender_id OR u.id = m.receiver_id)
-      WHERE (m.sender_id = $1 OR m.receiver_id = $1)
-        AND u.id != $1
-      ORDER BY u.id, m.created_at DESC;
+      SELECT DISTINCT ON (t.auth_user_id)
+  t.auth_user_id,
+  t.full_name,  -- or whatever the name column is called
+  m.message AS last_message,
+  m.created_at AS last_message_at
+FROM messages m
+JOIN teacher_profiles t
+  ON t.auth_user_id = m.sender_id OR t.auth_user_id = m.receiver_id
+WHERE (m.sender_id = $1 OR m.receiver_id = $1)
+  AND t.auth_user_id != $1
+ORDER BY t.auth_user_id, m.created_at DESC;
     `;
 
     console.log("📤 Running query for user:", userId);
