@@ -43,7 +43,7 @@ export async function handler(event) {
 
     const result = await client.query(
       `SELECT 
-        user_id,
+        auth_user_id,
         full_name,
         phone,
         whatsapp,
@@ -58,7 +58,7 @@ export async function handler(event) {
         is_active,
         created_at
       FROM teacher_profiles
-      WHERE user_id = $1`,
+      WHERE auth_user_id = $1`,
       [userId]
     );
 
