@@ -24,22 +24,40 @@
             </div>
             <div class="mb-4">
                 <label class="block font-medium text-gray-700 mb-1">Phone Number</label>
-                <input type="text" id="phone" required
+                <input type="number" id="phone" required
                     class="w-full border-gray-300 rounded-lg p-2" />
             </div>
              
             <div class="mb-4">
                 <label class="block font-medium text-gray-700 mb-1">WhatsApp Number</label>
-                <input type="text" id="whatsapp" required
+                <input type="number" id="whatsapp" required
                     class="w-full border-gray-300 rounded-lg p-2" />
                 <div class="mb-4">
                 <label class="block font-medium text-gray-700 mb-1"> Your Current School</label>
                 <input type="text" id="current_school" required
                     class="w-full border-gray-300 rounded-lg p-2" />
                 </div>
+                <div class="mb-4">
+                <label class="block font-medium text-gray-700 mb-1"> Email</label>
+                <input type="text" id="email" required
+                    class="w-full border-gray-300 rounded-lg p-2" />
+                </div>
                 <!-- Current Location -->
             </div>
-<div class="mb-4">
+
+            <div class="flex justify-end">
+                <button type="button" onclick="nextPage()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
+                    Next
+                </button>
+            </div>
+        </div>
+
+        <!-- PAGE 2: Preferred Locations -->
+      
+        <div class="page hidden" id="page2">
+            <h2 class="text-xl font-semibold mb-4">Step 2: Current School Locations</h2>
+  <div class="mb-4">
     <label class="block font-medium text-gray-700 mb-1"> Current School Province</label>
     <select id="current_province" class="w-full border-gray-300 rounded-lg p-2" onchange="loadCurrentDistricts()" required></select>
 </div>
@@ -51,19 +69,21 @@
     <label class="block font-medium text-gray-700 mb-1">Current School Sector</label>
     <select id="current_sector" class="w-full border-gray-300 rounded-lg p-2" required></select>
         
-            </div>
-            <div class="flex justify-end">
+</div>
+            <div class="flex justify-between">
+                <button type="button" onclick="prevPage()"
+                    class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold">
+                    Back
+                </button>
                 <button type="button" onclick="nextPage()"
                     class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold">
                     Next
                 </button>
             </div>
         </div>
-
-        <!-- PAGE 2: Preferred Locations -->
-        <div class="page hidden" id="page2">
-            <h2 class="text-xl font-semibold mb-4">Step 2: Preferred Locations</h2>
-
+        <!-- PAGE 2: preferred school Locations -->
+        
+        <div class="page hidden" id="page3">
             <div class="grid md:grid-cols-3 gap-4 mb-4">
                 <div>
                     <label class="block font-medium text-gray-700 mb-1">Province(s)</label>
@@ -80,8 +100,7 @@
                     <select id="preferred_sectors" multiple class="w-full border-gray-300 rounded-lg p-2"></select>
                 </div>
             </div>
-
-            <div class="flex justify-between">
+<div class="flex justify-between">
                 <button type="button" onclick="prevPage()"
                     class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold">
                     Back
@@ -92,10 +111,11 @@
                 </button>
             </div>
         </div>
+            
 
-        <!-- PAGE 3: Positions -->
-        <div class="page hidden" id="page3">
-            <h2 class="text-xl font-semibold mb-4">Step 3: Teacher Positions / Qualifications</h2>
+        <!-- PAGE 4: Positions -->
+        <div class="page hidden" id="page4">
+            <h2 class="text-xl font-semibold mb-4">Step 4: Teacher Positions / Qualifications</h2>
 
             <div id="positionsContainer" class="grid md:grid-cols-2 gap-4 max-h-96 overflow-y-auto mb-4">
                 <!-- Positions checkboxes will load here -->
@@ -168,7 +188,7 @@ if (!token || !userEmail || !userId) {
 });
 // --------------------- MULTI-PAGE WIZARD ---------------------
 let currentPage = 1;
-const totalPages = 3;
+const totalPages = 4;
 
 function showPage(page) {
     for (let i = 1; i <= totalPages; i++) {
@@ -182,17 +202,22 @@ function nextPage() {
         // Validate personal info + current location
         if (!document.getElementById("full_name").value ||
             !document.getElementById("phone").value ||
-            !document.getElementById("whatsapp").value) {
+            !document.getElementById("whatsapp").value ||
+            !document.getElementById("email").value)
+            
+        {
             showToast("Please fill all personal information fields.");
             return;
         }
+    }
+      if (currentPage === 2) {
         if (!currProv.value || !currDist.value || !currSect.value) {
             showToast("Please select your current location (province, district, sector).");
             return;
         }
     }
 
-    if (currentPage === 2) {
+    if (currentPage === 3) {
         // Validate preferred locations
         if (prefProv.selectedOptions.length === 0 || prefDist.selectedOptions.length === 0) {
             showToast("Please select at least one preferred province and district.");
@@ -307,6 +332,23 @@ loadCurrentProvinces();
 // --------------------- TEACHER POSITIONS ---------------------
 const positions = [
   // A0, A1, A2 from your array
+      // A2 Level (Teacher Training College)
+  {
+    "level": "A2",
+    "title": "Languages Teacher A2"
+  },
+  {
+    "level": "A2",
+    "title": "Pre-Primary and Lower Primary Teacher A2"
+  },
+  {
+    "level": "A2",
+    "title": "SME Teacher A2"
+  },
+  {
+    "level": "A2",
+    "title": "SRSE Teacher A2"
+},
 
   // A0 Level (Bachelor's Degree)
   {
@@ -454,24 +496,6 @@ const positions = [
   {
     "level": "A1",
     "title": "Physics and Biology Teacher"
-  },
-
-  // A2 Level (Teacher Training College)
-  {
-    "level": "A2",
-    "title": "Languages Teacher A2"
-  },
-  {
-    "level": "A2",
-    "title": "Pre-Primary and Lower Primary Teacher A2"
-  },
-  {
-    "level": "A2",
-    "title": "SME Teacher A2"
-  },
-  {
-    "level": "A2",
-    "title": "SRSE Teacher A2"
   }
 ]
 
@@ -531,9 +555,10 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
     const preferredSectors = Array.from(prefSect.selectedOptions).map(o => o.value);
     const positionSelected = document.querySelector('input[name="position"]:checked')?.value;
 const currentSchool = document.getElementById("current_school").value.trim();
+    const email = document.getElementById("email").value.trim();
 
 // --- Validate Personal Info ---
-if (!fullName || !phone || !whatsapp || !currentSchool) {
+if (!fullName || !phone || !whatsapp || !email || !currentSchool) {
     showToast("Please fill all personal information fields.");
     currentPage = 1;
     showPage(currentPage);
@@ -566,6 +591,7 @@ if (!fullName || !phone || !whatsapp || !currentSchool) {
         full_name: fullName,
         phone: phone,
         whatsapp: whatsapp,
+        email:email,
         current_school: currentSchool,
         current_province: currentProvince,
         current_district: currentDistrict,
