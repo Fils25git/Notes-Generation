@@ -615,31 +615,40 @@ document.getElementById("wizardForm").addEventListener("submit", async e => {
     };
 
     // --------------------- SEND REQUEST ---------------------
-    try {
-        const res = await fetch("/.netlify/functions/createProfile", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + localStorage.getItem("auth_token")
-            },
-            body: JSON.stringify(data)
-        });
+    // --------------------- SEND REQUEST ---------------------
+try {
+    const res = await fetch("/.netlify/functions/createProfile", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("auth_token")
+        },
+        body: JSON.stringify(data)
+    });
 
-        const result = await res.json();
+    const result = await res.json();
 
-        if (!res.ok) {
-            showToast(result.message || "Failed to register your profile. Please try again.");
-            return;
-        }
-
-        showToast(result.message || "Profile created successfully");
-        window.location.href = "dashboard.html";
-
-    } catch (err) {
-        console.error(err);
-        showToast("Error connecting to server. Please check your internet and try again.");
+    if (!res.ok) {
+        showToast(result.message || "Failed to register your profile. Please try again.");
+        return;
     }
-});
+
+    showToast(result.message || "Profile created successfully");
+
+    // ✅ Notify all matched teachers immediately
+    await fetch("/.netlify/functions/create-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(result.profile || result) // send the newly created profile
+    });
+
+    // ✅ After notifying, redirect
+    window.location.href = "dashboard.html";
+
+} catch (err) {
+    console.error(err);
+    showToast("Error connecting to server. Please check your internet and try again.");
+        }
 showPage(currentPage);
 </script>
 
