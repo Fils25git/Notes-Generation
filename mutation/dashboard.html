@@ -97,7 +97,7 @@ const res = await fetch(`/.netlify/functions/get-matches`, {
 
 // ---------- View Teacher Modal ----------
 function viewTeacher(id) {
-  const t = matches.find(m => m.user_id === id);
+  const t = matches.find(m => m.auth_user_id === id);
   if (!t) return;
 
   document.getElementById("modalName").textContent = t.full_name;
@@ -115,19 +115,21 @@ function closeModal() {
 }
 
 // ---------- Request Swap ----------
-async function requestSwap(requestedId) {
+async function requestSwap(requestedAuthId) {
   try {
     const res = await fetch(`/.netlify/functions/request-swap`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requester_id: myId, requested_id: requestedId })
+      body: JSON.stringify({ requester_id: myId, requested_id: requestedAuthId })
     });
     const data = await res.json();
 
     if (!res.ok) throw new Error(data.message || "Failed to send swap request");
 
-    const t = matches.find(m => m.user_id === requestedId);
+    // Update swap_status in front-end
+    const t = matches.find(m => m.auth_user_id === requestedAuthId);
     if (t) t.swap_status = "pending";
+
     renderMatches();
     showToast(`Swap request sent to ${t.full_name}`, "success");
   } catch (err) {
@@ -234,7 +236,7 @@ function showToast(message, type="info") {
 window.currentTeacherProfile = data.profile;
 
 // Ensure userId is stored correctly
-myId = data.profile.user_id;
+myId = data.profile.auth_user_id;
 localStorage.setItem("userId", myId);
 
 // Display profile
