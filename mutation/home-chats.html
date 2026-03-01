@@ -65,8 +65,8 @@
 
           // Navigate to chat when clicked
           card.addEventListener("click", () => {
-            localStorage.setItem("chatReceiverId", t.id);
-            localStorage.setItem("chatReceiverName", t.name);
+            localStorage.setItem("chatReceiverId", t.auth_user_id);
+            localStorage.setItem("chatReceiverName", t.full_name);
             window.location.href = "chat.html";
           });
 
