@@ -121,7 +121,7 @@ async function handleSwapResponse(requesterId, accept, buttonElem) {
       },
       body: JSON.stringify({
         requester_id: requesterId,
-        responder_id: myId,
+        requested_id: myId,
         accept: accept
       })
     });
