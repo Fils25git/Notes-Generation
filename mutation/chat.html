@@ -108,10 +108,18 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
 });
 
 // Send with Enter key
-document.getElementById("chatInput").addEventListener("keydown", e => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault(); // prevent newline
-    document.getElementById("sendBtn").click(); // send
+const chatInput = document.getElementById("chatInput");
+
+chatInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    if (e.shiftKey) {
+      // Shift+Enter => new line
+      return;
+    } else {
+      // Enter => send
+      e.preventDefault();
+      document.getElementById("sendBtn").click();
+    }
   }
 });
 
