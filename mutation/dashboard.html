@@ -49,12 +49,15 @@ function renderMatches() {
 
   // ---------- Add summary ----------
   const summary = document.createElement("p");
-  summary.className = "text-gray-700 font-medium mb-4";
+  summary.className = "text-gray-700 font-medium mb-4 col-span-full";
   summary.textContent = `We found ${matches.length} teacher${matches.length !== 1 ? "s" : ""} who work where you want to go. Request them to swap, and send them a message.`;
   container.appendChild(summary);
 
   if (!matches.length) {
-    container.innerHTML = "<p class='text-gray-600'>No matching teachers found.</p>";
+    const msg = document.createElement("p");
+    msg.className = "text-gray-600";
+    msg.textContent = "No matching teachers found.";
+    container.appendChild(msg);
     return;
   }
 
@@ -96,7 +99,7 @@ function renderMatches() {
 
     container.appendChild(div);
   });
-  }
+                                                                                                     }
 
 // ---------- Fetch Matches ----------
 async function fetchMatches() {
