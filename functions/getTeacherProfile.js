@@ -47,6 +47,7 @@ export async function handler(event) {
         full_name,
         phone,
         whatsapp,
+        email,
         current_school,
         current_province,
         current_district,
