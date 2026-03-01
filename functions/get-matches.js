@@ -35,7 +35,7 @@ const teacherId = decoded.userId;
 
     // 1️⃣ Get logged-in teacher profile
     const profileRes = await pool.query(
-      `SELECT * FROM teacher_profiles WHERE user_id = $1`,
+      `SELECT * FROM teacher_profiles WHERE auth_user_id = $1`,
       [teacherId]
     );
 
@@ -71,7 +71,7 @@ const teacherId = decoded.userId;
              (sr.requester_id = $1 AND sr.requested_id = tp.user_id)
           OR (sr.requester_id = tp.user_id AND sr.requested_id = $1)
         )
-      WHERE tp.user_id != $1
+      WHERE tp.auth_user_id != $1
         AND tp.position = $2
 
         -- CONDITION 1: They work where I want
