@@ -48,11 +48,18 @@ function renderMatches() {
   container.innerHTML = "";
 
   // ---------- Add summary ----------
-  const summary = document.createElement("p");
-  summary.className = "text-gray-700 font-medium mb-4 col-span-full";
-  summary.textContent = `We found ${matches.length} ${t.position}${matches.length !== 1 ? "s" : ""} who work where you want to go and they want to come where you are. Request them to swap, and send them a message.`;
-  container.appendChild(summary);
+  // Collect all unique positions from matches
+const positions = [...new Set(matches.map(t => t.position))]; // e.g. ["Math", "English"]
 
+// Build a readable string
+const positionsStr = positions.length ? positions.join(", ") : "teachers";
+
+// Then use it in the summary
+const summary = document.createElement("p");
+summary.className = "text-gray-700 font-medium mb-4 col-span-full";
+summary.textContent = `We found ${matches.length} ${positionsStr} who match your permutation criteria. Request them to swap, and send them a message.`;
+
+container.appendChild(summary);
   if (!matches.length) {
     const msg = document.createElement("p");
     msg.className = "text-gray-600";
@@ -101,7 +108,7 @@ function renderMatches() {
   });
                
   }
-function goToChat(receiverId, receiverName) {
+function openChat(receiverId, receiverName) {
   // Store info in localStorage to access on chat page
   localStorage.setItem("chatReceiverId", receiverId);
   localStorage.setItem("chatReceiverName", receiverName);
