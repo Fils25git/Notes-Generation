@@ -50,7 +50,7 @@ function renderMatches() {
   // ---------- Add summary ----------
   const summary = document.createElement("p");
   summary.className = "text-gray-700 font-medium mb-4 col-span-full";
-  summary.textContent = `We found ${matches.length} teacher${matches.length !== 1 ? "s" : ""} who work where you want to go. Request them to swap, and send them a message.`;
+  summary.textContent = `We found ${matches.length} ${t.position}${matches.length !== 1 ? "s" : ""} who work where you want to go and they want to come where you are. Request them to swap, and send them a message.`;
   container.appendChild(summary);
 
   if (!matches.length) {
@@ -99,8 +99,16 @@ function renderMatches() {
 
     container.appendChild(div);
   });
-                                                                                                     }
+               
+  }
+function goToChat(receiverId, receiverName) {
+  // Store info in localStorage to access on chat page
+  localStorage.setItem("chatReceiverId", receiverId);
+  localStorage.setItem("chatReceiverName", receiverName);
 
+  // Redirect to chat page
+  window.location.href = "./chat.html";
+}
 // ---------- Fetch Matches ----------
 async function fetchMatches() {
   try {
