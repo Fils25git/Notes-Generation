@@ -8,27 +8,27 @@
 <!-- Font Awesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
-    .logo-img {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    }
+    
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-      <div class="header">
-    <div class="header-left">
-        <img src="../logo.png">
-        <h2>Fila Assistant</h2>
-    </div>
-    <a href="profile.html" class="flex items-center text-gray-700 hover:text-blue-700 transition">
-      <i class="fas fa-user-circle text-2xl mr-2"></i>
-      My Profile
-    </a>
-  </header>
+  <header class="bg-white shadow-md py-3 px-6 flex justify-between items-center">
+
+  <!-- Left Side (Logo + Name) -->
+  <div class="flex items-center gap-3">
+    <img src="../logo.png" class="h-8 w-auto">
+    <h2 class="text-lg font-semibold text-blue-700">Fila Assistant</h2>
+  </div>
+
+  <!-- Right Side (Small Profile Icon) -->
+  <a href="profile.html" 
+     class="text-gray-600 hover:text-blue-700 transition">
+    <i class="fas fa-user-circle text-xl"></i>
+  </a>
+
+</header>
 
   <!-- Main dashboard -->
   <main class="flex-1 p-6">
@@ -78,13 +78,13 @@
   <script>
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("auth_token");
     if (!token) {
-      window.location.href = "login.html";
+      window.location.href = "../login.html";
       return;
     }
 
-    const res = await fetch("/.netlify/functions/get-profile", {
+    const res = await fetch("/.netlify/functions/getTeacherProfile", {
       headers: {
         "Authorization": "Bearer " + token
       }
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await res.json();
 
     // If profile is empty or not found
-    if (!data || !data.id) {
+    if (!data || !data.auth_user_id) {
       window.location.href = "apply.html";
     }
 
