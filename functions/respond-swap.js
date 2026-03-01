@@ -18,9 +18,9 @@ exports.handler = async (event) => {
   try {
     await client.connect();
 
-    const { requester_id, responder_id, accept } = JSON.parse(event.body);
+    const { requester_id, requested_id, accept } = JSON.parse(event.body);
 
-    if (!requester_id || !responder_id) {
+    if (!requester_id || !requested_id) {
       return {
         statusCode: 400,
         body: JSON.stringify({ message: "Missing IDs" })
@@ -33,7 +33,7 @@ exports.handler = async (event) => {
       UPDATE swap_requests
       SET status = $1
       WHERE requester_id = $2
-      AND responder_id = $3
+      AND requested_id = $3
       `,
       [accept ? "accepted" : "rejected", requester_id, responder_id]
     );
