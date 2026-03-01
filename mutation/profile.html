@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+<!-- Header -->
+<header class="bg-white shadow px-6 py-4 flex justify-between items-center">
+  <h1 class="text-2xl font-bold text-blue-700">My Profile</h1>
+  <button onclick="window.location.href='dashboard.html'" 
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+    <i class="fas fa-arrow-left"></i> Back
+  </button>
+</header>
+
+<main class="max-w-4xl mx-auto p-6 space-y-6">
+
+  <!-- Personal Information -->
+  <section class="bg-white rounded-2xl shadow p-6">
+    <h2 class="text-xl font-semibold text-gray-700 mb-4"><i class="fas fa-user"></i> Personal Information</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <p class="text-gray-500 font-semibold">Full Name</p>
+        <p id="fullName" class="text-gray-800">-</p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-semibold">Phone Number</p>
+        <p id="phoneNumber" class="text-gray-800">-</p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-semibold">WhatsApp Number</p>
+        <p id="whatsappNumber" class="text-gray-800">-</p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-semibold">Email</p>
+        <p id="emailAddress" class="text-gray-800">-</p>
+      </div>
+      <div class="md:col-span-2">
+        <p class="text-gray-500 font-semibold">Current School</p>
+        <p id="currentSchool" class="text-gray-800">-</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Current Location -->
+  <section class="bg-white rounded-2xl shadow p-6">
+    <h2 class="text-xl font-semibold text-gray-700 mb-4"><i class="fas fa-map-marker-alt"></i> Current School Location</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <p class="text-gray-500 font-semibold">Province</p>
+        <p id="currentProvince" class="text-gray-800">-</p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-semibold">District</p>
+        <p id="currentDistrict" class="text-gray-800">-</p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-semibold">Sector</p>
+        <p id="currentSector" class="text-gray-800">-</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preferred Locations -->
+  <section class="bg-white rounded-2xl shadow p-6">
+    <h2 class="text-xl font-semibold text-gray-700 mb-4"><i class="fas fa-map"></i> Preferred School Locations</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <p class="text-gray-500 font-semibold">Provinces</p>
+        <p id="preferredProvinces" class="text-gray-800">-</p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-semibold">Districts</p>
+        <p id="preferredDistricts" class="text-gray-800">-</p>
+      </div>
+      <div>
+        <p class="text-gray-500 font-semibold">Sectors</p>
+        <p id="preferredSectors" class="text-gray-800">-</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teacher Position -->
+  <section class="bg-white rounded-2xl shadow p-6">
+    <h2 class="text-xl font-semibold text-gray-700 mb-4"><i class="fas fa-chalkboard-teacher"></i> Teacher Position / Qualification</h2>
+    <p id="teacherPosition" class="text-gray-800">-</p>
+  </section>
+  <div class="flex justify-end mt-6">
+  <a href="apply.html" 
+     id="editProfileBtn"
+     class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2">
+     <i class="fas fa-edit"></i> Edit Profile
+  </a>
+  </div>
+
+</main>
+
+<script>
+  // Load all profile info from localStorage
+  document.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem("auth_token");
+  if (!token) {
+    window.location.href = "/login.html";
+    return;
+  }
+
+  try {
+    const res = await fetch("/.netlify/functions/getTeacherProfile", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    const profile = await res.json();
+
+    document.getElementById("fullName").textContent = profile.full_name || "-";
+    document.getElementById("phoneNumber").textContent = profile.phone || "-";
+    document.getElementById("whatsappNumber").textContent = profile.whatsapp || "-";
+    document.getElementById("emailAddress").textContent = profile.email || "-";
+    document.getElementById("currentSchool").textContent = profile.current_school || "-";
+    document.getElementById("currentProvince").textContent = profile.current_province || "-";
+    document.getElementById("currentDistrict").textContent = profile.current_district || "-";
+    document.getElementById("currentSector").textContent = profile.current_sector || "-";
+    document.getElementById("preferredProvinces").textContent = profile.preferred_provinces.join(", ") || "-";
+    document.getElementById("preferredDistricts").textContent = profile.preferred_districts.join(", ") || "-";
+    document.getElementById("preferredSectors").textContent = profile.preferred_sectors.join(", ") || "-";
+    document.getElementById("teacherPosition").textContent = profile.position || "-";
+
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    alert("Failed to load profile. Please check your connection.");
+  }
+});
+</script>
+
+</body>
+  </html>
