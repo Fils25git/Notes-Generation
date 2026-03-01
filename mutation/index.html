@@ -75,39 +75,58 @@
   <footer class="bg-white shadow-inner py-4 px-6 text-center text-gray-500 text-sm">
     &copy; 2026 Fila Swap Assistant. All rights reserved.<br>DUKORE GISIRIMU
   </footer>
-  <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      window.location.href = "../login.html";
-      return;
-    }
+<script>
+(async function () {
+  const token = localStorage.getItem("auth_token");
 
+  if (!token) {
+    localStorage.setItem("redirectAfterLogin", window.location.href);
+    window.location.href = "../login.html";
+    return;
+  }
+
+  try {
     const res = await fetch("/.netlify/functions/getTeacherProfile", {
+      method: "GET",
       headers: {
         "Authorization": "Bearer " + token
       }
     });
 
-    if (!res.ok) {
+    // Token expired
+    if (res.status === 401) {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("userId");
+      localStorage.setItem("redirectAfterLogin", window.location.href);
+      window.location.href = "../login.html";
+      return;
+    }
+
+    // 🔥 Profile does not exist → redirect to apply
+    if (res.status === 404) {
       window.location.href = "apply.html";
       return;
     }
 
-    const data = await res.json();
-
-    // If profile is empty or not found
-    if (!data || !data.auth_user_id) {
-      window.location.href = "apply.html";
+    if (!res.ok) {
+      throw new Error("Unexpected error");
     }
 
-  } catch (error) {
-    console.error("Profile check error:", error);
-    window.location.href = "apply.html";
-  }
-});
-  </script>
+    const data = await res.json();
 
+    if (!data.profile) {
+      window.location.href = "apply.html";
+      return;
+    }
+
+    console.log("Authenticated as:", data.profile.full_name);
+
+  } catch (error) {
+    console.error("Network error:", error);
+    localStorage.setItem("redirectAfterLogin", window.location.href);
+    window.location.href = "../login.html";
+  }
+})();
+  </script>
 </body>
   </html>
