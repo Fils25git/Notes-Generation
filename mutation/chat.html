@@ -6,7 +6,7 @@
 <title>Teacher Chat</title>
 <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex flex-col h-screen">
+<body class="bg-gray-100 flex flex-col" style="height:100dvh;">
 
   <!-- Header -->
   <header class="bg-white shadow px-4 py-3 flex items-center justify-between flex-shrink-0">
@@ -14,12 +14,12 @@
   </header>
 
   <!-- Messages + Footer wrapper -->
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-col flex-1" style="min-height:0;">
     <!-- Messages Area -->
-    <main id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3"></main>
+    <main id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3" style="padding-bottom:calc(3rem + env(safe-area-inset-bottom));"></main>
 
     <!-- Input Footer (stuck at bottom) -->
-    <footer class="bg-white p-3 border-t flex gap-2 flex-shrink-0">
+    <footer class="bg-white p-3 border-t flex gap-2 flex-shrink-0" style="padding-bottom:env(safe-area-inset-bottom);">
       <input 
         id="chatInput"
         class="flex-1 border rounded-full px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400"
@@ -32,7 +32,6 @@
       </button>
     </footer>
   </div>
-
 </body>
 
 <script>
