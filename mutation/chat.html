@@ -20,6 +20,11 @@
     <main id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3" 
           style="padding-bottom:5.5rem;"></main> <!-- leave more space for footer -->
 
+    <!-- Floating new message indicator -->
+<div id="newMessageIndicator" 
+     class="fixed bottom-20 right-4 bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg cursor-pointer hidden">
+  0 new messages
+</div>
     <!-- Input Footer -->
     <footer class="bg-white p-2 border-t flex gap-2 flex-shrink-0"
             style="height:4.5rem; padding-bottom:env(safe-area-inset-bottom);">
@@ -97,6 +102,53 @@ async function loadMessages() {
     container.scrollTop = container.scrollHeight;
   }
 }
+  const newMsgIndicator = document.getElementById("newMessageIndicator");
+let newMsgCount = 0;
+
+function isScrolledToBottom() {
+  return chatMessages.scrollHeight - chatMessages.scrollTop <= chatMessages.clientHeight + 20;
+}
+
+function showNewMsgIndicator(count) {
+  newMsgIndicator.textContent = `${count} new message${count > 1 ? "s" : ""}`;
+  newMsgIndicator.classList.remove("hidden");
+}
+
+function hideNewMsgIndicator() {
+  newMsgCount = 0;
+  newMsgIndicator.classList.add("hidden");
+}
+
+// Clicking indicator scrolls to bottom
+newMsgIndicator.addEventListener("click", () => {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  hideNewMsgIndicator();
+});
+
+// Modified loadMessages
+async function loadMessages() {
+  const token = localStorage.getItem("auth_token");
+  const res = await fetch(`/.netlify/functions/get-messages?receiver_id=${receiverId}`, {
+    headers: { "Authorization": "Bearer " + token }
+  });
+  const data = await res.json();
+
+  data.messages.forEach(m => {
+    if (m.id <= lastMessageId) return; // skip already shown
+    const isMine = String(m.sender_id) === String(myId);
+    const bubble = createBubble(m.message, isMine);
+    chatMessages.appendChild(bubble);
+    lastMessageId = m.id;
+
+    if (isScrolledToBottom()) {
+      bubble.scrollIntoView({ behavior: "smooth", block: "end" });
+      hideNewMsgIndicator();
+    } else {
+      newMsgCount++;
+      showNewMsgIndicator(newMsgCount);
+    }
+  });
+}
   
 // Send message
 document.getElementById("sendBtn").addEventListener("click", async () => {
@@ -126,13 +178,19 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
 const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
 
+// Mobile-proof solution
 chatInput.addEventListener("keydown", e => {
-  // Check Enter OR Return (mobile compatibility)
-  if ((e.key === "Enter" || e.key === "Return") && !e.shiftKey) {
-    e.preventDefault(); // Prevent sending a newline
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault(); // Prevent default newline
     sendBtn.click();    // Send message
   }
-  // Shift+Enter => allow line break (default behavior)
+});
+
+// Fallback: listen to "input" in case some mobile keyboards don't fire keydown
+chatInput.addEventListener("input", () => {
+  // Optional: resize textarea dynamically
+  chatInput.style.height = 'auto';
+  chatInput.style.height = chatInput.scrollHeight + 'px';
 });
 
 // Auto refresh
