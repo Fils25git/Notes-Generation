@@ -20,6 +20,34 @@
   </main>
 
   <script>
+    // Ensure we have our logged-in userId
+let myId = localStorage.getItem("userId");
+
+if (!myId) {
+  // Fetch profile if userId is missing
+  const token = localStorage.getItem("auth_token");
+  if (token) {
+    fetch("/.netlify/functions/getTeacherProfile", {
+      headers: { "Authorization": "Bearer " + token }
+    })
+    .then(res => res.json())
+    .then(data => {
+      myId = data.profile.auth_user_id;
+      localStorage.setItem("userId", myId);
+      // Now load chats
+      loadChats();
+    })
+    .catch(err => {
+      console.error("Failed to fetch profile:", err);
+      teachersContainer.innerHTML = '<p class="text-red-500">Cannot load chats. Try logging in again.</p>';
+    });
+  } else {
+    teachersContainer.innerHTML = '<p class="text-red-500">Not logged in.</p>';
+  }
+} else {
+  // userId exists, just load chats
+  loadChats();
+      }
     const teachersContainer = document.getElementById("teachersContainer");
     const loadingText = document.getElementById("loadingText");
     const refreshBtn = document.getElementById("refreshBtn");
