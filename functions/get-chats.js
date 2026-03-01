@@ -23,7 +23,7 @@ export async function handler(event) {
     const userId = decoded.id;
 
     const client = new Client({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: process.env.NEON_DATABASE,
       ssl: { rejectUnauthorized: false }
     });
 
