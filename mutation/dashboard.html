@@ -47,6 +47,12 @@ function renderMatches() {
   const container = document.getElementById("matchesContainer");
   container.innerHTML = "";
 
+  // ---------- Add summary ----------
+  const summary = document.createElement("p");
+  summary.className = "text-gray-700 font-medium mb-4";
+  summary.textContent = `We found ${matches.length} teacher${matches.length !== 1 ? "s" : ""} who work where you want to go. Request them to swap, and send them a message.`;
+  container.appendChild(summary);
+
   if (!matches.length) {
     container.innerHTML = "<p class='text-gray-600'>No matching teachers found.</p>";
     return;
@@ -54,36 +60,43 @@ function renderMatches() {
 
   matches.forEach(t => {
     const div = document.createElement("div");
-    div.className = "bg-white p-4 rounded-lg shadow flex justify-between items-center";
+    div.className = "bg-white p-4 rounded-lg shadow flex justify-between items-center mb-4";
 
-    
-   let btnClass = "bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700";
-let btnText = "Request Swap";
-let btnDisabled = false;
+    // Button logic
+    let btnClass = "bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700";
+    let btnText = "Request Swap";
+    let btnDisabled = false;
 
-if (t.swap_status !== "none") {
-  btnClass = "bg-gray-400 cursor-not-allowed px-3 py-1 rounded";
-  btnText = "Requested";
-  btnDisabled = true;
-}
+    if (t.swap_status !== "none") {
+      btnClass = "bg-gray-400 cursor-not-allowed px-3 py-1 rounded";
+      btnText = "Requested";
+      btnDisabled = true;
+    }
 
-div.innerHTML = `
-  <div>
-    <p class="font-semibold text-lg">${t.full_name}</p>
-    <p class="text-gray-700">${t.current_school} - ${t.current_sector}, ${t.current_district}, ${t.current_province}</p>
-    <p class="text-gray-700">Qualification: ${t.position}</p>
-    <p class="text-sm text-gray-500">Swap Status: <span class="font-medium">${t.swap_status}</span></p>
-  </div>
-  <div class="flex gap-2">
-    <button 
-      onclick="requestSwap('${t.auth_user_id}', this)" 
-      class="${btnClass}" 
-      ${btnDisabled ? "disabled" : ""}>
-      ${btnText}
-    </button>
-    <button onclick="viewTeacher('${t.auth_user_id}')" class="text-blue-600 hover:underline">👁️ View</button>
-  </div>
-`;
+    div.innerHTML = `
+      <div>
+        <p class="font-semibold text-lg">${t.full_name}</p>
+        <p class="text-gray-700">${t.current_school} - ${t.current_sector}, ${t.current_district}, ${t.current_province}</p>
+        <p class="text-gray-700">Qualification: ${t.position}</p>
+        <p class="text-sm text-gray-500">Swap Status: <span class="font-medium">${t.swap_status}</span></p>
+      </div>
+      <div class="flex gap-2">
+        <button   
+          onclick="requestSwap('${t.auth_user_id}', this)"   
+          class="${btnClass}"   
+          ${btnDisabled ? "disabled" : ""}>
+          ${btnText}
+        </button>
+        <button onclick="viewTeacher('${t.auth_user_id}')" class="text-blue-600 hover:underline">👁️ View</button>
+        <button onclick="openChat('${t.auth_user_id}')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+          💬 Chat
+        </button>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+  }
 
 // ---------- Fetch Matches ----------
 async function fetchMatches() {
