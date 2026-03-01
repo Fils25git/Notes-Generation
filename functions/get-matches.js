@@ -68,8 +68,8 @@ const teacherId = decoded.userId;
       FROM teacher_profiles tp
       LEFT JOIN swap_requests sr
         ON (
-             (sr.requester_id = $1 AND sr.requested_id = tp.user_id)
-          OR (sr.requester_id = tp.user_id AND sr.requested_id = $1)
+             (sr.requester_id = $1 AND sr.requested_id = tp.auth_user_id)
+          OR (sr.requester_id = tp.auth_user_id AND sr.requested_id = $1)
         )
       WHERE tp.auth_user_id != $1
         AND tp.position = $2
