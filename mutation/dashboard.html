@@ -64,12 +64,12 @@ function renderMatches() {
         <p class="text-sm text-gray-500">Swap Status: <span class="font-medium">${t.swap_status}</span></p>
       </div>
       <div class="flex gap-2">
-        <button onclick="viewTeacher('${t.auth_user_id}')" class="text-blue-600 hover:underline">👁️ View</button>
-        <button onclick="requestSwap('${t.auth_user_id}')" 
-          class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
-          ${t.swap_status !== "none" ? "disabled class='bg-gray-400 cursor-not-allowed'" : ""}>
-          Request Swap
-        </button>
+        <button 
+  onclick="requestSwap('${t.auth_user_id}', this)" 
+  class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+  ${t.swap_status !== "none" ? "disabled class='bg-gray-400 cursor-not-allowed'" : ""}>
+  Request Swap
+</button>
       </div>
     `;
     container.appendChild(div);
@@ -115,7 +115,7 @@ function closeModal() {
 }
 
 // ---------- Request Swap ----------
-async function requestSwap(requestedAuthId) {
+async function requestSwap(requestedAuthId, buttonElem) {
   try {
     const token = localStorage.getItem("auth_token"); // Get JWT
 
@@ -123,7 +123,7 @@ async function requestSwap(requestedAuthId) {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + token // <-- MUST HAVE
+        "Authorization": "Bearer " + token // MUST HAVE
       },
       body: JSON.stringify({ requester_id: myId, requested_id: requestedAuthId })
     });
@@ -132,15 +132,20 @@ async function requestSwap(requestedAuthId) {
 
     if (!res.ok) throw new Error(data.message || "Failed to send swap request");
 
-    const t = matches.find(m => m.auth_user_id === requestedAuthId);
-if (t) {
-  t.swap_status = "pending";
-  renderMatches();
-  showToast(`Swap request sent to ${t.full_name}`, "success");
-} else {
-  renderMatches(); // still refresh list
-  showToast("Swap request sent", "success");
-}
+    // Update matches array
+    const t = matches.find(m => String(m.auth_user_id) === String(requestedAuthId));
+    if (t) t.swap_status = "pending";
+
+    // Update button immediately
+    if (buttonElem) {
+      buttonElem.textContent = "Requested";
+      buttonElem.disabled = true;
+      buttonElem.classList.remove("bg-green-600", "hover:bg-green-700");
+      buttonElem.classList.add("bg-gray-400", "cursor-not-allowed");
+    }
+
+    showToast("Swap requested successfully", "success");
+
   } catch (err) {
     console.error(err);
     showToast(err.message, "error");
