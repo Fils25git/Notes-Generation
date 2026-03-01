@@ -136,10 +136,13 @@ async function loadMessages() {
 
 // Send message
 async function sendMessage() {
+// Send message function (with button disable)
+async function sendMessage() {
   const message = chatInput.value.trim();
   if (!message) return;
 
-  chatInput.value = "";
+  sendBtn.disabled = true;          // disable button while sending
+  sendBtn.classList.add("opacity-50"); // optional visual feedback
 
   try {
     const token = localStorage.getItem("auth_token");
@@ -151,25 +154,33 @@ async function sendMessage() {
       },
       body: JSON.stringify({ receiver_id: receiverId, message })
     });
+
+    chatInput.value = "";
+    chatInput.style.height = 'auto'; // reset textarea height
     await loadMessages();
     scrollToBottom();
   } catch (err) {
     console.error("Error sending message:", err);
+  } finally {
+    sendBtn.disabled = false;         // re-enable button
+    sendBtn.classList.remove("opacity-50");
   }
 }
 
-// Send on button click
-sendBtn.addEventListener("click", sendMessage);
-
-// Enter key sends, Shift+Enter new line
+// Enter = new line, Shift+Enter = send
 chatInput.addEventListener("keydown", e => {
   if (e.key === "Enter") {
-    if (!e.shiftKey) {
-      e.preventDefault();
+    if (e.shiftKey) {
+      e.preventDefault();   // Shift+Enter sends message
       sendMessage();
+    } else {
+      // Enter alone = new line (default behavior)
     }
   }
 });
+
+// Optional: also send via button click
+sendBtn.addEventListener("click", sendMessage);
 
 // Auto-resize textarea
 chatInput.addEventListener("input", () => {
