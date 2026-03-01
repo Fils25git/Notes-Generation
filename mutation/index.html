@@ -7,12 +7,23 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Font Awesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    .logo-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
   <!-- Header -->
   <header class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-blue-700">Welcome to Fila Swap Assistant</h1>
+      <div class="header">
+    <div class="header-left">
+        <img src="../logo.png">
+        <h2>Fila Assistant</h2>
+    </div>
     <a href="profile.html" class="flex items-center text-gray-700 hover:text-blue-700 transition">
       <i class="fas fa-user-circle text-2xl mr-2"></i>
       My Profile
@@ -21,6 +32,7 @@
 
   <!-- Main dashboard -->
   <main class="flex-1 p-6">
+    <h1 class="text-2xl font-bold text-blue-700">Welcome to Fila Swap Assistant</h1>
     <p>Explore teachers who work where you want  and they work where you should easily perfom 
     responsibilities.</p>
     <h2 class="text-xl font-semibold text-gray-800 mb-6">Quick Access</h2>
@@ -63,6 +75,39 @@
   <footer class="bg-white shadow-inner py-4 px-6 text-center text-gray-500 text-sm">
     &copy; 2026 Fila Swap Assistant. All rights reserved.<br>DUKORE GISIRIMU
   </footer>
+  <script>
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const res = await fetch("/.netlify/functions/get-profile", {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
+
+    if (!res.ok) {
+      window.location.href = "apply.html";
+      return;
+    }
+
+    const data = await res.json();
+
+    // If profile is empty or not found
+    if (!data || !data.id) {
+      window.location.href = "apply.html";
+    }
+
+  } catch (error) {
+    console.error("Profile check error:", error);
+    window.location.href = "apply.html";
+  }
+});
+  </script>
 
 </body>
   </html>
