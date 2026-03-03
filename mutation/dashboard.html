@@ -211,8 +211,8 @@ async function viewTeacher(id) {
       `phone: ${t.contact.phone} whatsapp: ${t.contact.whatsapp}`;
 
     document.getElementById("teacherModal").classList.remove("hidden");
-    document.getElementById("teacherModal").classList.add("flex");
-
+document.getElementById("teacherModal").classList.add("flex");
+document.getElementById("teacherModal").style.display = "flex"; // ensures Tailwind flex works
   } catch (err) {
     console.error(err);
     showToast(err.message, "error");
@@ -255,6 +255,14 @@ async function requestSwap(requestedAuthId, buttonElem) {
     console.error(err);
     showToast(err.message, "error");
   }
+  }
+  function closeModal() {
+  const modal = document.getElementById("teacherModal");
+  modal.classList.add("hidden");
+  modal.classList.remove("flex");
+
+  // Ensure it is hidden regardless
+  modal.style.display = "none";
   }
 function displayMyProfile(profile) {
   document.getElementById("myName").textContent =
@@ -310,6 +318,9 @@ function showToast(message, type="info") {
     toast.classList.add("opacity-0");
   }, 3000);
 }
+  document.getElementById("teacherModal").addEventListener("click", (e) => {
+  if (e.target.id === "teacherModal") closeModal();
+});
 
 // ---------- Initialize ----------
   fetchMatches();
