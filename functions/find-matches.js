@@ -26,21 +26,53 @@ export async function handler(event) {
 
     // 2. Find other teachers who match preferred locations and qualification
     const matchRes = await client.query(
-      `SELECT user_id, full_name, current_school, current_province, current_district, current_sector, position
-       FROM teacher_profiles
-       WHERE user_id <> $1
-         AND position = $2
-         AND current_province = ANY($3::text[])
-         AND current_district = ANY($4::text[])
-         AND current_sector = ANY($5::text[])`,
-      [
-        teacher_id,
-        me.position,
-        me.preferred_provinces,
-        me.preferred_districts,
-        me.preferred_sectors,
-      ]
-    );
+  `
+  SELECT 
+    t.user_id,
+    t.full_name,
+    t.current_school,
+    t.current_province,
+    t.current_district,
+    t.current_sector,
+    t.position
+  FROM teacher_profiles t
+  WHERE t.user_id <> $1
+    AND t.position = $2
+
+    -- 1️⃣ They want MY location
+    AND $3 = ANY(t.preferred_provinces)
+    AND $4 = ANY(t.preferred_districts)
+    AND (
+      t.preferred_sectors IS NULL 
+      OR array_length(t.preferred_sectors, 1) = 0
+      OR $5 = ANY(t.preferred_sectors)
+    )
+
+    -- 2️⃣ I want THEIR location
+    AND $6 = ANY(COALESCE($6::text[], ARRAY[t.current_province]))
+    AND $7 = ANY(COALESCE($7::text[], ARRAY[t.current_district]))
+    -- sector optional on your side too
+    AND (
+      $8 IS NULL 
+      OR array_length($8, 1) = 0
+      OR t.current_sector = ANY($8)
+    )
+  `,
+  [
+    teacher_id,
+    me.position,
+
+    // My current location
+    me.current_province,
+    me.current_district,
+    me.current_sector,       // optional: used only if other teacher selected sectors
+
+    // My preferred locations
+    me.preferred_provinces,
+    me.preferred_districts,
+    me.preferred_sectors,    // optional: empty = accept any sector
+  ]
+);
 
     await client.end();
 
