@@ -123,7 +123,7 @@ export async function handler(event, context) {
         const matches = matchesRes.rows;
 
         // --------------------- SEND EMAIL TO MATCHED TEACHERS ---------------------
-        for (const match of matches) {
+       for (const match of matches) {
             if (!match.email) continue;
 
             await resend.emails.send({
@@ -144,7 +144,7 @@ export async function handler(event, context) {
         }
 
         // --------------------- NOTIFY NEW TEACHER ---------------------
-        if (matches.length > 0 && email) {
+        /*if (matches.length > 0 && email) {
             await resend.emails.send({
                 from: "Fila Assistant <fila@fleduacademy.com>",
                 to: email,
@@ -155,7 +155,7 @@ export async function handler(event, context) {
                     <p>Login to your dashboard to see them.</p>
                 `
             });
-        }
+        }*/
 
         await client.end();
 
