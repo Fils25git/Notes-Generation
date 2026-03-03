@@ -11,7 +11,6 @@ export async function handler(event) {
 
   const authHeader = event.headers.authorization || event.headers.Authorization;
 
-  // 1️⃣ Validate Authorization header
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return {
       statusCode: 401,
@@ -31,15 +30,21 @@ export async function handler(event) {
     };
   }
 
-  const userId = decoded.userId;
-
   const client = new Client({
-    connectionString: process.env.NEON_DATABASE, // ✅ USE SAME AS LOGIN
+    connectionString: process.env.NEON_DATABASE,
     ssl: { rejectUnauthorized: false }
   });
 
   try {
     await client.connect();
+
+    // 🔥 NEW PART
+    const params = new URLSearchParams(event.queryStringParameters);
+    const teacherId = params.get("teacherId");
+
+    // If teacherId provided → show that profile
+    // Otherwise → show logged-in user's profile
+    const profileId = teacherId ? parseInt(teacherId) : decoded.userId;
 
     const result = await client.query(
       `SELECT 
@@ -60,12 +65,10 @@ export async function handler(event) {
         created_at
       FROM teacher_profiles
       WHERE auth_user_id = $1`,
-      [userId]
+      [profileId]
     );
 
     if (result.rows.length === 0) {
-      // ⚠️ IMPORTANT: Not 401
-      // Profile missing does NOT mean user logged out
       return {
         statusCode: 404,
         body: JSON.stringify({ error: "Profile not found" })
@@ -86,4 +89,4 @@ export async function handler(event) {
   } finally {
     await client.end();
   }
-}
+      }
