@@ -186,23 +186,38 @@ const res = await fetch(`/.netlify/functions/get-matches`, {
 }
 
 // ---------- View Teacher Modal ----------
-function viewTeacher(id) {
-  const t = matches.find(m => m.auth_user_id === id);
-  if (!t) return;
+async function viewTeacher(id) {
+  try {
+    const token = localStorage.getItem("auth_token");
+    if (!token) throw new Error("Not authenticated");
 
-  document.getElementById("modalName").textContent = t.full_name;
-  document.getElementById("modalSchool").textContent = `School: ${t.current_school}`;
-  document.getElementById("modalLocation").textContent = `Location: ${t.current_sector}, ${t.current_district}, ${t.current_province}`;
-  document.getElementById("modalPosition").textContent = `Qualification: ${t.position}`;
-  document.getElementById("modalContact").textContent = `phone: ${t.phone} whatsap: ${t.whatsapp}`;
+    const res = await fetch(`/.netlify/functions/get-teacher?id=${id}`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
 
-  document.getElementById("teacherModal").classList.remove("hidden");
-  document.getElementById("teacherModal").classList.add("flex");
-}
-function closeModal() {
-  document.getElementById("teacherModal").classList.add("hidden");
-  document.getElementById("teacherModal").classList.remove("flex");
-}
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.message || "Failed to fetch teacher");
+    }
+
+    const { teacher: t } = await res.json();
+
+    document.getElementById("modalName").textContent = t.full_name;
+    document.getElementById("modalSchool").textContent = `School: ${t.current_school}`;
+    document.getElementById("modalLocation").textContent =
+      `Location: ${t.current_sector}, ${t.current_district}, ${t.current_province}`;
+    document.getElementById("modalPosition").textContent = `Qualification: ${t.position}`;
+    document.getElementById("modalContact").textContent =
+      `phone: ${t.contact.phone} whatsapp: ${t.contact.whatsapp}`;
+
+    document.getElementById("teacherModal").classList.remove("hidden");
+    document.getElementById("teacherModal").classList.add("flex");
+
+  } catch (err) {
+    console.error(err);
+    showToast(err.message, "error");
+  }
+  }
 
 // ---------- Request Swap ----------
 async function requestSwap(requestedAuthId, buttonElem) {
