@@ -48,7 +48,7 @@ export async function handler(event) {
     // Get suggested teachers
     const suggestedRes = await client.query(
       `
-      SELECT auth_user_id, full_name, current_school, current_district, current_sector
+      SELECT auth_user_id, full_name, current_school, current_district, current_sector, position
       FROM teacher_profiles
       WHERE is_active = true
       AND auth_user_id != $1
