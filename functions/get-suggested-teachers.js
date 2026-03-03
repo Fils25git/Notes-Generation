@@ -21,7 +21,7 @@ export async function handler(event) {
     // Get my profile
     const myProfileRes = await client.query(
       `SELECT * FROM teacher_profiles WHERE auth_user_id = $1`,
-      [decoded.id]
+      [decoded.userId]
     );
 
     const me = myProfileRes.rows[0];
