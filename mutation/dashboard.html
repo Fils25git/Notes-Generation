@@ -194,7 +194,7 @@ function viewTeacher(id) {
   document.getElementById("modalSchool").textContent = `School: ${t.current_school}`;
   document.getElementById("modalLocation").textContent = `Location: ${t.current_sector}, ${t.current_district}, ${t.current_province}`;
   document.getElementById("modalPosition").textContent = `Qualification: ${t.position}`;
-  document.getElementById("modalContact").textContent = `Contact: ${t.contact}`;
+  document.getElementById("modalContact").textContent = `phone: ${t.phone} whatsap: ${t.whatsapp}`;
 
   document.getElementById("teacherModal").classList.remove("hidden");
   document.getElementById("teacherModal").classList.add("flex");
