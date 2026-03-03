@@ -15,8 +15,24 @@
   </header>
 
   <!-- Teachers list container -->
-  <main id="teachersContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
-    <p id="loadingText" class="text-gray-500">Loading chats...</p>
+  <main class="flex-1 overflow-y-auto p-4 space-y-6">
+
+  <!-- Chats -->
+  <div>
+    <h2 class="text-lg font-semibold text-gray-700 mb-3">Your Chats</h2>
+    <div id="teachersContainer" class="space-y-3">
+      <p id="loadingText" class="text-gray-500">Loading chats...</p>
+    </div>
+  </div>
+
+  <!-- Suggestions -->
+  <div>
+    <h2 class="text-lg font-semibold text-gray-700 mb-3">Suggested Teachers</h2>
+    <div id="suggestedContainer" class="space-y-3">
+      <p class="text-gray-400">Loading suggestions...</p>
+    </div>
+  </div>
+
   </main>
 
   <script>
@@ -81,6 +97,46 @@ async function loadChats() {
     teachersContainer.innerHTML = '<p class="text-red-500">Failed to load chats.</p>';
   }
 }
+    async function loadSuggestions() {
+  const suggestedContainer = document.getElementById("suggestedContainer");
+  const token = localStorage.getItem("auth_token");
+
+  try {
+    const res = await fetch(`/.netlify/functions/get-suggested-teachers`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    const data = await res.json();
+    suggestedContainer.innerHTML = "";
+
+    if (!data.teachers || data.teachers.length === 0) {
+      suggestedContainer.innerHTML = '<p class="text-gray-400">No suggestions available.</p>';
+      return;
+    }
+
+    data.teachers.forEach(t => {
+      const card = document.createElement("div");
+      card.className = "bg-white p-4 rounded shadow hover:shadow-md transition cursor-pointer";
+
+      card.innerHTML = `
+        <p class="font-semibold text-blue-700">${t.full_name}</p>
+        <p class="text-gray-500 text-sm">${t.current_school}</p>
+      `;
+
+      card.addEventListener("click", () => {
+        localStorage.setItem("chatReceiverId", t.auth_user_id);
+        localStorage.setItem("chatReceiverName", t.full_name);
+        window.location.href = "chat.html";
+      });
+
+      suggestedContainer.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error(err);
+    suggestedContainer.innerHTML = '<p class="text-red-500">Failed to load suggestions.</p>';
+  }
+      }
 
 // ---------- Ensure userId exists ----------
 let myId = localStorage.getItem("userId");
@@ -108,10 +164,14 @@ if (!myId) {
 } else {
   // userId already exists
   loadChats();
+loadSuggestions();
 }
 
 // Refresh button
-refreshBtn.addEventListener("click", loadChats);
+refreshBtn.addEventListener("click", () => {
+  loadChats();
+  loadSuggestions();
+});
     </script>
 
 </body>
