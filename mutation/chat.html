@@ -61,20 +61,37 @@ let lastMessageId = 0; // track last displayed message
 let newMsgCount = 0;
 
 // Create chat bubble
-function createBubble(message, isMine) {
+function createBubble(messageObj, isMine) {
   const div = document.createElement("div");
   div.className = `flex ${isMine ? "justify-end" : "justify-start"}`;
 
   const bubble = document.createElement("div");
   bubble.className = `
-    max-w-xs px-4 py-2 rounded-2xl shadow
+    max-w-xs px-4 py-2 rounded-2xl shadow relative
     ${isMine ? "bg-blue-600 text-white rounded-br-none" : "bg-white text-gray-800 rounded-bl-none"}
   `;
-  bubble.textContent = message;
+
+  bubble.innerHTML = `<div>${messageObj.message}</div>`;
+
+  // Add ticks only for my messages
+  if (isMine) {
+    const status = document.createElement("div");
+    status.className = "text-xs mt-1 text-right";
+
+    if (messageObj.read_at) {
+      status.innerHTML = `<span class="text-blue-200">✓✓</span>`;
+    } else if (messageObj.delivered_at) {
+      status.innerHTML = `<span class="text-gray-300">✓✓</span>`;
+    } else {
+      status.innerHTML = `<span class="text-gray-300">✓</span>`;
+    }
+
+    bubble.appendChild(status);
+  }
 
   div.appendChild(bubble);
   return div;
-}
+      }
 
 // Check if user is scrolled near bottom
 function isScrolledToBottom() {
@@ -106,20 +123,35 @@ newMsgIndicator.addEventListener("click", scrollToBottom);
 async function loadMessages() {
   try {
     const token = localStorage.getItem("auth_token");
+
     const res = await fetch(`/.netlify/functions/get-messages?receiver_id=${receiverId}`, {
       headers: { "Authorization": "Bearer " + token }
     });
-    const data = await res.json();
 
+    const data = await res.json();
     const atBottom = isScrolledToBottom();
 
+    // ✅ 1. Mark as delivered immediately after fetching
+    await fetch('/.netlify/functions/mark-delivered', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ sender_id: receiverId })
+    });
+
+    let newMessagesAdded = false;
+
     data.messages.forEach(m => {
-      if (m.id <= lastMessageId) return; // skip old messages
+      if (m.id <= lastMessageId) return;
 
       const isMine = String(m.sender_id) === String(myId);
-      const bubble = createBubble(m.message, isMine);
+      const bubble = createBubble(m, isMine);
       chatMessages.appendChild(bubble);
+
       lastMessageId = m.id;
+      newMessagesAdded = true;
 
       if (atBottom || isMine) {
         bubble.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -129,10 +161,23 @@ async function loadMessages() {
         showNewMsgIndicator(newMsgCount);
       }
     });
+
+    // ✅ 2. After displaying, mark messages as read
+    if (newMessagesAdded) {
+      await fetch('/.netlify/functions/mark-read', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ sender_id: receiverId })
+      });
+    }
+
   } catch (err) {
     console.error("Error loading messages:", err);
   }
-}
+  }
 
 // Send message function (with button disable)
 async function sendMessage() {
