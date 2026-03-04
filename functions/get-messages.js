@@ -18,12 +18,20 @@ export async function handler(event) {
   try {
     await client.connect();
     const res = await client.query(
-      `SELECT * FROM messages 
-       WHERE (sender_id=$1 AND receiver_id=$2) 
-          OR (sender_id=$2 AND receiver_id=$1)
-       ORDER BY created_at ASC`,
-      [decoded.userId, receiver_id]
-    );
+  `SELECT 
+      id,
+      sender_id,
+      receiver_id,
+      message,
+      created_at,
+      delivered_at,
+      read_at
+   FROM messages
+   WHERE (sender_id=$1 AND receiver_id=$2)
+      OR (sender_id=$2 AND receiver_id=$1)
+   ORDER BY created_at ASC`,
+  [decoded.userId, receiver_id]
+);
     return { statusCode: 200, body: JSON.stringify({ messages: res.rows }) };
   } finally { await client.end(); }
                                                                    }
