@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Teacher Chat</title>
 <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 </head>
 <body class="bg-gray-100 flex flex-col" style="height:100dvh;">
 
@@ -47,6 +48,11 @@
 </body>
 
     <script>
+      // Supabase client (public anon key only)
+const SUPABASE_URL = "https://sevupsilpsudqnjlgzgp.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNldnVwc2lscHN1ZHFuamxnemdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDk2NjUsImV4cCI6MjA4ODIyNTY2NX0.lRWW9BEz_Eqsj7OM07z2H-c7TGuHaaxGUDvORQliBdY";
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
@@ -119,35 +125,28 @@ function scrollToBottom() {
 // Click floating indicator => scroll to bottom
 newMsgIndicator.addEventListener("click", scrollToBottom);
 
-// Load and append only new messages
 async function loadMessages() {
   try {
-    const token = localStorage.getItem("auth_token");
-
-    const res = await fetch(`/.netlify/functions/get-messages?receiver_id=${receiverId}`, {
-      headers: { "Authorization": "Bearer " + token }
-    });
-
-    const data = await res.json();
     const atBottom = isScrolledToBottom();
 
-    // ✅ 1. Mark as delivered immediately after fetching
-    await fetch('/.netlify/functions/mark-delivered', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({ sender_id: receiverId })
-    });
+    // Fetch only messages newer than lastMessageId
+    const { data: messages, error } = await supabase
+      .from('messages')
+      .select('*')
+      .or(`and(sender_id.eq.${myId},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${myId})`)
+      .gt('id', lastMessageId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error("Error loading messages:", error);
+      return;
+    }
 
     let newMessagesAdded = false;
 
-    data.messages.forEach(m => {
-      if (m.id <= lastMessageId) return;
-
+    messages.forEach(m => {
       const isMine = String(m.sender_id) === String(myId);
-      const bubble = createBubble(m, isMine);
+      const bubble = createBubble(m.message, isMine);
       chatMessages.appendChild(bubble);
 
       lastMessageId = m.id;
@@ -162,22 +161,22 @@ async function loadMessages() {
       }
     });
 
-    // ✅ 2. After displaying, mark messages as read
+    // Optional: mark messages as read in Supabase
     if (newMessagesAdded) {
-      await fetch('/.netlify/functions/mark-read', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({ sender_id: receiverId })
-      });
+      const { error: readError } = await supabase
+        .from('messages')
+        .update({ is_read: true, read_at: new Date().toISOString() })
+        .eq('receiver_id', myId)
+        .eq('sender_id', receiverId)
+        .lte('id', lastMessageId); // mark all up to last fetched message
+
+      if (readError) console.error("Error marking messages as read:", readError);
     }
 
   } catch (err) {
-    console.error("Error loading messages:", err);
+    console.error("Unexpected error loading messages:", err);
   }
-  }
+      }
 
 // Send message function (with button disable)
 async function sendMessage() {
