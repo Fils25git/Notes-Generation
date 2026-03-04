@@ -43,46 +43,77 @@ const loadingText = document.getElementById("loadingText");
 const refreshBtn = document.getElementById("refreshBtn");
 
 // Your loadChats function stays the same
-async function loadChats() {
+    async function loadChats() {
   teachersContainer.innerHTML = '';
   loadingText.textContent = "Loading chats...";
   teachersContainer.appendChild(loadingText);
 
-  const token = localStorage.getItem("auth_token"); // your auth token
+  const token = localStorage.getItem("auth_token");
 
   try {
     const res = await fetch(`/.netlify/functions/get-chats`, {
       headers: { "Authorization": "Bearer " + token }
     });
-    const data = await res.json();
 
+    const data = await res.json();
     loadingText.remove();
 
     if (!data.teachers || data.teachers.length === 0) {
-      teachersContainer.innerHTML = '<p class="text-gray-500">No chats found yet.</p>';
+      teachersContainer.innerHTML =
+        '<p class="text-gray-500">No chats found yet.</p>';
       return;
     }
 
+    // ✅ Sort by latest time (extra safety)
+    data.teachers.sort((a, b) =>
+      new Date(b.last_message_at) - new Date(a.last_message_at)
+    );
+
     data.teachers.forEach(t => {
       const card = document.createElement("div");
-      card.className = "bg-white p-4 rounded shadow hover:shadow-md transition cursor-pointer flex justify-between items-center";
+      card.className =
+        "bg-white p-4 rounded shadow hover:shadow-md transition cursor-pointer flex justify-between items-center";
 
       const info = document.createElement("div");
+
+      const isUnread = t.unread_count > 0;
+
       info.innerHTML = `
-        <p class="font-semibold text-blue-700">${t.name}</p>
-        <p class="text-gray-500 text-sm">${t.last_message ? t.last_message.slice(0,50) : 'No messages yet...'}</p>
+        <p class="font-semibold ${isUnread ? 'text-blue-900 font-bold' : 'text-blue-700'}">
+          ${t.name}
+        </p>
+        <p class="text-gray-500 text-sm">
+          ${t.sender_id == myId ? "You: " : ""}
+          ${t.last_message ? t.last_message.slice(0,50) : 'No messages yet...'}
+        </p>
       `;
 
+      const rightSide = document.createElement("div");
+      rightSide.className = "flex flex-col items-end gap-1";
+
+      // Time
       const time = document.createElement("span");
-      time.className = "text-gray-400 text-sm";
+      time.className = "text-gray-400 text-xs";
+
       if (t.last_message_at) {
-        time.textContent = new Date(t.last_message_at).toLocaleString();
+        const date = new Date(t.last_message_at);
+        time.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+
+      rightSide.appendChild(time);
+
+      // ✅ Unread badge
+      if (isUnread) {
+        const badge = document.createElement("span");
+        badge.className =
+          "bg-blue-600 text-white text-xs px-2 py-1 rounded-full";
+        badge.textContent = t.unread_count;
+        rightSide.appendChild(badge);
       }
 
       card.appendChild(info);
-      card.appendChild(time);
+      card.appendChild(rightSide);
 
-      // Navigate to chat when clicked
       card.addEventListener("click", () => {
         localStorage.setItem("chatReceiverId", t.auth_user_id);
         localStorage.setItem("chatReceiverName", t.name);
@@ -94,9 +125,11 @@ async function loadChats() {
 
   } catch (err) {
     console.error(err);
-    teachersContainer.innerHTML = '<p class="text-red-500">Failed to load chats.</p>';
+    teachersContainer.innerHTML =
+      '<p class="text-red-500">Failed to load chats.</p>';
   }
-}
+  }
+
     async function loadSuggestions() {
   const suggestedContainer = document.getElementById("suggestedContainer");
   const token = localStorage.getItem("auth_token");
