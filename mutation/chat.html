@@ -180,31 +180,45 @@ async function loadMessages() {
 
 // Send message function (with button disable)
 async function sendMessage() {
-  const message = chatInput.value.trim();
-  if (!message) return;
+  const messageText = chatInput.value.trim();
+  if (!messageText) return;
 
-  sendBtn.disabled = true;          // disable button while sending
-  sendBtn.classList.add("opacity-50"); // optional visual feedback
+  sendBtn.disabled = true;
+  sendBtn.classList.add("opacity-50");
 
   try {
-    const token = localStorage.getItem("auth_token");
-    await fetch(`/.netlify/functions/send-message`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token 
-      },
-      body: JSON.stringify({ receiver_id: receiverId, message })
-    });
+    // Insert message directly into Supabase
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        sender_id: myId,
+        receiver_id: receiverId,
+        message: messageText,
+        is_read: false,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error sending message:", error);
+      return;
+    }
 
     chatInput.value = "";
-    chatInput.style.height = 'auto'; // reset textarea height
-    await loadMessages();
-    scrollToBottom();
+    chatInput.style.height = 'auto';
+    
+    // Append the new message immediately
+    const bubble = createBubble(data, true);
+    chatMessages.appendChild(bubble);
+    bubble.scrollIntoView({ behavior: "smooth", block: "end" });
+    lastMessageId = data.id;
+    hideNewMsgIndicator();
+
   } catch (err) {
-    console.error("Error sending message:", err);
+    console.error("Unexpected error sending message:", err);
   } finally {
-    sendBtn.disabled = false;         // re-enable button
+    sendBtn.disabled = false;
     sendBtn.classList.remove("opacity-50");
   }
 }
