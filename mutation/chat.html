@@ -52,7 +52,7 @@
 const SUPABASE_URL = "https://sevupsilpsudqnjlgzgp.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNldnVwc2lscHN1ZHFuamxnemdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDk2NjUsImV4cCI6MjA4ODIyNTY2NX0.lRWW9BEz_Eqsj7OM07z2H-c7TGuHaaxGUDvORQliBdY";
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
