@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Teacher Chat</title>
 <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
 </head>
 <body class="bg-gray-100 flex flex-col" style="height:100dvh;">
 
@@ -29,14 +28,12 @@
     <!-- Input Footer -->
     <footer class="bg-white p-2 border-t flex gap-2 flex-shrink-0"
             style="height:4.5rem; padding-bottom:env(safe-area-inset-bottom);">
-     <!-- leave button space -->
       <textarea 
-        
         id="chatInput"
         rows="1"
         class="flex-1 border rounded-2xl px-4 py-2 outline-none focus:ring-2 focus:ring-blue-400 resize-none"
         placeholder="Type a message..."
-        style="height:3.5rem;">  </textarea>
+        style="height:3.5rem;"  <!-- leave button space --></textarea>
       <button 
     id="sendBtn"
     class="bg-blue-600 text-white px-5 rounded-full hover:bg-blue-700 transition flex items-center justify-center"
@@ -50,11 +47,6 @@
 </body>
 
     <script>
-      // Supabase client (public anon key only)
-const SUPABASE_URL = "https://sevupsilpsudqnjlgzgp.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNldnVwc2lscHN1ZHFuamxnemdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NDk2NjUsImV4cCI6MjA4ODIyNTY2NX0.lRWW9BEz_Eqsj7OM07z2H-c7TGuHaaxGUDvORQliBdY";
-
-const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const chatMessages = document.getElementById("chatMessages");
 const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
@@ -69,37 +61,20 @@ let lastMessageId = 0; // track last displayed message
 let newMsgCount = 0;
 
 // Create chat bubble
-function createBubble(messageObj, isMine) {
+function createBubble(message, isMine) {
   const div = document.createElement("div");
   div.className = `flex ${isMine ? "justify-end" : "justify-start"}`;
 
   const bubble = document.createElement("div");
   bubble.className = `
-    max-w-xs px-4 py-2 rounded-2xl shadow relative
+    max-w-xs px-4 py-2 rounded-2xl shadow
     ${isMine ? "bg-blue-600 text-white rounded-br-none" : "bg-white text-gray-800 rounded-bl-none"}
   `;
-
-  bubble.innerHTML = `<div>${messageObj.message}</div>`;
-
-  // Add ticks only for my messages
-  if (isMine) {
-    const status = document.createElement("div");
-    status.className = "text-xs mt-1 text-right";
-
-    if (messageObj.read_at) {
-      status.innerHTML = `<span class="text-blue-200">✓✓</span>`;
-    } else if (messageObj.delivered_at) {
-      status.innerHTML = `<span class="text-gray-300">✓✓</span>`;
-    } else {
-      status.innerHTML = `<span class="text-gray-300">✓</span>`;
-    }
-
-    bubble.appendChild(status);
-  }
+  bubble.textContent = message;
 
   div.appendChild(bubble);
   return div;
-      }
+}
 
 // Check if user is scrolled near bottom
 function isScrolledToBottom() {
@@ -127,32 +102,24 @@ function scrollToBottom() {
 // Click floating indicator => scroll to bottom
 newMsgIndicator.addEventListener("click", scrollToBottom);
 
+// Load and append only new messages
 async function loadMessages() {
   try {
+    const token = localStorage.getItem("auth_token");
+    const res = await fetch(`/.netlify/functions/supabase-get-messages?receiver_id=${receiverId}`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    const data = await res.json();
+
     const atBottom = isScrolledToBottom();
 
-    // Fetch only messages newer than lastMessageId
-    const { data: messages, error } = await supabase
-      .from('messages')
-      .select('*')
-      .or(`and(sender_id.eq.${myId},receiver_id.eq.${receiverId}),and(sender_id.eq.${receiverId},receiver_id.eq.${myId})`)
-      .gt('id', lastMessageId)
-      .order('created_at', { ascending: true });
+    data.messages.forEach(m => {
+      if (m.id <= lastMessageId) return; // skip old messages
 
-    if (error) {
-      console.error("Error loading messages:", error);
-      return;
-    }
-
-    let newMessagesAdded = false;
-
-    messages.forEach(m => {
       const isMine = String(m.sender_id) === String(myId);
-      const bubble = createBubble(m, isMine);
+      const bubble = createBubble(m.message, isMine);
       chatMessages.appendChild(bubble);
-
       lastMessageId = m.id;
-      newMessagesAdded = true;
 
       if (atBottom || isMine) {
         bubble.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -162,65 +129,38 @@ async function loadMessages() {
         showNewMsgIndicator(newMsgCount);
       }
     });
-
-    // Optional: mark messages as read in Supabase
-    if (newMessagesAdded) {
-      const { error: readError } = await supabase
-        .from('messages')
-        .update({ is_read: true, read_at: new Date().toISOString() })
-        .eq('receiver_id', myId)
-        .eq('sender_id', receiverId)
-        .lte('id', lastMessageId); // mark all up to last fetched message
-
-      if (readError) console.error("Error marking messages as read:", readError);
-    }
-
   } catch (err) {
-    console.error("Unexpected error loading messages:", err);
+    console.error("Error loading messages:", err);
   }
-      }
+}
 
 // Send message function (with button disable)
 async function sendMessage() {
-  const messageText = chatInput.value.trim();
-  if (!messageText) return;
+  const message = chatInput.value.trim();
+  if (!message) return;
 
-  sendBtn.disabled = true;
-  sendBtn.classList.add("opacity-50");
+  sendBtn.disabled = true;          // disable button while sending
+  sendBtn.classList.add("opacity-50"); // optional visual feedback
 
   try {
-    // Insert message directly into Supabase
-    const { data, error } = await supabase
-      .from('messages')
-      .insert({
-        sender_id: myId,
-        receiver_id: receiverId,
-        message: messageText,
-        is_read: false,
-        created_at: new Date().toISOString()
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error sending message:", error);
-      return;
-    }
+    const token = localStorage.getItem("auth_token");
+    await fetch(`/.netlify/functions/supabase-send-message`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token 
+      },
+      body: JSON.stringify({ receiver_id: receiverId, message })
+    });
 
     chatInput.value = "";
-    chatInput.style.height = 'auto';
-    
-    // Append the new message immediately
-    const bubble = createBubble(data, true);
-    chatMessages.appendChild(bubble);
-    bubble.scrollIntoView({ behavior: "smooth", block: "end" });
-    lastMessageId = data.id;
-    hideNewMsgIndicator();
-
+    chatInput.style.height = 'auto'; // reset textarea height
+    await loadMessages();
+    scrollToBottom();
   } catch (err) {
-    console.error("Unexpected error sending message:", err);
+    console.error("Error sending message:", err);
   } finally {
-    sendBtn.disabled = false;
+    sendBtn.disabled = false;         // re-enable button
     sendBtn.classList.remove("opacity-50");
   }
 }
@@ -252,4 +192,4 @@ loadMessages();
   </script>
 
 </body>
-  </html>
+</html>
