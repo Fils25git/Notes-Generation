@@ -275,20 +275,21 @@ textarea:focus {
         flex-direction: row;
     }
 }
- .diagram-wrapper {
+.diagram-wrapper {
     position: relative;
     width: 100%;
-    max-width: 900px;   /* larger than before */
-    aspect-ratio: 1 / 1.1;
+    max-width: 900px;
     margin: auto;
+    aspect-ratio: 1 / 1.1;  /* maintains ratio */
+}
+
 		}
 		#themeWebOutput {
-    width: 100vw;               /* full screen width */
-    margin-left: calc(-50vw + 50%); /* escape container limits */
-    padding: 20px 10px;
+    width: 100%;         /* full container width */
+    margin: 0 auto;      /* center */
+    padding: 10px;       /* keep spacing */
     box-sizing: border-box;
-    background: #f9f9f9;
-		}
+			}
 
 /* SVG lines */
 .lines {
@@ -304,18 +305,21 @@ textarea:focus {
 
 /* Boxes */
 .box {
+    .box {
     position: absolute;
-    width: 20%;
-    height: 120px;              /* fixed height */
-    padding: 10px 12px;
-    font-size: 14px;            /* starting size */
-    text-align: left;
+    padding: 8px;
+    font-size: clamp(10px, 1.2vw, 14px);  /* responsive font */
+    text-align: center;
     border: 2px solid #333;
-    border-radius: 14px;
+    border-radius: 12px;
     background: #fff;
     font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 
+    width: auto;               /* remove fixed width */
+    min-width: 80px;           /* ensures tiny screens don't break */
+    max-width: 180px;          /* prevents too wide on desktop */
+    height: auto;              /* let it grow with content */
+		}
     word-wrap: break-word;
     overflow-wrap: break-word;
     word-break: break-word;
@@ -337,7 +341,7 @@ textarea:focus {
 }
 
 /* OUTER BOX POSITIONS — PUSHED OUTWARD */
-.top { top: 15%; left: 30%; width:200px}
+.top { top: 15%; left: 30%; width:20%}
 
 .left { top: 20%; left: 1%; }
 
@@ -347,11 +351,22 @@ textarea:focus {
 
 .bottom-left { bottom: 10%; left: 1%; }
 
-.bottom-right { bottom: 8%; right: 31%; width:200px }
+.bottom-right { bottom: 8%; right: 31%; width:20% }
 	
 /* ==========================
    PRINT STYLING
 ========================== */
+@media (max-width: 480px) {
+    .box {
+        font-size: 10px;   /* smaller text */
+        padding: 4px;
+        width: 35%;        /* wider boxes for readability */
+    }
+
+    .top, .bottom-right, .center {
+        width: 40%;        /* adapt outer boxes */
+    }
+}
 @media print {
 	
     .diagram-wrapper {
