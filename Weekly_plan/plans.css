@@ -283,13 +283,12 @@ textarea:focus {
     aspect-ratio: 1 / 1.1;  /* maintains ratio */
 }
 
-		}
-		#themeWebOutput {
-    width: 100%;         /* full container width */
-    margin: 0 auto;      /* center */
-    padding: 10px;       /* keep spacing */
+#themeWebOutput {
+    width: 100%;
+    margin: 0 auto;
+    padding: 10px;
     box-sizing: border-box;
-			}
+}
 
 /* SVG lines */
 .lines {
@@ -305,7 +304,6 @@ textarea:focus {
 
 /* Boxes */
 .box {
-    .box {
     position: absolute;
     padding: 8px;
     font-size: clamp(10px, 1.2vw, 14px);  /* responsive font */
@@ -315,23 +313,23 @@ textarea:focus {
     background: #fff;
     font-weight: bold;
 
-    width: auto;               /* remove fixed width */
-    min-width: 80px;           /* ensures tiny screens don't break */
-    max-width: 180px;          /* prevents too wide on desktop */
-    height: auto;              /* let it grow with content */
-		}
+    width: auto;
+    min-width: 80px;
+    max-width: 180px;
+    height: auto;
+
     word-wrap: break-word;
     overflow-wrap: break-word;
     word-break: break-word;
     white-space: normal;
-
-    overflow: hidden;           /* required for shrinking */
+    overflow: hidden;
 }
 
 .box b,
 .box strong {
     text-decoration: underline;
 }
+
 /* CENTER */
 .center {
     top: 44%;
@@ -340,31 +338,24 @@ textarea:focus {
     width: 45%;
 }
 
-/* OUTER BOX POSITIONS — PUSHED OUTWARD */
-.top { top: 15%; left: 30%; width:20%}
-
+/* OUTER BOX POSITIONS */
+.top { top: 15%; left: 30%; width:20%; }
 .left { top: 20%; left: 1%; }
-
 .right { top: 25%; right: 1%; }
-
 .bottom { bottom: 20%; left: 75%; }
-
 .bottom-left { bottom: 10%; left: 1%; }
+.bottom-right { bottom: 8%; right: 31%; width:20%; }
 
-.bottom-right { bottom: 8%; right: 31%; width:20% }
-	
-/* ==========================
-   PRINT STYLING
-========================== */
+/* Small screens */
 @media (max-width: 480px) {
     .box {
-        font-size: 10px;   /* smaller text */
+        font-size: 10px;
         padding: 4px;
-        width: 35%;        /* wider boxes for readability */
+        width: 35%;
     }
 
     .top, .bottom-right, .center {
-        width: 40%;        /* adapt outer boxes */
+        width: 40%;
     }
 }
 @media print {
