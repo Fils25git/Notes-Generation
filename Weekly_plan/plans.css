@@ -275,20 +275,20 @@ textarea:focus {
         flex-direction: row;
     }
 }
-.diagram-wrapper {
+ .diagram-wrapper {
     position: relative;
     width: 100%;
-    max-width: 900px;
+    max-width: 900px;   /* larger than before */
+    aspect-ratio: 1 / 1.1;
     margin: auto;
-    aspect-ratio: 1 / 1.1;  /* maintains ratio */
-}
-
-#themeWebOutput {
-    width: 100%;
-    margin: 0 auto;
-    padding: 10px;
+		}
+		#themeWebOutput {
+    width: 100vw;               /* full screen width */
+    margin-left: calc(-50vw + 50%); /* escape container limits */
+    padding: 20px 10px;
     box-sizing: border-box;
-}
+    background: #f9f9f9;
+		}
 
 /* SVG lines */
 .lines {
@@ -305,31 +305,29 @@ textarea:focus {
 /* Boxes */
 .box {
     position: absolute;
-    padding: 8px;
-    font-size: clamp(10px, 1.2vw, 14px);  /* responsive font */
-    text-align: center;
+    width: 20%;
+    height: 120px;              /* fixed height */
+    padding: 10px 12px;
+    font-size: 14px;            /* starting size */
+    text-align: left;
     border: 2px solid #333;
-    border-radius: 12px;
+    border-radius: 14px;
     background: #fff;
     font-weight: bold;
-
-    width: auto;
-    min-width: 80px;
-    max-width: 180px;
-    height: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 
     word-wrap: break-word;
     overflow-wrap: break-word;
     word-break: break-word;
     white-space: normal;
-    overflow: hidden;
+
+    overflow: hidden;           /* required for shrinking */
 }
 
 .box b,
 .box strong {
     text-decoration: underline;
 }
-
 /* CENTER */
 .center {
     top: 44%;
@@ -338,26 +336,22 @@ textarea:focus {
     width: 45%;
 }
 
-/* OUTER BOX POSITIONS */
-.top { top: 15%; left: 30%; width:20%; }
+/* OUTER BOX POSITIONS — PUSHED OUTWARD */
+.top { top: 15%; left: 30%; width:200px}
+
 .left { top: 20%; left: 1%; }
+
 .right { top: 25%; right: 1%; }
+
 .bottom { bottom: 20%; left: 75%; }
+
 .bottom-left { bottom: 10%; left: 1%; }
-.bottom-right { bottom: 8%; right: 31%; width:20%; }
 
-/* Small screens */
-@media (max-width: 480px) {
-    .box {
-        font-size: 10px;
-        padding: 4px;
-        width: 35%;
-    }
-
-    .top, .bottom-right, .center {
-        width: 40%;
-    }
-}
+.bottom-right { bottom: 8%; right: 31%; width:200px }
+	
+/* ==========================
+   PRINT STYLING
+========================== */
 @media print {
 	
     .diagram-wrapper {
@@ -398,4 +392,4 @@ textarea:focus {
     .lesson-plan {
         font-size: 9pt;
     }
-}
+	}
