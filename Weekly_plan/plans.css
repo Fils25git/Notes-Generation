@@ -348,6 +348,79 @@ textarea:focus {
 .bottom-left { bottom: 10%; left: 1%; }
 
 .bottom-right { bottom: 8%; right: 31%; width:200px }
+/* ==========================
+   RESPONSIVE DESIGN
+========================== */
+
+/* Tablets */
+@media (max-width: 900px) {
+
+.box{
+    height: auto;
+    min-height: 90px;
+    font-size: 13px;
+}
+
+.top{
+    width: 25%;
+}
+
+.bottom-right{
+    width: 25%;
+}
+
+.center{
+    width: 50%;
+}
+
+}
+
+
+/* Mobile devices */
+@media (max-width: 600px) {
+
+.diagram-wrapper{
+    max-width: 100%;
+}
+
+.box{
+    width: 32%;
+    min-height: 80px;
+    font-size: 11px;
+    padding: 6px;
+}
+
+.center{
+    width: 60%;
+    left: 20%;
+}
+
+.top{
+    left: 34%;
+}
+
+.bottom-right{
+    right: 20%;
+}
+
+}
+
+
+/* Very small phones */
+@media (max-width: 400px){
+
+.box{
+    width: 38%;
+    font-size: 10px;
+    min-height: 70px;
+}
+
+.center{
+    width: 65%;
+    left: 18%;
+}
+
+}
 	
 /* ==========================
    PRINT STYLING
