@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Curriculum Vitae</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    margin:40px;
+    line-height:1.6;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:5px;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+h2{
+    border-bottom:2px solid #333;
+    padding-bottom:5px;
+    margin-top:30px;
+}
+
+ul,ol{
+    padding-left:20px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+table,th,td{
+    border:1px solid #333;
+}
+
+th,td{
+    padding:8px;
+}
+
+.signature{
+    margin-top:40px;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<h1>CURRICULUM VITAE</h1>
+
+<div class="header">
+<strong>{{fullName}}</strong><br>
+{{placeOfLiving}} | {{phone}} | {{email}}
+</div>
+
+
+
+<h2>Personal Information</h2>
+
+<p><b>Date of Birth:</b> {{dob}}</p>
+<p><b>Marital Status:</b> {{maritalStatus}}</p>
+<p><b>Father:</b> {{fatherName}}</p>
+<p><b>Mother:</b> {{motherName}}</p>
+<p><b>Birth Place:</b> {{birthPlace}}</p>
+<p><b>ID Number:</b> {{idNumber}}</p>
+
+
+
+<h2>Contacts</h2>
+
+<p><b>Phone:</b> {{phone}}</p>
+<p><b>WhatsApp:</b> {{whatsapp}}</p>
+<p><b>Email:</b> {{email}}</p>
+
+
+
+<h2>Schools Attended</h2>
+
+<ul id="educationList">
+
+<li>{{education}}</li>
+
+</ul>
+
+
+
+<h2>Languages</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>No.</th>
+<th>Language</th>
+<th>Level</th>
+</tr>
+</thead>
+
+<tbody id="languageTable">
+
+<tr>
+<td>{{langNo}}</td>
+<td>{{language}}</td>
+<td>{{level}}</td>
+</tr>
+
+</tbody>
+
+</table>
+
+
+
+<h2>Computer Skills</h2>
+
+<p>{{computerSkills}}</p>
+
+
+
+<h2>Professional Experience</h2>
+
+<ul id="experienceList">
+
+<li>{{experience}}</li>
+
+</ul>
+
+
+
+<h2>Hobbies</h2>
+
+<ol id="hobbyList">
+
+<li>{{hobby}}</li>
+
+</ol>
+
+
+
+<h2>Others</h2>
+
+<p>{{otherSkills}}</p>
+
+
+
+<h2>Witnesses</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Title</th>
+<th>Telephone</th>
+</tr>
+</thead>
+
+<tbody id="referenceTable">
+
+<tr>
+<td>{{refName}}</td>
+<td>{{refTitle}}</td>
+<td>{{refPhone}}</td>
+</tr>
+
+</tbody>
+
+</table>
+
+
+
+<h2>Declaration</h2>
+
+<p>
+I, <b>{{fullName}}</b>, declare that the information mentioned above is true and correct.
+</p>
+
+
+
+<div class="signature">
+
+<p><b>Date:</b> {{date}}</p>
+
+<p><b>Signature:</b></p>
+
+<p>{{fullName}}</p>
+
+</div>
+
+
+</body>
+</html>
