@@ -505,7 +505,7 @@ function getNextPlanFile(language, email) {
     const folder = planFolders[language];
 
     // Total plans per language
-    const totalPlans = language === "english" ? 10 : 10; // adjust if needed
+    const totalPlans = language === "english" ? 1 : 1; // adjust if needed
 
     const storageKey = `last_plan_${language}_${email}`;
     let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
