@@ -557,58 +557,7 @@ document.getElementById("cvForm").addEventListener("submit", async (e) => {
     }
 });
 
-async function generateCV(){
 
-  const form = document.getElementById("cvForm");
-  const formData = new FormData(form);
-
-  const language = document.getElementById("cvLanguage").value || "english";
-
-  const cvContent = document.getElementById("cvContent");
-  const resultContainer = document.getElementById("resultContainer");
-
-  try{
-
-    // get rotating template
-    const templatePath = getNextPlanFile(language, userEmail);
-
-    const response = await fetch(templatePath);
-
-    if(!response.ok){
-        throw new Error("Template not found");
-    }
-
-    let template = await response.text();
-
-    const data = Object.fromEntries(formData.entries());
-
-    // replace simple placeholders
-    for(const key in data){
-
-        const value = data[key] || "";
-
-        template = template.replaceAll(`{{${key}}}`, value);
-
-    }
-
-    cvContent.innerHTML = template;
-
-    resultContainer.style.display = "block";
-    form.style.display = "none";
-
-    // show action buttons
-    document.getElementById("downloadBtn").style.display = "inline-block";
-    document.getElementById("editBtn").style.display = "inline-block";
-    document.getElementById("saveBtn").style.display = "inline-block";
-
-    resultContainer.scrollIntoView({behavior:"smooth"});
-
-  }catch(error){
-
-    showFloatingMessage("❌ Failed to load CV template.");
-
-  }
-}
 
   addBtn.addEventListener('click', () => {
     // Create a new experience entry
