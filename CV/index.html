@@ -1,349 +1,479 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fila Assistant - CBC Daily plan Generator</title>
-    <meta property="og:type" content="website" />
-<meta property="og:title" content="Fila Assistant" />
-<meta property="og:description" content=" Fila Assistant is an educational website that offers a wide range of educational resources, including Lesson Plans, and study guides for teachers and students across primary and secondary education" />
-<meta property="og:image" content="https://www.fleduacademy.com/../logo.png" />
-<meta property="og:url" content="https://www.fleduacademy.com" />
-    
-    <link rel="stylesheet" href="plans.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV Generator Form</title>
     <style>
-        /* ================= PRINT ONLY LESSON PLAN ================= */
-/* ================= CLEAN PRINT MODE ================= */
-      .profile-icon {
-    font-size:28px; color:#4f46e5; cursor:pointer;
-}
-/*Responsive footer */
-  footer {
-    margin-top: 20px;
-    text-align: center;
-    font-size: 14px;
-    color: #fff;
-    width: 100%;
+  body {
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+    padding: 20px;
+    margin: 0;
   }
-  footer a {
-    color: #fff;
-    text-decoration: underline;
-    margin: 0 5px;
-      }
-      
-        body{
-            background: linear-gradient(135deg, #6dd5fa, #2980b9);
-        }
-      .floating-message {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: #e74c3c;
-        color: #fff;
-        padding: 18px 22px;
-        border-radius: 14px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        display: none;
-        z-index: 9999;
-        animation: slideIn 0.6s ease;
-        max-width: 300px;
-        line-height: 1.6;
-      }
-        #lessonPlanContent[contenteditable="true"] {
-    border: 2px dashed #007bff;
-    background: #f8fbff;
-    padding: 15px;
-        }
 
-      @keyframes slideIn {
-        from { transform: translateY(30px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
 
-      .floating-message a {
-        color: #fff;
-        text-decoration: underline;
-        font-weight: bold;
-      }
-        /* ===============================
-   FORCE SINGLE-PAGE PDF
-=============================== */
+  form {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  }
 
-      
-        
-        #lessonPlanContent[contenteditable="true"] {
-    border: 2px dashed #007bff;
-    background: #f8fbff;
-    padding: 15px;
-        }
-        .lesson-input {
-  border-left: 4px solid #4f46e5;
-  padding-left: 8px;
-  margin-bottom: 6px;
-            }
-
-@keyframes slideIn {
-        from { transform: translateY(30px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-}
-
-      .floating-message a {
-        color: #fff;
-        text-decoration: underline;
-        font-weight: bold;
-              }
-        #resultContainer {
-  display: none;
-                                    }
-        #resultContainer.show {
+  label {
     display: block;
-    animation: fadeIn 0.4s ease-in-out;
+    margin-top: 15px;
+    font-weight: bold;
+  }
+
+  input, textarea, select, #generate-btn{
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  .section {
+    margin-top: 30px;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+  }
+
+  button {
+    margin-top: 20px;
+    padding: 5px 10px;
+    border: none;
+    background: #4f46e5;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+.required-label::after {
+  content: " *";
+  color: red;
+}
+  button:hover {
+    background: #4338ca;
+  }
+  .result-container{
+display:none;
 }
 
-    </style>
+  /* Flex for multiple inputs on larger screens */
+  .flex-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+.flex-row input[type="month"],
+.flex-row input[type="date"] {
+  flex: none;      /* Don’t stretch */
+  width: 150px;    /* Fixed width */
+}
+
+  /* Responsive media queries */
+  @media (max-width: 768px) {
+    .flex-row {
+      flex-direction: rows;
+    }
+  }
+
+  /* Smaller buttons inline for add/remove */
+  .removeBtn, .removeLangBtn, .removePrimaryBtn, .removeSecondaryBtn, .removeUniversityBtn, .removeCertBtn {
+    width: auto;
+    padding: 5px 10px;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+
+  h3 {
+    margin-top: 20px;
+    color: #4f46e5;
+  }
+
+  hr {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: 0;
+    border-top: 1px solid #ccc;
+  }
+  #cvForm{
+  display:none;
+}
+.language-box{
+  max-width:600px;
+  margin:auto;
+  background:white;
+  padding:25px;
+  border-radius:10px;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
+  text-align:center;
+}
+
+.language-box h2{
+  margin-bottom:5px;
+  color:#4f46e5;
+}
+
+.language-box p{
+  font-size:14px;
+  color:#666;
+  margin-bottom:15px;
+}
+
+.language-box select{
+  width:100%;
+  padding:10px;
+  font-size:16px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+#changeLanguageBtn{
+  background:green;
+}
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- Header -->
-  <div class="header">
-    <div class="header-left">
-        <img src="../logo.png">
-        <h2>Fila Assistant</h2>
-    </div>
+<h1>CV Generator Form</h1>
+<div class="language-box" id="languageBox">
+  <h2>Select CV Language</h2>
+  <p>Hitamo ururimi wifuza ko umwirondoro (CV) ugaragaramo</p>
 
-    <!-- Profile Icon (fixed right) -->
-    <i id="profileIcon"
-       class="fas fa-user-circle profile-icon"
-       onclick="go('../profile.html')"
-       title="My Profile">
-    </i>
+  <label for="cvLanguage" class="required-label">Language</label>
+
+  <select id="cvLanguage" required>
+    <option value="">Choose Language</option>
+    <option value="english">English</option>
+    <option value="kinyarwanda">Kinyarwanda</option>
+    <option value="french">French</option>
+    <option value="kiswahili">Kiswahili</option>
+  </select>
 </div>
-   
-    <!-- Form -->
-    <div class="form-container">
-        <p><b>Fill in the required fields below To Fetch create daily Plan</b></p><br>
-        
-<form id="lessonForm">
-<div class="form-grid">
 
-<h3>📌 General Information</h3>
+<form id="cvForm">
+  <button type="button" id="changeLanguageBtn">Change Language</button><br>
 
-   <div class="form-group">
-                    <label class="required">Language/Ururimi</label>
-                    <select id="language" required>
-                        <option value="">Select Language</option>
-                        <option value="english">English</option>
-                        <option value="kinyarwanda">Kinyarwanda</option>
-                    </select>
-   </div>
-    <div class="form-group">
-                    <label class="required">First Name/Izina rya mbere (iryo wabatijwe)</label>
-                    <input type="text" id="firstName" placeholder="e.g:, Fils Lambert"  required>
+  <!-- Personal Information -->
+  <div class="section">
+  <h2>Personal Information / Full Profile</h2>
+
+  <label for="fullName" class="required-label">Full Name</label>
+  <input type="text" id="fullName" name="fullName"  placeholder="Your Full Name" required>
+
+  <label for="fatherName" class="required-label">Father's Name</label>
+  <input type="text" id="fatherName" name="fatherName" placeholder="Father's Full Name" required>
+
+  <label for="motherName" class="required-label">Mother's Name</label>
+  <input type="text" id="motherName" name="motherName" placeholder="Mother's Full Name" required>
+
+  <label for="dob" class="required-label">Date of Birth</label>
+  <input type="date" id="dob" name="dob" required>
+
+  <label for="idNumber" class="required-label">ID Number</label>
+  <input type="text" id="idNumber" name="idNumber" placeholder="e.g., National ID" required>
+
+  <label for="placeOfLiving" class="required-label">Place of Living</label>
+  <input type="text" id="placeOfLiving" name="placeOfLiving" placeholder="City, District, Country" required>
+
+  <label for="maritalStatus" class="required-label">Marital Status</label>
+  <select id="maritalStatus" name="maritalStatus" required>
+    <option value="">Select Status</option>
+    <option value="Single">Single</option>
+    <option value="Married">Married</option>
+    <option value="Divorced">Divorced</option>
+    <option value="Widowed">Widowed</option>
+  </select>
+
+  <label for="email" class="required-label">Email</label>
+  <input type="email" id="email" name="email" placeholder="you@example.com" required>
+
+  <label for="phone" class="required-label">Phone Number</label>
+  <input type="tel" id="phone" name="phone" placeholder="+250 788 123 456" required>
+
+  <label for="linkedin">LinkedIn Profile (Optional)</label>
+  <input type="text" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/username">
+
+  <label for="portfolio">Portfolio / Website (Optional)</label>
+  <input type="text" id="portfolio" name="portfolio" placeholder="https://yourwebsite.com">
+</div>
+
+  <!-- Education -->
+  <div class="section">
+  <h2>Education</h2>
+
+  <!-- Primary / Elementary Education -->
+  <h3>Primary / Elementary Education</h3>
+  <div id="primaryContainer">
+    <div class="primaryEntry">
+      <label class="required-label">Institution</label>
+      <input type="text" name="primaryInstitution[]" placeholder="School Name" required>
+<div class="flex-row">
+      <label class="required-label">Start Date</label>
+      <input type="month" name="primaryStart[]" required>
+
+      <label class="required-label">End Date</label>
+      <input type="month" name="primaryEnd[]" required>
+      </div>
+      <hr>
     </div>
-
-    <div class="form-group">
-                    <label class="required">Last  Name/Izina Rya nyuma.</label>
-                    <input type="text" id="lstName" placeholder="e.g:, IRATURINZE" required>
-    </div>
-    
-                <div class="form-group">
-<label class="required"> Itariki Uyikoreyeho/ Date</label>
-<input type="date" id="date" required>
-                </div>
-    
-                <div class="form-group">
-<label class="required" class="required">Date of birth/ Itariki wavukiyeho</label>
-<input type="date" id="dob"  required>
-                </div>
-       
-    
-                <div class="form-group">
-<label class="required">Father's Name/Amazina ya se</label>
-                
-<input type="text" id="fatherName" placeholder=".e.g, Harerimana Faustin" required>
-                </div>
-
-                <div class="form-group">
-<label class="required">Mother's Name/Amazina ya Nyina</label>
-<input type="text" id="motherName" placeholder=".e.g, Dushimimana Rose" required>
-                </div>
-
-    
-     <div class="form-group">
-<label class="optonal">Marital Status/Irangamimerere</label>
-<input type="text" id="status" placeholder="e.g, Single">
-         
-        </div>
+  </div>
   
-    <div class="form-group">
-<label class="required"></label>
-<input type="text" id="lessonEnvironment" placeholder="e.g, Isuku ku mubiri." required>
-    </div>
-    <div class="form-group full-width">
-<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
-<input type="text" id="tmEnvironment" placeholder="e.g, Ntutazishyiramo systeme irashyiramo izayo">
-        </div>
-    <br>
+  <button type="button" id="addPrimaryBtn" style="margin-top: 10px; padding: 8px 15px; background: #4f46e5; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+    + Add Primary Education
+  </button>
 
-<h3>🕣 8:30 – 9:00 | Imibare/Numeracy</h3>
-    <div class="form-group lesson-input">
-<label class="required">Isomo rizibandwaho/Lesson (required)</label>
-<input type="text" id="lessonNumeracy" placeholder="e.g, Kubara 1–10." required>
-    </div>
-    <div class="form-group">
-<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
-<input type="text" id="tmNumeracy" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
-        </div>
-    <br>
+  <!-- Secondary / High School Education -->
+  <h3>Secondary / High School Education</h3>
+  <div id="secondaryContainer">
+    <div class="secondaryEntry">
+      <label class="required-label">Institution</label>
+      <input type="text" name="secondaryInstitution[]" placeholder="High School Name" required>
+<div class="flex-row">
+      <label class="required-label">Start Date</label>
+      <input type="month" name="secondaryStart[]" required>
 
-<h3>🕘 9:00 – 9:30 | Ikinyarwanda</h3>
-    <div class="form-group lesson-input">
-<label class="required">Isomo rizibandwaho/Lesson (required)</label>
-<input type="text" id="lessonKiny" placeholder="e.g, Inyuguti A." required>
-    </div>
-       <div class="form-group">
-<label class="optonal">Imfashanyigisho/teaching aids(Opional)</label>
-<input type="text" id="tmKiny" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
-        </div>
-      
-    <br>
-<h3>🕤 9:30 – 10:00 | English Oral Communication</h3>
-    <div class="form-group lesson-input">
-<label class="required">Isomo rizibandwaho/Lesson (required)</label>
-<input type="text" id="lessonEng" placeholder="e.g, Parts of the body." required>
-    </div>
-    <div class="form-group">
-<label class="optonal">Teaching aids/Imfashanyigisho(Opional)</label>
-<input type="text" id="tmEng" placeholder="e.g, If you dont fill in teaching aids,the systeme will generate some for you">
-        </div>
-    <br>
-<h3>🕥 10:40 – 11:00 | Imikino yo hanze/Outdoor Plays</h3>
-    <div class="form-group lesson-input">
-<label class="required">Isomo rizibandwaho/Lesson (required)</label>
-<input type="text" id="lessonOutdoor" placeholder="e.g, Kubara hifashishijwe ibikoresho byo hanze." required>
-    </div>
-       <div class="form-group">
-<label class="optonal">Imfashanyigisho/Teaching aids(Opional)</label>
-<input type="text" id="tmOutdoor" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
-        </div>
-    <br>
+      <label class="required-label">End Date</label>
+      <input type="month" name="secondaryEnd[]" required>
+      </div>
 
-<h3>🕚 11:00 – 11:20 | Ubugeni n'umuco/ Kubara Inkuru(Arts & Culture / Story Telling)</h3>
+      <label class="required-label">Combination</label>
+      <input type="text" name="secondaryCombination[]" placeholder="Science and Mathematics Education" required>
 
-<!-- Activity select -->
-<div class="form-group lesson-input">
-    <label class="required">Hitamo Igikorwa / Select Activity (required)</label>
-    <select id="activityArtStory" required>
-        <option value="">Hitamo igikorwa</option>
-        <option value="Ubugeni n'umuco / Art & Culture">Ubugeni n'umuco / Art & Culture (Mon, Wed)</option>
-        <option value="Kubara Inkuru mu Kinyarwanda / Storytelling">Kubara Inkuru mu Kinyarwanda / Storytelling (Tue, Thu, Fri)</option>
-    </select>
+      <label class="required-label">Degree / Certification</label>
+      <input type="text" name="secondaryDegree[]" placeholder="School Leaving Certificate / O-Level Result Slip">
+
+      <hr>
+    </div>
+  </div>
+  <button type="button" id="addSecondaryBtn" style="margin-top: 10px; padding: 8px 15px; background: #4f46e5; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+    + Add Secondary Education
+  </button>
+
+  <!-- University / Higher Education -->
+  <h3>University / Higher Education</h3>
+  <div id="universityContainer">
+    <div class="universityEntry">
+      <label class="required-label">Institution</label>
+      <input type="text" name="universityInstitution[]" placeholder="University Name" required>
+<div class="flex-row">
+      <label class="required-label">Start Date</label>
+      <input type="month" name="universityStart[]" required>
+
+      <label class="required-label">End Date</label>
+      <input type="month" name="universityEnd[]" required>
+      </div>
+
+      <label class="required-label">Combination</label>
+      <input type="text" name="universityCombination[]" placeholder="e.g, Computer Science" required>
+
+      <label class="required-label">Degree</label>
+      <input type="text" name="universityDegree[]" placeholder="e.g, A0, Phd,.." required>
+
+      <hr>
+    </div>
+  </div>
+  <button type="button" id="addUniversityBtn" style="margin-top: 10px; padding: 8px 15px; background: #4f46e5; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+    + Add University Education
+  </button>
+
+  <!-- Work Experience -->
+ <div class="section">
+  <h2>Work Experience</h2>
+  <div id="experienceContainer">
+    <!-- Single experience entry template -->
+    <div class="experienceEntry">
+      <label class="required-label">Company / Institution</label>
+      <input type="text" name="company[]" placeholder="XYZ Ltd / School Name" required>
+<div class="flex-row">
+      <label class="required-label">Start Date</label>
+      <input type="month" name="startDate[]" required>
+
+      <label class="required-label">End Date</label>
+      <input type="month" name="endDate[]" required>
+       </div>
+
+      <label class="required-label">Position / Responsibilities</label>
+      <textarea name="position[]" rows="3" placeholder="Example: Software Intern. Developed web apps." required></textarea>
+      <hr>
+    </div>
+  </div>
+
+  <button type="button" id="addExperienceBtn" style="margin-top: 10px; padding: 8px 15px; background: #4f46e5; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+    + Add Experience
+  </button>
 </div>
 
-<!-- Lesson input -->
-<div class="form-group lesson-input">
-    <label class="required">Isomo rizibandwaho / Lesson (required)</label>
-    <input type="text" id="lessonArtStory" placeholder="e.g, Gushushanya ururabo / Inkuru y'inyoni" required>
-</div>
+  <!-- Skills -->
+  <div class="section">
+    <h2>Skills (Optional)</h2>
+    <label for="skills">List your skills (Technical, Soft Skills)</label>
+    <textarea id="skills" name="skills" rows="3" placeholder="Example: HTML, CSS, JavaScript, Communication, Teamwork"></textarea>
+  </div>
 
-<!-- Teaching aids input -->
-<div class="form-group">
-    <label class="optonal">Imfashanyigisho / Teaching Aids (Optional)</label>
-    <input type="text" id="tmArtStory" placeholder="e.g, Ntutazishyiramo, system irashyiramo izayo">
-</div>
-    <br>
+  <!-- Languages -->
+ <div class="section">
+  <h2>Languages</h2>
+  <div id="languageContainer">
+    <!-- Single language entry template -->
+    <div class="languageEntry">
+      <label class="required-label">Language Name</label>
+      <input type="text" name="languageName[]" placeholder="Example: English" required>
 
-<h3>🕛 11:20 – 11:40 | Imikino yo mu nguni/Free corner play</h3>
-    <div class="form-group lesson-input">
-<label class="required">Isomo rizibandwaho/Lesson (required)</label>
-<input type="text" id="lessonCorner" placeholder="e.g, Kubaka inzu." required>
+      <label class="required-label">Fluency</label>
+      <select name="fluency[]" required>
+        <option value="">Select fluency</option>
+        <option value="Excellent">Excellent</option>
+        <option value="Very Good">Very Good</option>
+        <option value="Good">Good</option>
+        <option value="Less Good">Less Good</option>
+        <option value="Not Good">Not Good</option>
+      </select>
+      <hr>
     </div>
-        <div class="form-group">
-<label class="optonal">Imfashanyigisho/Teaching Aids(Opional)</label>
-<input type="text" id="tmCorner" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
-        </div>
-  <br>
-    <h3>🕛 11:40 – 12:00 | Gusezeranaho/Closing Time</h3>
-     <div class="form-group">
-<label class="optonal">Imfashanyigisho/Teaching Aids(Opional)</label>
-<input type="text" id="tmClosing" placeholder="e.g, Ntutazishyiramo, systeme irashyiramo izayo">
-        </div>
-  <br>
+  </div>
 
+  <button type="button" id="addLanguageBtn" style="margin-top: 10px; padding: 8px 15px; background: #4f46e5; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+    + Add Language
+  </button>
+</div>
+
+  <!-- Certifications -->
+  <div class="section">
+  <h2>Certificates / Awards Gained</h2>
+  <div id="certificateContainer">
+    <!-- Single certificate entry template -->
+    <div class="certificateEntry">
+      <label class="required-label">Certificate / Award Name</label>
+      <input type="text" name="certName[]" placeholder="Google IT Support Certificate" required>
+
+      <label class="required-label">Institution</label>
+      <input type="text" name="certInstitution[]" placeholder="Institution Name" required>
+
+      <label class="required-label">Year</label>
+      <select name="certYear[]" required>
+        <option value="">Select Year</option>
+        <!-- Generate last 50 years dynamically -->
+        <script>
+          const currentYear = new Date().getFullYear();
+          for (let i = currentYear; i >= currentYear - 50; i--) {
+            document.write(`<option value="${i}">${i}</option>`);
+          }
+        </script>
+      </select>
+      <hr>
+    </div>
+  </div>
+
+  <button type="button" id="addCertificateBtn" style="margin-top: 10px; padding: 8px 15px; background: #4f46e5; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+    + Add Certificate / Award
+  </button>
+</div>
+<!-- Hobbies Section -->
+<div class="section">
+  <h2>Hobbies</h2>
+  <div id="hobbyContainer">
+    <div class="hobbyEntry">
+      <label class="required-label">Hobby</label>
+      <input type="text" name="hobbies[]" placeholder="e.g., Reading, Swimming" required>
+      <hr>
+    </div>
+  </div>
+  <button type="button" id="addHobbyBtn" style="margin-top: 10px; padding: 8px 15px; background: #4f46e5; color: #fff; border: none; border-radius: 5px; cursor: pointer;">
+    + Add Hobby
+  </button>
+</div>
+  <!-- References -->
+  <div class="section">
+  <h2>References / Witnesses</h2>
+
+  <!-- First Witness -->
+  <h3>First Witness</h3>
+  <label for="ref1Name" class="required-label">Name</label>
+  <input type="text" id="ref1Name" name="refName[]" placeholder="Full Name" required>
+
+  <label for="ref1Phone" class="required-label">Phone Number</label>
+  <input type="tel" id="ref1Phone" name="refPhone[]" placeholder="e.g., +250 788 123 456" required>
+
+  <label for="ref1Email" class="required-label">Email</label>
+  <input type="email" id="ref1Email" name="refEmail[]" placeholder="example@email.com" required>
+
+  <hr>
+
+  <!-- Second Witness -->
+  <h3>Second Witness</h3>
+  <label for="ref2Name" class="required-label">Name</label>
+  <input type="text" id="ref2Name" name="refName[]" placeholder="Full Name" required>
+
+  <label for="ref2Phone" class="required-label">Phone Number</label>
+  <input type="tel" id="ref2Phone" name="refPhone[]" placeholder="e.g., +250 788 123 456" required>
+
+  <label for="ref2Email" class="required-label">Email</label>
+  <input type="email" id="ref2Email" name="refEmail[]" placeholder="example@email.com" required>
+
+  <hr>
+
+  <!-- Third Witness -->
+  <h3>Third Witness</h3>
+  <label for="ref3Name" class="required-label">Name</label>
+  <input type="text" id="ref3Name" name="refName[]" placeholder="Full Name" required>
+
+  <label for="ref3Phone" class="required-label">Phone Number</label>
+  <input type="tel" id="ref3Phone" name="refPhone[]" placeholder="e.g., +250 788 123 456" required>
+
+  <label for="ref3Email" class="required-label">Email</label>
+  <input type="email" id="ref3Email" name="refEmail[]" placeholder="example@email.com" required>
+</div>
+<div class="section">
+  <h2 class="required-label">Confirmation</h2>
+  <label style="display: flex; align-items: center; gap: 10px;">
+    <input type="checkbox" name="confirmInfo" id="confirmInfo"  required>
+    I confirm that all the information provided in this form is accurate and true to the best of my knowledge.
+  </label>
+</div> 
 <hr>
+<br><br>
 
-<button type="submit" class="generate-btn">Create Daily  Plan</button>
-    <div id="errorMessage" class="error-message"></div>
-
+  <button type="submit" id="generate-btn">Generate CV</button>
 </form>
-    </div>
-</div>
-    <!-- Result -->
+
     <div id="resultContainer" class="result-container">
         <div id="actionButtons" class="download-buttons">
             <button class="download-btn" id="editBtn" style="display:none;">Edit</button>
 <button class="download-btn" id="saveBtn" style="display:none;">Save</button>
 <button id="downloadBtn" class="download-btn btn-pdf" onclick="downloadPDFProper()" style="display:none;">📑 Download PDF</button>
-            <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
+            <button class="download-btn btn-pdf" style="display:none;" onclick="window.print()">📑 Save as PDF/Print</button>
             
         </div>
-        <div id="lessonPlanContent" class="lesson-plan"></div>
+        <div id="cvContent" class="cv"></div>
         
     </div>
 </div>
 
 
 <div id="floatingMessage" class="floating-message"></div>
-
-
-<!-- Netlify Identity -->
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-
-   <script>
-       const schoolName = document.getElementById("schoolName");
-const teacherName = document.getElementById("teacherName");
-const date = document.getElementById("date");
-const level = document.getElementById("level");
-const subTopic = document.getElementById("subTopic");
-const subTopicEng = document.getElementById("subTopicEng");
-
-const tmWelcome = document.getElementById("tmWelcome");
-const tmEnvironment = document.getElementById("tmEnvironment");
-const tmNumeracy = document.getElementById("tmNumeracy");
-const tmKiny = document.getElementById("tmKiny");
-const tmEng = document.getElementById("tmEng");
-const tmOutdoor = document.getElementById("tmOutdoor");
-const tmCorner = document.getElementById("tmCorner");
-const tmClosing = document.getElementById("tmClosing");
-
-       const lessonArtStory = document.getElementById("lessonArtStory");
-const tmArtStory = document.getElementById("tmArtStory");
-const activityArtStory = document.getElementById("activityArtStory")
-
-
-const lessonEnvironment = document.getElementById("lessonEnvironment");
-const lessonNumeracy = document.getElementById("lessonNumeracy");
-const lessonKiny = document.getElementById("lessonKiny");
-const lessonEng = document.getElementById("lessonEng");
-const lessonOutdoor = document.getElementById("lessonOutdoor");
-const lessonCorner = document.getElementById("lessonCorner");
-
-const lessonPlanContent = document.getElementById("lessonPlanContent");
-const editBtn = document.getElementById("editBtn");
-const saveBtn = document.getElementById("saveBtn");
-       const downloadBtn = document.getElementById("downloadBtn");
-    // ===============================
-    // AUTH CHECK
-    // ===============================
-    const token = localStorage.getItem("auth_token");
+<script>
+  const addBtn = document.getElementById('addExperienceBtn');
+  const container = document.getElementById('experienceContainer');
+  const token = localStorage.getItem("auth_token");
     const userEmail = localStorage.getItem("user_email");
 
-    if (!token || !userEmail) {
-        window.location.href = "../login.html";
-    }
+     // if (!token || !userEmail) {
+    //    window.location.href = "../login.html";
+   // }
 
     // ===============================
     // FLOATING MESSAGE
@@ -354,21 +484,14 @@ const saveBtn = document.getElementById("saveBtn");
         box.style.display = "block";
         setTimeout(() => box.style.display = "none", 8000);
     }
-
-    // ===============================
-    // PLAN FILES
-    // ===============================
-    // ===============================
 // PLAN FILES
 // ===============================
 const planFolders = {
     english: "proposals",
-    kinyarwanda: "kinyarwanda_plans"
-    // Disabled languages are commented out
-    // kiswahili: "kiswahili_plans",
-    // french: "french_plans"
+    kinyarwanda: "kinyarwanda_plans",
+     kiswahili: "kiswahili_plans",
+     french: "french_plans"
 };
-
 // ===============================
 // GET NEXT PLAN FILE (ROTATION)
 // ===============================
@@ -382,7 +505,7 @@ function getNextPlanFile(language, email) {
     const folder = planFolders[language];
 
     // Total plans per language
-    const totalPlans = language === "english" ? 5 : 10; // adjust if needed
+    const totalPlans = language === "english" ? 10 : 10; // adjust if needed
 
     const storageKey = `last_plan_${language}_${email}`;
     let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
@@ -399,16 +522,13 @@ function getNextPlanFile(language, email) {
     // Return full path to plan file
     return `${folder}/plan${nextIndex}.html`;
 }
-
-
-
-    // ===============================
+// ===============================
 // FORM SUBMIT
 // ===============================
-document.getElementById("lessonForm").addEventListener("submit", async (e) => {
+document.getElementById("cvForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const btn = document.querySelector(".generate-btn");
+    const btn = document.querySelector("#generate-btn");
     btn.disabled = true;
     btn.textContent = "Creating...";
 
@@ -417,317 +537,310 @@ document.getElementById("lessonForm").addEventListener("submit", async (e) => {
         const data = await res.json();
 
         if (data.balance <= 0) {
-            showFloatingMessage("❌ No enough plans remaining. Check your balance");
+            showFloatingMessage("❌ No enough palance remaining. Check your balance");
             btn.disabled = false;
-            btn.textContent = "Create Daily Plan";
+            btn.textContent = "Create cv";
             return;
         }
 
-        await fetch("/.netlify/functions/use-lesson-plan", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: userEmail })
-        });
+        await fetch("/.netlify/functions/use-cv", {
+          method: "POST",
+           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: userEmail })
+       }); 
 
         // ✅ Generate and show plan
-        generateLessonPlan();
+        generateCV();
 
     } catch (err) {
         showFloatingMessage("❌ Network error.");
     }
 });
-       function getAutoTeachingMaterials(activity, language) {
-    const materials = {
-        english: {
-            welcome: "Songs, name cards, attendance chart, greeting poster.",
-            environment: "Real objects, pictures, flashcards, nature items (leaves, stones).",
-            numeracy: "Bottle tops, counting sticks, number charts, blocks.",
-            kinyarwanda: "Amakarita, Ibishushanyo bijyanye n'isomo, igipupe.",
-            english: "Alphabet charts, flashcards, pictures, songs.",
-            outdoor: "Balls, hoops, cones, ropes.",
-            art: "Crayons, paper, clay, paint, beads.",
-            story: "Igitabo k'inkuru,Ibishushanyo byerekeye inkuru.",
-            corner: "Toys, puzzles, blocks, dolls.",
-            closing: "Songs, reflection chart, goodbye poster."
-        },
-        kinyarwanda: {
-            welcome: "Indirimbo, amakarita y'amazina, urutonde rw'abana, ifoto zo gusuhuza.",
-            environment: "Ibikoresho nyabyo, amashusho, ibikoresho byo mu bidukikije.",
-            numeracy: "Udupira duto, utubuye, udukoni, imbonerahamwe y'imibare.",
-            kinyarwanda: "Amashusho y'inkuru, udukarita, ibitabo binini.",
-            english: "flashcards, songs, images.",
-            outdoor: "Imipira, imigozi, udukombe.",
-            art: "Amakaramu y'amabara, impapuro, ibumba, irangi.",
-            story: "Igitabo cy'inkuru, udukino tw'intoki, amashusho.",
-            corner: "Ibikinisho, puzzle, udukoni two kubaka.",
-            closing: "Indirimbo zo gusezera, ishusho yo gusuzuma umunsi."
-        },
-        artStory: {
-    english: "Crayons, paper, clay, paint for Art & Story book for Storytelling",
-    kinyarwanda: "Amakaramu, impapuro, ibumba, ibitabo by'inkuru"
-       }
-    };
 
-    return materials[language][activity];
-       }
+async function generateCV(){
 
-    // ===============================
-    // GENERATE + AUTO SAVE
-    // ===============================
-    function generateLessonPlan() {
-    const language = document.getElementById("language").value || "english";
+  const form = document.getElementById("cvForm");
+  const formData = new FormData(form);
 
-    // ✅ Collect ONLY fields that exist in your form
-    const data = {
-    schoolName: schoolName.value,
-    teacherName: teacherName.value,
-    date: date.value,
-    level: level.value,
-    subTopic: subTopic.value,
-    subTopicEng: subTopicEng.value,
+  const language = document.getElementById("cvLanguage").value || "english";
 
-    lessonEnvironment: lessonEnvironment.value,
-lessonNumeracy: lessonNumeracy.value,
-lessonKiny: lessonKiny.value,
-lessonEng: lessonEng.value,
-lessonOutdoor: lessonOutdoor.value,
-lessonCorner: lessonCorner.value,
+  const cvContent = document.getElementById("cvContent");
+  const resultContainer = document.getElementById("resultContainer");
 
-lessonArtStory: lessonArtStory.value,
-activityArtStory: activityArtStory.value,
-tmArtStory: tmArtStory.value ||
-    (activityArtStory.value.includes("Art")
-        ? getAutoTeachingMaterials("art", language)
-        : getAutoTeachingMaterials("story", language)),
-        
+  try{
 
-    tmWelcome: tmWelcome.value || getAutoTeachingMaterials("welcome", language),
-    tmEnvironment: tmEnvironment.value || getAutoTeachingMaterials("environment", language),
-    tmNumeracy: tmNumeracy.value || getAutoTeachingMaterials("numeracy", language),
-    tmKiny: tmKiny.value || getAutoTeachingMaterials("kinyarwanda", language),
-    tmEng: tmEng.value || getAutoTeachingMaterials("english", language),
-    tmOutdoor: tmOutdoor.value || getAutoTeachingMaterials("outdoor", language),
-    tmCorner: tmCorner.value || getAutoTeachingMaterials("corner", language),
-    tmClosing: tmClosing.value || getAutoTeachingMaterials("closing", language)
-};
+    // get rotating template
+    const templatePath = getNextPlanFile(language, userEmail);
 
-    // ✅ Fetch correct language template
-    fetch(getNextPlanFile(language, userEmail))
-        .then(res => res.text())
-        .then(template => {
+    const response = await fetch(templatePath);
 
-            // 🔥 Replace placeholders {{ }} and ${ }
-            for (const key in data) {
-                template = template
-                    .replace(new RegExp(`{{\\s*${key}\\s*}}`, "g"), data[key] || "")
-                    .replace(new RegExp(`\\$\\{\\s*${key}\\s*\\}`, "g"), data[key] || "");
-            }
-
-            lessonPlanContent.innerHTML = template;
-
-            // ✅ Show result
-            const resultContainer = document.getElementById("resultContainer");
-resultContainer.classList.add("show");
-            
-
-resultContainer.scrollIntoView({ behavior: "smooth" });
-            editBtn.style.display = "inline-block";
-saveBtn.style.display = "inline-block";
-downloadBtn.style.display = "inline-block";
-            // ✅ Auto save
-            autoSavePlan(template, language, data.subTopicEng);
-        })
-        .catch(() => {
-            showFloatingMessage("❌ Failed to load weekly plan.");
-        });
-       }
-
-
-    // ===============================
-    // AUTO SAVE FUNCTION (DATABASE)
-    // ===============================
-    async function autoSavePlan(content, language, title) {
-        try {
-            const res = await fetch("/.netlify/functions/create-user-plan", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    email: userEmail,   // <-- use email instead of user_id
-                    lesson_title: title,
-                    lesson_content: content,
-                    language
-                })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) {
-                console.error("SAVE FAILED:", data);
-                showFloatingMessage("⚠️ Plan generated but not saved.");
-            }
-
-        } catch (err) {
-            console.error("AUTO SAVE ERROR:", err);
-        }
+    if(!response.ok){
+        throw new Error("Template not found");
     }
 
-    // ===============================
-    // EDIT & COPY (UNCHANGED)
-    // ===============================
-    editBtn.addEventListener("click", () => {
-        lessonPlanContent.contentEditable = true;
-        editBtn.disabled = true;
-        saveBtn.disabled = false;
-    });
+    let template = await response.text();
 
-    saveBtn.addEventListener("click", () => {
-        lessonPlanContent.contentEditable = false;
-        editBtn.disabled = false;
-        saveBtn.disabled = true;
-    });
+    const data = Object.fromEntries(formData.entries());
 
-   
-    function go(path) {
-    window.location.href = path;
+    // replace simple placeholders
+    for(const key in data){
+
+        const value = data[key] || "";
+
+        template = template.replaceAll(`{{${key}}}`, value);
+
+    }
+
+    cvContent.innerHTML = template;
+
+    resultContainer.style.display = "block";
+    form.style.display = "none";
+
+    // show action buttons
+    document.getElementById("downloadBtn").style.display = "inline-block";
+    document.getElementById("editBtn").style.display = "inline-block";
+    document.getElementById("saveBtn").style.display = "inline-block";
+
+    resultContainer.scrollIntoView({behavior:"smooth"});
+
+  }catch(error){
+
+    showFloatingMessage("❌ Failed to load CV template.");
+
+  }
 }
 
-// ===============================
-// DOWNLOAD PDF
-// ===============================
-    function downloadPDFProper() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF("landscape", "mm", "a4");
-  const pageWidth = doc.internal.pageSize.getWidth();
+  addBtn.addEventListener('click', () => {
+    // Create a new experience entry
+    const newEntry = document.createElement('div');
+    newEntry.classList.add('experienceEntry');
+    newEntry.innerHTML = `
+      <label class="required-label">Company / Institution</label>
+      <input type="text" name="company[]" placeholder="XYZ Ltd / School Name" required>
 
-let y = 12; // start at top
+      <label class="required-label">Start Date</label>
+      <input type="month" name="startDate[]" required>
 
-// Title
-doc.setFontSize(14);
-doc.text("IMBATA Y'IBIKORWA BY'UMUNSI/Daily Plan", pageWidth / 2, y, { align: "center" });
-y += 10; // move down
+      <label class="required-label">End Date</label>
+      <input type="month" name="endDate[]" required>
 
-// Date and Level
-doc.setFontSize(10);
-doc.text(`ITARIKI/Date: ${date.value}`, 14, y);
-doc.text(`IKICIRO/Level: ${level.value}`, pageWidth - 14, y, { align: "right" });
-y += 12; // leave space before next section
+      <label class="required-label">Position / Responsibilities</label>
+      <textarea name="position[]" rows="3" placeholder="Example: Software Intern. Developed web apps." required></textarea>
+      <button type="button" class="removeBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
+      <hr>
+    `;
 
-// School & Teacher
-doc.setFontSize(10);
-doc.text(`AMAZINA Y'UMUREZI/Teacher's Name: ${teacherName.value}`, 14, y);
-doc.text(`IZINA RY'ISHURI/School Name: ${schoolName.value}`, pageWidth - 14, y, { align: "right" });
-y += 10; // ready for tables or content
-     
-
-  // EXTRACT TABLES
-  const tables = document.querySelectorAll("#lessonPlanContent table");
-  if (!tables.length) {
-    alert("No tables found in lesson plan.");
-    return;
-  }
-
-  function flattenCellContent(td) {
-    let html = td.innerHTML.trim();
-    html = html.replace(/<li>/gi, "• ").replace(/<\/li>/gi, "\n");
-    html = html.replace(/<br\s*\/?>/gi, "\n");
-    html = html.replace(/<[^>]*>/g, "");
-    return html;
-  }
-
-  function extractTableFlattened(table) {
-    const head = [], body = [], rowSpans = [];
-    table.querySelectorAll("thead tr").forEach(tr => {
-      const row = [];
-      tr.querySelectorAll("th").forEach(th => row.push(th.innerText.trim()));
-      head.push(row);
+    // Add remove functionality
+    const removeBtn = newEntry.querySelector('.removeBtn');
+    removeBtn.addEventListener('click', () => {
+      container.removeChild(newEntry);
     });
-    table.querySelectorAll("tbody tr").forEach(tr => {
-      const row = [];
-      let colIndex = 0;
-      tr.querySelectorAll("td").forEach(td => {
-        while (rowSpans[colIndex] && rowSpans[colIndex].rowsLeft > 0) {
-          row.push(rowSpans[colIndex].value);
-          rowSpans[colIndex].rowsLeft--;
-          colIndex++;
-        }
-        const value = flattenCellContent(td);
-        const colspan = parseInt(td.getAttribute("colspan") || "1", 10);
-        const rowspan = parseInt(td.getAttribute("rowspan") || "1", 10);
-        for (let c = 0; c < colspan; c++) row.push(value);
-        if (rowspan > 1) for (let c = 0; c < colspan; c++) rowSpans[colIndex + c] = { value, rowsLeft: rowspan - 1 };
-        colIndex += colspan;
-      });
-      while (rowSpans[colIndex] && rowSpans[colIndex].rowsLeft > 0) {
-        row.push(rowSpans[colIndex].value);
-        rowSpans[colIndex].rowsLeft--;
-        colIndex++;
-      }
-      body.push(row);
-    });
-    return { head, body };
-  }
 
-  // FIRST TABLE
-  const first = extractTableFlattened(tables[0]);
-  doc.autoTable({
-    head: first.head,
-    body: first.body,
-    startY: y,
-    theme: "grid",
-    styles: { fontSize: 10, cellPadding: 3, overflow: "linebreak" },
-    headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
-    margin: { left: 8, right: 8 },
-    rowPageBreak: "avoid",
+    container.appendChild(newEntry);
+  });
+  
+  const addLangBtn = document.getElementById('addLanguageBtn');
+  const langContainer = document.getElementById('languageContainer');
+
+  addLangBtn.addEventListener('click', () => {
+    // Create new language entry
+    const newLang = document.createElement('div');
+    newLang.classList.add('languageEntry');
+    newLang.innerHTML = `
+      <label class="required-label">Language Name</label>
+      <input type="text" name="languageName[]" placeholder="Example: French" required>
+
+      <label class="required-label">Fluency</label>
+      <select name="fluency[]" required>
+        <option value="">Select fluency</option>
+        <option value="Excellent">Excellent</option>
+        <option value="Very Good">Very Good</option>
+        <option value="Good">Good</option>
+        <option value="Less Good">Less Good</option>
+        <option value="Not Good">Not Good</option>
+      </select>
+      <button type="button" class="removeLangBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
+      <hr>
+    `;
+
+    // Remove functionality
+    const removeBtn = newLang.querySelector('.removeLangBtn');
+    removeBtn.addEventListener('click', () => {
+      langContainer.removeChild(newLang);
+    });
+
+    langContainer.appendChild(newLang);
+  });
+   const addPrimaryBtn = document.getElementById('addPrimaryBtn');
+  const primaryContainer = document.getElementById('primaryContainer');
+  addPrimaryBtn.addEventListener('click', () => {
+    const newPrimary = document.createElement('div');
+    newPrimary.classList.add('primaryEntry');
+    newPrimary.innerHTML = `
+      <label class="required-label">Institution</label>
+      <input type="text" name="primaryInstitution[]" placeholder="School Name" required>
+
+      <label class="required-label">Start Date</label>
+      <input type="month" name="primaryStart[]" required>
+
+      <label class="required-label">End Date</label>
+      <input type="month" name="primaryEnd[]" required>
+
+      <button type="button" class="removePrimaryBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
+      <hr>
+    `;
+    newPrimary.querySelector('.removePrimaryBtn').addEventListener('click', () => {
+      primaryContainer.removeChild(newPrimary);
+    });
+    primaryContainer.appendChild(newPrimary);
   });
 
-  // REMAINING TABLES (on NEW PAGE)
-  if (tables.length > 1) {
-    doc.addPage();
-    const mergedHead = [], mergedBody = [];
-    for (let i = 1; i < tables.length; i++) {
-      const t = extractTableFlattened(tables[i]);
-      mergedHead.push(...t.head);
-      mergedBody.push(...t.body);
-    }
-    doc.autoTable({
-      head: mergedHead,
-      body: mergedBody,
-      startY: 18,
-      theme: "grid",
-      styles: { fontSize: 9, cellPadding: 3, overflow: "linebreak" },
-      headStyles: { fillColor: [245, 245, 245], textColor: 0, fontStyle: "bold" },
-      margin: { left: 8, right: 8 },
-      rowPageBreak: "avoid",
+  // SECONDARY
+  const addSecondaryBtn = document.getElementById('addSecondaryBtn');
+  const secondaryContainer = document.getElementById('secondaryContainer');
+  addSecondaryBtn.addEventListener('click', () => {
+    const newSecondary = document.createElement('div');
+    newSecondary.classList.add('secondaryEntry');
+    newSecondary.innerHTML = `
+      <label class="required-label">Institution</label>
+      <input type="text" name="secondaryInstitution[]" placeholder="High School Name" required>
+
+      <label class="required-label">Start Date</label>
+      <input type="month" name="secondaryStart[]" required>
+
+      <label class="required-label">End Date</label>
+      <input type="month" name="secondaryEnd[]" required>
+
+      <label class="required-label">Combination</label>
+      <input type="text" name="secondaryCombination[]" placeholder="Mathematics and physics with education" required>
+
+      <label class="required-label">Degree / Certification</label>
+      <input type="text" name="secondaryDegree[]" placeholder="School Leaving Certificate / O-Level Result Slip" required>
+
+      <button type="button" class="removeSecondaryBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
+      <hr>
+    `;
+    newSecondary.querySelector('.removeSecondaryBtn').addEventListener('click', () => {
+      secondaryContainer.removeChild(newSecondary);
     });
+    secondaryContainer.appendChild(newSecondary);
+  });
+
+  // UNIVERSITY
+  const addUniversityBtn = document.getElementById('addUniversityBtn');
+  const universityContainer = document.getElementById('universityContainer');
+  addUniversityBtn.addEventListener('click', () => {
+    const newUni = document.createElement('div');
+    newUni.classList.add('universityEntry');
+    newUni.innerHTML = `
+      <label class="required-label">Institution</label>
+      <input type="text" name="universityInstitution[]" placeholder="University Name" required>
+
+      <label class="required-label">Start Date</label>
+      <input type="month" name="universityStart[]" required>
+
+      <label class="required-label">End Date</label>
+      <input type="month" name="universityEnd[]" required>
+
+      <label>Combination</label>
+      <input type="text" name="universityCombination[]" placeholder="e.g, Computer Science, Languages Education">
+
+      <label class="required-label">Degree</label>
+      <input type="text" name="universityDegree[]" placeholder= e.g, "A2,  A0, Phd">
+
+      <button type="button" class="removeUniversityBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
+      <hr>
+    `;
+    newUni.querySelector('.removeUniversityBtn').addEventListener('click', () => {
+      universityContainer.removeChild(newUni);
+    });
+    universityContainer.appendChild(newUni);
+  });
+  const addCertBtn = document.getElementById('addCertificateBtn');
+  const certContainer = document.getElementById('certificateContainer');
+
+  addCertBtn.addEventListener('click', () => {
+    const newCert = document.createElement('div');
+    newCert.classList.add('certificateEntry');
+    newCert.innerHTML = `
+      <label class="required-label">Certificate / Award Name</label>
+      <input type="text" name="certName[]" placeholder="Certificate Name" required>
+
+      <label class="required-label">Institution</label>
+      <input type="text" name="certInstitution[]" placeholder="Institution Name" required>
+
+      <label class="required-label">Year</label>
+      <select name="certYear[]" required>
+        <option value="">Select Year</option>
+      </select>
+
+      <button type="button" class="removeCertBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
+      <hr>
+    `;
+
+    // Populate year dropdown dynamically
+    const selectYear = newCert.querySelector('select[name="certYear[]"]');
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear; i >= currentYear - 50; i--) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.text = i;
+      selectYear.appendChild(option);
+    }
+
+    // Remove functionality
+    newCert.querySelector('.removeCertBtn').addEventListener('click', () => {
+      certContainer.removeChild(newCert);
+    });
+
+    certContainer.appendChild(newCert);
+  });
+
+  // Add remove button for the initial entry
+  const addHobbyBtn = document.getElementById('addHobbyBtn');
+const hobbyContainer = document.getElementById('hobbyContainer');
+
+addHobbyBtn.addEventListener('click', () => {
+  // Create new hobby entry
+  const newHobby = document.createElement('div');
+  newHobby.classList.add('hobbyEntry');
+  newHobby.innerHTML = `
+      <label class="required-label">Hobby</label>
+      <input type="text" name="hobbies[]" placeholder="e.g., Painting" required>
+      <button type="button" class="removeHobbyBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
+      <hr>
+    `;
+
+  // Remove button functionality
+  const removeBtn = newHobby.querySelector('.removeHobbyBtn');
+  removeBtn.addEventListener('click', () => {
+    hobbyContainer.removeChild(newHobby);
+  });
+
+  // Add the new hobby to the container
+  hobbyContainer.appendChild(newHobby);
+});
+const languageSelect = document.getElementById("cvLanguage");
+const form = document.getElementById("cvForm");
+const languageBox = document.getElementById("languageBox");
+
+languageSelect.addEventListener("change", function(){
+
+  if(this.value !== ""){
+      
+      languageBox.style.display = "none"; // hide language section
+      form.style.display = "block"; // show form
+      form.scrollIntoView({behavior:"smooth"});
+      
   }
 
-  // SAVE
-  // Get today’s date
-const today = new Date().toISOString().split("T")[0];
-
-// Make the filename safe (replace spaces and special characters in subTopicEng)
-const safeSubTopic = subTopicEng.value.replace(/[^a-z0-9]/gi, '_');
-
-// Save PDF with desired format
-doc.save(`${safeSubTopic}_daily_plan_${today}.pdf`);
-}
-  // ===============================
-// HANDLE 11:00–11:20 SELECT
-// ===============================
-
-
-activityArtStory.addEventListener("change", () => {
-    const language = document.getElementById("language").value || "english";
-
-    if (activityArtStory.value.includes("Art")) {
-        tmArtStory.value = getAutoTeachingMaterials("art", language);
-    } else if (activityArtStory.value.includes("Story")) {
-        tmArtStory.value = getAutoTeachingMaterials("story", language);
-    }
 });
-    </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+document.getElementById("changeLanguageBtn").onclick = function(){
+  form.style.display = "none";
+  languageBox.style.display = "block";
+};
+</script>
+<script src="generateCV.js"></script>
 
 </body>
-    </html>
+      </html>
