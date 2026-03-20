@@ -8,8 +8,16 @@ const lang = document.getElementById("cvLanguage").value || "english";
 
 // load template
 const response = await fetch(`templates/${lang}/cv-template.html`);
-let template = await response.text();
 
+console.log("Fetch status:", response.status);
+
+if (!response.ok) {
+    alert("Template NOT found → " + response.status);
+    return;
+}
+
+let template = await response.text();
+console.log("Template loaded:", template.substring(0, 200));
 
 // BASIC DATA
 const fullName = formData.get("fullName");
