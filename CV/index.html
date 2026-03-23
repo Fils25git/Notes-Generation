@@ -465,330 +465,235 @@ display:none;
 
 
 <div id="floatingMessage" class="floating-message"></div>
-<script>
-  const addBtn = document.getElementById('addExperienceBtn');
-  const container = document.getElementById('experienceContainer');
-  const token = localStorage.getItem("auth_token");
-    const userEmail = localStorage.getItem("user_email");
-
-     // if (!token || !userEmail) {
-    //    window.location.href = "../login.html";
-   // }
-
-    // ===============================
-    // FLOATING MESSAGE
-    // ===============================
-    function showFloatingMessage(msg) {
-        const box = document.getElementById("floatingMessage");
-        box.innerHTML = msg;
-        box.style.display = "block";
-        setTimeout(() => box.style.display = "none", 8000);
-    }
-// PLAN FILES
+    <script>
 // ===============================
-const planFolders = {
-    english: "proposals",
-    kinyarwanda: "kinyarwanda_plans",
-     kiswahili: "kiswahili_plans",
-     french: "french_plans"
-};
+// FLOATING MESSAGE
 // ===============================
-// GET NEXT PLAN FILE (ROTATION)
-// ===============================
-function getNextPlanFile(language, email) {
-    // Only allow active languages
-    const activeLangs = Object.keys(planFolders);
-    if (!activeLangs.includes(language)) {
-        language = "english"; // fallback if disabled language is somehow chosen
-    }
-
-    const folder = planFolders[language];
-
-    // Total plans per language
-    const totalPlans = language === "english" ? 1 : 1; // adjust if needed
-
-    const storageKey = `last_plan_${language}_${email}`;
-    let lastIndex = parseInt(localStorage.getItem(storageKey)) || 0;
-
-    // Get next index
-    let nextIndex = lastIndex + 1;
-
-    // Restart rotation if exceeded total
-    if (nextIndex > totalPlans) nextIndex = 1;
-
-    // Save next index for next fetch
-    localStorage.setItem(storageKey, nextIndex);
-
-    // Return full path to plan file
-    return `${folder}/plan${nextIndex}.html`;
+function showFloatingMessage(msg) {
+    const box = document.getElementById("floatingMessage");
+    box.innerHTML = msg;
+    box.style.display = "block";
+    setTimeout(() => box.style.display = "none", 4000);
 }
+
 // ===============================
-// FORM SUBMIT
+// FORM SUBMIT (CLEAN VERSION)
 // ===============================
 document.getElementById("cvForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const btn = document.querySelector("#generate-btn");
+    console.log("Submitting CV...");
+
+    const btn = document.getElementById("generate-btn");
     btn.disabled = true;
-    btn.textContent = "Creating...";
+    btn.textContent = "Generating...";
 
     try {
-        const res = await fetch(`/.netlify/functions/get-balance?email=${userEmail}`);
-        const data = await res.json();
-
-        if (data.balance <= 0) {
-            showFloatingMessage("❌ No enough palance remaining. Check your balance");
-            btn.disabled = false;
-            btn.textContent = "Create cv";
-            return;
-        }
-
-        await fetch("/.netlify/functions/use-cv", {
-          method: "POST",
-           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: userEmail })
-       }); 
-
-        // ✅ Generate and show plan
-        generateCV();
-
+        await generateCV(); // ONLY job
     } catch (err) {
-        showFloatingMessage("❌ Network error.");
+        console.error(err);
+        showFloatingMessage("❌ Failed to generate CV");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "Generate CV";
     }
 });
 
 
-
-  addBtn.addEventListener('click', () => {
-    // Create a new experience entry
-    const newEntry = document.createElement('div');
-    newEntry.classList.add('experienceEntry');
-    newEntry.innerHTML = `
-      <label class="required-label">Company / Institution</label>
-      <input type="text" name="company[]" placeholder="XYZ Ltd / School Name" required>
-
-      <label class="required-label">Start Date</label>
-      <input type="month" name="startDate[]" required>
-
-      <label class="required-label">End Date</label>
-      <input type="month" name="endDate[]" required>
-
-      <label class="required-label">Position / Responsibilities</label>
-      <textarea name="position[]" rows="3" placeholder="Example: Software Intern. Developed web apps." required></textarea>
-      <button type="button" class="removeBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
-      <hr>
-    `;
-
-    // Add remove functionality
-    const removeBtn = newEntry.querySelector('.removeBtn');
-    removeBtn.addEventListener('click', () => {
-      container.removeChild(newEntry);
-    });
-
-    container.appendChild(newEntry);
-  });
-  
-  const addLangBtn = document.getElementById('addLanguageBtn');
-  const langContainer = document.getElementById('languageContainer');
-
-  addLangBtn.addEventListener('click', () => {
-    // Create new language entry
-    const newLang = document.createElement('div');
-    newLang.classList.add('languageEntry');
-    newLang.innerHTML = `
-      <label class="required-label">Language Name</label>
-      <input type="text" name="languageName[]" placeholder="Example: French" required>
-
-      <label class="required-label">Fluency</label>
-      <select name="fluency[]" required>
-        <option value="">Select fluency</option>
-        <option value="Excellent">Excellent</option>
-        <option value="Very Good">Very Good</option>
-        <option value="Good">Good</option>
-        <option value="Less Good">Less Good</option>
-        <option value="Not Good">Not Good</option>
-      </select>
-      <button type="button" class="removeLangBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
-      <hr>
-    `;
-
-    // Remove functionality
-    const removeBtn = newLang.querySelector('.removeLangBtn');
-    removeBtn.addEventListener('click', () => {
-      langContainer.removeChild(newLang);
-    });
-
-    langContainer.appendChild(newLang);
-  });
-   const addPrimaryBtn = document.getElementById('addPrimaryBtn');
-  const primaryContainer = document.getElementById('primaryContainer');
-  addPrimaryBtn.addEventListener('click', () => {
-    const newPrimary = document.createElement('div');
-    newPrimary.classList.add('primaryEntry');
-    newPrimary.innerHTML = `
-      <label class="required-label">Institution</label>
-      <input type="text" name="primaryInstitution[]" placeholder="School Name" required>
-
-      <label class="required-label">Start Date</label>
-      <input type="month" name="primaryStart[]" required>
-
-      <label class="required-label">End Date</label>
-      <input type="month" name="primaryEnd[]" required>
-
-      <button type="button" class="removePrimaryBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
-      <hr>
-    `;
-    newPrimary.querySelector('.removePrimaryBtn').addEventListener('click', () => {
-      primaryContainer.removeChild(newPrimary);
-    });
-    primaryContainer.appendChild(newPrimary);
-  });
-
-  // SECONDARY
-  const addSecondaryBtn = document.getElementById('addSecondaryBtn');
-  const secondaryContainer = document.getElementById('secondaryContainer');
-  addSecondaryBtn.addEventListener('click', () => {
-    const newSecondary = document.createElement('div');
-    newSecondary.classList.add('secondaryEntry');
-    newSecondary.innerHTML = `
-      <label class="required-label">Institution</label>
-      <input type="text" name="secondaryInstitution[]" placeholder="High School Name" required>
-
-      <label class="required-label">Start Date</label>
-      <input type="month" name="secondaryStart[]" required>
-
-      <label class="required-label">End Date</label>
-      <input type="month" name="secondaryEnd[]" required>
-
-      <label class="required-label">Combination</label>
-      <input type="text" name="secondaryCombination[]" placeholder="Mathematics and physics with education" required>
-
-      <label class="required-label">Degree / Certification</label>
-      <input type="text" name="secondaryDegree[]" placeholder="School Leaving Certificate / O-Level Result Slip" required>
-
-      <button type="button" class="removeSecondaryBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
-      <hr>
-    `;
-    newSecondary.querySelector('.removeSecondaryBtn').addEventListener('click', () => {
-      secondaryContainer.removeChild(newSecondary);
-    });
-    secondaryContainer.appendChild(newSecondary);
-  });
-
-  // UNIVERSITY
-  const addUniversityBtn = document.getElementById('addUniversityBtn');
-  const universityContainer = document.getElementById('universityContainer');
-  addUniversityBtn.addEventListener('click', () => {
-    const newUni = document.createElement('div');
-    newUni.classList.add('universityEntry');
-    newUni.innerHTML = `
-      <label class="required-label">Institution</label>
-      <input type="text" name="universityInstitution[]" placeholder="University Name" required>
-
-      <label class="required-label">Start Date</label>
-      <input type="month" name="universityStart[]" required>
-
-      <label class="required-label">End Date</label>
-      <input type="month" name="universityEnd[]" required>
-
-      <label>Combination</label>
-      <input type="text" name="universityCombination[]" placeholder="e.g, Computer Science, Languages Education">
-
-      <label class="required-label">Degree</label>
-      <input type="text" name="universityDegree[]" placeholder= e.g, "A2,  A0, Phd">
-
-      <button type="button" class="removeUniversityBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
-      <hr>
-    `;
-    newUni.querySelector('.removeUniversityBtn').addEventListener('click', () => {
-      universityContainer.removeChild(newUni);
-    });
-    universityContainer.appendChild(newUni);
-  });
-  const addCertBtn = document.getElementById('addCertificateBtn');
-  const certContainer = document.getElementById('certificateContainer');
-
-  addCertBtn.addEventListener('click', () => {
-    const newCert = document.createElement('div');
-    newCert.classList.add('certificateEntry');
-    newCert.innerHTML = `
-      <label class="required-label">Certificate / Award Name</label>
-      <input type="text" name="certName[]" placeholder="Certificate Name" required>
-
-      <label class="required-label">Institution</label>
-      <input type="text" name="certInstitution[]" placeholder="Institution Name" required>
-
-      <label class="required-label">Year</label>
-      <select name="certYear[]" required>
-        <option value="">Select Year</option>
-      </select>
-
-      <button type="button" class="removeCertBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
-      <hr>
-    `;
-
-    // Populate year dropdown dynamically
-    const selectYear = newCert.querySelector('select[name="certYear[]"]');
-    const currentYear = new Date().getFullYear();
-    for (let i = currentYear; i >= currentYear - 50; i--) {
-      const option = document.createElement('option');
-      option.value = i;
-      option.text = i;
-      selectYear.appendChild(option);
-    }
-
-    // Remove functionality
-    newCert.querySelector('.removeCertBtn').addEventListener('click', () => {
-      certContainer.removeChild(newCert);
-    });
-
-    certContainer.appendChild(newCert);
-  });
-
-  // Add remove button for the initial entry
-  const addHobbyBtn = document.getElementById('addHobbyBtn');
-const hobbyContainer = document.getElementById('hobbyContainer');
-
-addHobbyBtn.addEventListener('click', () => {
-  // Create new hobby entry
-  const newHobby = document.createElement('div');
-  newHobby.classList.add('hobbyEntry');
-  newHobby.innerHTML = `
-      <label class="required-label">Hobby</label>
-      <input type="text" name="hobbies[]" placeholder="e.g., Painting" required>
-      <button type="button" class="removeHobbyBtn" style="margin-top: 5px; padding: 5px 10px; background: #e11d48; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Remove</button>
-      <hr>
-    `;
-
-  // Remove button functionality
-  const removeBtn = newHobby.querySelector('.removeHobbyBtn');
-  removeBtn.addEventListener('click', () => {
-    hobbyContainer.removeChild(newHobby);
-  });
-
-  // Add the new hobby to the container
-  hobbyContainer.appendChild(newHobby);
-});
+// ===============================
+// LANGUAGE SWITCH
+// ===============================
 const languageSelect = document.getElementById("cvLanguage");
 const form = document.getElementById("cvForm");
 const languageBox = document.getElementById("languageBox");
 
-languageSelect.addEventListener("change", function(){
-
-  if(this.value !== ""){
-      
-      languageBox.style.display = "none"; // hide language section
-      form.style.display = "block"; // show form
-      form.scrollIntoView({behavior:"smooth"});
-      
-  }
-
+languageSelect.addEventListener("change", function () {
+    if (this.value !== "") {
+        languageBox.style.display = "none";
+        form.style.display = "block";
+        form.scrollIntoView({ behavior: "smooth" });
+    }
 });
-document.getElementById("changeLanguageBtn").onclick = function(){
-  form.style.display = "none";
-  languageBox.style.display = "block";
+
+document.getElementById("changeLanguageBtn").onclick = function () {
+    form.style.display = "none";
+    languageBox.style.display = "block";
 };
-</script>
+
+
+// ===============================
+// EXPERIENCE
+// ===============================
+document.getElementById('addExperienceBtn').onclick = () => {
+    const container = document.getElementById('experienceContainer');
+
+    const newEntry = document.createElement('div');
+    newEntry.innerHTML = `
+        <label>Company</label>
+        <input type="text" name="company[]" required>
+
+        <label>Start</label>
+        <input type="month" name="startDate[]" required>
+
+        <label>End</label>
+        <input type="month" name="endDate[]" required>
+
+        <label>Position</label>
+        <textarea name="position[]" required></textarea>
+
+        <button type="button" class="removeBtn">Remove</button>
+        <hr>
+    `;
+
+    newEntry.querySelector('.removeBtn').onclick = () => container.removeChild(newEntry);
+    container.appendChild(newEntry);
+};
+
+
+// ===============================
+// LANGUAGES
+// ===============================
+document.getElementById('addLanguageBtn').onclick = () => {
+    const container = document.getElementById('languageContainer');
+
+    const newLang = document.createElement('div');
+    newLang.innerHTML = `
+        <label>Language</label>
+        <input type="text" name="languageName[]" required>
+
+        <label>Fluency</label>
+        <select name="fluency[]" required>
+            <option value="">Select</option>
+            <option>Excellent</option>
+            <option>Very Good</option>
+            <option>Good</option>
+            <option>Less Good</option>
+        </select>
+
+        <button type="button" class="removeLangBtn">Remove</button>
+        <hr>
+    `;
+
+    newLang.querySelector('.removeLangBtn').onclick = () => container.removeChild(newLang);
+    container.appendChild(newLang);
+};
+
+
+// ===============================
+// PRIMARY EDUCATION
+// ===============================
+document.getElementById('addPrimaryBtn').onclick = () => {
+    const container = document.getElementById('primaryContainer');
+
+    const newItem = document.createElement('div');
+    newItem.innerHTML = `
+        <input type="text" name="primaryInstitution[]" placeholder="School Name" required>
+        <input type="month" name="primaryStart[]" required>
+        <input type="month" name="primaryEnd[]" required>
+
+        <button type="button" class="removeBtn">Remove</button>
+        <hr>
+    `;
+
+    newItem.querySelector('.removeBtn').onclick = () => container.removeChild(newItem);
+    container.appendChild(newItem);
+};
+
+
+// ===============================
+// SECONDARY EDUCATION
+// ===============================
+document.getElementById('addSecondaryBtn').onclick = () => {
+    const container = document.getElementById('secondaryContainer');
+
+    const newItem = document.createElement('div');
+    newItem.innerHTML = `
+        <input type="text" name="secondaryInstitution[]" required>
+        <input type="month" name="secondaryStart[]" required>
+        <input type="month" name="secondaryEnd[]" required>
+        <input type="text" name="secondaryCombination[]" required>
+
+        <button type="button" class="removeBtn">Remove</button>
+        <hr>
+    `;
+
+    newItem.querySelector('.removeBtn').onclick = () => container.removeChild(newItem);
+    container.appendChild(newItem);
+};
+
+
+// ===============================
+// UNIVERSITY
+// ===============================
+document.getElementById('addUniversityBtn').onclick = () => {
+    const container = document.getElementById('universityContainer');
+
+    const newItem = document.createElement('div');
+    newItem.innerHTML = `
+        <input type="text" name="universityInstitution[]" required>
+        <input type="month" name="universityStart[]" required>
+        <input type="month" name="universityEnd[]" required>
+        <input type="text" name="universityCombination[]" required>
+
+        <button type="button" class="removeBtn">Remove</button>
+        <hr>
+    `;
+
+    newItem.querySelector('.removeBtn').onclick = () => container.removeChild(newItem);
+    container.appendChild(newItem);
+};
+
+
+// ===============================
+// CERTIFICATES
+// ===============================
+document.getElementById('addCertificateBtn').onclick = () => {
+    const container = document.getElementById('certificateContainer');
+
+    const newItem = document.createElement('div');
+    newItem.innerHTML = `
+        <input type="text" name="certName[]" required>
+        <input type="text" name="certInstitution[]" required>
+
+        <select name="certYear[]" required></select>
+
+        <button type="button" class="removeBtn">Remove</button>
+        <hr>
+    `;
+
+    const select = newItem.querySelector('select');
+    const year = new Date().getFullYear();
+
+    for (let i = year; i >= year - 50; i--) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.text = i;
+        select.appendChild(opt);
+    }
+
+    newItem.querySelector('.removeBtn').onclick = () => container.removeChild(newItem);
+    container.appendChild(newItem);
+};
+
+
+// ===============================
+// HOBBIES
+// ===============================
+document.getElementById('addHobbyBtn').onclick = () => {
+    const container = document.getElementById('hobbyContainer');
+
+    const newItem = document.createElement('div');
+    newItem.innerHTML = `
+        <input type="text" name="hobbies[]" required>
+        <button type="button" class="removeBtn">Remove</button>
+        <hr>
+    `;
+
+    newItem.querySelector('.removeBtn').onclick = () => container.removeChild(newItem);
+    container.appendChild(newItem);
+};
+
+    </script>
 <script src="generateCV.js"></script>
 
 </body>
