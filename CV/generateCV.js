@@ -7,8 +7,7 @@ const formData = new FormData(form);
 const lang = document.getElementById("cvLanguage").value || "english";
 
 // load template
-const response = await fetch(`./templates/${lang}/cv-template.html`);
-
+const response = await fetch("./templates/" + lang + "/cv-template.html");
 console.log("Fetch status:", response.status);
 
 if (!response.ok) {
