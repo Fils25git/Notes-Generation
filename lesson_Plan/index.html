@@ -468,10 +468,8 @@ async function improveAndSave(originalContent, language, title) {
         return;
     }
 
-    // 🔥 Enable compact mode temporarily
-    element.classList.add("compact-mode");
-
     const { jsPDF } = window.jspdf;
+
     const pdf = new jsPDF("p", "mm", "a4");
 
     const canvas = await html2canvas(element, {
@@ -481,15 +479,26 @@ async function improveAndSave(originalContent, language, title) {
 
     const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-    const pageWidth = 210;
+    const imgWidth = 210; // A4 width in mm
     const pageHeight = 297;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    pdf.addImage(imgData, "JPEG", 0, 0, pageWidth, pageHeight);
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    // First page
+    pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    // Add extra pages if needed
+    while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+    }
 
     pdf.save(`${document.getElementById("lessonTitle").value || "LessonPlan"}.pdf`);
-
-    // 🔥 Remove compact mode after export
-    element.classList.remove("compact-mode");
 });
     // ===============================
     // AUTO SAVE FUNCTION (DATABASE)
