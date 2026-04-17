@@ -468,6 +468,9 @@ async function improveAndSave(originalContent, language, title) {
         return;
     }
 
+    // ✅ ADD HERE (BEFORE CAPTURE)
+    element.classList.add("compact-mode");
+
     const { jsPDF } = window.jspdf;
 
     const pdf = new jsPDF("p", "mm", "a4");
@@ -479,27 +482,27 @@ async function improveAndSave(originalContent, language, title) {
 
     const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-    const imgWidth = 190; // leaves margins
-const x = 10; // A4 width in mm
+    const imgWidth = 190;
+    const x = 10;
     const pageHeight = 297;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    let heightLeft = imgHeight;
     let position = 0;
 
-    // First page
-    pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    while (position < imgHeight) {
+        pdf.addImage(imgData, "JPEG", x, -position, imgWidth, imgHeight);
 
-    // Add extra pages if needed
-    while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        position += pageHeight;
+
+        if (position < imgHeight) {
+            pdf.addPage();
+        }
     }
 
     pdf.save(`${document.getElementById("lessonTitle").value || "LessonPlan"}.pdf`);
+
+    // ✅ REMOVE HERE (AFTER PDF IS DONE)
+    element.classList.remove("compact-mode");
 });
     // ===============================
     // AUTO SAVE FUNCTION (DATABASE)
