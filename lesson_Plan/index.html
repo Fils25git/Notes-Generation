@@ -468,11 +468,22 @@ async function improveAndSave(originalContent, language, title) {
         return;
     }
 
-    // ✅ ADD HERE (BEFORE CAPTURE)
+    // ===============================
+    // ✅ SAVE ORIGINAL STYLES
+    // ===============================
+    const originalWidth = element.style.width;
+    const originalMaxWidth = element.style.maxWidth;
+
+    // ===============================
+    // ✅ APPLY FIXES (BEFORE CAPTURE)
+    // ===============================
     element.classList.add("compact-mode");
 
-    const { jsPDF } = window.jspdf;
+    // Force desktop layout (VERY IMPORTANT for mobile)
+    element.style.width = "800px";
+    element.style.maxWidth = "800px";
 
+    const { jsPDF } = window.jspdf;
     const pdf = new jsPDF("p", "mm", "a4");
 
     const canvas = await html2canvas(element, {
@@ -482,15 +493,26 @@ async function improveAndSave(originalContent, language, title) {
 
     const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-    const imgWidth = 190;
-    const x = 10;
+    const imgWidth = 190;   // A4 width minus margins
+    const x = 10;           // left margin
     const pageHeight = 297;
+
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
     let position = 0;
 
+    // ===============================
+    // ✅ MULTI-PAGE (CORRECT SLICING)
+    // ===============================
     while (position < imgHeight) {
-        pdf.addImage(imgData, "JPEG", x, -position, imgWidth, imgHeight);
+        pdf.addImage(
+            imgData,
+            "JPEG",
+            x,
+            -position,
+            imgWidth,
+            imgHeight
+        );
 
         position += pageHeight;
 
@@ -501,8 +523,12 @@ async function improveAndSave(originalContent, language, title) {
 
     pdf.save(`${document.getElementById("lessonTitle").value || "LessonPlan"}.pdf`);
 
-    // ✅ REMOVE HERE (AFTER PDF IS DONE)
+    // ===============================
+    // ✅ RESTORE ORIGINAL STYLES
+    // ===============================
     element.classList.remove("compact-mode");
+    element.style.width = originalWidth;
+    element.style.maxWidth = originalMaxWidth;
 });
     // ===============================
     // AUTO SAVE FUNCTION (DATABASE)
