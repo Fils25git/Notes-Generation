@@ -186,13 +186,13 @@
     <p><b>BALANCE:</b> <span id="currentBalance">Loading...</span></p>
   </div>
   <div class="packages">
-    <button data-amount="250">250 RWF → 20 lesson plans</button>
-    <button data-amount="500">500 RWF → 45 lesson plans</button>
+    <button data-amount="300">300 RWF → 20 lesson plans</button>
+    <button data-amount="500">600 RWF → 45 lesson plans</button>
     <button data-amount="1000">1000 RWF → 100 lesson plans</button>
   </div>
 
   <p>OR enter custom amount:</p>
-  <input type="number" id="customAmount" placeholder="Enter amount in RWF" min="20">
+  <input type="number" id="customAmount" placeholder="Enter amount in RWF" min="50">
   <button id="customPayBtn">Calculate & Generate USSD</button>
 
   <p id="result"></p>
@@ -253,9 +253,9 @@ let pageLoadTime = Date.now();
 // --- Calculate lesson plans ---
 function calculateLessons(amount){
     if(amount >= 1000) return Math.floor(amount / 10);
-    if(amount >= 500) return Math.floor(amount / (500/45));
-    if(amount >= 250) return Math.floor(amount / (250/20));
-    if(amount >= 20) return Math.floor(amount / 20);
+    if(amount >= 600) return Math.floor(amount / (600/45));
+    if(amount >= 300) return Math.floor(amount / (300/20));
+    if(amount >= 50) return Math.floor(amount / 50);
     return null;
 }
 function generateUSSD(amount){ return USSD_BASE + amount + "%23"; } // encoded # to fix dialer
@@ -286,7 +286,7 @@ packages.forEach(btn => {
         const lessons = calculateLessons(selectedAmount);
 
         if(!lessons){
-            showFloatingMessage("Amount too low. Minimum is 20 RWF", 'error');
+            showFloatingMessage("Amount too low. Minimum is 50 RWF", 'error');
             resultEl.innerText = "";
             ussdEl.innerHTML = "";
             confirmPaymentBtn.disabled = true;
@@ -316,7 +316,7 @@ customPayBtn.addEventListener('click', async () => {
     const lessons = calculateLessons(selectedAmount)
 
     if(!lessons){
-        showFloatingMessage("Amount too low. Minimum is 20 RWF", 'error');
+        showFloatingMessage("Amount too low. Minimum is 50 RWF", 'error');
         resultEl.innerText = "";
         ussdEl.innerHTML = "";
         confirmPaymentBtn.disabled = true;
@@ -334,7 +334,7 @@ const phone = userPhone || "unknown";
     showFloatingMessage(`You will get ${lessons} lesson plans (daily plans)`);
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>290400</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
     confirmPaymentBtn.disabled = true;
-    setTimeout(()=> confirmPaymentBtn.disabled = false, 10000);
+    setTimeout(()=> confirmPaymentBtn.disabled = false, 60000);
 });
 
 // --- Confirm payment ---
