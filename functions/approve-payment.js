@@ -86,7 +86,7 @@ if (!payment.referral_applied) {
 
   if (referrerId) {
 
-    const bonusLessons = Math.floor(lessonsInt * 0.20);
+    const bonusLessons = Math.floor(lessonsInt * 0.10);
 
     if (bonusLessons > 0) {
   if (payment.type === "weekly") {
