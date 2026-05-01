@@ -187,7 +187,7 @@
   </div>
   <div class="packages">
     <button data-amount="300">300 RWF → 20 lesson plans</button>
-    <button data-amount="500">600 RWF → 45 lesson plans</button>
+    <button data-amount="500">500 RWF → 40 lesson plans</button>
     <button data-amount="1000">1000 RWF → 100 lesson plans</button>
   </div>
 
@@ -253,7 +253,7 @@ let pageLoadTime = Date.now();
 // --- Calculate lesson plans ---
 function calculateLessons(amount){
     if(amount >= 1000) return Math.floor(amount / 10);
-    if(amount >= 600) return Math.floor(amount / (600/45));
+    if(amount >= 600) return Math.floor(amount / (500/40));
     if(amount >= 300) return Math.floor(amount / (300/20));
     if(amount >= 50) return Math.floor(amount / 50);
     return null;
