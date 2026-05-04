@@ -253,7 +253,7 @@ let pageLoadTime = Date.now();
 // --- Calculate lesson plans ---
 function calculateLessons(amount){
     if(amount >= 1000) return Math.floor(amount / 10);
-    if(amount >= 600) return Math.floor(amount / (500/40));
+    if(amount >= 500) return Math.floor(amount / (500/40));
     if(amount >= 300) return Math.floor(amount / (300/20));
     if(amount >= 50) return Math.floor(amount / 50);
     return null;
