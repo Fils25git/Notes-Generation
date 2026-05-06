@@ -32,36 +32,49 @@
 </main>
 
 <script>
-function loginUser(){
+async function loginUser(){
 
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
 
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const user = users.find(u =>
-        u.username === username && u.password === password
-    );
-
-    if(!user){
-        alert("Invalid username or password");
+    if(!username || !password){
+        alert("Please enter username and password");
         return;
     }
 
-    localStorage.setItem("role", user.role);
-    localStorage.setItem("currentUser", JSON.stringify(user));
+    const response = await fetch("/.netlify/functions/loginUser", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    });
+
+    const result = await response.json();
+
+    if(!response.ok){
+        alert(result.message);
+        return;
+    }
+
+    // ONLY SESSION STORAGE NOW
+    localStorage.setItem("role", result.role);
+    localStorage.setItem("currentUser", JSON.stringify(result));
 
     alert("Login successful");
 
-    if(user.role === "sector_admin"){
+    if(result.role === "sector_admin"){
         window.location.href = "dashboard.html";
     }
 
-    if(user.role === "school_admin"){
+    if(result.role === "school_admin"){
         window.location.href = "dashboard.html";
     }
 
-    if(user.role === "teacher"){
+    if(result.role === "teacher"){
         window.location.href = "students.html";
     }
 }
