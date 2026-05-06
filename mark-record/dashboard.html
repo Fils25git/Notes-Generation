@@ -1,0 +1,108 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Sector Test Ranking</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body><header>
+  <h1>TEACHER DASHBOARD</h1>
+  <p>Select school, class and subject to record marks</p>
+</header><main class="dashboard-container">
+  <div class="card">
+    <h2>Exam Setup</h2><label>Choose School</label>
+<select id="school" onchange="updateClasses()">
+  <option value="">-- Select School --</option>
+  <option>EP KABIRIZI</option>
+  <option>GS MUYUNZWE</option>
+  <option>GIHORORO PS</option>
+  <option>GS BWERAMVURA</option>
+  <option>GATOVU N&PS</option>
+  <option>GS KABUGA K</option>
+  <option>GS NYARUTOVU</option>
+  <option>EP NYAGATOVU</option>
+</select>
+
+<label>Choose Class</label>
+<select id="class" onchange="updateSubjects()">
+  <option value="">-- Select Class --</option>
+</select>
+
+<label>Choose Subject</label>
+<select id="subject">
+  <option value="">-- Select Subject --</option>
+</select>
+
+<button onclick="goToStudents()" class="btn">Continue To Student List</button>
+
+  </div>
+</main><script>
+function updateClasses(){
+    const school = document.getElementById('school').value;
+    const classSelect = document.getElementById('class');
+    classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+
+    if(school === 'GS MUYUNZWE' || school === 'GS BWERAMVURA' || school === 'GS KABUGA K' || school === 'GS NYARUTOVU'){
+        classSelect.innerHTML += '<option>Primary 6</option>';
+        classSelect.innerHTML += '<option>Senior 3</option>';
+    } else {
+        classSelect.innerHTML += '<option>Primary 6</option>';
+    }
+
+    document.getElementById('subject').innerHTML = '<option value="">-- Select Subject --</option>';
+}
+
+function updateSubjects(){
+    const selectedClass = document.getElementById('class').value;
+    const subjectSelect = document.getElementById('subject');
+    subjectSelect.innerHTML = '<option value="">-- Select Subject --</option>';
+
+    if(selectedClass === 'Primary 6'){
+        const p6Subjects = [
+            'ENGLISH',
+            'MATHEMATICS',
+            'KINYARWANDA',
+            'SOCIAL AND RELIGIOUS STUDIES',
+            'SCIENCE AND ELEMENTARY STUDIES'
+        ];
+        p6Subjects.forEach(sub=>{
+            subjectSelect.innerHTML += `<option>${sub}</option>`;
+        });
+    }
+
+    if(selectedClass === 'Senior 3'){
+        const s3Subjects = [
+            'ENGLISH',
+            'MATHEMATICS',
+            'KINYARWANDA',
+            'CHEMISTRY',
+            'PHYSICS',
+            'BIOLOGY',
+            'GEOGRAPHY',
+            'HISTORY',
+            'ENTREPRENEURSHIP'
+        ];
+        s3Subjects.forEach(sub=>{
+            subjectSelect.innerHTML += `<option>${sub}</option>`;
+        });
+    }
+}
+
+function goToStudents(){
+    const school = document.getElementById('school').value;
+    const selectedClass = document.getElementById('class').value;
+    const subject = document.getElementById('subject').value;
+
+    if(!school || !selectedClass || !subject){
+        alert('Please select school, class and subject');
+        return;
+    }
+
+    localStorage.setItem('selectedSchool', school);
+    localStorage.setItem('selectedClass', selectedClass);
+    localStorage.setItem('selectedSubject', subject);
+
+    window.location.href = 'students.html';
+}
+</script></body>
+  </html>
