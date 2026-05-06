@@ -22,8 +22,14 @@
     <div id="sectorPanel" style="display:none;">
       <h3>Add School Admin</h3>
 
-      <label>School Admin Name</label>
+      <label>School Admin Full Name</label>
       <input type="text" id="schoolAdminName">
+
+      <label>Username</label>
+      <input type="text" id="schoolAdminUsername">
+
+      <label>Password</label>
+      <input type="password" id="schoolAdminPassword">
 
       <label>Choose School</label>
       <select id="school">
@@ -44,27 +50,25 @@
     <div id="schoolPanel" style="display:none;">
       <h3>Add Teacher</h3>
 
-      <label>Teacher Name</label>
+      <label>Teacher Full Name</label>
       <input type="text" id="teacherName">
 
-      <label>Class</label>
-      <select id="class">
+      <label>Username</label>
+      <input type="text" id="teacherUsername">
+
+      <label>Password</label>
+      <input type="password" id="teacherPassword">
+
+      <label>Choose Class</label>
+      <select id="class" onchange="updateSubjects()">
+        <option value="">-- Select Class --</option>
         <option>Primary 6</option>
         <option>Senior 3</option>
       </select>
 
-      <label>Subject</label>
+      <label>Choose Subject</label>
       <select id="subject">
-        <option>ENGLISH</option>
-        <option>MATHEMATICS</option>
-        <option>KINYARWANDA</option>
-        <option>SCIENCE</option>
-        <option>CHEMISTRY</option>
-        <option>PHYSICS</option>
-        <option>BIOLOGY</option>
-        <option>GEOGRAPHY</option>
-        <option>HISTORY</option>
-        <option>ENTREPRENEURSHIP</option>
+        <option value="">-- Select Subject --</option>
       </select>
 
       <button class="btn" onclick="addTeacher()">Add Teacher</button>
@@ -75,10 +79,9 @@
 
 <script>
 
-// GET ROLE FROM LOGIN
+// GET ROLE
 const role = localStorage.getItem("role");
 
-// SHOW ONLY WHAT USER IS ALLOWED
 if(role === "sector_admin"){
   document.getElementById("sectorPanel").style.display = "block";
   document.getElementById("title").innerText = "Sector Admin Dashboard";
@@ -89,32 +92,100 @@ if(role === "school_admin"){
   document.getElementById("title").innerText = "School Admin Dashboard";
 }
 
-// STORE DATA TEMPORARILY (later DB)
-function addSchoolAdmin(){
-  const name = document.getElementById("schoolAdminName").value;
-  const school = document.getElementById("school").value;
+// SUBJECT CONTROL
+function updateSubjects(){
+    const selectedClass = document.getElementById("class").value;
+    const subject = document.getElementById("subject");
 
-  let data = JSON.parse(localStorage.getItem("schoolAdmins")) || [];
+    subject.innerHTML = '<option value="">-- Select Subject --</option>';
 
-  data.push({name, school});
+    if(selectedClass === "Primary 6"){
+        const p6 = [
+            "ENGLISH",
+            "MATHEMATICS",
+            "KINYARWANDA",
+            "SOCIAL AND RELIGIOUS STUDIES",
+            "SCIENCE AND ELEMENTARY STUDIES"
+        ];
 
-  localStorage.setItem("schoolAdmins", JSON.stringify(data));
+        p6.forEach(s=>{
+            subject.innerHTML += `<option>${s}</option>`;
+        });
+    }
 
-  alert("School Admin added");
+    if(selectedClass === "Senior 3"){
+        const s3 = [
+            "ENGLISH",
+            "MATHEMATICS",
+            "KINYARWANDA",
+            "CHEMISTRY",
+            "PHYSICS",
+            "BIOLOGY",
+            "GEOGRAPHY",
+            "HISTORY",
+            "ENTREPRENEURSHIP"
+        ];
+
+        s3.forEach(s=>{
+            subject.innerHTML += `<option>${s}</option>`;
+        });
+    }
 }
 
+// SAVE SCHOOL ADMIN
+function addSchoolAdmin(){
+  const name = document.getElementById("schoolAdminName").value;
+  const username = document.getElementById("schoolAdminUsername").value;
+  const password = document.getElementById("schoolAdminPassword").value;
+  const school = document.getElementById("school").value;
+
+  if(!name || !username || !password){
+      alert("Please fill all school admin fields");
+      return;
+  }
+
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  users.push({
+      name,
+      username,
+      password,
+      role: "school_admin",
+      school
+  });
+
+  localStorage.setItem("users", JSON.stringify(users));
+
+  alert("School Admin added successfully");
+}
+
+// SAVE TEACHER
 function addTeacher(){
   const name = document.getElementById("teacherName").value;
+  const username = document.getElementById("teacherUsername").value;
+  const password = document.getElementById("teacherPassword").value;
   const className = document.getElementById("class").value;
   const subject = document.getElementById("subject").value;
 
-  let data = JSON.parse(localStorage.getItem("teachers")) || [];
+  if(!name || !username || !password || !className || !subject){
+      alert("Please fill all teacher fields");
+      return;
+  }
 
-  data.push({name, className, subject});
+  let users = JSON.parse(localStorage.getItem("users")) || [];
 
-  localStorage.setItem("teachers", JSON.stringify(data));
+  users.push({
+      name,
+      username,
+      password,
+      role: "teacher",
+      className,
+      subject
+  });
 
-  alert("Teacher added");
+  localStorage.setItem("users", JSON.stringify(users));
+
+  alert("Teacher added successfully");
 }
 
 </script>
