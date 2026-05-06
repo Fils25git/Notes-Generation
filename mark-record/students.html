@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Marks Entry</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>STUDENT MARK ENTRY PAGE</h1>
+    <p>Insert marks for selected subject</p>
+</header>
+
+<div class="info-bar">
+    <h3 id="showSchool"></h3>
+    <h3 id="showClass"></h3>
+    <h3 id="showSubject"></h3>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Student Name</th>
+                <th>Mark /100</th>
+            </tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+    </table>
+
+    <button class="btn" onclick="saveMarks()">SAVE ALL MARKS</button>
+</div>
+
+<script>
+const school = localStorage.getItem("selectedSchool");
+const className = localStorage.getItem("selectedClass");
+const subject = localStorage.getItem("selectedSubject");
+
+// show selected info
+document.getElementById("showSchool").innerText = "School: " + school;
+document.getElementById("showClass").innerText = "Class: " + className;
+document.getElementById("showSubject").innerText = "Subject: " + subject;
+
+// fetch students from database (via Netlify Function)
+async function loadStudents() {
+    try {
+        const res = await fetch(`/.netlify/functions/getStudents?school=${school}&class=${className}`);
+        const students = await res.json();
+
+        const tbody = document.getElementById("studentTableBody");
+        tbody.innerHTML = "";
+
+        students.forEach((student, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${student.student_name}</td>
+                    <td>
+                        <input type="number" min="0" max="100" id="mark${student.id}">
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+        alert("Error loading students. Check connection later.");
+        console.error(error);
+    }
+}
+
+loadStudents();
+
+// save marks (temporary for now - later will send to Neon)
+function saveMarks(){
+    const rows = document.querySelectorAll("tbody tr");
+
+    let marksData = [];
+
+    rows.forEach(row => {
+        const name = row.children[1].innerText;
+        const markInput = row.children[2].querySelector("input").value;
+
+        marksData.push({
+            student_name: name,
+            school: school,
+            class_name: className,
+            subject: subject,
+            mark: markInput
+        });
+    });
+
+    localStorage.setItem("marksData", JSON.stringify(marksData));
+
+    window.location.href = "results.html";
+}
+</script>
+
+</body>
+  </html>
