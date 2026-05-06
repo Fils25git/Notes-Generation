@@ -18,7 +18,7 @@
 
     <h2 id="title">Dashboard</h2>
 
-    <!-- SECTOR ADMIN PANEL -->
+    <!-- ================= SECTOR ADMIN ================= -->
     <div id="sectorPanel" style="display:none;">
       <h3>Add School Admin</h3>
 
@@ -46,8 +46,10 @@
       <button class="btn" onclick="addSchoolAdmin()">Add School Admin</button>
     </div>
 
-    <!-- SCHOOL ADMIN PANEL -->
+    <!-- ================= SCHOOL ADMIN ================= -->
     <div id="schoolPanel" style="display:none;">
+
+      <!-- ADD TEACHER -->
       <h3>Add Teacher</h3>
 
       <label>Teacher Full Name</label>
@@ -72,6 +74,23 @@
       </select>
 
       <button class="btn" onclick="addTeacher()">Add Teacher</button>
+
+      <hr style="margin:30px 0;">
+
+      <!-- ADD STUDENT -->
+      <h3>Register Student</h3>
+
+      <label>Student Full Name</label>
+      <input type="text" id="studentName">
+
+      <label>Choose Class</label>
+      <select id="studentClass">
+        <option>Primary 6</option>
+        <option>Senior 3</option>
+      </select>
+
+      <button class="btn" onclick="addStudent()">Register Student</button>
+
     </div>
 
   </div>
@@ -79,8 +98,8 @@
 
 <script>
 
-// GET ROLE
 const role = localStorage.getItem("role");
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if(role === "sector_admin"){
   document.getElementById("sectorPanel").style.display = "block";
@@ -92,7 +111,7 @@ if(role === "school_admin"){
   document.getElementById("title").innerText = "School Admin Dashboard";
 }
 
-// SUBJECT CONTROL
+// SUBJECT CHANGE
 function updateSubjects(){
     const selectedClass = document.getElementById("class").value;
     const subject = document.getElementById("subject");
@@ -107,10 +126,7 @@ function updateSubjects(){
             "SOCIAL AND RELIGIOUS STUDIES",
             "SCIENCE AND ELEMENTARY STUDIES"
         ];
-
-        p6.forEach(s=>{
-            subject.innerHTML += `<option>${s}</option>`;
-        });
+        p6.forEach(s => subject.innerHTML += `<option>${s}</option>`);
     }
 
     if(selectedClass === "Senior 3"){
@@ -125,70 +141,73 @@ function updateSubjects(){
             "HISTORY",
             "ENTREPRENEURSHIP"
         ];
-
-        s3.forEach(s=>{
-            subject.innerHTML += `<option>${s}</option>`;
-        });
+        s3.forEach(s => subject.innerHTML += `<option>${s}</option>`);
     }
 }
 
-// SAVE SCHOOL ADMIN
+// ADD SCHOOL ADMIN
 function addSchoolAdmin(){
-  const name = document.getElementById("schoolAdminName").value;
-  const username = document.getElementById("schoolAdminUsername").value;
-  const password = document.getElementById("schoolAdminPassword").value;
-  const school = document.getElementById("school").value;
+    const name = document.getElementById("schoolAdminName").value;
+    const username = document.getElementById("schoolAdminUsername").value;
+    const password = document.getElementById("schoolAdminPassword").value;
+    const school = document.getElementById("school").value;
 
-  if(!name || !username || !password){
-      alert("Please fill all school admin fields");
-      return;
-  }
+    let users = JSON.parse(localStorage.getItem("users")) || [];
 
-  let users = JSON.parse(localStorage.getItem("users")) || [];
+    users.push({
+        name,
+        username,
+        password,
+        role: "school_admin",
+        school
+    });
 
-  users.push({
-      name,
-      username,
-      password,
-      role: "school_admin",
-      school
-  });
-
-  localStorage.setItem("users", JSON.stringify(users));
-
-  alert("School Admin added successfully");
+    localStorage.setItem("users", JSON.stringify(users));
+    alert("School Admin added successfully");
 }
 
-// SAVE TEACHER
+// ADD TEACHER
 function addTeacher(){
-  const name = document.getElementById("teacherName").value;
-  const username = document.getElementById("teacherUsername").value;
-  const password = document.getElementById("teacherPassword").value;
-  const className = document.getElementById("class").value;
-  const subject = document.getElementById("subject").value;
+    const name = document.getElementById("teacherName").value;
+    const username = document.getElementById("teacherUsername").value;
+    const password = document.getElementById("teacherPassword").value;
+    const className = document.getElementById("class").value;
+    const subject = document.getElementById("subject").value;
 
-  if(!name || !username || !password || !className || !subject){
-      alert("Please fill all teacher fields");
-      return;
-  }
+    let users = JSON.parse(localStorage.getItem("users")) || [];
 
-  let users = JSON.parse(localStorage.getItem("users")) || [];
+    users.push({
+        name,
+        username,
+        password,
+        role: "teacher",
+        school: currentUser.school,
+        className,
+        subject
+    });
 
-  users.push({
-      name,
-      username,
-      password,
-      role: "teacher",
-      className,
-      subject
-  });
+    localStorage.setItem("users", JSON.stringify(users));
+    alert("Teacher added successfully");
+}
 
-  localStorage.setItem("users", JSON.stringify(users));
+// ADD STUDENT
+function addStudent(){
+    const studentName = document.getElementById("studentName").value;
+    const className = document.getElementById("studentClass").value;
 
-  alert("Teacher added successfully");
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+
+    students.push({
+        student_name: studentName,
+        school_name: currentUser.school,
+        class_name: className
+    });
+
+    localStorage.setItem("students", JSON.stringify(students));
+    alert("Student registered successfully");
 }
 
 </script>
 
 </body>
-</html>
+  </html>
