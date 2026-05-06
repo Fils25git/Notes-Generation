@@ -74,3 +74,113 @@ input{
     width:80px;
     padding:8px;
 }
+/* ===== GLOBAL DASHBOARD STYLE ===== */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f3f6fb;
+}
+
+/* HEADER */
+header {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+    letter-spacing: 1px;
+}
+
+header p {
+    margin-top: 5px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* DASHBOARD CONTAINER */
+.dashboard-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+/* CARD STYLE */
+.card {
+    background: white;
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+/* LABELS */
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* DROPDOWNS (VERY IMPORTANT PART) */
+select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-size: 14px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+/* when clicked */
+select:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 6px rgba(37,99,235,0.3);
+}
+
+/* BUTTON */
+.btn {
+    width: 100%;
+    margin-top: 25px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: scale(1.02);
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 600px) {
+    .card {
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 20px;
+    }
+}
