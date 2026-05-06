@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sector Admin Signup</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>SECTOR ADMIN REGISTRATION</h1>
+  <p>Create system owner account</p>
+</header>
+
+<main class="dashboard-container">
+  <div class="card">
+
+    <h2>Register Sector Admin</h2>
+
+    <label>Full Name</label>
+    <input type="text" id="name">
+
+    <label>Username</label>
+    <input type="text" id="username">
+
+    <label>Password</label>
+    <input type="password" id="password">
+
+    <button class="btn" onclick="signup()">Create Sector Admin</button>
+
+  </div>
+</main>
+
+<script>
+function signup(){
+
+    const name = document.getElementById("name").value;
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if(!name || !username || !password){
+        alert("Fill all fields");
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+
+    // allow only one sector admin
+    const existingSector = users.find(u => u.role === "sector_admin");
+
+    if(existingSector){
+        alert("Sector Admin already exists. Please login.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    users.push({
+        name,
+        username,
+        password,
+        role: "sector_admin"
+    });
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Sector Admin account created");
+    window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>
