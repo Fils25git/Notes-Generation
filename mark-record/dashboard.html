@@ -1,213 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Dashboard</title>
+  <title>Sector Education Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body><div class="layout">  <aside class="sidebar">
+    <h2 id="sideTitle">Dashboard</h2>
+    <button onclick="showSection('addSchoolAdmin')" id="navSchoolAdmin">Add School Admin</button>
+    <button onclick="showSection('viewSchools')" id="navViewSchools">View All Schools</button><button onclick="showSection('addTeacher')" id="navTeacher">Add Teacher</button>
+<button onclick="showSection('addStudents')" id="navStudents">Add Students</button>
+<button onclick="showSection('viewMarks')" id="navMarks">View Your School</button>
 
-<header>
-  <h1>SECTOR EDUCATION SYSTEM</h1>
-  <p>Management dashboard</p>
-</header>
+  </aside>  <main class="content-area"><section id="welcomeSection">
+  <h1>WELCOME TO SECTOR EDUCATION MANAGEMENT SYSTEM</h1>
+  <p>Select an option from the left navigation panel.</p>
+</section>
 
-<main class="dashboard-container">
-  <div class="card">
+<section id="addSchoolAdmin" class="hidden section-box">
+  <h2>Create School Admin</h2>
+  <input type="text" id="schoolAdminName" placeholder="Full Name">
+  <input type="text" id="schoolAdminUsername" placeholder="Username">
+  <input type="password" id="schoolAdminPassword" placeholder="Password">
+  <select id="school">
+    <option>EP KABIRIZI</option>
+    <option>GS MUYUNZWE</option>
+    <option>GIHORORO PS</option>
+    <option>GS BWERAMVURA</option>
+    <option>GATOVU N&PS</option>
+    <option>GS KABUGA K</option>
+    <option>GS NYARUTOVU</option>
+    <option>EP NYAGATOVU</option>
+  </select>
+  <button onclick="addSchoolAdmin()">SAVE SCHOOL ADMIN</button>
+</section>
 
-    <h2 id="title">Dashboard</h2>
+<section id="viewSchools" class="hidden section-box">
+  <h2>All Schools Overview</h2>
+  <p>All schools performance summary will appear here.</p>
+</section>
 
-    <!-- ================= SECTOR ADMIN ================= -->
-    <div id="sectorPanel" style="display:none;">
-      <h3>Add School Admin</h3>
+<section id="addTeacher" class="hidden section-box">
+  <h2>Create Teacher</h2>
+  <input type="text" id="teacherName" placeholder="Full Name">
+  <input type="text" id="teacherUsername" placeholder="Username">
+  <input type="password" id="teacherPassword" placeholder="Password">
+  <select id="class" onchange="updateSubjects()">
+    <option value="">Choose Class</option>
+    <option>Primary 6</option>
+    <option>Senior 3</option>
+  </select>
+  <select id="subject">
+    <option value="">Choose Subject</option>
+  </select>
+  <button onclick="addTeacher()">SAVE TEACHER</button>
+</section>
 
-      <label>School Admin Full Name</label>
-      <input type="text" id="schoolAdminName">
+<section id="addStudents" class="hidden section-box">
+  <h2>Register Students</h2>
+  <select id="studentClass">
+    <option>Primary 6</option>
+    <option>Senior 3</option>
+  </select>
 
-      <label>Username</label>
-      <input type="text" id="schoolAdminUsername">
-
-      <label>Password</label>
-      <input type="password" id="schoolAdminPassword">
-
-      <label>Choose School</label>
-      <select id="school">
-        <option>EP KABIRIZI</option>
-        <option>GS MUYUNZWE</option>
-        <option>GIHORORO PS</option>
-        <option>GS BWERAMVURA</option>
-        <option>GATOVU N&PS</option>
-        <option>GS KABUGA K</option>
-        <option>GS NYARUTOVU</option>
-        <option>EP NYAGATOVU</option>
-      </select>
-
-      <button class="btn" onclick="addSchoolAdmin()">Add School Admin</button>
-    </div>
-
-    <!-- ================= SCHOOL ADMIN ================= -->
-    <div id="schoolPanel" style="display:none;">
-
-      <!-- ADD TEACHER -->
-      <h3>Add Teacher</h3>
-
-      <label>Teacher Full Name</label>
-      <input type="text" id="teacherName">
-
-      <label>Username</label>
-      <input type="text" id="teacherUsername">
-
-      <label>Password</label>
-      <input type="password" id="teacherPassword">
-
-      <label>Choose Class</label>
-      <select id="class" onchange="updateSubjects()">
-        <option value="">-- Select Class --</option>
-        <option>Primary 6</option>
-        <option>Senior 3</option>
-      </select>
-
-      <label>Choose Subject</label>
-      <select id="subject">
-        <option value="">-- Select Subject --</option>
-      </select>
-
-      <button class="btn" onclick="addTeacher()">Add Teacher</button>
-
-      <hr style="margin:30px 0;">
-
-      <!-- ADD STUDENT -->
-      <h3>Register Student</h3>
-
-      <label>Student Full Name</label>
-      <input type="text" id="studentName">
-
-      <label>Choose Class</label>
-      <select id="studentClass">
-        <option>Primary 6</option>
-        <option>Senior 3</option>
-      </select>
-
-      <button class="btn" onclick="addStudent()">Register Student</button>
-
-    </div>
-
+  <div class="floating-add-box">
+    <input type="text" id="studentName" placeholder="Student Full Name">
+    <button onclick="addStudent()">ADD STUDENT</button>
   </div>
-</main>
 
-<script>
+  <div id="studentListBox">
+    <h3>Registered Students</h3>
+    <ul id="studentLiveList"></ul>
+  </div>
+</section>
 
-const role = localStorage.getItem("role");
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+<section id="viewMarks" class="hidden section-box">
+  <h2>Your School Marks Overview</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Student Name</th>
+        <th>Math /100</th>
+        <th>English /100</th>
+        <th>Kinyarwanda /100</th>
+        <th>Science /100</th>
+      </tr>
+    </thead>
+    <tbody id="marksTableBody">
+    </tbody>
+  </table>
+</section>
 
-if(role === "sector_admin"){
-  document.getElementById("sectorPanel").style.display = "block";
-  document.getElementById("title").innerText = "Sector Admin Dashboard";
+  </main>
+</div><script>
+const role = localStorage.getItem('role');
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+function hideAll(){
+  document.querySelectorAll('.section-box').forEach(sec => sec.classList.add('hidden'));
+  document.getElementById('welcomeSection').style.display = 'none';
 }
 
-if(role === "school_admin"){
-  document.getElementById("schoolPanel").style.display = "block";
-  document.getElementById("title").innerText = "School Admin Dashboard";
+function showSection(id){
+  hideAll();
+  document.getElementById(id).classList.remove('hidden');
 }
 
-// SUBJECT CHANGE
-function updateSubjects(){
-    const selectedClass = document.getElementById("class").value;
-    const subject = document.getElementById("subject");
-
-    subject.innerHTML = '<option value="">-- Select Subject --</option>';
-
-    if(selectedClass === "Primary 6"){
-        const p6 = [
-            "ENGLISH",
-            "MATHEMATICS",
-            "KINYARWANDA",
-            "SOCIAL AND RELIGIOUS STUDIES",
-            "SCIENCE AND ELEMENTARY STUDIES"
-        ];
-        p6.forEach(s => subject.innerHTML += `<option>${s}</option>`);
-    }
-
-    if(selectedClass === "Senior 3"){
-        const s3 = [
-            "ENGLISH",
-            "MATHEMATICS",
-            "KINYARWANDA",
-            "CHEMISTRY",
-            "PHYSICS",
-            "BIOLOGY",
-            "GEOGRAPHY",
-            "HISTORY",
-            "ENTREPRENEURSHIP"
-        ];
-        s3.forEach(s => subject.innerHTML += `<option>${s}</option>`);
-    }
+if(role === 'sector_admin'){
+  document.getElementById('sideTitle').innerText = 'Sector Admin';
+  document.getElementById('navTeacher').style.display = 'none';
+  document.getElementById('navStudents').style.display = 'none';
+  document.getElementById('navMarks').style.display = 'none';
 }
 
-// ADD SCHOOL ADMIN
-function addSchoolAdmin(){
-    const name = document.getElementById("schoolAdminName").value;
-    const username = document.getElementById("schoolAdminUsername").value;
-    const password = document.getElementById("schoolAdminPassword").value;
-    const school = document.getElementById("school").value;
-
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    users.push({
-        name,
-        username,
-        password,
-        role: "school_admin",
-        school
-    });
-
-    localStorage.setItem("users", JSON.stringify(users));
-    alert("School Admin added successfully");
+if(role === 'school_admin'){
+  document.getElementById('sideTitle').innerText = 'School Admin';
+  document.getElementById('navSchoolAdmin').style.display = 'none';
+  document.getElementById('navViewSchools').style.display = 'none';
 }
-
-// ADD TEACHER
-function addTeacher(){
-    const name = document.getElementById("teacherName").value;
-    const username = document.getElementById("teacherUsername").value;
-    const password = document.getElementById("teacherPassword").value;
-    const className = document.getElementById("class").value;
-    const subject = document.getElementById("subject").value;
-
-    let users = JSON.parse(localStorage.getItem("users")) || [];
-
-    users.push({
-        name,
-        username,
-        password,
-        role: "teacher",
-        school: currentUser.school,
-        className,
-        subject
-    });
-
-    localStorage.setItem("users", JSON.stringify(users));
-    alert("Teacher added successfully");
-}
-
-// ADD STUDENT
-function addStudent(){
-    const studentName = document.getElementById("studentName").value;
-    const className = document.getElementById("studentClass").value;
-
-    let students = JSON.parse(localStorage.getItem("students")) || [];
-
-    students.push({
-        student_name: studentName,
-        school_name: currentUser.school,
-        class_name: className
-    });
-
-    localStorage.setItem("students", JSON.stringify(students));
-    alert("Student registered successfully");
-}
-
-</script>
-
-</body>
-  </html>
+</script></body>
+    </html>
