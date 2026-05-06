@@ -1,108 +1,143 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Sector Test Ranking</title>
+  <title>Admin System</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body><header>
-  <h1>TEACHER DASHBOARD</h1>
-  <p>Select school, class and subject to record marks</p>
-</header><main class="dashboard-container">
+<body>
+
+<header>
+  <h1>SECTOR EDUCATION SYSTEM</h1>
+  <p>Role-based management panel</p>
+</header>
+
+<main class="dashboard-container">
   <div class="card">
-    <h2>Exam Setup</h2><label>Choose School</label>
-<select id="school" onchange="updateClasses()">
-  <option value="">-- Select School --</option>
-  <option>EP KABIRIZI</option>
-  <option>GS MUYUNZWE</option>
-  <option>GIHORORO PS</option>
-  <option>GS BWERAMVURA</option>
-  <option>GATOVU N&PS</option>
-  <option>GS KABUGA K</option>
-  <option>GS NYARUTOVU</option>
-  <option>EP NYAGATOVU</option>
-</select>
 
-<label>Choose Class</label>
-<select id="class" onchange="updateSubjects()">
-  <option value="">-- Select Class --</option>
-</select>
+    <h2>Select Role</h2>
 
-<label>Choose Subject</label>
-<select id="subject">
-  <option value="">-- Select Subject --</option>
-</select>
+    <select id="role" onchange="showForm()">
+      <option value="">-- Select Role --</option>
+      <option value="sector">Sector Admin</option>
+      <option value="school">School Admin</option>
+    </select>
 
-<button onclick="goToStudents()" class="btn">Continue To Student List</button>
+    <!-- SECTOR ADMIN FORM -->
+    <div id="sectorForm" style="display:none; margin-top:20px;">
+      <h3>Add School Admin</h3>
+
+      <label>School Admin Name</label>
+      <input type="text" id="schoolAdminName" placeholder="Enter name">
+
+      <label>Choose School</label>
+      <select id="school1">
+        <option>EP KABIRIZI</option>
+        <option>GS MUYUNZWE</option>
+        <option>GIHORORO PS</option>
+        <option>GS BWERAMVURA</option>
+        <option>GATOVU N&PS</option>
+        <option>GS KABUGA K</option>
+        <option>GS NYARUTOVU</option>
+        <option>EP NYAGATOVU</option>
+      </select>
+
+      <button class="btn" onclick="addSchoolAdmin()">Add School Admin</button>
+    </div>
+
+    <!-- SCHOOL ADMIN FORM -->
+    <div id="schoolForm" style="display:none; margin-top:20px;">
+      <h3>Add Teacher</h3>
+
+      <label>Teacher Name</label>
+      <input type="text" id="teacherName" placeholder="Enter teacher name">
+
+      <label>Choose Class</label>
+      <select id="class">
+        <option>Primary 6</option>
+        <option>Senior 3</option>
+      </select>
+
+      <label>Choose Subject</label>
+      <select id="subject">
+        <option>ENGLISH</option>
+        <option>MATHEMATICS</option>
+        <option>KINYARWANDA</option>
+        <option>SCIENCE</option>
+        <option>CHEMISTRY</option>
+        <option>PHYSICS</option>
+        <option>BIOLOGY</option>
+        <option>GEOGRAPHY</option>
+        <option>HISTORY</option>
+        <option>ENTREPRENEURSHIP</option>
+      </select>
+
+      <button class="btn" onclick="addTeacher()">Add Teacher</button>
+    </div>
 
   </div>
-</main><script>
-function updateClasses(){
-    const school = document.getElementById('school').value;
-    const classSelect = document.getElementById('class');
-    classSelect.innerHTML = '<option value="">-- Select Class --</option>';
+</main>
 
-    if(school === 'GS MUYUNZWE' || school === 'GS BWERAMVURA' || school === 'GS KABUGA K' || school === 'GS NYARUTOVU'){
-        classSelect.innerHTML += '<option>Primary 6</option>';
-        classSelect.innerHTML += '<option>Senior 3</option>';
-    } else {
-        classSelect.innerHTML += '<option>Primary 6</option>';
-    }
+<script>
 
-    document.getElementById('subject').innerHTML = '<option value="">-- Select Subject --</option>';
+function showForm(){
+  const role = document.getElementById("role").value;
+
+  document.getElementById("sectorForm").style.display = "none";
+  document.getElementById("schoolForm").style.display = "none";
+
+  if(role === "sector"){
+    document.getElementById("sectorForm").style.display = "block";
+  }
+
+  if(role === "school"){
+    document.getElementById("schoolForm").style.display = "block";
+  }
 }
 
-function updateSubjects(){
-    const selectedClass = document.getElementById('class').value;
-    const subjectSelect = document.getElementById('subject');
-    subjectSelect.innerHTML = '<option value="">-- Select Subject --</option>';
+// TEMP STORAGE (later will go to database)
 
-    if(selectedClass === 'Primary 6'){
-        const p6Subjects = [
-            'ENGLISH',
-            'MATHEMATICS',
-            'KINYARWANDA',
-            'SOCIAL AND RELIGIOUS STUDIES',
-            'SCIENCE AND ELEMENTARY STUDIES'
-        ];
-        p6Subjects.forEach(sub=>{
-            subjectSelect.innerHTML += `<option>${sub}</option>`;
-        });
-    }
+// Sector Admin adds School Admin
+function addSchoolAdmin(){
+  const name = document.getElementById("schoolAdminName").value;
+  const school = document.getElementById("school1").value;
 
-    if(selectedClass === 'Senior 3'){
-        const s3Subjects = [
-            'ENGLISH',
-            'MATHEMATICS',
-            'KINYARWANDA',
-            'CHEMISTRY',
-            'PHYSICS',
-            'BIOLOGY',
-            'GEOGRAPHY',
-            'HISTORY',
-            'ENTREPRENEURSHIP'
-        ];
-        s3Subjects.forEach(sub=>{
-            subjectSelect.innerHTML += `<option>${sub}</option>`;
-        });
-    }
+  if(!name){
+    alert("Enter school admin name");
+    return;
+  }
+
+  let data = JSON.parse(localStorage.getItem("schoolAdmins")) || [];
+
+  data.push({name, school});
+
+  localStorage.setItem("schoolAdmins", JSON.stringify(data));
+
+  alert("School Admin added successfully");
 }
 
-function goToStudents(){
-    const school = document.getElementById('school').value;
-    const selectedClass = document.getElementById('class').value;
-    const subject = document.getElementById('subject').value;
+// School Admin adds Teacher
+function addTeacher(){
+  const name = document.getElementById("teacherName").value;
+  const className = document.getElementById("class").value;
+  const subject = document.getElementById("subject").value;
 
-    if(!school || !selectedClass || !subject){
-        alert('Please select school, class and subject');
-        return;
-    }
+  if(!name){
+    alert("Enter teacher name");
+    return;
+  }
 
-    localStorage.setItem('selectedSchool', school);
-    localStorage.setItem('selectedClass', selectedClass);
-    localStorage.setItem('selectedSubject', subject);
+  let data = JSON.parse(localStorage.getItem("teachers")) || [];
 
-    window.location.href = 'students.html';
+  data.push({name, className, subject});
+
+  localStorage.setItem("teachers", JSON.stringify(data));
+
+  alert("Teacher added successfully");
 }
-</script></body>
+
+</script>
+
+</body>
   </html>
