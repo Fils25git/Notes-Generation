@@ -1,81 +1,130 @@
-<!DOCTYPE html><html lang="en">
+<!-- ========================= --><!-- sector-admin.html --><!-- ========================= --><!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sector Education Dashboard</title>
+  <title>Sector Admin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body><div class="landing-container">  <header class="top-header">
+    <h1>SECTOR ADMIN DASHBOARD</h1>
+    <p>Manage schools and administrators</p>
+  </header>  <div class="cards-grid"><div class="dashboard-card" onclick="window.location.href='add-school-admin.html'">
+  <h2>Add School Admin</h2>
+  <p>Create and manage school administrator accounts.</p>
+</div>
+
+<div class="dashboard-card" onclick="window.location.href='view-schools.html'">
+  <h2>View All Schools</h2>
+  <p>Monitor school performance and rankings.</p>
+</div>
+
+  </div></div></body>
+</html><!-- ========================= --><!-- school-admin.html --><!-- ========================= --><!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Admin</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body><div class="landing-container">  <header class="top-header">
+    <h1>SCHOOL ADMIN DASHBOARD</h1>
+    <p>Manage teachers, students and school marks</p>
+  </header>  <div class="cards-grid"><div class="dashboard-card" onclick="window.location.href='add-teacher.html'">
+  <h2>Add Teacher</h2>o
+  <p>Create teacher accounts and assign subjects.</p>
+</div>
+
+<div class="dashboard-card" onclick="window.location.href='add-students.html'">
+  <h2>Add Students</h2>
+  <p>Register students by class.</p>
+</div>
+
+<div class="dashboard-card" onclick="window.location.href='view-school-marks.html'">
+  <h2>View School Marks</h2>
+  <p>See all entered examination marks.</p>
+</div>
+
+  </div></div></body>
+</html><!-- ========================= --><!-- school-admin.html --><!-- ========================= --><!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Admin Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body><div class="layout">  <aside class="sidebar">
-    <h2 id="sideTitle">Dashboard</h2>
-    <button onclick="showSection('addSchoolAdmin')" id="navSchoolAdmin">Add School Admin</button>
-    <button onclick="showSection('viewSchools')" id="navViewSchools">View All Schools</button><button onclick="showSection('addTeacher')" id="navTeacher">Add Teacher</button>
-<button onclick="showSection('addStudents')" id="navStudents">Add Students</button>
-<button onclick="showSection('viewMarks')" id="navMarks">View Your School</button>
+    <h2>School Admin</h2><button onclick="showSection('addTeacher')">
+  Add Teacher
+</button>
+
+<button onclick="showSection('addStudents')">
+  Add Students
+</button>
+
+<button onclick="showSection('viewMarks')">
+  View School Marks
+</button>
+
+<button class="logout-btn">
+  Logout
+</button>
 
   </aside>  <main class="content-area"><section id="welcomeSection">
-  <h1>WELCOME TO SECTOR EDUCATION MANAGEMENT SYSTEM</h1>
-  <p>Select an option from the left navigation panel.</p>
+  <h1>WELCOME SCHOOL ADMIN</h1>
+  <p>Manage teachers, students and school examination records.</p>
 </section>
 
-<section id="addSchoolAdmin" class="hidden section-box">
-  <h2>Create School Admin</h2>
-  <input type="text" id="schoolAdminName" placeholder="Full Name">
-  <input type="text" id="schoolAdminUsername" placeholder="Username">
-  <input type="password" id="schoolAdminPassword" placeholder="Password">
-  <select id="school">
-    <option>EP KABIRIZI</option>
-    <option>GS MUYUNZWE</option>
-    <option>GIHORORO PS</option>
-    <option>GS BWERAMVURA</option>
-    <option>GATOVU N&PS</option>
-    <option>GS KABUGA K</option>
-    <option>GS NYARUTOVU</option>
-    <option>EP NYAGATOVU</option>
-  </select>
-  <button onclick="addSchoolAdmin()">SAVE SCHOOL ADMIN</button>
-</section>
-
-<section id="viewSchools" class="hidden section-box">
-  <h2>All Schools Overview</h2>
-  <p>All schools performance summary will appear here.</p>
-</section>
-
+<!-- ADD TEACHER -->
 <section id="addTeacher" class="hidden section-box">
   <h2>Create Teacher</h2>
-  <input type="text" id="teacherName" placeholder="Full Name">
-  <input type="text" id="teacherUsername" placeholder="Username">
-  <input type="password" id="teacherPassword" placeholder="Password">
-  <select id="class" onchange="updateSubjects()">
-    <option value="">Choose Class</option>
+
+  <input type="text" placeholder="Teacher Full Name">
+
+  <input type="text" placeholder="Username">
+
+  <input type="password" placeholder="Password">
+
+  <select>
+    <option>Choose Class</option>
     <option>Primary 6</option>
     <option>Senior 3</option>
   </select>
-  <select id="subject">
-    <option value="">Choose Subject</option>
+
+  <select>
+    <option>Choose Subject</option>
   </select>
-  <button onclick="addTeacher()">SAVE TEACHER</button>
+
+  <button>SAVE TEACHER</button>
 </section>
 
+<!-- ADD STUDENTS -->
 <section id="addStudents" class="hidden section-box">
   <h2>Register Students</h2>
-  <select id="studentClass">
+
+  <select>
     <option>Primary 6</option>
     <option>Senior 3</option>
   </select>
 
   <div class="floating-add-box">
-    <input type="text" id="studentName" placeholder="Student Full Name">
-    <button onclick="addStudent()">ADD STUDENT</button>
+    <input type="text" placeholder="Student Full Name">
+    <button>ADD STUDENT</button>
   </div>
 
-  <div id="studentListBox">
+  <div class="student-list-box">
     <h3>Registered Students</h3>
-    <ul id="studentLiveList"></ul>
+
+    <ul>
+      <li>Uwase Divine</li>
+      <li>Ndayishimiye Eric</li>
+    </ul>
   </div>
 </section>
 
+<!-- VIEW SCHOOL MARKS -->
 <section id="viewMarks" class="hidden section-box">
-  <h2>Your School Marks Overview</h2>
+  <h2>School Examination Results</h2>
+
   <table>
     <thead>
       <tr>
@@ -85,20 +134,35 @@
         <th>English /100</th>
         <th>Kinyarwanda /100</th>
         <th>Science /100</th>
+        <th>Total</th>
+        <th>%</th>
+        <th>Position</th>
       </tr>
     </thead>
-    <tbody id="marksTableBody">
+
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Uwase Divine</td>
+        <td>88</td>
+        <td>91</td>
+        <td>79</td>
+        <td>84</td>
+        <td>342</td>
+        <td>85.5%</td>
+        <td>1</td>
+      </tr>
     </tbody>
   </table>
 </section>
 
   </main>
 </div><script>
-const role = localStorage.getItem('role');
-const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-
 function hideAll(){
-  document.querySelectorAll('.section-box').forEach(sec => sec.classList.add('hidden'));
+  document.querySelectorAll('.section-box').forEach(sec=>{
+    sec.classList.add('hidden');
+  });
+
   document.getElementById('welcomeSection').style.display = 'none';
 }
 
@@ -106,18 +170,5 @@ function showSection(id){
   hideAll();
   document.getElementById(id).classList.remove('hidden');
 }
-
-if(role === 'sector_admin'){
-  document.getElementById('sideTitle').innerText = 'Sector Admin';
-  document.getElementById('navTeacher').style.display = 'none';
-  document.getElementById('navStudents').style.display = 'none';
-  document.getElementById('navMarks').style.display = 'none';
-}
-
-if(role === 'school_admin'){
-  document.getElementById('sideTitle').innerText = 'School Admin';
-  document.getElementById('navSchoolAdmin').style.display = 'none';
-  document.getElementById('navViewSchools').style.display = 'none';
-}
 </script></body>
-    </html>
+      </html>
