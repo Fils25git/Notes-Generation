@@ -2,6 +2,7 @@ import pkg from "pg";
 const { Client } = pkg;
 
 export async function handler(event) {
+
     const client = new Client({
         connectionString: process.env.DATABASE_URL,
         ssl: { rejectUnauthorized: false }
@@ -11,23 +12,16 @@ export async function handler(event) {
         await client.connect();
 
         const data = JSON.parse(event.body);
+        const { marks, subject, school, class_name } = data;
 
-        const { marks, subject } = data;
-
-        // ================= SUBJECT MAPPING =================
         const subjectMap = {
             "ENGLISH": "english",
             "MATHEMATICS": "mathematics",
             "MATH": "mathematics",
             "KINYARWANDA": "kinyarwanda",
-
             "SOCIAL AND RELIGIOUS STUDIES": "social_studies",
-            "SOCIAL STUDIES": "social_studies",
             "SST": "social_studies",
-
             "SCIENCE": "science",
-            "SCIENCE AND ELEMENTARY STUDIES": "science",
-
             "CHEMISTRY": "chemistry",
             "PHYSICS": "physics",
             "BIOLOGY": "biology",
@@ -36,8 +30,7 @@ export async function handler(event) {
             "ENTREPRENEURSHIP": "entrepreneurship"
         };
 
-        const cleanSubject = subject?.trim().toUpperCase();
-        const column = subjectMap[cleanSubject];
+        const column = subjectMap[subject?.trim().toUpperCase()];
 
         if (!column) {
             return {
@@ -46,15 +39,7 @@ export async function handler(event) {
             };
         }
 
-        // ================= VALIDATION =================
-        if (!Array.isArray(marks) || marks.length === 0) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ message: "No marks provided" })
-            };
-        }
-
-        // ================= 1. SAVE MARKS =================
+        // 1️⃣ SAVE MARKS
         for (let m of marks) {
 
             const studentId = m.student_id;
@@ -68,7 +53,7 @@ export async function handler(event) {
             );
         }
 
-        // ================= 2. UPDATE TOTAL =================
+        // 2️⃣ UPDATE TOTAL + PERCENTAGE (ALL SUBJECTS SUM)
         await client.query(`
             UPDATE students
             SET total =
@@ -83,42 +68,36 @@ export async function handler(event) {
                 COALESCE(geography,0) +
                 COALESCE(history,0) +
                 COALESCE(entrepreneurship,0)
-        `);
+            WHERE school_name = $1 AND class_name = $2
+        `, [school, class_name]);
 
-        // ================= 3. UPDATE PERCENTAGE =================
+        // 3️⃣ UPDATE PERCENTAGE (OUT OF 600 MARKS)
         await client.query(`
             UPDATE students
-            SET percentage =
-            CASE
-                WHEN class_name = 'Primary 6' THEN total / 5
-                WHEN class_name = 'Senior 3' THEN total / 9
-                ELSE 0
-            END
-        `);
+            SET percentage = ROUND((total / 600.0) * 100, 2)
+            WHERE school_name = $1 AND class_name = $2
+        `, [school, class_name]);
 
-        // ================= 4. UPDATE POSITION =================
+        // 4️⃣ UPDATE POSITION (RANKING)
         await client.query(`
             WITH ranked AS (
-                SELECT
-                    id,
-                    RANK() OVER (
-                        PARTITION BY class_name
-                        ORDER BY total DESC
-                    ) AS pos
+                SELECT id,
+                RANK() OVER (ORDER BY total DESC) AS pos
                 FROM students
+                WHERE school_name = $1 AND class_name = $2
             )
             UPDATE students s
             SET position = r.pos
             FROM ranked r
-            WHERE s.id = r.id;
-        `);
+            WHERE s.id = r.id
+        `, [school, class_name]);
 
         await client.end();
 
         return {
             statusCode: 200,
             body: JSON.stringify({
-                message: "Marks saved successfully"
+                message: "Marks, total, percentage and positions updated"
             })
         };
 
@@ -127,9 +106,7 @@ export async function handler(event) {
 
         return {
             statusCode: 500,
-            body: JSON.stringify({
-                message: err.message
-            })
+            body: JSON.stringify({ message: err.message })
         };
     }
-                    }
+                           }
