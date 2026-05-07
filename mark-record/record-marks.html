@@ -67,10 +67,11 @@ if(role !== "teacher"){
 // LOGOUT
 function logout(){
     localStorage.clear();
-    window.location.href = "login.html";
+    window.location.href = "index.html";
 }
 
 // LOAD TEACHER ASSIGNMENTS
+// LOAD ONLY CURRENT TEACHER ASSIGNMENTS
 async function loadAssignments(){
 
     const res = await fetch(
@@ -79,30 +80,42 @@ async function loadAssignments(){
 
     const data = await res.json();
 
-    const select = document.getElementById("assignmentSelect");
+    const select =
+    document.getElementById("assignmentSelect");
 
-    // REMOVE DEFAULT OPTION
     select.innerHTML = "";
 
-    data.forEach(t => {
+    if(!res.ok){
+        alert(data.message);
+        return;
+    }
 
-        t.assignments.forEach(a => {
+    // FIND CURRENT TEACHER ONLY
+    const teacher = data.find(t =>
+        t.username === currentUser.username
+    );
 
-            select.innerHTML += `
-                <option value="${a.class_name}|${a.subject}">
-                    ${a.class_name} - ${a.subject}
-                </option>
-            `;
-        });
+    if(!teacher){
+        select.innerHTML =
+        `<option>No assignments found</option>`;
+        return;
+    }
+
+    // SHOW ONLY HIS/HER ASSIGNMENTS
+    teacher.assignments.forEach(a => {
+
+        select.innerHTML += `
+        <option value="${a.class_name}|${a.subject}">
+            ${a.class_name} - ${a.subject}
+        </option>
+        `;
     });
 
-    // AUTO LOAD FIRST ASSIGNMENT
+    // AUTO LOAD FIRST
     if(select.options.length > 0){
-        select.selectedIndex = 0;
         loadStudents();
     }
-  }
-
+      }
 // LOAD STUDENTS BASED ON SELECTION
 // LOAD STUDENTS + EXISTING MARKS
 async function loadStudents(){
