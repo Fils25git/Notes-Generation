@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Students</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script>
+// PROTECT PAGE
+const role = localStorage.getItem("role");
+
+if(role !== "school_admin"){
+    alert("Access denied");
+    window.location.href = "login.html";
+}
+</script>
+
+<header>
+  <h1>ADD STUDENTS</h1>
+  <p>Register students by class</p>
+</header>
+
+<main class="dashboard-container">
+
+  <div class="card">
+
+    <h2>Student Registration</h2>
+
+    <!-- CLASS SELECT -->
+    <label>Select Class</label>
+    <select id="studentClass" onchange="showForm()">
+      <option value="">-- Select Class --</option>
+      <option>Primary 6</option>
+      <option>Senior 3</option>
+    </select>
+
+    <!-- INPUT FORM -->
+    <div id="formBox" style="display:none; margin-top:20px;">
+
+      <label>Student Full Name</label>
+      <input type="text" id="studentName" placeholder="Enter student name">
+
+      <button class="btn" onclick="addStudent()">
+        Add Student
+      </button>
+
+    </div>
+
+    <!-- LIST -->
+    <div style="margin-top:30px;">
+      <h3>Registered Students</h3>
+      <ul id="studentList"></ul>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+// SHOW FORM
+function showForm(){
+    const cls = document.getElementById("studentClass").value;
+    document.getElementById("formBox").style.display = cls ? "block" : "none";
+}
+
+// ADD STUDENT (NOW CORRECT FUNCTION)
+async function addStudent(){
+
+    const student_name =
+    document.getElementById("studentName").value.trim();
+
+    const class_name =
+    document.getElementById("studentClass").value;
+
+    if(!student_name || !class_name){
+        alert("Please fill all fields");
+        return;
+    }
+
+    const response = await fetch("/.netlify/functions/createStudents", {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            student_name,
+            school_name: currentUser.school,
+            class_name
+        })
+    });
+
+    const result = await response.json();
+
+    if(!response.ok){
+        alert(result.message);
+        return;
+    }
+
+    alert("Student added successfully");
+
+    document.getElementById("studentName").value = "";
+
+    loadStudents();
+}
+
+// LOAD STUDENTS (placeholder for now)
+function loadStudents(){
+
+    const list = document.getElementById("studentList");
+    list.innerHTML = "";
+
+    list.innerHTML += "<li>Students will be loaded from database</li>";
+}
+
+loadStudents();
+
+</script>
+
+</body>
+</html>
