@@ -1,86 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Teacher Results</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Results</title>
 
-<style>
+  <link rel="stylesheet" href="style.css">
 
-.results-container{
-    width:95%;
-    max-width:1200px;
-    margin:30px auto;
-}
+  <style>
 
-.results-card{
-    background:white;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.08);
-}
-
-.top-bar{
+.results-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:20px;
-    flex-wrap:wrap;
     gap:10px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-}
-
-th, td{
-    padding:12px;
-    border:1px solid #ddd;
-    text-align:center;
-}
-
-th{
-    background:#2563eb;
-    color:white;
-}
-
-.category{
-    font-weight:bold;
+    flex-wrap:wrap;
+    margin-bottom:20px;
 }
 
 .analysis-box{
-    margin-top:30px;
-    padding:20px;
+    margin-top:25px;
     background:#f8fafc;
-    border-radius:10px;
+    padding:20px;
+    border-radius:12px;
+    border:1px solid #dbeafe;
 }
 
-.btn{
-    padding:10px 18px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    color:white;
+.analysis-box p{
+    margin:10px 0;
+    font-size:15px;
+}
+
+.grade{
+    padding:4px 10px;
+    border-radius:6px;
     font-weight:600;
+    font-size:13px;
+    color:white;
+}
+
+.grade-a{background:#16a34a;}
+.grade-b{background:#22c55e;}
+.grade-c{background:#3b82f6;}
+.grade-d{background:#f59e0b;}
+.grade-e{background:#fb923c;}
+.grade-s{background:#ef4444;}
+.grade-f{background:#991b1b;}
+
+.download-btn{
     background:#2563eb;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
 }
 
-.btn:hover{
-    opacity:0.9;
+.download-btn:hover{
+    background:#1d4ed8;
 }
 
-</style>
-
+  </style>
 </head>
 <body>
 
 <script>
 
 const role = localStorage.getItem("role");
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const currentUser =
+JSON.parse(localStorage.getItem("currentUser"));
 
 if(role !== "teacher"){
     alert("Access denied");
@@ -90,95 +79,75 @@ if(role !== "teacher"){
 </script>
 
 <header>
-    <h1>TEACHER RESULTS</h1>
-    <p>View marks and performance analysis</p>
+  <h1>TEACHER RESULTS</h1>
+  <p>View performance of your students</p>
 </header>
 
-<div class="results-container">
+<main class="dashboard-container">
 
-<div class="results-card">
+  <div class="card" style="max-width:1100px; width:95%;">
 
-<div class="top-bar">
+    <div class="results-header">
 
-<div>
-<label>Select Assignment</label><br>
+      <div>
+        <h2 id="tableTitle">
+          Students Performance
+        </h2>
+      </div>
 
-<select id="assignmentSelect" onchange="loadResults()">
-</select>
-</div>
+      <button class="download-btn"
+        onclick="downloadTable()">
+        Download
+      </button>
 
-<button class="btn" onclick="downloadResults()">
-Download
-</button>
+    </div>
 
-</div>
+    <label>Select Class & Subject</label>
 
-<table>
+    <select id="assignmentSelect"
+      onchange="loadResults()">
+    </select>
 
-<thead>
-<tr>
-    <th>#</th>
-    <th>Student Name</th>
-    <th>Marks</th>
-    <th>Category</th>
-</tr>
-</thead>
+    <div class="table-container">
 
-<tbody id="resultsBody">
-<tr>
-<td colspan="4">Loading...</td>
-</tr>
-</tbody>
+      <table id="resultsTable">
 
-</table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student Name</th>
+            <th>Marks</th>
+            <th>Category</th>
+          </tr>
+        </thead>
 
-<div class="analysis-box">
+        <tbody id="resultsBody">
+          <tr>
+            <td colspan="4">
+              Loading...
+            </td>
+          </tr>
+        </tbody>
 
-<h3>Results Analysis</h3>
+      </table>
 
-<p id="passCount">Students who passed: 0</p>
+    </div>
 
-<p id="failCount">Students who failed: 0</p>
+    <div class="analysis-box">
 
-<p id="passPercentage">Pass Percentage: 0%</p>
+      <h3>Marks Analysis</h3>
 
-</div>
+      <p id="passCount"></p>
+      <p id="failCount"></p>
+      <p id="passPercentage"></p>
 
-</div>
+    </div>
 
-</div>
+  </div>
+
+</main>
 
 <script>
-
-// SUBJECT → DB COLUMN
-const subjectMap = {
-    "ENGLISH":"english",
-    "MATHEMATICS":"mathematics",
-    "MATH":"mathematics",
-    "KINYARWANDA":"kinyarwanda",
-    "SOCIAL AND RELIGIOUS STUDIES":"social_studies",
-    "SCIENCE":"science",
-    "SCIENCE AND ELEMENTARY STUDIES":"science",
-    "CHEMISTRY":"chemistry",
-    "PHYSICS":"physics",
-    "BIOLOGY":"biology",
-    "GEOGRAPHY":"geography",
-    "HISTORY":"history",
-    "ENTREPRENEURSHIP":"entrepreneurship"
-};
-
-// CATEGORY FUNCTION
-function getCategory(mark){
-
-    if(mark >= 80) return "A (Excellent)";
-    if(mark >= 75) return "B (Very Good)";
-    if(mark >= 70) return "C (Good)";
-    if(mark >= 65) return "D (Satisfactory)";
-    if(mark >= 60) return "E (Adequate)";
-    if(mark >= 50) return "S (Minimum Pass)";
-
-    return "F (Fail)";
-}
 
 // LOAD ASSIGNMENTS
 async function loadAssignments(){
@@ -189,25 +158,80 @@ async function loadAssignments(){
 
     const data = await res.json();
 
-    const select = document.getElementById("assignmentSelect");
+    const select =
+    document.getElementById("assignmentSelect");
 
     select.innerHTML = "";
 
     data.forEach(t => {
 
+        if(t.id != currentUser.id) return;
+
         t.assignments.forEach(a => {
 
             select.innerHTML += `
             <option value="${a.class_name}|${a.subject}">
-                ${a.class_name} - ${a.subject}
+              ${a.class_name} - ${a.subject}
             </option>
             `;
         });
     });
 
+    // AUTO LOAD FIRST
     if(select.options.length > 0){
         loadResults();
     }
+}
+
+// CATEGORY
+function getCategory(mark){
+
+    if(mark >= 80){
+        return {
+            text:"A (Excellent)",
+            class:"grade-a"
+        };
+    }
+
+    if(mark >= 75){
+        return {
+            text:"B (Very Good)",
+            class:"grade-b"
+        };
+    }
+
+    if(mark >= 70){
+        return {
+            text:"C (Good)",
+            class:"grade-c"
+        };
+    }
+
+    if(mark >= 65){
+        return {
+            text:"D (Satisfactory)",
+            class:"grade-d"
+        };
+    }
+
+    if(mark >= 60){
+        return {
+            text:"E (Adequate)",
+            class:"grade-e"
+        };
+    }
+
+    if(mark >= 50){
+        return {
+            text:"S (Minimum Pass)",
+            class:"grade-s"
+        };
+    }
+
+    return {
+        text:"F (Fail)",
+        class:"grade-f"
+    };
 }
 
 // LOAD RESULTS
@@ -218,7 +242,12 @@ async function loadResults(){
 
     if(!value) return;
 
-    const [class_name, subject] = value.split("|");
+    const [class_name, subject] =
+    value.split("|");
+
+    document.getElementById("tableTitle")
+    .innerText =
+`${class_name} Students Performance in ${subject}`;
 
     const res = await fetch(
 `/.netlify/functions/getMarks?school=${currentUser.school}&class_name=${class_name}&subject=${subject}`
@@ -226,7 +255,8 @@ async function loadResults(){
 
     const data = await res.json();
 
-    const body = document.getElementById("resultsBody");
+    const body =
+    document.getElementById("resultsBody");
 
     body.innerHTML = "";
 
@@ -234,57 +264,133 @@ async function loadResults(){
 
         body.innerHTML = `
         <tr>
-            <td colspan="4">${data.message}</td>
+          <td colspan="4">
+            ${data.message}
+          </td>
         </tr>`;
 
         return;
     }
 
-    let passed = 0;
-    let failed = 0;
+    let pass = 0;
+    let fail = 0;
 
-    data.forEach((student, index) => {
+    data.forEach((s,index)=>{
 
-        const mark = Number(student.mark || 0);
+        const mark = Number(s.mark || 0);
 
-        const category = getCategory(mark);
+        const category =
+        getCategory(mark);
 
-        if(category === "F (Fail)"){
-            failed++;
+        if(mark >= 50){
+            pass++;
         }else{
-            passed++;
+            fail++;
         }
 
         body.innerHTML += `
         <tr>
-            <td>${index + 1}</td>
-            <td>${student.student_name}</td>
-            <td>${mark}</td>
-            <td class="category">${category}</td>
-        </tr>`;
+
+          <td>${index + 1}</td>
+
+          <td>${s.student_name}</td>
+
+          <td>${mark}</td>
+
+          <td>
+            <span class="grade ${category.class}">
+              ${category.text}
+            </span>
+          </td>
+
+        </tr>
+        `;
     });
 
     const total = data.length;
 
     const percentage =
     total > 0
-    ? ((passed / total) * 100).toFixed(2)
+    ? ((pass / total) * 100).toFixed(2)
     : 0;
 
-    document.getElementById("passCount").innerText =
-    `Students who passed: ${passed}`;
+    document.getElementById("passCount")
+    .innerHTML =
+`Students who passed are: <b>${pass}</b>`;
 
-    document.getElementById("failCount").innerText =
-    `Students who failed: ${failed}`;
+    document.getElementById("failCount")
+    .innerHTML =
+`Students who failed are: <b>${fail}</b>`;
 
-    document.getElementById("passPercentage").innerText =
-    `Pass Percentage: ${percentage}%`;
+    document.getElementById("passPercentage")
+    .innerHTML =
+`They passed on percentage of: <b>${percentage}%</b>`;
 }
 
-// DOWNLOAD
-function downloadResults(){
+// DOWNLOAD TABLE
+function downloadTable(){
 
-    window.print();
+    const title =
+    document.getElementById("tableTitle")
+    .innerText;
+
+    const table =
+    document.getElementById("resultsTable")
+    .outerHTML;
+
+    const content = `
+    <html>
+    <head>
+      <title>${title}</title>
+
+      <style>
+
+      body{
+          font-family:Arial;
+          padding:20px;
+      }
+
+      h2{
+          text-align:center;
+          margin-bottom:20px;
+      }
+
+      table{
+          width:100%;
+          border-collapse:collapse;
+      }
+
+      th, td{
+          border:1px solid #000;
+          padding:10px;
+          text-align:left;
+      }
+
+      th{
+          background:#f1f5f9;
+      }
+
+      </style>
+
+    </head>
+
+    <body>
+
+      <h2>${title}</h2>
+
+      ${table}
+
+    </body>
+    </html>
+    `;
+
+    const win = window.open("", "", "width=900,height=700");
+
+    win.document.write(content);
+
+    win.document.close();
+
+    win.print();
 }
 
 // INIT
@@ -293,4 +399,4 @@ loadAssignments();
 </script>
 
 </body>
-</html>
+    </html>
