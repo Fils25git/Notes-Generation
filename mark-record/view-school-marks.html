@@ -8,8 +8,6 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-
-/* ================= GLOBAL ================= */
 body{
     margin:0;
     font-family:'Segoe UI', Arial, sans-serif;
@@ -17,26 +15,16 @@ body{
     color:#222;
 }
 
-/* ================= HEADER ================= */
 header{
     background:linear-gradient(135deg,#1d4ed8,#2563eb);
     color:white;
     text-align:center;
     padding:25px 15px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
 
-header h1{
-    margin:0;
-    font-size:22px;
-}
+header h1{margin:0;font-size:22px;}
+header p{margin-top:5px;font-size:14px;}
 
-header p{
-    margin-top:5px;
-    font-size:14px;
-}
-
-/* ================= TABLE CONTAINER ================= */
 .table-container{
     width:95%;
     max-width:1200px;
@@ -44,27 +32,15 @@ header p{
     background:white;
     padding:20px;
     border-radius:12px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.08);
 }
 
 .section-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    flex-wrap:wrap;
-    gap:10px;
     margin-bottom:15px;
 }
 
-.table-container h2{
-    color:#1d4ed8;
-    font-size:18px;
-    border-left:4px solid #1d4ed8;
-    padding-left:10px;
-    margin:0;
-}
-
-/* ================= TABLE ================= */
 table{
     width:100%;
     border-collapse:collapse;
@@ -82,11 +58,8 @@ th, td{
     border-bottom:1px solid #eee;
 }
 
-tbody tr:hover{
-    background:#f0f6ff;
-}
+tbody tr:hover{background:#f0f6ff;}
 
-/* ================= ANALYSIS ================= */
 .analysis-box{
     margin-top:25px;
     background:#f8fafc;
@@ -95,18 +68,7 @@ tbody tr:hover{
     padding:20px;
 }
 
-.analysis-box h3{
-    margin-top:0;
-    color:#1d4ed8;
-}
-
-.analysis-box p{
-    margin:8px 0;
-}
-
-/* ================= BUTTONS ================= */
-.download-btn,
-.logout-btn{
+.download-btn,.logout-btn{
     border:none;
     color:white;
     padding:10px 18px;
@@ -115,52 +77,22 @@ tbody tr:hover{
     font-weight:bold;
 }
 
-.download-btn{
-    background:#2563eb;
-}
+.download-btn{background:#2563eb;}
+.download-btn:hover{background:#1d4ed8;}
 
-.download-btn:hover{
-    background:#1d4ed8;
-}
-
-.logout-btn{
-    background:#ef4444;
-    margin:15px;
-}
-
-.logout-btn:hover{
-    background:#dc2626;
-}
-
-/* ================= MOBILE ================= */
-@media(max-width:768px){
-
-    table{
-        font-size:12px;
-    }
-
-    th, td{
-        padding:6px;
-    }
-
-    .table-container{
-        padding:10px;
-    }
-}
-
+.logout-btn{background:#ef4444;margin:15px;}
+.logout-btn:hover{background:#dc2626;}
   </style>
 </head>
+
 <body>
 
 <script>
-
 const role = localStorage.getItem("role");
-
 if(role !== "school_admin"){
     alert("Access denied");
     window.location.href = "login.html";
 }
-
 </script>
 
 <header>
@@ -168,32 +100,21 @@ if(role !== "school_admin"){
   <p>Examination Results Dashboard</p>
 </header>
 
-<button class="logout-btn" onclick="logout()">
-  Logout
-</button>
+<button class="logout-btn" onclick="logout()">Logout</button>
 
-<!-- ================= PRIMARY 6 ================= -->
-
-<div class="table-container" id="p6Section">
-
+<!-- ================= P6 ================= -->
+<div class="table-container">
   <div class="section-header">
-
-    <h2 id="p6Title">
-      PRIMARY 6 RESULTS
-    </h2>
-
-    <button class="download-btn"
-      onclick="downloadTable('p6Table','p6Title')">
+    <h2 id="p6Title">PRIMARY 6 RESULTS</h2>
+    <button class="download-btn" onclick="downloadTable('p6Table','p6Title')">
       Download
     </button>
-
   </div>
 
   <table id="p6Table">
-
     <thead>
       <tr>
-        <th>#</th>
+        <th>Position</th>
         <th>Student</th>
         <th>Eng</th>
         <th>Math</th>
@@ -202,48 +123,42 @@ if(role !== "school_admin"){
         <th>SET</th>
         <th>Total</th>
         <th>%</th>
-        <th>Pos</th>
+        <th>Category</th>
       </tr>
     </thead>
-
     <tbody id="p6Body"></tbody>
-
   </table>
 
-  <div class="analysis-box" id="p6Analysis">
-
+  <div class="analysis-box">
     <h3>Analysis by Subject</h3>
-
-    <div id="p6AnalysisContent"></div>
-
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Average</th>
+          <th>Passed</th>
+          <th>Failed</th>
+          <th>Pass Rate</th>
+        </tr>
+      </thead>
+      <tbody id="p6AnalysisContent"></tbody>
+    </table>
   </div>
-
 </div>
 
-<!-- ================= SENIOR 3 ================= -->
-
-<div class="table-container"
-  id="s3Section"
-  style="display:none;">
-
+<!-- ================= S3 ================= -->
+<div class="table-container" id="s3Section" style="display:none;">
   <div class="section-header">
-
-    <h2 id="s3Title">
-      SENIOR 3 RESULTS
-    </h2>
-
-    <button class="download-btn"
-      onclick="downloadTable('s3Table','s3Title')">
+    <h2 id="s3Title">SENIOR 3 RESULTS</h2>
+    <button class="download-btn" onclick="downloadTable('s3Table','s3Title')">
       Download
     </button>
-
   </div>
 
   <table id="s3Table">
-
     <thead>
       <tr>
-        <th>#</th>
+        <th>Position</th>
         <th>Student</th>
         <th>Eng</th>
         <th>Math</th>
@@ -256,299 +171,198 @@ if(role !== "school_admin"){
         <th>Ent</th>
         <th>Total</th>
         <th>%</th>
-        <th>Pos</th>
+        <th>Category</th>
       </tr>
     </thead>
-
     <tbody id="s3Body"></tbody>
-
   </table>
 
   <div class="analysis-box">
-
     <h3>Analysis by Subject</h3>
-
-    <div id="s3AnalysisContent"></div>
-
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Average</th>
+          <th>Passed</th>
+          <th>Failed</th>
+          <th>Pass Rate</th>
+        </tr>
+      </thead>
+      <tbody id="s3AnalysisContent"></tbody>
+    </table>
   </div>
-
 </div>
 
 <script>
 
-const currentUser =
-JSON.parse(localStorage.getItem("currentUser"));
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+function getCategory(p){
+    if(p >= 80) return "A (Excellent)";
+    if(p >= 75) return "B (Very Good)";
+    if(p >= 70) return "C (Good)";
+    if(p >= 65) return "D (Satisfactory)";
+    if(p >= 60) return "E (Adequate)";
+    if(p >= 50) return "S (Pass)";
+    return "F (Fail)";
+}
 
 async function loadMarks(){
 
-    const response = await fetch(
+const response = await fetch(
 `/.netlify/functions/getStudents?school_name=${currentUser.school}`
-    );
+);
 
-    const data = await response.json();
+const data = await response.json();
 
-    const p6Body =
-    document.getElementById("p6Body");
+const p6Body = document.getElementById("p6Body");
+const s3Body = document.getElementById("s3Body");
 
-    const s3Body =
-    document.getElementById("s3Body");
+p6Body.innerHTML = "";
+s3Body.innerHTML = "";
 
-    p6Body.innerHTML = "";
-    s3Body.innerHTML = "";
-
-    if(!response.ok){
-        alert(data.message);
-        return;
-    }
-
-    let hasS3 = false;
-
-    let p6Subjects = {
-        english:[],
-        mathematics:[],
-        kinyarwanda:[],
-        social_studies:[],
-        science:[]
-    };
-
-    let s3Subjects = {
-        english:[],
-        mathematics:[],
-        kinyarwanda:[],
-        chemistry:[],
-        physics:[],
-        biology:[],
-        geography:[],
-        history:[],
-        entrepreneurship:[]
-    };
-
-    let p6Count = 0;
-    let s3Count = 0;
-
-    data.forEach((s,i)=>{
-
-        // PRIMARY 6
-        if(s.class_name === "Primary 6"){
-
-            p6Count++;
-
-            p6Subjects.english.push(Number(s.english || 0));
-            p6Subjects.mathematics.push(Number(s.mathematics || 0));
-            p6Subjects.kinyarwanda.push(Number(s.kinyarwanda || 0));
-            p6Subjects.social_studies.push(Number(s.social_studies || 0));
-            p6Subjects.science.push(Number(s.science || 0));
-
-            p6Body.innerHTML += `
-            <tr>
-
-              <td>${p6Count}</td>
-              <td>${s.student_name}</td>
-              <td>${s.english}</td>
-              <td>${s.mathematics}</td>
-              <td>${s.kinyarwanda}</td>
-              <td>${s.social_studies}</td>
-              <td>${s.science}</td>
-              <td><b>${s.total}</b></td>
-              <td><b>${s.percentage}%</b></td>
-              <td><b>${s.position}</b></td>
-
-            </tr>
-            `;
-        }
-
-        // SENIOR 3
-        if(s.class_name === "Senior 3"){
-
-            hasS3 = true;
-            s3Count++;
-
-            s3Subjects.english.push(Number(s.english || 0));
-            s3Subjects.mathematics.push(Number(s.mathematics || 0));
-            s3Subjects.kinyarwanda.push(Number(s.kinyarwanda || 0));
-            s3Subjects.chemistry.push(Number(s.chemistry || 0));
-            s3Subjects.physics.push(Number(s.physics || 0));
-            s3Subjects.biology.push(Number(s.biology || 0));
-            s3Subjects.geography.push(Number(s.geography || 0));
-            s3Subjects.history.push(Number(s.history || 0));
-            s3Subjects.entrepreneurship.push(Number(s.entrepreneurship || 0));
-
-            s3Body.innerHTML += `
-            <tr>
-
-              <td>${s3Count}</td>
-              <td>${s.student_name}</td>
-              <td>${s.english}</td>
-              <td>${s.mathematics}</td>
-              <td>${s.kinyarwanda}</td>
-              <td>${s.chemistry}</td>
-              <td>${s.physics}</td>
-              <td>${s.biology}</td>
-              <td>${s.geography}</td>
-              <td>${s.history}</td>
-              <td>${s.entrepreneurship}</td>
-              <td><b>${s.total}</b></td>
-              <td><b>${s.percentage}%</b></td>
-              <td><b>${s.position}</b></td>
-
-            </tr>
-            `;
-        }
-
-    });
-
-    createAnalysis(
-        p6Subjects,
-        "p6AnalysisContent"
-    );
-
-    createAnalysis(
-        s3Subjects,
-        "s3AnalysisContent"
-    );
-
-    if(hasS3){
-        document.getElementById("s3Section")
-        .style.display = "block";
-    }
+if(!response.ok){
+    alert(data.message);
+    return;
 }
 
-// ================= ANALYSIS =================
+// SORT BY PERFORMANCE
+let p6 = data.filter(s=>s.class_name==="Primary 6")
+.sort((a,b)=>b.percentage-a.percentage);
 
-function createAnalysis(subjects, elementId){
+let s3 = data.filter(s=>s.class_name==="Senior 3")
+.sort((a,b)=>b.percentage-a.percentage);
 
-    const container =
-    document.getElementById(elementId);
+let p6Subjects = {english:[],mathematics:[],kinyarwanda:[],social_studies:[],science:[]};
+let s3Subjects = {english:[],mathematics:[],kinyarwanda:[],chemistry:[],physics:[],biology:[],geography:[],history:[],entrepreneurship:[]};
 
-    container.innerHTML = "";
+// P6
+p6.forEach((s,i)=>{
 
-    for(let subject in subjects){
+p6Subjects.english.push(+s.english||0);
+p6Subjects.mathematics.push(+s.mathematics||0);
+p6Subjects.kinyarwanda.push(+s.kinyarwanda||0);
+p6Subjects.social_studies.push(+s.social_studies||0);
+p6Subjects.science.push(+s.science||0);
 
-        const marks = subjects[subject];
+p6Body.innerHTML += `
+<tr>
+<td>${i+1}</td>
+<td>${s.student_name}</td>
+<td>${s.english}</td>
+<td>${s.mathematics}</td>
+<td>${s.kinyarwanda}</td>
+<td>${s.social_studies}</td>
+<td>${s.science}</td>
+<td><b>${s.total}</b></td>
+<td><b>${s.percentage}%</b></td>
+<td><b>${getCategory(s.percentage)}</b></td>
+</tr>`;
+});
 
-        if(marks.length === 0) continue;
+// S3
+s3.forEach((s,i)=>{
 
-        const total =
-        marks.reduce((a,b)=>a+b,0);
+s3Body.innerHTML += `
+<tr>
+<td>${i+1}</td>
+<td>${s.student_name}</td>
+<td>${s.english}</td>
+<td>${s.mathematics}</td>
+<td>${s.kinyarwanda}</td>
+<td>${s.chemistry}</td>
+<td>${s.physics}</td>
+<td>${s.biology}</td>
+<td>${s.geography}</td>
+<td>${s.history}</td>
+<td>${s.entrepreneurship}</td>
+<td><b>${s.total}</b></td>
+<td><b>${s.percentage}%</b></td>
+<td><b>${getCategory(s.percentage)}</b></td>
+</tr>`;
+});
 
-        const average =
-        (total / marks.length).toFixed(2);
+createAnalysis(p6Subjects,"p6AnalysisContent");
+createAnalysis(s3Subjects,"s3AnalysisContent");
 
-        const pass =
-        marks.filter(m => m >= 50).length;
-
-        const fail =
-        marks.filter(m => m < 50).length;
-
-        const percentage =
-        ((pass / marks.length) * 100)
-        .toFixed(2);
-
-        container.innerHTML += `
-        <p>
-
-        <b>${subject.toUpperCase()}</b><br>
-
-        Average:
-        <b>${average}</b> |
-
-        Passed:
-        <b>${pass}</b> |
-
-        Failed:
-        <b>${fail}</b> |
-
-        Pass Rate:
-        <b>${percentage}%</b>
-
-        </p>
-        `;
-    }
+document.getElementById("s3Section").style.display =
+s3.length ? "block" : "none";
 }
 
-// ================= DOWNLOAD =================
+// ANALYSIS TABLE
+function createAnalysis(subjects,id){
+const el=document.getElementById(id);
+el.innerHTML="";
 
-function downloadTable(tableId, titleId){
+for(let sub in subjects){
 
-    const table =
-    document.getElementById(tableId).outerHTML;
+let m=subjects[sub];
+if(!m.length) continue;
 
-    const title =
-    document.getElementById(titleId).innerText;
+let avg=(m.reduce((a,b)=>a+b,0)/m.length).toFixed(2);
+let pass=m.filter(x=>x>=50).length;
+let fail=m.length-pass;
+let rate=((pass/m.length)*100).toFixed(2);
 
-    const content = `
-    <html>
-
-    <head>
-
-      <title>${title}</title>
-
-      <style>
-
-      body{
-          font-family:Arial;
-          padding:20px;
-      }
-
-      h2{
-          text-align:center;
-          margin-bottom:20px;
-      }
-
-      table{
-          width:100%;
-          border-collapse:collapse;
-      }
-
-      th, td{
-          border:1px solid #000;
-          padding:8px;
-          text-align:center;
-      }
-
-      th{
-          background:#f1f5f9;
-      }
-
-      </style>
-
-    </head>
-
-    <body>
-
-      <h2>${title}</h2>
-
-      ${table}
-
-    </body>
-
-    </html>
-    `;
-
-    const win =
-    window.open("", "", "width=1000,height=700");
-
-    win.document.write(content);
-
-    win.document.close();
-
-    win.print();
+el.innerHTML+=`
+<tr>
+<td>${sub.toUpperCase()}</td>
+<td>${avg}</td>
+<td>${pass}</td>
+<td>${fail}</td>
+<td>${rate}%</td>
+</tr>`;
+}
 }
 
-// ================= LOGOUT =================
+// DOWNLOAD
+function downloadTable(id,titleId){
 
+const title="SCHOOL CLASS RESULT PERFORMANCE";
+const table=document.getElementById(id).outerHTML;
+
+const analysis=document.querySelector("#"+id.replace("Table","AnalysisContent"))?.outerHTML || "";
+
+const html=`
+<html>
+<head>
+<title>${title}</title>
+<style>
+body{font-family:Arial;padding:20px;}
+h2{text-align:center;}
+table{width:100%;border-collapse:collapse;}
+th,td{border:1px solid #000;padding:8px;text-align:center;}
+th{background:#eee;}
+</style>
+</head>
+<body>
+
+<h2>${title}</h2>
+
+<h3>STUDENT RESULTS</h3>
+${table}
+
+<h3>ANALYSIS</h3>
+${analysis}
+
+</body>
+</html>`;
+
+let w=window.open("","");
+w.document.write(html);
+w.document.close();
+w.print();
+}
+
+// LOGOUT
 function logout(){
-
-    localStorage.removeItem("role");
-    localStorage.removeItem("currentUser");
-
-    window.location.href = "login.html";
+localStorage.clear();
+location.href="login.html";
 }
 
-// INIT
 loadMarks();
-
 </script>
 
 </body>
-               </html>
+  </html>
