@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Marks</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script>
+// PROTECT PAGE
+const role = localStorage.getItem("role");
+
+if(role !== "school_admin"){
+    alert("Access denied");
+    window.location.href = "login.html";
+}
+</script>
+
+<header>
+  <h1>VIEW SCHOOL MARKS</h1>
+  <p>Examination results overview</p>
+</header>
+
+<main class="dashboard-container">
+
+  <div class="card">
+
+    <h2>Filter Results</h2>
+
+    <label>Select Class</label>
+    <select id="classSelect" onchange="loadMarks()">
+      <option value="">All Classes</option>
+      <option value="Primary 6">Primary 6</option>
+      <option value="Senior 3">Senior 3</option>
+    </select>
+
+  </div>
+
+</main>
+
+<div class="table-container">
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Student Name</th>
+        <th>Class</th>
+
+        <!-- P6 -->
+        <th>Eng</th>
+        <th>Math</th>
+        <th>Kiny</th>
+        <th>SST</th>
+        <th>SET</th>
+
+        <!-- S3 -->
+        <th>Chem</th>
+        <th>Phys</th>
+        <th>Bio</th>
+        <th>Geo</th>
+        <th>Hist</th>
+        <th>Ent</th>
+
+        <th>Total</th>
+        <th>%</th>
+        <th>Position</th>
+      </tr>
+    </thead>
+
+    <tbody id="marksBody">
+      <tr>
+        <td colspan="17">Loading data...</td>
+      </tr>
+    </tbody>
+
+  </table>
+
+</div>
+
+<script>
+
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+// SMART ROW RENDERER
+function renderRow(s, index){
+
+    const isP6 = s.class_name === "Primary 6";
+
+    let subjects = "";
+
+    if(isP6){
+        subjects = `
+            <td>${s.english}</td>
+            <td>${s.mathematics}</td>
+            <td>${s.kinyarwanda}</td>
+            <td>${s.social_studies}</td>
+            <td>${s.science}</td>
+
+            <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+        `;
+    } else {
+        subjects = `
+            <td>${s.english}</td>
+            <td>${s.mathematics}</td>
+            <td>${s.kinyarwanda}</td>
+            <td>-</td>
+            <td>-</td>
+
+            <td>${s.chemistry}</td>
+            <td>${s.physics}</td>
+            <td>${s.biology}</td>
+            <td>${s.geography}</td>
+            <td>${s.history}</td>
+            <td>${s.entrepreneurship}</td>
+        `;
+    }
+
+    return `
+    <tr>
+        <td>${index + 1}</td>
+        <td>${s.student_name}</td>
+        <td>${s.class_name}</td>
+
+        ${subjects}
+
+        <td><b>${s.total}</b></td>
+        <td><b>${s.percentage}%</b></td>
+        <td><b>${s.position}</b></td>
+    </tr>
+    `;
+}
+
+// LOAD DATA
+async function loadMarks(){
+
+    const classValue = document.getElementById("classSelect").value;
+
+    let url = `/.netlify/functions/getStudents?school_name=${currentUser.school}`;
+
+    if(classValue){
+        url += `&class_name=${classValue}`;
+    }
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const body = document.getElementById("marksBody");
+    body.innerHTML = "";
+
+    if(!response.ok){
+        body.innerHTML = `<tr><td colspan="17">${data.message}</td></tr>`;
+        return;
+    }
+
+    if(data.length === 0){
+        body.innerHTML = `<tr><td colspan="17">No records found</td></tr>`;
+        return;
+    }
+
+    data.forEach((s, index) => {
+        body.innerHTML += renderRow(s, index);
+    });
+
+}
+
+loadMarks();
+
+</script>
+
+</body>
+  </html>
