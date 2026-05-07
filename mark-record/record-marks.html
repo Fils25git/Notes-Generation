@@ -156,10 +156,11 @@ async function saveMarks(){
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            marks,
-            school: currentUser.school,
-            class_name
-        })
+    marks,
+    school: currentUser.school,
+    class_name,
+    subject
+})
     });
 
     const result = await res.json();
