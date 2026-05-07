@@ -58,7 +58,7 @@ export async function handler(event) {
         if(role === "teacher" && subject){
 
             await client.query(
-                `INSERT INTO teacher_subjects(teacher_id, class_name, subject, school)
+                `INSERT INTO teacher_subjects(teacher_id, class_name, subject, school_name)
                  VALUES($1,$2,$3,$4)`,
                 [
                     teacherId,
