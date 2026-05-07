@@ -31,7 +31,7 @@ if(role !== "teacher"){
 
     <h2>Teacher Assignments</h2>
 
-    <label>Select Assignment</label>
+    <label>Select Class & Subject</label>
     <select id="assignmentSelect" onchange="loadStudents()">
     </select>
 
@@ -53,7 +53,7 @@ if(role !== "teacher"){
     </thead>
 
     <tbody id="studentsBody">
-      
+      <tr><td colspan="3">Loading...</td></tr>
     </tbody>
 
   </table>
@@ -69,6 +69,7 @@ function logout(){
     localStorage.clear();
     window.location.href = "login.html";
 }
+
 // LOAD TEACHER ASSIGNMENTS
 async function loadAssignments(){
 
@@ -100,7 +101,7 @@ async function loadAssignments(){
         select.selectedIndex = 0;
         loadStudents();
     }
-}
+  }
 
 // LOAD STUDENTS BASED ON SELECTION
 // LOAD STUDENTS + EXISTING MARKS
