@@ -9,7 +9,6 @@
 <body>
 
 <script>
-// PROTECT PAGE
 const role = localStorage.getItem("role");
 
 if(role !== "school_admin"){
@@ -26,7 +25,6 @@ if(role !== "school_admin"){
 <main class="dashboard-container">
 
   <div class="card">
-
     <h2>Filter Results</h2>
 
     <label>Select Class</label>
@@ -43,20 +41,48 @@ if(role !== "school_admin"){
 <div class="table-container">
 
   <table>
-    <thead>
-      <tr>
+    <thead id="tableHead"></thead>
+    <tbody id="marksBody"></tbody>
+  </table>
+
+</div>
+
+<script>
+
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+// HEAD BUILDER (IMPORTANT PART)
+function buildHeader(className){
+
+    if(className === "Primary 6"){
+        return `
+        <tr>
+            <th>#</th>
+            <th>Student Name</th>
+            <th>Class</th>
+
+            <th>English</th>
+            <th>Math</th>
+            <th>Kinyarwanda</th>
+            <th>SST</th>
+            <th>Science</th>
+
+            <th>Total</th>
+            <th>%</th>
+            <th>Position</th>
+        </tr>`;
+    }
+
+    return `
+    <tr>
         <th>#</th>
         <th>Student Name</th>
         <th>Class</th>
 
-        <!-- P6 -->
-        <th>Eng</th>
+        <th>English</th>
         <th>Math</th>
-        <th>Kiny</th>
-        <th>SST</th>
-        <th>SET</th>
+        <th>Kinyarwanda</th>
 
-        <!-- S3 -->
         <th>Chem</th>
         <th>Phys</th>
         <th>Bio</th>
@@ -67,55 +93,29 @@ if(role !== "school_admin"){
         <th>Total</th>
         <th>%</th>
         <th>Position</th>
-      </tr>
-    </thead>
+    </tr>`;
+}
 
-    <tbody id="marksBody">
-      <tr>
-        <td colspan="17">Loading data...</td>
-      </tr>
-    </tbody>
+// ROW BUILDER
+function buildRow(s, index){
 
-  </table>
+    if(s.class_name === "Primary 6"){
+        return `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${s.student_name}</td>
+            <td>${s.class_name}</td>
 
-</div>
-
-<script>
-
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-// SMART ROW RENDERER
-function renderRow(s, index){
-
-    const isP6 = s.class_name === "Primary 6";
-
-    let subjects = "";
-
-    if(isP6){
-        subjects = `
             <td>${s.english}</td>
             <td>${s.mathematics}</td>
             <td>${s.kinyarwanda}</td>
             <td>${s.social_studies}</td>
             <td>${s.science}</td>
 
-            <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
-        `;
-    } else {
-        subjects = `
-            <td>${s.english}</td>
-            <td>${s.mathematics}</td>
-            <td>${s.kinyarwanda}</td>
-            <td>-</td>
-            <td>-</td>
-
-            <td>${s.chemistry}</td>
-            <td>${s.physics}</td>
-            <td>${s.biology}</td>
-            <td>${s.geography}</td>
-            <td>${s.history}</td>
-            <td>${s.entrepreneurship}</td>
-        `;
+            <td>${s.total}</td>
+            <td>${s.percentage}%</td>
+            <td>${s.position}</td>
+        </tr>`;
     }
 
     return `
@@ -124,13 +124,21 @@ function renderRow(s, index){
         <td>${s.student_name}</td>
         <td>${s.class_name}</td>
 
-        ${subjects}
+        <td>${s.english}</td>
+        <td>${s.mathematics}</td>
+        <td>${s.kinyarwanda}</td>
 
-        <td><b>${s.total}</b></td>
-        <td><b>${s.percentage}%</b></td>
-        <td><b>${s.position}</b></td>
-    </tr>
-    `;
+        <td>${s.chemistry}</td>
+        <td>${s.physics}</td>
+        <td>${s.biology}</td>
+        <td>${s.geography}</td>
+        <td>${s.history}</td>
+        <td>${s.entrepreneurship}</td>
+
+        <td>${s.total}</td>
+        <td>${s.percentage}%</td>
+        <td>${s.position}</td>
+    </tr>`;
 }
 
 // LOAD DATA
@@ -147,21 +155,27 @@ async function loadMarks(){
     const response = await fetch(url);
     const data = await response.json();
 
+    const head = document.getElementById("tableHead");
     const body = document.getElementById("marksBody");
+
     body.innerHTML = "";
 
     if(!response.ok){
-        body.innerHTML = `<tr><td colspan="17">${data.message}</td></tr>`;
+        body.innerHTML = `<tr><td colspan="10">${data.message}</td></tr>`;
         return;
     }
 
     if(data.length === 0){
-        body.innerHTML = `<tr><td colspan="17">No records found</td></tr>`;
+        body.innerHTML = `<tr><td colspan="10">No records found</td></tr>`;
         return;
     }
 
+    // set header based on first result class
+    const className = classValue || data[0].class_name;
+    head.innerHTML = buildHeader(className);
+
     data.forEach((s, index) => {
-        body.innerHTML += renderRow(s, index);
+        body.innerHTML += buildRow(s, index);
     });
 
 }
@@ -171,4 +185,4 @@ loadMarks();
 </script>
 
 </body>
-  </html>
+</html>
