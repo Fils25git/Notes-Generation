@@ -31,9 +31,10 @@ export async function handler(event) {
 
         // ================= GET ASSIGNMENTS =================
         const assignmentsResult = await client.query(`
-            SELECT teacher_id, class_name, subject
-            FROM teacher_subjects
-        `);
+    SELECT teacher_id, class_name, subject
+    FROM teacher_subjects
+    WHERE teacher_id IS NOT NULL
+`);
 
         // ================= GROUP ASSIGNMENTS =================
         const assignmentMap = new Map();
