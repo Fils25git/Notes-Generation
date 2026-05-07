@@ -36,6 +36,104 @@
     border: 1px solid #ccc;
     border-radius: 6px;
 }
+    /* =========================
+   GLOBAL BUTTON STYLE
+========================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 18px;
+    border: none;
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    color: white;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* hover effect */
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+}
+
+/* active click effect */
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* =========================
+   DANGER BUTTON (DELETE / CANCEL)
+========================= */
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+/* =========================
+   WARNING BUTTON (EDIT)
+========================= */
+
+.btn-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+}
+
+/* =========================
+   SUCCESS BUTTON (SAVE)
+========================= */
+
+.btn-success {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+/* =========================
+   SMALL BUTTON (TABLE ACTIONS)
+========================= */
+
+.btn-sm {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+/* =========================
+   FULL WIDTH BUTTON (FOR FORMS)
+========================= */
+
+.btn-block {
+    width: 100%;
+}
+
+/* =========================
+   ICON BUTTON (OPTIONAL)
+========================= */
+
+.btn-icon {
+    gap: 6px;
+  }
   </style>
 </head>
 <body>
