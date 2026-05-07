@@ -58,7 +58,14 @@ if(role !== "sector_admin"){
 
   <div class="card" style="max-width:900px; width:95%;">
 
-    <h2>School & Admin Overview</h2>
+    <!-- 🔥 HEADER + GLOBAL ADD BUTTON -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <h2>School & Admin Overview</h2>
+
+      <button class="btn" onclick="openAdd('')">
+        + Add School Admin
+      </button>
+    </div>
 
     <table style="width:100%; margin-top:20px;">
       <thead>
@@ -87,6 +94,19 @@ if(role !== "sector_admin"){
     <h2 id="modalTitle">Add School Admin</h2>
 
     <input type="hidden" id="editId">
+
+    <label>School</label>
+    <select id="adminSchool">
+      <option value="">-- Select School --</option>
+      <option>EP KABIRIZI</option>
+      <option>GS MUYUNZWE</option>
+      <option>GIHORORO PS</option>
+      <option>GS BWERAMVURA</option>
+      <option>GATOVU N&PS</option>
+      <option>GS KABUGA K</option>
+      <option>GS NYARUTOVU</option>
+      <option>EP NYAGATOVU</option>
+    </select>
 
     <label>Full Name</label>
     <input type="text" id="adminName">
@@ -117,6 +137,16 @@ async function loadSchoolAdmins(){
     const table = document.getElementById("schoolTable");
     table.innerHTML = "";
 
+    if(!res.ok){
+        table.innerHTML = `<tr><td colspan="5">Error loading data</td></tr>`;
+        return;
+    }
+
+    if(data.length === 0){
+        table.innerHTML = `<tr><td colspan="5">No school admins found</td></tr>`;
+        return;
+    }
+
     data.forEach((item, index) => {
         table.innerHTML += `
         <tr>
@@ -127,7 +157,7 @@ async function loadSchoolAdmins(){
             <td>
                 <button class="btn" onclick="openAdd('${item.school}')">Add</button>
                 <button class="btn" style="background:#f59e0b;"
-                    onclick="openEdit('${item.id}','${item.admin_name}','${item.username}')">
+                    onclick="openEdit('${item.id}','${item.admin_name}','${item.username}','${item.school}')">
                     Edit
                 </button>
             </td>
@@ -137,20 +167,22 @@ async function loadSchoolAdmins(){
 
 // OPEN ADD MODAL
 function openAdd(school){
-    selectedSchool = school;
+    selectedSchool = school || "";
     editMode = false;
 
     document.getElementById("modalTitle").innerText = "Add School Admin";
 
+    document.getElementById("editId").value = "";
     document.getElementById("adminName").value = "";
     document.getElementById("adminUsername").value = "";
     document.getElementById("adminPassword").value = "";
+    document.getElementById("adminSchool").value = selectedSchool;
 
     document.getElementById("modal").style.display = "flex";
 }
 
 // OPEN EDIT MODAL
-function openEdit(id, name, username){
+function openEdit(id, name, username, school){
     editMode = true;
 
     document.getElementById("modalTitle").innerText = "Edit School Admin";
@@ -158,6 +190,9 @@ function openEdit(id, name, username){
     document.getElementById("editId").value = id;
     document.getElementById("adminName").value = name;
     document.getElementById("adminUsername").value = username;
+    document.getElementById("adminSchool").value = school;
+
+    document.getElementById("adminPassword").value = "";
 
     document.getElementById("modal").style.display = "flex";
 }
@@ -167,15 +202,16 @@ function closeModal(){
     document.getElementById("modal").style.display = "none";
 }
 
-// SAVE (ADD OR EDIT)
+// SAVE ADMIN
 async function saveAdmin(){
 
-    const full_name = document.getElementById("adminName").value;
-    const username = document.getElementById("adminUsername").value;
+    const full_name = document.getElementById("adminName").value.trim();
+    const username = document.getElementById("adminUsername").value.trim();
     const password = document.getElementById("adminPassword").value;
+    const school = document.getElementById("adminSchool").value;
 
-    if(!full_name || !username){
-        alert("Fill required fields");
+    if(!full_name || !username || !school){
+        alert("Fill all required fields");
         return;
     }
 
@@ -184,12 +220,11 @@ async function saveAdmin(){
         username,
         password,
         role: "school_admin",
-        school: selectedSchool
+        school
     };
 
     let url = "/.netlify/functions/createUser";
 
-    // EDIT MODE (later you can create update API)
     if(editMode){
         payload.id = document.getElementById("editId").value;
         url = "/.netlify/functions/updateUser";
@@ -218,4 +253,4 @@ loadSchoolAdmins();
 </script>
 
 </body>
-      </html>
+</html>
