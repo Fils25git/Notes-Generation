@@ -60,15 +60,24 @@
 const role = localStorage.getItem("role");
 
 if(role !== "teacher"){
-    alert("Access denied");
+    alert("Access is allowed only for Teachers");
     window.location.href = "login.html";
 }
+  function logout(){
+    localStorage.removeItem("role");
+    localStorage.removeItem("currentUser");
+
+    alert("You have been logged out");
+
+    window.location.href = "login.html";
+  }
 </script>
 
 <header>
   <h1>TEACHER DASHBOARD</h1>
   <p>Record marks and view student performance</p>
 </header>
+  <button class="logout-btn" onclick="logout()">Logout</button>
 
 <main class="dashboard-container">
 
