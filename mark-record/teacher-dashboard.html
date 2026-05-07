@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ================= TEACHER GRID ================= */
+.teacher-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    margin-top:25px;
+}
+
+/* DASHBOARD CARDS */
+.dash-card{
+    background:linear-gradient(135deg, #ffffff, #f8fafc);
+    border:1px solid #e5e7eb;
+    padding:20px;
+    border-radius:12px;
+    text-align:left;
+    cursor:pointer;
+    transition:0.3s;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.dash-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 8px 20px rgba(0,0,0,0.12);
+    border-color:#1d4ed8;
+}
+
+.dash-card h3{
+    margin:0;
+    color:#1d4ed8;
+    font-size:16px;
+}
+
+.dash-card p{
+    margin-top:8px;
+    font-size:13px;
+    color:#555;
+    line-height:1.4;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+    .teacher-grid{
+        grid-template-columns:1fr;
+    }
+}
+  </style>
+</head>
+<body>
+
+<script>
+// PROTECTION
+const role = localStorage.getItem("role");
+
+if(role !== "teacher"){
+    alert("Access denied");
+    window.location.href = "login.html";
+}
+</script>
+
+<header>
+  <h1>TEACHER DASHBOARD</h1>
+  <p>Record marks and view student performance</p>
+</header>
+
+<main class="dashboard-container">
+
+  <div class="card">
+
+    <h2>Welcome Teacher</h2>
+
+    <p style="margin-top:10px; font-size:14px; color:#555;">
+      Select an action below to manage student academic records.
+    </p>
+
+    <!-- NAVIGATION CARDS -->
+
+    <div class="teacher-grid">
+
+      <!-- RECORD MARKS -->
+      <div class="dash-card" onclick="window.location.href='record-marks.html'">
+        <h3>📌 Record Marks</h3>
+        <p>Enter student marks for your assigned class and subject.</p>
+      </div>
+
+      <!-- VIEW RESULTS -->
+      <div class="dash-card" onclick="window.location.href='teacher-results.html'">
+        <h3>📊 View Results</h3>
+        <p>Check performance, totals, percentages and rankings.</p>
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+          </html>
