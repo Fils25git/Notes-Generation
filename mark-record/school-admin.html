@@ -1,0 +1,57 @@
+<!-- ========================= -->
+<!-- school-admin.html -->
+<!-- ========================= -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script>
+// PROTECT PAGE
+const role = localStorage.getItem("role");
+
+if(role !== "school_admin"){
+    alert("Access denied");
+    window.location.href = "login.html";
+}
+</script>
+
+<div class="landing-container">
+
+  <header class="top-header">
+    <h1>SCHOOL ADMIN DASHBOARD</h1>
+    <p>Manage teachers, students and school marks</p>
+  </header>
+
+  <div class="cards-grid">
+
+    <div class="dashboard-card"
+         onclick="window.location.href='add-teacher.html'">
+      <h2>Add Teacher</h2>
+      <p>Create teacher accounts and assign subjects.</p>
+    </div>
+
+    <div class="dashboard-card"
+         onclick="window.location.href='add-students.html'">
+      <h2>Add Students</h2>
+      <p>Register students by class.</p>
+    </div>
+
+    <div class="dashboard-card"
+         onclick="window.location.href='view-school-marks.html'">
+      <h2>View School Marks</h2>
+      <p>See all entered examination marks.</p>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
