@@ -5,6 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Record Marks</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    table{
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+}
+
+th{
+background:#1d4ed8;
+color:white;
+padding:8px;
+text-align:left;
+}
+
+td{
+padding:6px 8px;
+border-bottom:1px solid #eee;
+line-height:1.2;
+}
+
+tr{
+height:40px;
+}
+
+input[type="number"]{
+width:70px;
+padding:4px;
+height:28px;
+box-sizing:border-box;
+}
+  </style>
 </head>
 <body>
 
@@ -13,8 +44,8 @@ const role = localStorage.getItem("role");
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if(role !== "teacher"){
-    alert("Access denied");
-    window.location.href = "login.html";
+    alert("you are not allowed to acces this page");
+    window.location.href = "index.html";
 }
 </script>
 
