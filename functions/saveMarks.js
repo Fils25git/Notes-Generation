@@ -14,7 +14,7 @@ export async function handler(event) {
 
         const { marks, subject } = data;
 
-        // ✅ SAFE SUBJECT MAPPING
+        // ✅ SUBJECT MAPPING
         const subjectMap = {
             "ENGLISH": "english",
             "MATHEMATICS": "mathematics",
@@ -31,7 +31,7 @@ export async function handler(event) {
             "ENTREPRENEURSHIP": "entrepreneurship"
         };
 
-        const column = subjectMap[subject];
+        const column = subjectMap[subject?.toUpperCase()];
 
         if (!column) {
             return {
@@ -42,10 +42,22 @@ export async function handler(event) {
             };
         }
 
+        // ✅ VALIDATION
+        if (!Array.isArray(marks) || marks.length === 0) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({
+                    message: "No marks provided"
+                })
+            };
+        }
+
         for (let m of marks) {
 
             const studentId = m.student_id;
             const mark = Number(m.mark);
+
+            if (!studentId || isNaN(mark)) continue;
 
             await client.query(
                 `UPDATE students SET ${column} = $1 WHERE id = $2`,
@@ -72,4 +84,4 @@ export async function handler(event) {
             })
         };
     }
-              }
+    }
