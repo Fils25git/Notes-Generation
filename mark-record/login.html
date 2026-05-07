@@ -14,68 +14,128 @@
 </header>
 
 <main class="dashboard-container">
+
     <div class="card">
-        <h2>User Login</h2>
+
+        <h2 style="margin-bottom:25px;">User Login</h2>
 
         <label>Username</label>
-        <input type="text" id="username">
+        <input 
+            type="text" 
+            id="username"
+            placeholder="Enter username"
+        >
 
         <label>Password</label>
-        <input type="password" id="password">
+        <input 
+            type="password" 
+            id="password"
+            placeholder="Enter password"
+        >
 
-        <button class="btn" onclick="loginUser()">Login</button>
+        <button 
+            class="btn"
+            id="loginBtn"
+            onclick="loginUser()"
+        >
+            Login
+        </button>
 
-        <p style="margin-top:15px;">
-            First time? <a href="signup.html">Create Sector Admin</a>
+        <p style="margin-top:20px;text-align:center;">
+            First time?
+            <a href="signup.html">
+                Create Sector Admin
+            </a>
         </p>
+
     </div>
+
 </main>
 
 <script>
+
+// IF USER ALREADY LOGGED IN
+const existingRole = localStorage.getItem("role");
+
+if(existingRole === "sector_admin"){
+    window.location.href = "sector-admin.html";
+}
+
+if(existingRole === "school_admin"){
+    window.location.href = "school-admin.html";
+}
+
+if(existingRole === "teacher"){
+    window.location.href = "students.html";
+}
+
+// ENTER KEY SUPPORT
+document.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+        loginUser();
+    }
+});
+
 async function loginUser(){
 
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
+    const btn = document.getElementById("loginBtn");
 
     if(!username || !password){
         alert("Please enter username and password");
         return;
     }
 
-    const response = await fetch("/.netlify/functions/loginUser", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            username: username,
-            password: password
-        })
-    });
+    btn.innerText = "Logging in...";
+    btn.disabled = true;
 
-    const result = await response.json();
+    try{
 
-    if(!response.ok){
-        alert(result.message);
-        return;
-    }
+        const response = await fetch("/.netlify/functions/loginUser", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                username,
+                password
+            })
+        });
 
-    // ONLY SESSION STORAGE NOW
-    localStorage.setItem("role", result.role);
-    localStorage.setItem("currentUser", JSON.stringify(result));
+        const result = await response.json();
 
-    alert("Login successful");
+        if(!response.ok){
+            alert(result.message);
 
-    if(result.role === "sector_admin"){
-        window.location.href = "dashboard.html";
-    }
+            btn.innerText = "Login";
+            btn.disabled = false;
+            return;
+        }
 
-    if(result.role === "school_admin"){
-        window.location.href = "dashboard.html";
-    }
+        // SAVE SESSION
+        localStorage.setItem("role", result.role);
+        localStorage.setItem("currentUser", JSON.stringify(result));
 
-    if(result.role === "teacher"){
-        window.location.href = "students.html";
+        // REDIRECT BY ROLE
+        if(result.role === "sector_admin"){
+            window.location.href = "sector-admin.html";
+        }
+
+        if(result.role === "school_admin"){
+            window.location.href = "school-admin.html";
+        }
+
+        if(result.role === "teacher"){
+            window.location.href = "students.html";
+        }
+
+    }catch(error){
+
+        alert("Server error. Try again.");
+
+        btn.innerText = "Login";
+        btn.disabled = false;
     }
 }
 </script>
