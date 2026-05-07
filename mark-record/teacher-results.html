@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Results</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+.results-container{
+    width:95%;
+    max-width:1200px;
+    margin:30px auto;
+}
+
+.results-card{
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.08);
+}
+
+.top-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th, td{
+    padding:12px;
+    border:1px solid #ddd;
+    text-align:center;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+
+.category{
+    font-weight:bold;
+}
+
+.analysis-box{
+    margin-top:30px;
+    padding:20px;
+    background:#f8fafc;
+    border-radius:10px;
+}
+
+.btn{
+    padding:10px 18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    color:white;
+    font-weight:600;
+    background:#2563eb;
+}
+
+.btn:hover{
+    opacity:0.9;
+}
+
+</style>
+
+</head>
+<body>
+
+<script>
+
+const role = localStorage.getItem("role");
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if(role !== "teacher"){
+    alert("Access denied");
+    window.location.href = "login.html";
+}
+
+</script>
+
+<header>
+    <h1>TEACHER RESULTS</h1>
+    <p>View marks and performance analysis</p>
+</header>
+
+<div class="results-container">
+
+<div class="results-card">
+
+<div class="top-bar">
+
+<div>
+<label>Select Assignment</label><br>
+
+<select id="assignmentSelect" onchange="loadResults()">
+</select>
+</div>
+
+<button class="btn" onclick="downloadResults()">
+Download
+</button>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+    <th>#</th>
+    <th>Student Name</th>
+    <th>Marks</th>
+    <th>Category</th>
+</tr>
+</thead>
+
+<tbody id="resultsBody">
+<tr>
+<td colspan="4">Loading...</td>
+</tr>
+</tbody>
+
+</table>
+
+<div class="analysis-box">
+
+<h3>Results Analysis</h3>
+
+<p id="passCount">Students who passed: 0</p>
+
+<p id="failCount">Students who failed: 0</p>
+
+<p id="passPercentage">Pass Percentage: 0%</p>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+// SUBJECT → DB COLUMN
+const subjectMap = {
+    "ENGLISH":"english",
+    "MATHEMATICS":"mathematics",
+    "MATH":"mathematics",
+    "KINYARWANDA":"kinyarwanda",
+    "SOCIAL AND RELIGIOUS STUDIES":"social_studies",
+    "SCIENCE":"science",
+    "SCIENCE AND ELEMENTARY STUDIES":"science",
+    "CHEMISTRY":"chemistry",
+    "PHYSICS":"physics",
+    "BIOLOGY":"biology",
+    "GEOGRAPHY":"geography",
+    "HISTORY":"history",
+    "ENTREPRENEURSHIP":"entrepreneurship"
+};
+
+// CATEGORY FUNCTION
+function getCategory(mark){
+
+    if(mark >= 80) return "A (Excellent)";
+    if(mark >= 75) return "B (Very Good)";
+    if(mark >= 70) return "C (Good)";
+    if(mark >= 65) return "D (Satisfactory)";
+    if(mark >= 60) return "E (Adequate)";
+    if(mark >= 50) return "S (Minimum Pass)";
+
+    return "F (Fail)";
+}
+
+// LOAD ASSIGNMENTS
+async function loadAssignments(){
+
+    const res = await fetch(
+`/.netlify/functions/getTeacher?school=${currentUser.school}`
+    );
+
+    const data = await res.json();
+
+    const select = document.getElementById("assignmentSelect");
+
+    select.innerHTML = "";
+
+    data.forEach(t => {
+
+        t.assignments.forEach(a => {
+
+            select.innerHTML += `
+            <option value="${a.class_name}|${a.subject}">
+                ${a.class_name} - ${a.subject}
+            </option>
+            `;
+        });
+    });
+
+    if(select.options.length > 0){
+        loadResults();
+    }
+}
+
+// LOAD RESULTS
+async function loadResults(){
+
+    const value =
+    document.getElementById("assignmentSelect").value;
+
+    if(!value) return;
+
+    const [class_name, subject] = value.split("|");
+
+    const res = await fetch(
+`/.netlify/functions/getMarks?school=${currentUser.school}&class_name=${class_name}&subject=${subject}`
+    );
+
+    const data = await res.json();
+
+    const body = document.getElementById("resultsBody");
+
+    body.innerHTML = "";
+
+    if(!res.ok){
+
+        body.innerHTML = `
+        <tr>
+            <td colspan="4">${data.message}</td>
+        </tr>`;
+
+        return;
+    }
+
+    let passed = 0;
+    let failed = 0;
+
+    data.forEach((student, index) => {
+
+        const mark = Number(student.mark || 0);
+
+        const category = getCategory(mark);
+
+        if(category === "F (Fail)"){
+            failed++;
+        }else{
+            passed++;
+        }
+
+        body.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${student.student_name}</td>
+            <td>${mark}</td>
+            <td class="category">${category}</td>
+        </tr>`;
+    });
+
+    const total = data.length;
+
+    const percentage =
+    total > 0
+    ? ((passed / total) * 100).toFixed(2)
+    : 0;
+
+    document.getElementById("passCount").innerText =
+    `Students who passed: ${passed}`;
+
+    document.getElementById("failCount").innerText =
+    `Students who failed: ${failed}`;
+
+    document.getElementById("passPercentage").innerText =
+    `Pass Percentage: ${percentage}%`;
+}
+
+// DOWNLOAD
+function downloadResults(){
+
+    window.print();
+}
+
+// INIT
+loadAssignments();
+
+</script>
+
+</body>
+</html>
