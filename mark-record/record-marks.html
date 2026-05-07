@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Record Marks</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script>
+const role = localStorage.getItem("role");
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if(role !== "teacher"){
+    alert("Access denied");
+    window.location.href = "login.html";
+}
+</script>
+
+<header>
+  <h1>RECORD MARKS</h1>
+  <p>Enter marks for assigned classes and subjects</p>
+
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<main class="dashboard-container">
+
+  <div class="card">
+
+    <h2>Teacher Assignments</h2>
+
+    <label>Select Class & Subject</label>
+    <select id="assignmentSelect" onchange="loadStudents()">
+      <option value="">-- Select Assignment --</option>
+    </select>
+
+  </div>
+
+</main>
+
+<div class="table-container">
+
+  <h2>Student Marks Entry</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Student Name</th>
+        <th>Mark /100</th>
+      </tr>
+    </thead>
+
+    <tbody id="studentsBody">
+      <tr><td colspan="3">Select class & subject first</td></tr>
+    </tbody>
+
+  </table>
+
+  <button class="btn" onclick="saveMarks()">Save Marks</button>
+
+</div>
+
+<script>
+
+// LOGOUT
+function logout(){
+    localStorage.clear();
+    window.location.href = "login.html";
+}
+
+// LOAD TEACHER ASSIGNMENTS
+async function loadAssignments(){
+
+    const res = await fetch(`/.netlify/functions/getTeacher?school=${currentUser.school}`);
+    const data = await res.json();
+
+    const select = document.getElementById("assignmentSelect");
+    select.innerHTML = `<option value="">-- Select Assignment --</option>`;
+
+    data.forEach(t => {
+        t.assignments.forEach(a => {
+            select.innerHTML += `
+                <option value="${a.class_name}|${a.subject}">
+                    ${a.class_name} - ${a.subject}
+                </option>
+            `;
+        });
+    });
+}
+
+// LOAD STUDENTS BASED ON SELECTION
+async function loadStudents(){
+
+    const value = document.getElementById("assignmentSelect").value;
+
+    if(!value) return;
+
+    const [class_name, subject] = value.split("|");
+
+    const url = `/.netlify/functions/getStudents?school_name=${currentUser.school}&class_name=${class_name}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const body = document.getElementById("studentsBody");
+    body.innerHTML = "";
+
+    if(!res.ok){
+        body.innerHTML = `<tr><td colspan="3">${data.message}</td></tr>`;
+        return;
+    }
+
+    data.forEach((s, index) => {
+        body.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${s.student_name}</td>
+            <td>
+                <input type="number" min="0" max="100"
+                    id="mark_${s.id}">
+            </td>
+        </tr>`;
+    });
+
+}
+
+// SAVE MARKS
+async function saveMarks(){
+
+    const value = document.getElementById("assignmentSelect").value;
+
+    if(!value){
+        alert("Select class and subject first");
+        return;
+    }
+
+    const [class_name, subject] = value.split("|");
+
+    const inputs = document.querySelectorAll("input[type='number']");
+    let marks = [];
+
+    inputs.forEach(input => {
+        const student_id = input.id.split("_")[1];
+
+        marks.push({
+            student_id,
+            mark: Number(input.value),
+            subject
+        });
+    });
+
+    const res = await fetch("/.netlify/functions/saveMarks", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            marks,
+            school: currentUser.school,
+            class_name
+        })
+    });
+
+    const result = await res.json();
+
+    if(!res.ok){
+        alert(result.message);
+        return;
+    }
+
+    alert("Marks saved successfully");
+}
+
+// INIT
+loadAssignments();
+
+</script>
+
+</body>
+</html>
