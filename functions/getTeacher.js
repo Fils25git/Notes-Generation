@@ -2,6 +2,7 @@ import pkg from "pg";
 const { Client } = pkg;
 
 export async function handler(event) {
+
     const client = new Client({
         connectionString: process.env.DATABASE_URL,
         ssl: { rejectUnauthorized: false }
@@ -12,7 +13,7 @@ export async function handler(event) {
 
         const { school } = event.queryStringParameters || {};
 
-        // 1. GET TEACHERS ONLY
+        // ================= GET TEACHERS =================
         let teacherQuery = `
             SELECT id, full_name, username, role, school
             FROM users
@@ -27,30 +28,35 @@ export async function handler(event) {
         }
 
         const teachersResult = await client.query(teacherQuery, params);
-        const teachers = teachersResult.rows;
 
-        // 2. GET SUBJECT ASSIGNMENTS
+        // ================= GET ASSIGNMENTS =================
         const assignmentsResult = await client.query(`
             SELECT teacher_id, class_name, subject
             FROM teacher_subjects
         `);
 
-        const assignments = assignmentsResult.rows;
+        // ================= GROUP ASSIGNMENTS =================
+        const assignmentMap = new Map();
 
-        // 3. MERGE DATA
-        const formatted = teachers.map(t => {
-            const teacherSubjects = assignments
-                .filter(a => a.teacher_id === t.id)
-                .map(a => ({
-                    class_name: a.class_name,
-                    subject: a.subject
-                }));
+        for (const a of assignmentsResult.rows) {
 
-            return {
-                ...t,
-                assignments: teacherSubjects
-            };
-        });
+            const key = Number(a.teacher_id);
+
+            if (!assignmentMap.has(key)) {
+                assignmentMap.set(key, []);
+            }
+
+            assignmentMap.get(key).push({
+                class_name: a.class_name,
+                subject: a.subject
+            });
+        }
+
+        // ================= MERGE =================
+        const formatted = teachersResult.rows.map(t => ({
+            ...t,
+            assignments: assignmentMap.get(Number(t.id)) || []
+        }));
 
         await client.end();
 
@@ -64,9 +70,7 @@ export async function handler(event) {
 
         return {
             statusCode: 500,
-            body: JSON.stringify({
-                message: err.message
-            })
+            body: JSON.stringify({ message: err.message })
         };
     }
-          }
+}
