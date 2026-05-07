@@ -28,6 +28,7 @@ if(role !== "sector_admin"){
     <h1>SECTOR ADMIN DASHBOARD</h1>
     <p>Manage schools and administrators</p>
   </header>
+  <button class="logout-btn" onclick="logout()">Logout</button>
 
   <div class="cards-grid">
 
@@ -46,6 +47,16 @@ if(role !== "sector_admin"){
   </div>
 
 </div>
+  
+<script>
+  function logout(){
+    localStorage.removeItem("role");
+    localStorage.removeItem("currentUser");
 
+    alert("You have been logged out");
+
+    window.location.href = "login.html";
+  }
+</script>
 </body>
 </html>
