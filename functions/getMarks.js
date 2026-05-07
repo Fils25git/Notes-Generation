@@ -16,7 +16,7 @@ export async function handler(event) {
 
         const { class_name, subject, school } = params;
 
-        // SUBJECT → COLUMN
+        // ================= SUBJECT MAP =================
         const subjectMap = {
             "ENGLISH": "english",
             "MATHEMATICS": "mathematics",
@@ -39,18 +39,79 @@ export async function handler(event) {
         if (!column) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({
-                    message: "Invalid subject"
-                })
+                body: JSON.stringify({ message: "Invalid subject" })
             };
         }
 
+        // ================= MAIN QUERY =================
         const result = await client.query(
             `
             SELECT
                 id,
                 student_name,
-                ${column} AS mark
+                class_name,
+                school_name,
+
+                ${column} AS mark,
+
+                -- TOTAL
+                (
+                    COALESCE(english,0) +
+                    COALESCE(mathematics,0) +
+                    COALESCE(kinyarwanda,0) +
+                    COALESCE(social_studies,0) +
+                    COALESCE(science,0) +
+                    COALESCE(chemistry,0) +
+                    COALESCE(physics,0) +
+                    COALESCE(biology,0) +
+                    COALESCE(geography,0) +
+                    COALESCE(history,0) +
+                    COALESCE(entrepreneurship,0)
+                ) AS total,
+
+                -- PERCENTAGE
+                ROUND(
+                    (
+                        (
+                            COALESCE(english,0) +
+                            COALESCE(mathematics,0) +
+                            COALESCE(kinyarwanda,0) +
+                            COALESCE(social_studies,0) +
+                            COALESCE(science,0) +
+                            COALESCE(chemistry,0) +
+                            COALESCE(physics,0) +
+                            COALESCE(biology,0) +
+                            COALESCE(geography,0) +
+                            COALESCE(history,0) +
+                            COALESCE(entrepreneurship,0)
+                        ) /
+                        CASE
+                            WHEN class_name = 'Primary 6' THEN 500.0
+                            WHEN class_name = 'Senior 3' THEN 900.0
+                            ELSE 1
+                        END
+                    ) * 100
+                ,2) AS percentage,
+
+                -- POSITION
+                RANK() OVER (
+                    PARTITION BY class_name
+                    ORDER BY
+                        (
+                            COALESCE(english,0) +
+                            COALESCE(mathematics,0) +
+                            COALESCE(kinyarwanda,0) +
+                            COALESCE(social_studies,0) +
+                            COALESCE(science,0) +
+                            COALESCE(chemistry,0) +
+                            COALESCE(physics,0) +
+                            COALESCE(biology,0) +
+                            COALESCE(geography,0) +
+                            COALESCE(history,0) +
+                            COALESCE(entrepreneurship,0)
+                        ) DESC
+                ) AS position
+
             FROM students
             WHERE school_name = $1
             AND class_name = $2
@@ -72,9 +133,7 @@ export async function handler(event) {
 
         return {
             statusCode: 500,
-            body: JSON.stringify({
-                message: err.message
-            })
+            body: JSON.stringify({ message: err.message })
         };
     }
-          }
+            }
