@@ -12,35 +12,65 @@ export async function handler(event) {
 
         const data = JSON.parse(event.body);
 
-        const { id, full_name, username, password, school } = data;
+        const {
+            id,
+            full_name,
+            username,
+            password,
+            school,
+            class_name,
+            subject,
+            role
+        } = data;
 
         if (!id) {
+            await client.end();
             return {
                 statusCode: 400,
                 body: JSON.stringify({ message: "User ID is required" })
             };
         }
 
-        // Build dynamic update query
+        // ================= UPDATE USERS TABLE =================
         let query = `
             UPDATE users
             SET full_name = $1,
                 username = $2,
-                school = $3
+                school = $3,
+                class_name = $4,
+                subject = $5
         `;
 
-        let params = [full_name, username, school];
+        let params = [full_name, username, school, class_name, subject];
 
-        // Only update password if provided
         if (password && password.trim() !== "") {
-            query += `, password = $4 WHERE id = $5`;
+            query += `, password = $6 WHERE id = $7`;
             params.push(password, id);
         } else {
-            query += ` WHERE id = $4`;
+            query += ` WHERE id = $6`;
             params.push(id);
         }
 
         await client.query(query, params);
+
+        // ================= UPDATE TEACHER SUBJECTS =================
+        if (role === "teacher") {
+
+            // first remove old record
+            await client.query(
+                `DELETE FROM teacher_subjects WHERE teacher_id = $1`,
+                [id]
+            );
+
+            // insert updated record
+            if (subject && class_name) {
+                await client.query(
+                    `INSERT INTO teacher_subjects(teacher_id, class_name, subject, school_name)
+                     VALUES($1,$2,$3,$4)`,
+                    [id, class_name, subject, school]
+                );
+            }
+        }
 
         await client.end();
 
@@ -59,4 +89,4 @@ export async function handler(event) {
             body: JSON.stringify({ message: err.message })
         };
     }
-}
+            }
