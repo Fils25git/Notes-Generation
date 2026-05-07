@@ -41,13 +41,6 @@
             Login
         </button>
 
-        <p style="margin-top:20px;text-align:center;">
-            First time?
-            <a href="signup.html">
-                Create Sector Admin
-            </a>
-        </p>
-
     </div>
 
 </main>
@@ -127,7 +120,7 @@ async function loginUser(){
         }
 
         if(result.role === "teacher"){
-            window.location.href = "students.html";
+            window.location.href = "teacher-dashboard.html";
         }
 
     }catch(error){
