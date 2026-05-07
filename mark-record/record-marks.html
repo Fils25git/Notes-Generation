@@ -31,7 +31,7 @@ if(role !== "teacher"){
 
     <h2>Teacher Assignments</h2>
 
-    <label>Select Class & Subject</label>
+    <label>Select Assignment</label>
     <select id="assignmentSelect" onchange="loadStudents()">
     </select>
 
@@ -69,16 +69,24 @@ function logout(){
     localStorage.clear();
     window.location.href = "login.html";
 }
-
 // LOAD TEACHER ASSIGNMENTS
 async function loadAssignments(){
 
-    const res = await fetch(`/.netlify/functions/getTeacher?school=${currentUser.school}`);
+    const res = await fetch(
+`/.netlify/functions/getTeacher?school=${currentUser.school}`
+    );
+
     const data = await res.json();
 
     const select = document.getElementById("assignmentSelect");
+
+    // REMOVE DEFAULT OPTION
+    select.innerHTML = "";
+
     data.forEach(t => {
+
         t.assignments.forEach(a => {
+
             select.innerHTML += `
                 <option value="${a.class_name}|${a.subject}">
                     ${a.class_name} - ${a.subject}
@@ -86,6 +94,12 @@ async function loadAssignments(){
             `;
         });
     });
+
+    // AUTO LOAD FIRST ASSIGNMENT
+    if(select.options.length > 0){
+        select.selectedIndex = 0;
+        loadStudents();
+    }
 }
 
 // LOAD STUDENTS BASED ON SELECTION
