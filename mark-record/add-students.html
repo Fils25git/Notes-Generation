@@ -1,158 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Students</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Students</title>
+
+<style>
+body{
+font-family:Arial;
+margin:0;
+background:#f3f6fb;
+}
+
+header{
+background:#2563eb;
+color:white;
+text-align:center;
+padding:20px;
+}
+
+.container{
+width:95%;
+max-width:1000px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:20px;
+}
+
+button{
+padding:8px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.btn{background:#2563eb;color:white;}
+.edit{background:#f59e0b;color:white;}
+.delete{background:#ef4444;color:white;}
+
+.modal{
+display:none;
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,0.5);
+justify-content:center;
+align-items:center;
+}
+
+.modal-box{
+background:white;
+padding:20px;
+border-radius:10px;
+width:300px;
+}
+
+.modal-box input,select{
+width:100%;
+padding:8px;
+margin:5px 0;
+}
+</style>
 </head>
+
 <body>
 
 <script>
-// PROTECT PAGE
 const role = localStorage.getItem("role");
-
 if(role !== "school_admin"){
-    alert("Access denied");
-    window.location.href = "login.html";
+alert("Access denied");
+location.href="login.html";
 }
 </script>
 
 <header>
-  <h1>ADD STUDENTS</h1>
-  <p>Register students by class</p>
+<h1>REGISTERED STUDENTS</h1>
+<button class="btn" onclick="openModal()">+ Add Student</button>
 </header>
 
-<main class="dashboard-container">
+<div class="container">
 
-  <div class="card">
+<!-- P6 -->
+<div class="card">
+<h2>P6 Students</h2>
+<ul id="p6List"></ul>
+</div>
 
-    <h2>Student Registration</h2>
+<!-- S3 -->
+<div class="card">
+<h2>S3 Students</h2>
+<ul id="s3List"></ul>
+</div>
 
-    <!-- CLASS SELECT -->
-    <label>Select Class</label>
-    <select id="studentClass" onchange="showForm()">
-      <option value="">-- Select Class --</option>
-      <option>Primary 6</option>
-      <option>Senior 3</option>
-    </select>
+</div>
 
-    <!-- INPUT FORM -->
-    <div id="formBox" style="display:none; margin-top:20px;">
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-box">
 
-      <label>Student Full Name</label>
-      <input type="text" id="studentName" placeholder="Enter student name">
+<h3 id="modalTitle">Add Student</h3>
 
-      <button class="btn" onclick="addStudent()">
-        Add Student
-      </button>
+<input type="hidden" id="editId">
 
-    </div>
+<select id="className">
+<option value="">Select Class</option>
+<option>Primary 6</option>
+<option>Senior 3</option>
+</select>
 
-    <!-- LIST -->
-    <div style="margin-top:30px;">
-      <h3>Registered Students</h3>
-      <ul id="studentList"></ul>
-    </div>
+<input type="text" id="name" placeholder="Student Name">
 
-  </div>
+<button class="btn" onclick="saveStudent()">Save</button>
+<button class="delete" onclick="closeModal()">Close</button>
 
-</main>
+</div>
+</div>
 
 <script>
 
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
-// SHOW FORM
-function showForm(){
-    const cls = document.getElementById("studentClass").value;
-    document.getElementById("formBox").style.display = cls ? "block" : "none";
-}
+let editMode = false;
 
-// ADD STUDENT (NOW CORRECT FUNCTION)
-async function addStudent(){
-
-    const student_name =
-    document.getElementById("studentName").value.trim();
-
-    const class_name =
-    document.getElementById("studentClass").value;
-
-    if(!student_name || !class_name){
-        alert("Please fill all fields");
-        return;
-    }
-
-    const response = await fetch("/.netlify/functions/createStudents", {
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-            student_name,
-            school_name: currentUser.school,
-            class_name
-        })
-    });
-
-    const result = await response.json();
-
-    if(!response.ok){
-        alert(result.message);
-        return;
-    }
-
-    alert("Student added successfully");
-
-    document.getElementById("studentName").value = "";
-
-    loadStudents();
-}
-
+// LOAD STUDENTS
 async function loadStudents(){
 
-    const list = document.getElementById("studentList");
-    list.innerHTML = "<li>Loading students...</li>";
+const res = await fetch(`/.netlify/functions/getStudents?school_name=${currentUser.school}`);
+const data = await res.json();
 
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const p6=document.getElementById("p6List");
+const s3=document.getElementById("s3List");
 
-    const class_name = document.getElementById("studentClass").value;
+p6.innerHTML="";
+s3.innerHTML="";
 
-    let url = `/.netlify/functions/getStudents?school_name=${currentUser.school}`;
+data.forEach(s=>{
 
-    if(class_name){
-        url += `&class_name=${class_name}`;
-    }
+if(s.class_name==="Primary 6"){
+p6.innerHTML+=studentRow(s);
+}
 
-    try {
+if(s.class_name==="Senior 3"){
+s3.innerHTML+=studentRow(s);
+}
 
-        const response = await fetch(url);
-        const data = await response.json();
+});
 
-        list.innerHTML = "";
+}
 
-        if(!response.ok){
-            list.innerHTML = `<li style="color:red;">${data.message}</li>`;
-            return;
-        }
+// STUDENT ROW
+function studentRow(s){
+return `
+<li>
+${s.student_name}
 
-        if(data.length === 0){
-            list.innerHTML = "<li>No students found</li>";
-            return;
-        }
+<button class="edit"
+onclick="editStudent('${s.id}','${s.student_name}','${s.class_name}')">
+Edit
+</button>
 
-        data.forEach((student, index) => {
-            list.innerHTML += `
-                <li>
-                    ${index + 1}. ${student.student_name}
-                    <small>(${student.class_name})</small>
-                </li>
-            `;
-        });
+<button class="delete"
+onclick="deleteStudent('${s.id}')">
+Delete
+</button>
+</li>
+`;
+}
 
-    } catch (error) {
-        list.innerHTML = `<li style="color:red;">Error loading students</li>`;
-    }
+// OPEN MODAL (ADD)
+function openModal(){
+editMode=false;
+document.getElementById("modalTitle").innerText="Add Student";
+document.getElementById("editId").value="";
+document.getElementById("name").value="";
+document.getElementById("className").value="";
+document.getElementById("modal").style.display="flex";
+}
+
+// EDIT
+function editStudent(id,name,cls){
+editMode=true;
+document.getElementById("modalTitle").innerText="Edit Student";
+document.getElementById("editId").value=id;
+document.getElementById("name").value=name;
+document.getElementById("className").value=cls;
+document.getElementById("modal").style.display="flex";
+}
+
+// CLOSE
+function closeModal(){
+document.getElementById("modal").style.display="none";
+}
+
+// SAVE
+async function saveStudent(){
+
+const id=document.getElementById("editId").value;
+const student_name=document.getElementById("name").value;
+const class_name=document.getElementById("className").value;
+
+let url="/.netlify/functions/createStudents";
+let body={student_name,class_name,school_name:currentUser.school};
+
+if(editMode){
+url="/.netlify/functions/updateStudent";
+body.id=id;
+}
+
+await fetch(url,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(body)
+});
+
+closeModal();
+loadStudents();
+}
+
+// DELETE
+async function deleteStudent(id){
+
+if(!confirm("Delete student?")) return;
+
+await fetch("/.netlify/functions/deleteStudent",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({id})
+});
+
+loadStudents();
 }
 
 loadStudents();
