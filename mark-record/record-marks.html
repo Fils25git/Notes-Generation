@@ -92,6 +92,7 @@ async function loadAssignments(){
 }
 
 // LOAD STUDENTS BASED ON SELECTION
+// LOAD STUDENTS + EXISTING MARKS
 async function loadStudents(){
 
     const value = document.getElementById("assignmentSelect").value;
@@ -100,7 +101,8 @@ async function loadStudents(){
 
     const [class_name, subject] = value.split("|");
 
-    const url = `/.netlify/functions/getStudents?school_name=${currentUser.school}&class_name=${class_name}`;
+    const url =
+`/.netlify/functions/getMarks?school=${currentUser.school}&class_name=${class_name}&subject=${subject}`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -109,22 +111,36 @@ async function loadStudents(){
     body.innerHTML = "";
 
     if(!res.ok){
-        body.innerHTML = `<tr><td colspan="3">${data.message}</td></tr>`;
+        body.innerHTML =
+        `<tr><td colspan="3">${data.message}</td></tr>`;
+        return;
+    }
+
+    if(data.length === 0){
+        body.innerHTML =
+        `<tr><td colspan="3">No students found</td></tr>`;
         return;
     }
 
     data.forEach((s, index) => {
+
         body.innerHTML += `
         <tr>
             <td>${index + 1}</td>
+
             <td>${s.student_name}</td>
+
             <td>
-                <input type="number" min="0" max="100"
-                    id="mark_${s.id}">
+                <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    id="mark_${s.id}"
+                    value="${s.mark ?? ''}"
+                >
             </td>
         </tr>`;
     });
-
 }
 
 // SAVE MARKS
