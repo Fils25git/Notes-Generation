@@ -11,6 +11,8 @@ export async function handler(event) {
     try {
         await client.connect();
 
+        await client.query("BEGIN"); // 🔥 START TRANSACTION
+
         const data = JSON.parse(event.body);
         const { marks, subject, school, class_name } = data;
 
@@ -32,28 +34,17 @@ export async function handler(event) {
 
         const column = subjectMap[subject?.trim().toUpperCase()];
 
-        if (!column) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ message: "Invalid subject" })
-            };
-        }
+        if (!column) throw new Error("Invalid subject");
 
         // 1️⃣ SAVE MARKS
         for (let m of marks) {
-
-            const studentId = m.student_id;
-            const mark = Number(m.mark);
-
-            if (!studentId || isNaN(mark)) continue;
-
             await client.query(
                 `UPDATE students SET ${column} = $1 WHERE id = $2`,
-                [mark, studentId]
+                [m.mark, m.student_id]
             );
         }
 
-        // 2️⃣ UPDATE TOTAL + PERCENTAGE (ALL SUBJECTS SUM)
+        // 2️⃣ RECALCULATE TOTAL
         await client.query(`
             UPDATE students
             SET total =
@@ -71,18 +62,21 @@ export async function handler(event) {
             WHERE school_name = $1 AND class_name = $2
         `, [school, class_name]);
 
-        // 3️⃣ UPDATE PERCENTAGE (OUT OF 600 MARKS)
+        // 3️⃣ RECALCULATE PERCENTAGE
         await client.query(`
             UPDATE students
             SET percentage = ROUND((total / 600.0) * 100, 2)
             WHERE school_name = $1 AND class_name = $2
         `, [school, class_name]);
 
-        // 4️⃣ UPDATE POSITION (RANKING)
+        // 4️⃣ RECALCULATE POSITION (MOST IMPORTANT PART)
         await client.query(`
             WITH ranked AS (
                 SELECT id,
-                RANK() OVER (ORDER BY total DESC) AS pos
+                RANK() OVER (
+                    PARTITION BY class_name
+                    ORDER BY total DESC
+                ) AS pos
                 FROM students
                 WHERE school_name = $1 AND class_name = $2
             )
@@ -92,21 +86,28 @@ export async function handler(event) {
             WHERE s.id = r.id
         `, [school, class_name]);
 
+        await client.query("COMMIT"); // 🔥 SUCCESS
+
         await client.end();
 
         return {
             statusCode: 200,
             body: JSON.stringify({
-                message: "Marks, total, percentage and positions updated"
+                message: "Everything updated successfully"
             })
         };
 
     } catch (err) {
+
+        await client.query("ROLLBACK"); // 🔥 SAFE FAILURE
+
         await client.end();
 
         return {
             statusCode: 500,
-            body: JSON.stringify({ message: err.message })
+            body: JSON.stringify({
+                message: err.message
+            })
         };
     }
-                           }
+            }
