@@ -6,19 +6,36 @@
 <title>Students</title>
 
 <style>
+
 body{
-font-family:Arial;
+font-family:'Segoe UI', Arial;
 margin:0;
-background:#f3f6fb;
+background:#f4f6fb;
+color:#222;
 }
 
+/* HEADER */
 header{
-background:#2563eb;
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
 color:white;
 text-align:center;
 padding:20px;
 }
 
+header h1{margin:0;font-size:22px;}
+
+.btn-add{
+margin-top:10px;
+background:white;
+color:#1d4ed8;
+padding:8px 14px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+
+/* CONTAINER */
 .container{
 width:95%;
 max-width:1000px;
@@ -26,24 +43,67 @@ margin:auto;
 padding:20px;
 }
 
-.card{
+/* CLASS SECTION */
+.class-box{
 background:white;
 padding:15px;
 border-radius:10px;
-margin-bottom:20px;
+margin-bottom:25px;
+box-shadow:0 4px 10px rgba(0,0,0,0.05);
 }
 
-button{
-padding:8px 12px;
+.class-title{
+font-size:18px;
+color:#1d4ed8;
+margin-bottom:10px;
+border-left:4px solid #1d4ed8;
+padding-left:8px;
+}
+
+/* TABLE */
+table{
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+}
+
+th{
+background:#1d4ed8;
+color:white;
+padding:10px;
+text-align:left;
+}
+
+td{
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+tr:hover{
+background:#f0f6ff;
+}
+
+/* BUTTONS */
+.edit{
+background:#f59e0b;
+color:white;
+padding:6px 10px;
 border:none;
-border-radius:6px;
+border-radius:5px;
+cursor:pointer;
+margin-right:5px;
+}
+
+.delete{
+background:#ef4444;
+color:white;
+padding:6px 10px;
+border:none;
+border-radius:5px;
 cursor:pointer;
 }
 
-.btn{background:#2563eb;color:white;}
-.edit{background:#f59e0b;color:white;}
-.delete{background:#ef4444;color:white;}
-
+/* MODAL */
 .modal{
 display:none;
 position:fixed;
@@ -58,14 +118,36 @@ align-items:center;
 background:white;
 padding:20px;
 border-radius:10px;
-width:300px;
+width:320px;
 }
 
 .modal-box input,select{
 width:100%;
 padding:8px;
-margin:5px 0;
+margin:8px 0;
 }
+
+.save{
+background:#2563eb;
+color:white;
+width:100%;
+padding:10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.close{
+background:#ef4444;
+color:white;
+width:100%;
+padding:10px;
+border:none;
+border-radius:6px;
+margin-top:5px;
+cursor:pointer;
+}
+
 </style>
 </head>
 
@@ -81,21 +163,37 @@ location.href="login.html";
 
 <header>
 <h1>REGISTERED STUDENTS</h1>
-<button class="btn" onclick="openModal()">+ Add Student</button>
+<button class="btn-add" onclick="openModal()">+ Add Student</button>
 </header>
 
 <div class="container">
 
 <!-- P6 -->
-<div class="card">
-<h2>P6 Students</h2>
-<ul id="p6List"></ul>
+<div id="p6Box" class="class-box">
+<div class="class-title">Primary 6 Students</div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="p6Table"></tbody>
+</table>
 </div>
 
 <!-- S3 -->
-<div class="card">
-<h2>S3 Students</h2>
-<ul id="s3List"></ul>
+<div id="s3Box" class="class-box">
+<div class="class-title">Senior 3 Students</div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="s3Table"></tbody>
+</table>
 </div>
 
 </div>
@@ -116,8 +214,8 @@ location.href="login.html";
 
 <input type="text" id="name" placeholder="Student Name">
 
-<button class="btn" onclick="saveStudent()">Save</button>
-<button class="delete" onclick="closeModal()">Close</button>
+<button class="save" onclick="saveStudent()">Save</button>
+<button class="close" onclick="closeModal()">Close</button>
 
 </div>
 </div>
@@ -125,55 +223,54 @@ location.href="login.html";
 <script>
 
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
 let editMode = false;
 
-// LOAD STUDENTS
+// LOAD
 async function loadStudents(){
 
 const res = await fetch(`/.netlify/functions/getStudents?school_name=${currentUser.school}`);
 const data = await res.json();
 
-const p6=document.getElementById("p6List");
-const s3=document.getElementById("s3List");
+const p6 = document.getElementById("p6Table");
+const s3 = document.getElementById("s3Table");
 
 p6.innerHTML="";
 s3.innerHTML="";
 
+let hasP6=false;
+let hasS3=false;
+
 data.forEach(s=>{
 
+const row = `
+<tr>
+<td>${s.student_name}</td>
+<td>
+<button class="edit" onclick="editStudent('${s.id}','${s.student_name}','${s.class_name}')">Edit</button>
+<button class="delete" onclick="deleteStudent('${s.id}')">Delete</button>
+</td>
+</tr>
+`;
+
 if(s.class_name==="Primary 6"){
-p6.innerHTML+=studentRow(s);
+p6.innerHTML += row;
+hasP6=true;
 }
 
 if(s.class_name==="Senior 3"){
-s3.innerHTML+=studentRow(s);
+s3.innerHTML += row;
+hasS3=true;
 }
 
 });
 
+// hide empty classes
+document.getElementById("p6Box").style.display = hasP6 ? "block":"none";
+document.getElementById("s3Box").style.display = hasS3 ? "block":"none";
+
 }
 
-// STUDENT ROW
-function studentRow(s){
-return `
-<li>
-${s.student_name}
-
-<button class="edit"
-onclick="editStudent('${s.id}','${s.student_name}','${s.class_name}')">
-Edit
-</button>
-
-<button class="delete"
-onclick="deleteStudent('${s.id}')">
-Delete
-</button>
-</li>
-`;
-}
-
-// OPEN MODAL (ADD)
+// OPEN
 function openModal(){
 editMode=false;
 document.getElementById("modalTitle").innerText="Add Student";
@@ -242,4 +339,4 @@ loadStudents();
 </script>
 
 </body>
-</html>
+  </html>
