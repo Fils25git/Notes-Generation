@@ -11,17 +11,32 @@ export async function handler(event) {
     try {
         await client.connect();
 
-        const { id } = JSON.parse(event.body);
+        const body = JSON.parse(event.body);
+        const id = Number(body.id); // 🔥 FORCE NUMBER
 
         if (!id) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ message: "Missing student id" })
+                body: JSON.stringify({ message: "Invalid student ID" })
             };
         }
 
+        // 🔥 CHECK FIRST (VERY IMPORTANT DEBUG STEP)
+        const check = await client.query(
+            "SELECT id FROM students WHERE id = $1",
+            [id]
+        );
+
+        if (check.rowCount === 0) {
+            return {
+                statusCode: 404,
+                body: JSON.stringify({ message: "Student not found" })
+            };
+        }
+
+        // DELETE
         await client.query(
-            `DELETE FROM students WHERE id = $1`,
+            "DELETE FROM students WHERE id = $1",
             [id]
         );
 
@@ -30,7 +45,8 @@ export async function handler(event) {
         return {
             statusCode: 200,
             body: JSON.stringify({
-                message: "Student deleted successfully"
+                message: "Student deleted successfully",
+                deletedId: id
             })
         };
 
@@ -45,4 +61,4 @@ export async function handler(event) {
             })
         };
     }
-               }
+    }
