@@ -31,7 +31,8 @@ export async function handler(event) {
             "ENTREPRENEURSHIP": "entrepreneurship"
         };
 
-        const column = subjectMap[subject?.toUpperCase()];
+        const cleanSubject = subject?.trim().toUpperCase();
+const column = subjectMap[cleanSubject];
 
         if (!column) {
             return {
