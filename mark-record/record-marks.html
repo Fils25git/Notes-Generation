@@ -57,16 +57,33 @@ if(role !== "teacher"){
 </header>
 
 <main class="dashboard-container">
+<div class="card" id="assignmentCard">
 
-  <div class="card">
+    <h2>Teacher Information</h2>
 
-    <h2>Teacher Assignments</h2>
+    <div id="teacherInfo">
 
-    <label>Select Class & Subject</label>
-    <select id="assignmentSelect" onchange="loadStudents()">
-    </select>
+        <p><b>Teacher Name:</b> <span id="teacherName"></span></p>
 
-  </div>
+        <p><b>School:</b> <span id="teacherSchool"></span></p>
+
+        <p><b>Class:</b> <span id="teacherClass"></span></p>
+
+        <p><b>Subject:</b> <span id="teacherSubject"></span></p>
+
+    </div>
+
+    <!-- ONLY SHOWS IF MANY ASSIGNMENTS -->
+    <div id="assignmentBox">
+
+        <label>Select Class & Subject</label>
+
+        <select id="assignmentSelect" onchange="changeAssignment()">
+        </select>
+
+    </div>
+
+</div>
 
 </main>
 
@@ -102,7 +119,8 @@ function logout(){
 }
 
 // LOAD ONLY CURRENT TEACHER ASSIGNMENTS
-async function loadAssignments(){
+
+        async function loadAssignments(){
 
     const res = await fetch(
 `/.netlify/functions/getTeacher?school=${currentUser.school}`
@@ -110,23 +128,22 @@ async function loadAssignments(){
 
     const data = await res.json();
 
-    const select =
-    document.getElementById("assignmentSelect");
-
     if(!res.ok){
         alert(data.message);
         return;
     }
 
-    // CURRENT TEACHER
     const teacher = data.find(t =>
         t.username === currentUser.username
     );
 
-    if(!teacher || !teacher.assignments){
-        alert("No assignments found");
+    if(!teacher){
+        alert("Teacher not found");
         return;
     }
+
+    const select =
+    document.getElementById("assignmentSelect");
 
     select.innerHTML = "";
 
@@ -140,29 +157,42 @@ async function loadAssignments(){
         `;
     });
 
-    // ✅ IF ONLY ONE ASSIGNMENT
+    // SHOW TEACHER NAME + SCHOOL
+    document.getElementById("teacherName").innerText =
+    teacher.full_name || teacher.username;
+
+    document.getElementById("teacherSchool").innerText =
+    teacher.school;
+
+    // ONE ASSIGNMENT
     if(teacher.assignments.length === 1){
 
-        // HIDE THE WHOLE CARD
-        document.querySelector(".card").style.display = "none";
+        const a = teacher.assignments[0];
 
-        // AUTO SELECT FIRST
-        select.selectedIndex = 0;
+        document.getElementById("teacherClass").innerText =
+        a.class_name;
 
-        // LOAD STUDENTS
+        document.getElementById("teacherSubject").innerText =
+        a.subject;
+
+        // HIDE DROPDOWN
+        document.getElementById("assignmentBox")
+        .style.display = "none";
+
         loadStudents();
     }
 
-    // ✅ MORE THAN ONE
+    // MANY ASSIGNMENTS
     else{
 
-        document.querySelector(".card").style.display = "block";
+        document.getElementById("assignmentBox")
+        .style.display = "block";
 
         select.selectedIndex = 0;
 
-        loadStudents();
+        changeAssignment();
     }
-}
+        }
 // LOAD STUDENTS BASED ON SELECTION
 // LOAD STUDENTS + EXISTING MARKS
 async function loadStudents(){
@@ -214,6 +244,24 @@ async function loadStudents(){
         </tr>`;
     });
 }
+  function changeAssignment(){
+
+    const value =
+    document.getElementById("assignmentSelect").value;
+
+    if(!value) return;
+
+    const [class_name, subject] =
+    value.split("|");
+
+    document.getElementById("teacherClass").innerText =
+    class_name;
+
+    document.getElementById("teacherSubject").innerText =
+    subject;
+
+    loadStudents();
+  }
 
 // SAVE MARKS
 async function saveMarks(){
