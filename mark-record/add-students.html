@@ -109,13 +109,50 @@ async function addStudent(){
     loadStudents();
 }
 
-// LOAD STUDENTS (placeholder for now)
-function loadStudents(){
+async function loadStudents(){
 
     const list = document.getElementById("studentList");
-    list.innerHTML = "";
+    list.innerHTML = "<li>Loading students...</li>";
 
-    list.innerHTML += "<li>Students will be loaded from database</li>";
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    const class_name = document.getElementById("studentClass").value;
+
+    let url = `/.netlify/functions/getStudents?school_name=${currentUser.school}`;
+
+    if(class_name){
+        url += `&class_name=${class_name}`;
+    }
+
+    try {
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        list.innerHTML = "";
+
+        if(!response.ok){
+            list.innerHTML = `<li style="color:red;">${data.message}</li>`;
+            return;
+        }
+
+        if(data.length === 0){
+            list.innerHTML = "<li>No students found</li>";
+            return;
+        }
+
+        data.forEach((student, index) => {
+            list.innerHTML += `
+                <li>
+                    ${index + 1}. ${student.student_name}
+                    <small>(${student.class_name})</small>
+                </li>
+            `;
+        });
+
+    } catch (error) {
+        list.innerHTML = `<li style="color:red;">Error loading students</li>`;
+    }
 }
 
 loadStudents();
