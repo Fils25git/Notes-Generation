@@ -142,14 +142,15 @@
 const role = localStorage.getItem("role");
 
 if(role !== "sector_admin"){
-    alert("Access denied");
-    window.location.href = "login.html";
+    alert("You are not allowed to Access this page");
+    window.location.href = "index.html";
 }
 </script>
 
 <header>
   <h1>SCHOOL MANAGEMENT</h1>
   <p>Manage schools and school administrators</p>
+  <button class="logout-btn" onclick="logout()">Logout</button>
 </header>
 
 <main class="dashboard-container">
@@ -347,6 +348,11 @@ async function saveAdmin(){
 }
 
 loadSchoolAdmins();
+  // LOGOUT
+function logout(){
+localStorage.clear();
+location.href="index.html";
+  }
 
 </script>
 
