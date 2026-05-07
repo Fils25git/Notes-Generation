@@ -2,7 +2,14 @@ import pkg from "pg";
 const { Client } = pkg;
 
 export async function handler(event) {
+    const client = new Client({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
+    });
+
     try {
+        await client.connect();
+
         const data = JSON.parse(event.body);
 
         const {
@@ -15,14 +22,7 @@ export async function handler(event) {
             subject
         } = data;
 
-        const client = new Client({
-            connectionString: process.env.DATABASE_URL,
-            ssl: { rejectUnauthorized: false }
-        });
-
-        await client.connect();
-
-        // CHECK IF USERNAME EXISTS
+        // ================= CHECK USER =================
         const existing = await client.query(
             "SELECT * FROM users WHERE username = $1",
             [username]
@@ -32,14 +32,15 @@ export async function handler(event) {
             await client.end();
             return {
                 statusCode: 400,
-                body: JSON.stringify({message: "Username already exists"})
+                body: JSON.stringify({ message: "Username already exists" })
             };
         }
 
-        // INSERT USER
-        await client.query(
+        // ================= INSERT USER =================
+        const userResult = await client.query(
             `INSERT INTO users(full_name, username, password, role, school, class_name, subject)
-             VALUES($1,$2,$3,$4,$5,$6,$7)`,
+             VALUES($1,$2,$3,$4,$5,$6,$7)
+             RETURNING id`,
             [
                 full_name,
                 username,
@@ -51,17 +52,38 @@ export async function handler(event) {
             ]
         );
 
+        const teacherId = userResult.rows[0].id;
+
+        // ================= INSERT TEACHER SUBJECT =================
+        if(role === "teacher" && subject){
+
+            await client.query(
+                `INSERT INTO teacher_subjects(teacher_id, class_name, subject, school)
+                 VALUES($1,$2,$3,$4)`,
+                [
+                    teacherId,
+                    class_name,
+                    subject,
+                    school
+                ]
+            );
+        }
+
         await client.end();
 
         return {
             statusCode: 200,
-            body: JSON.stringify({message: role + " created successfully"})
+            body: JSON.stringify({
+                message: role + " created successfully"
+            })
         };
 
     } catch(err){
+        await client.end();
+
         return {
             statusCode: 500,
-            body: JSON.stringify({message: err.message})
+            body: JSON.stringify({ message: err.message })
         };
     }
-              }
+    }
