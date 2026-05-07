@@ -226,6 +226,7 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 let editMode = false;
 
 // LOAD
+
 async function loadStudents(){
 
 const res = await fetch(`/.netlify/functions/getStudents?school_name=${currentUser.school}`);
@@ -240,10 +241,31 @@ s3.innerHTML="";
 let hasP6=false;
 let hasS3=false;
 
-data.forEach(s=>{
+/* ✅ STEP 1: SORT ALPHABETICALLY */
+const sorted = data.sort((a,b)=>
+a.student_name.localeCompare(b.student_name)
+);
 
-const row = `
+/* ✅ STEP 2: SEPARATE + NUMBER */
+let p6Count = 0;
+let s3Count = 0;
+
+sorted.forEach(s=>{
+
+const rowP6 = `
 <tr>
+<td>${++p6Count}</td>
+<td>${s.student_name}</td>
+<td>
+<button class="edit" onclick="editStudent('${s.id}','${s.student_name}','${s.class_name}')">Edit</button>
+<button class="delete" onclick="deleteStudent('${s.id}')">Delete</button>
+</td>
+</tr>
+`;
+
+const rowS3 = `
+<tr>
+<td>${++s3Count}</td>
 <td>${s.student_name}</td>
 <td>
 <button class="edit" onclick="editStudent('${s.id}','${s.student_name}','${s.class_name}')">Edit</button>
@@ -253,23 +275,22 @@ const row = `
 `;
 
 if(s.class_name==="Primary 6"){
-p6.innerHTML += row;
+p6.innerHTML += rowP6;
 hasP6=true;
 }
 
 if(s.class_name==="Senior 3"){
-s3.innerHTML += row;
+s3.innerHTML += rowS3;
 hasS3=true;
 }
 
 });
 
-// hide empty classes
+/* hide empty classes */
 document.getElementById("p6Box").style.display = hasP6 ? "block":"none";
 document.getElementById("s3Box").style.display = hasS3 ? "block":"none";
 
 }
-
 // OPEN
 function openModal(){
 editMode=false;
