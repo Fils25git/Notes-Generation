@@ -257,22 +257,42 @@ async function loadTeachers(){
 
     data.forEach((t, index) => {
 
-        const subjects = t.subjects ? t.subjects.join(", ") : t.subject;
+        const subjects = t.assignments
+    ? t.assignments.map(a => `${a.subject} (${a.class_name})`).join(", ")
+    : t.subject;
 
         table.innerHTML += `
-        <tr>
-            <td>${index + 1}</td>
-            <td>${t.full_name}</td>
-            <td>${t.username}</td>
-            <td>${t.class_name || "-"}</td>
-            <td>${subjects || "-"}</td>
-            <td>
-                <button class="btn btn-warning btn-sm"
-                    onclick="openEditTeacher('${t.id}','${t.full_name}','${t.username}','${t.class_name}','${t.subject}')">
-                    Edit
-                </button>
-            </td>
-        </tr>`;
+<tr>
+    <td>${index + 1}</td>
+    <td>${t.full_name}</td>
+    <td>${t.username}</td>
+
+    <td>
+        ${t.assignments?.map(a =>
+            `<div><b>${a.class_name}</b></div>`
+        ).join("") || "-"}
+    </td>
+
+    <td>
+        ${t.assignments?.map(a =>
+            `<span style="display:inline-block;
+            padding:3px 8px;
+            margin:2px;
+            background:#e0ecff;
+            border-radius:6px;
+            font-size:12px;">
+            ${a.subject}
+            </span>`
+        ).join("") || "-"}
+    </td>
+
+    <td>
+        <button class="btn btn-warning btn-sm"
+            onclick="openEditTeacher('${t.id}','${t.full_name}','${t.username}','${t.class_name}','${t.subject}')">
+            Edit
+        </button>
+    </td>
+</tr>`;
     });
 }
 
