@@ -1,0 +1,51 @@
+<!-- ========================= -->
+<!-- sector-admin.html -->
+<!-- ========================= -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sector Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script>
+// PROTECT PAGE
+const role = localStorage.getItem("role");
+
+if(role !== "sector_admin"){
+    alert("Access denied");
+    window.location.href = "login.html";
+}
+</script>
+
+<div class="landing-container">
+
+  <header class="top-header">
+    <h1>SECTOR ADMIN DASHBOARD</h1>
+    <p>Manage schools and administrators</p>
+  </header>
+
+  <div class="cards-grid">
+
+    <div class="dashboard-card"
+         onclick="window.location.href='add-school-admin.html'">
+      <h2>Add School Admin</h2>
+      <p>Create and manage school administrator accounts.</p>
+    </div>
+
+    <div class="dashboard-card"
+         onclick="window.location.href='view-schools.html'">
+      <h2>View All Schools</h2>
+      <p>Monitor school performance and rankings.</p>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
