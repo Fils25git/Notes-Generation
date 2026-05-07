@@ -16,20 +16,25 @@ export async function handler(event) {
 
         // ✅ SUBJECT MAPPING
         const subjectMap = {
-            "ENGLISH": "english",
-            "MATHEMATICS": "mathematics",
-            "MATH": "mathematics",
-            "KINYARWANDA": "kinyarwanda",
-            "SOCIAL AND RELIGIOUS STUDIES": "social_studies",
-            "SST": "social_studies",
-            "SCIENCE": "science",
-            "CHEMISTRY": "chemistry",
-            "PHYSICS": "physics",
-            "BIOLOGY": "biology",
-            "GEOGRAPHY": "geography",
-            "HISTORY": "history",
-            "ENTREPRENEURSHIP": "entrepreneurship"
-        };
+    "ENGLISH": "english",
+    "MATHEMATICS": "mathematics",
+    "MATH": "mathematics",
+    "KINYARWANDA": "kinyarwanda",
+
+    "SOCIAL AND RELIGIOUS STUDIES": "social_studies",
+    "SOCIAL STUDIES": "social_studies",
+    "SST": "social_studies",
+
+    "SCIENCE": "science",
+    "SCIENCE AND ELEMENTARY STUDIES": "science",
+
+    "CHEMISTRY": "chemistry",
+    "PHYSICS": "physics",
+    "BIOLOGY": "biology",
+    "GEOGRAPHY": "geography",
+    "HISTORY": "history",
+    "ENTREPRENEURSHIP": "entrepreneurship"
+};
 
         const cleanSubject = subject?.trim().toUpperCase();
 const column = subjectMap[cleanSubject];
