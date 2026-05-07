@@ -101,7 +101,6 @@ function logout(){
     window.location.href = "index.html";
 }
 
-// LOAD TEACHER ASSIGNMENTS
 // LOAD ONLY CURRENT TEACHER ASSIGNMENTS
 async function loadAssignments(){
 
@@ -114,25 +113,24 @@ async function loadAssignments(){
     const select =
     document.getElementById("assignmentSelect");
 
-    select.innerHTML = "";
-
     if(!res.ok){
         alert(data.message);
         return;
     }
 
-    // FIND CURRENT TEACHER ONLY
+    // CURRENT TEACHER
     const teacher = data.find(t =>
         t.username === currentUser.username
     );
 
-    if(!teacher){
-        select.innerHTML =
-        `<option>No assignments found</option>`;
+    if(!teacher || !teacher.assignments){
+        alert("No assignments found");
         return;
     }
 
-    // SHOW ONLY HIS/HER ASSIGNMENTS
+    select.innerHTML = "";
+
+    // ADD ASSIGNMENTS
     teacher.assignments.forEach(a => {
 
         select.innerHTML += `
@@ -142,11 +140,29 @@ async function loadAssignments(){
         `;
     });
 
-    // AUTO LOAD FIRST
-    if(select.options.length > 0){
+    // ✅ IF ONLY ONE ASSIGNMENT
+    if(teacher.assignments.length === 1){
+
+        // HIDE THE WHOLE CARD
+        document.querySelector(".card").style.display = "none";
+
+        // AUTO SELECT FIRST
+        select.selectedIndex = 0;
+
+        // LOAD STUDENTS
         loadStudents();
     }
-      }
+
+    // ✅ MORE THAN ONE
+    else{
+
+        document.querySelector(".card").style.display = "block";
+
+        select.selectedIndex = 0;
+
+        loadStudents();
+    }
+}
 // LOAD STUDENTS BASED ON SELECTION
 // LOAD STUDENTS + EXISTING MARKS
 async function loadStudents(){
