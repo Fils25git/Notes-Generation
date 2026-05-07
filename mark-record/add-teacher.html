@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Teacher</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script>
+// PROTECT PAGE
+const role = localStorage.getItem("role");
+
+if(role !== "school_admin"){
+    alert("Access denied");
+    window.location.href = "login.html";
+}
+</script>
+
+<header>
+  <h1>ADD TEACHER</h1>
+  <p>Create teacher accounts and assign classes</p>
+</header>
+
+<main class="dashboard-container">
+
+  <div class="card">
+
+    <h2 style="margin-bottom:25px;">Teacher Registration</h2>
+
+    <label>Teacher Full Name</label>
+    <input 
+      type="text" 
+      id="teacherName"
+      placeholder="Enter teacher full name"
+    >
+
+    <label>Username</label>
+    <input 
+      type="text" 
+      id="teacherUsername"
+      placeholder="Create username"
+    >
+
+    <label>Password</label>
+    <input 
+      type="password" 
+      id="teacherPassword"
+      placeholder="Create password"
+    >
+
+    <label>Choose Class</label>
+    <select id="class" onchange="updateSubjects()">
+      <option value="">-- Select Class --</option>
+      <option>Primary 6</option>
+      <option>Senior 3</option>
+    </select>
+
+    <label>Choose Subject</label>
+    <select id="subject">
+      <option value="">-- Select Subject --</option>
+    </select>
+
+    <button class="btn" onclick="addTeacher()">
+      Save Teacher
+    </button>
+
+  </div>
+
+</main>
+
+<script>
+
+// LOAD SUBJECTS BASED ON CLASS
+function updateSubjects(){
+
+    const selectedClass = document.getElementById("class").value;
+    const subject = document.getElementById("subject");
+
+    subject.innerHTML =
+    '<option value="">-- Select Subject --</option>';
+
+    if(selectedClass === "Primary 6"){
+
+        const p6Subjects = [
+            "ENGLISH",
+            "MATHEMATICS",
+            "KINYARWANDA",
+            "SOCIAL AND RELIGIOUS STUDIES",
+            "SCIENCE AND ELEMENTARY STUDIES"
+        ];
+
+        p6Subjects.forEach(sub=>{
+            subject.innerHTML += `<option>${sub}</option>`;
+        });
+    }
+
+    if(selectedClass === "Senior 3"){
+
+        const s3Subjects = [
+            "ENGLISH",
+            "MATHEMATICS",
+            "KINYARWANDA",
+            "CHEMISTRY",
+            "PHYSICS",
+            "BIOLOGY",
+            "GEOGRAPHY",
+            "HISTORY",
+            "ENTREPRENEURSHIP"
+        ];
+
+        s3Subjects.forEach(sub=>{
+            subject.innerHTML += `<option>${sub}</option>`;
+        });
+    }
+}
+
+// ADD TEACHER
+async function addTeacher(){
+
+    const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+    const full_name =
+    document.getElementById("teacherName").value.trim();
+
+    const username =
+    document.getElementById("teacherUsername").value.trim();
+
+    const password =
+    document.getElementById("teacherPassword").value.trim();
+
+    const class_name =
+    document.getElementById("class").value;
+
+    const subject =
+    document.getElementById("subject").value;
+
+    if(
+        !full_name ||
+        !username ||
+        !password ||
+        !class_name ||
+        !subject
+    ){
+        alert("Please fill all fields");
+        return;
+    }
+
+    try{
+
+        const response = await fetch(
+        "/.netlify/functions/createUser",
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                full_name,
+                username,
+                password,
+                role:"teacher",
+                school: currentUser.school,
+                class_name,
+                subject
+            })
+        });
+
+        const result = await response.json();
+
+        if(!response.ok){
+            alert(result.message);
+            return;
+        }
+
+        alert("Teacher added successfully");
+
+        // CLEAR FORM
+        document.getElementById("teacherName").value = "";
+        document.getElementById("teacherUsername").value = "";
+        document.getElementById("teacherPassword").value = "";
+        document.getElementById("class").value = "";
+        document.getElementById("subject").innerHTML =
+        '<option value="">-- Select Subject --</option>';
+
+    }catch(error){
+        alert("Server error");
+    }
+}
+</script>
+
+</body>
+</html>
