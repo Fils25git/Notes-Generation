@@ -173,7 +173,7 @@ async function loadAssignments(){
         (t.assignments || []).forEach(a => {
 
             select.innerHTML += `
-            <option value="${a.class_name}|${a.subject}">
+            <option value="${t.username}|${a.class_name}|${a.subject}">
               ${t.full_name} - ${a.class_name} - ${a.subject}
             </option>
             `;
@@ -247,16 +247,14 @@ async function loadResults(){
 
     if(!value) return;
 
-    const [class_name, subject] =
-    value.split("|");
-
+    const [teacher, class_name, subject] = value.split("|");
     document.getElementById("tableTitle")
     .innerText =
 `${class_name} Students Performance in ${subject}`;
 
     const res = await fetch(
-`/.netlify/functions/getMarks?school=${currentUser.school}&class_name=${class_name}&subject=${subject}`
-    );
+`/.netlify/functions/getMarks?school=${currentUser.school}&class_name=${class_name}&subject=${subject}&teacher=${teacher}`
+);
 
     const data = await res.json();
 
