@@ -131,7 +131,7 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if(role !== "sector_admin"){
 alert("Access denied");
-location.href = "login.html";
+location.href = "index.html";
 }
 </script>
 
@@ -154,7 +154,7 @@ container.innerHTML = "Loading...";
 try{
 
 // IMPORTANT FIX: get ALL users, not only teachers
-const res = await fetch("/.netlify/functions/getAllUsers");
+const res = await fetch("/.netlify/functions/getTeacher");
 const data = await res.json();
 
 if(!res.ok){
