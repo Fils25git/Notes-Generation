@@ -4,16 +4,7 @@ const { Client } = pkg;
 export async function handler(event) {
     try {
 
-        const { school_name, class_name } = event.queryStringParameters || {};
-
-        if (!school_name) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({
-                    message: "school_name is required"
-                })
-            };
-        }
+        const { school_name, class_name, role } = event.queryStringParameters || {};
 
         const client = new Client({
             connectionString: process.env.DATABASE_URL,
@@ -45,14 +36,30 @@ export async function handler(event) {
                 position
 
             FROM students
-            WHERE school_name = $1
+            WHERE 1=1
         `;
 
-        let params = [school_name];
+        let params = [];
+
+        // ONLY school_admin should be restricted by school
+        if (role === "school_admin") {
+
+            if (!school_name) {
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({
+                        message: "school_name is required"
+                    })
+                };
+            }
+
+            params.push(school_name);
+            query += ` AND school_name = $${params.length}`;
+        }
 
         if (class_name) {
-            query += " AND class_name = $2";
             params.push(class_name);
+            query += ` AND class_name = $${params.length}`;
         }
 
         query += " ORDER BY position ASC NULLS LAST, total DESC";
@@ -74,4 +81,4 @@ export async function handler(event) {
             })
         };
     }
-          }
+            }
