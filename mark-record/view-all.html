@@ -135,11 +135,11 @@ container.innerHTML = "Loading...";
 
 try{
 
-// 🔵 1. GET ADMINS
+// 1. ADMINS
 const adminRes = await fetch("/.netlify/functions/getSchoolAdmins");
 const admins = await adminRes.json();
 
-// 🔵 2. GET TEACHERS
+// 2. TEACHERS
 const teacherRes = await fetch("/.netlify/functions/getTeacher");
 const teachers = await teacherRes.json();
 
@@ -148,20 +148,24 @@ container.innerHTML = "Error loading data";
 return;
 }
 
-// GROUP BY SCHOOL
+// ================= FIXED GROUPING =================
 let schools = {};
 
-// ADD ADMINS
+// ADD ADMINS (DO NOT OVERWRITE TEACHERS)
 admins.forEach(a=>{
 if(!a.school) return;
 
+if(!schools[a.school]){
 schools[a.school] = {
-admin: a,
+admin: null,
 teachers: []
 };
+}
+
+schools[a.school].admin = a;
 });
 
-// ADD TEACHERS
+// ADD TEACHERS (MERGE SAFE)
 teachers.forEach(t=>{
 if(!t.school) return;
 
@@ -175,13 +179,12 @@ teachers: []
 schools[t.school].teachers.push(t);
 });
 
+// ================= DISPLAY =================
 container.innerHTML = "";
 
-// DISPLAY
 Object.keys(schools).forEach((schoolName,index)=>{
 
 const school = schools[schoolName];
-
 const admin = school.admin;
 
 const teachers = (school.teachers || []).sort((a,b)=>
