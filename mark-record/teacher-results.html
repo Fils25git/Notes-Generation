@@ -71,9 +71,9 @@ const role = localStorage.getItem("role");
 const currentUser =
 JSON.parse(localStorage.getItem("currentUser"));
 
-if(role !== "teacher"){
+if(role !== "teacher" && role !== "sector_admin"){
     alert("Access denied");
-    window.location.href = "index.html.html";
+    window.location.href = "index.html";
 }
 
 </script>
