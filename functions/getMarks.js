@@ -18,7 +18,8 @@ export async function handler(event) {
             class_name,
             subject,
             school,
-            role
+            role,
+            teacher_id
         } = params;
 
         // ================= CLEAN INPUT =================
@@ -27,8 +28,8 @@ export async function handler(event) {
             : null;
 
         const cleanClass = class_name?.trim();
-
         const cleanSubject = subject?.trim();
+        const cleanTeacherId = teacher_id ? Number(teacher_id) : null;
 
         // ================= SUBJECT MAP =================
         const subjectMap = {
@@ -56,93 +57,96 @@ export async function handler(event) {
             };
         }
 
-        // ================= BASE QUERY =================
+        // ================= BASE QUERY (WITH JOIN FIX) =================
         let query = `
             SELECT
-                id,
-                student_name,
-                class_name,
-                school_name,
+                s.id,
+                s.student_name,
+                s.class_name,
+                s.school_name,
+                s.teacher_id,
 
                 ${column} AS mark,
 
                 (
-                    COALESCE(english,0) +
-                    COALESCE(mathematics,0) +
-                    COALESCE(kinyarwanda,0) +
-                    COALESCE(social_studies,0) +
-                    COALESCE(science,0) +
-                    COALESCE(chemistry,0) +
-                    COALESCE(physics,0) +
-                    COALESCE(biology,0) +
-                    COALESCE(geography,0) +
-                    COALESCE(history,0) +
-                    COALESCE(entrepreneurship,0)
+                    COALESCE(s.english,0) +
+                    COALESCE(s.mathematics,0) +
+                    COALESCE(s.kinyarwanda,0) +
+                    COALESCE(s.social_studies,0) +
+                    COALESCE(s.science,0) +
+                    COALESCE(s.chemistry,0) +
+                    COALESCE(s.physics,0) +
+                    COALESCE(s.biology,0) +
+                    COALESCE(s.geography,0) +
+                    COALESCE(s.history,0) +
+                    COALESCE(s.entrepreneurship,0)
                 ) AS total,
 
                 ROUND(
                     (
                         (
-                            COALESCE(english,0) +
-                            COALESCE(mathematics,0) +
-                            COALESCE(kinyarwanda,0) +
-                            COALESCE(social_studies,0) +
-                            COALESCE(science,0) +
-                            COALESCE(chemistry,0) +
-                            COALESCE(physics,0) +
-                            COALESCE(biology,0) +
-                            COALESCE(geography,0) +
-                            COALESCE(history,0) +
-                            COALESCE(entrepreneurship,0)
+                            COALESCE(s.english,0) +
+                            COALESCE(s.mathematics,0) +
+                            COALESCE(s.kinyarwanda,0) +
+                            COALESCE(s.social_studies,0) +
+                            COALESCE(s.science,0) +
+                            COALESCE(s.chemistry,0) +
+                            COALESCE(s.physics,0) +
+                            COALESCE(s.biology,0) +
+                            COALESCE(s.geography,0) +
+                            COALESCE(s.history,0) +
+                            COALESCE(s.entrepreneurship,0)
                         ) /
                         CASE
-                            WHEN class_name = 'Primary 6' THEN 500.0
-                            WHEN class_name = 'Senior 3' THEN 900.0
+                            WHEN s.class_name = 'Primary 6' THEN 500.0
+                            WHEN s.class_name = 'Senior 3' THEN 900.0
                             ELSE 1
                         END
                     ) * 100
                 ,2) AS percentage,
 
                 RANK() OVER (
-                    PARTITION BY class_name
+                    PARTITION BY s.class_name
                     ORDER BY (
-                        COALESCE(english,0) +
-                        COALESCE(mathematics,0) +
-                        COALESCE(kinyarwanda,0) +
-                        COALESCE(social_studies,0) +
-                        COALESCE(science,0) +
-                        COALESCE(chemistry,0) +
-                        COALESCE(physics,0) +
-                        COALESCE(biology,0) +
-                        COALESCE(geography,0) +
-                        COALESCE(history,0) +
-                        COALESCE(entrepreneurship,0)
+                        COALESCE(s.english,0) +
+                        COALESCE(s.mathematics,0) +
+                        COALESCE(s.kinyarwanda,0) +
+                        COALESCE(s.social_studies,0) +
+                        COALESCE(s.science,0) +
+                        COALESCE(s.chemistry,0) +
+                        COALESCE(s.physics,0) +
+                        COALESCE(s.biology,0) +
+                        COALESCE(s.geography,0) +
+                        COALESCE(s.history,0) +
+                        COALESCE(s.entrepreneurship,0)
                     ) DESC
                 ) AS position
 
-            FROM students
-            WHERE class_name = $1
+            FROM students s
+            JOIN users u ON s.teacher_id = u.id
+            WHERE s.class_name = $1
         `;
 
         const values = [cleanClass];
 
-        // ================= ROLE-BASED ACCESS =================
-
-        // school_admin → only their school
+        // ================= SCHOOL FILTER =================
         if (role === "school_admin" && cleanSchool) {
-            query += ` AND school_name = $2`;
+            query += ` AND s.school_name = $${values.length + 1}`;
             values.push(cleanSchool);
         }
 
-        // teacher → only their school
-        else if (role === "teacher" && cleanSchool) {
-            query += ` AND school_name = $2`;
+        if (role === "teacher" && cleanSchool) {
+            query += ` AND s.school_name = $${values.length + 1}`;
             values.push(cleanSchool);
         }
 
-        // sector_admin → NO restriction (sees all schools)
+        // ================= TEACHER FILTER (IMPORTANT FIX) =================
+        if (cleanTeacherId) {
+            query += ` AND u.id = $${values.length + 1}`;
+            values.push(cleanTeacherId);
+        }
 
-        query += ` ORDER BY student_name ASC`;
+        query += ` ORDER BY s.student_name ASC`;
 
         const result = await client.query(query, values);
 
@@ -164,4 +168,4 @@ export async function handler(event) {
             body: JSON.stringify({ message: err.message })
         };
     }
-            }
+    }
