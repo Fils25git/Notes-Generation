@@ -152,31 +152,40 @@ return;
 let schools = {};
 
 // ADD ADMINS (DO NOT OVERWRITE TEACHERS)
+// ADD ADMINS
 admins.forEach(a=>{
-if(!a.school) return;
 
-if(!schools[a.school]){
-schools[a.school] = {
+const schoolName = (a.school || a.school_name || "").trim();
+
+if(!schoolName) return;
+
+if(!schools[schoolName]){
+schools[schoolName] = {
 admin: null,
 teachers: []
 };
 }
 
-schools[a.school].admin = a;
+schools[schoolName].admin = a;
+
 });
 
 // ADD TEACHERS (MERGE SAFE)
 teachers.forEach(t=>{
-if(!t.school) return;
 
-if(!schools[t.school]){
-schools[t.school] = {
+const schoolName = (t.school || t.school_name || "").trim();
+
+if(!schoolName) return;
+
+if(!schools[schoolName]){
+schools[schoolName] = {
 admin: null,
 teachers: []
 };
 }
 
-schools[t.school].teachers.push(t);
+schools[schoolName].teachers.push(t);
+
 });
 
 // ================= DISPLAY =================
