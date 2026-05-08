@@ -33,7 +33,7 @@ export async function handler(event) {
             "KINYARWANDA": "kinyarwanda",
             "SOCIAL AND RELIGIOUS STUDIES": "social_studies",
             "SST": "social_studies",
-            "SCIENCE": "science",
+            "SCIENCE AND ELEMENTARY TECHNOLOGY": "science",
             "CHEMISTRY": "chemistry",
             "PHYSICS": "physics",
             "BIOLOGY": "biology",
