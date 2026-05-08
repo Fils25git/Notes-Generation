@@ -11,9 +11,17 @@ export async function handler(event) {
     try {
         await client.connect();
 
-        const school = event.queryStringParameters?.school;
+        const {
+            school,
+            role
+        } = event.queryStringParameters || {};
 
-        // ================= TEACHERS =================
+        // ================= CLEAN INPUT =================
+        const cleanSchool = school && school !== "undefined"
+            ? school.trim()
+            : null;
+
+        // ================= BASE QUERY =================
         let teacherQuery = `
             SELECT id, full_name, username, role, school
             FROM users
@@ -22,10 +30,20 @@ export async function handler(event) {
 
         const params = [];
 
-        if (school && school !== "undefined") {
-            teacherQuery += ` AND school = $1`;
-            params.push(school);
+        // ================= ROLE LOGIC =================
+        // teacher → only themselves (optional future use)
+        if (role === "teacher") {
+            teacherQuery += ` AND username = $1`;
+            params.push(event.queryStringParameters?.username);
         }
+
+        // school_admin → only their school
+        else if (role === "school_admin" && cleanSchool) {
+            teacherQuery += ` AND school = $1`;
+            params.push(cleanSchool);
+        }
+
+        // sector_admin → NO filter (sees everything)
 
         const teachersResult = await client.query(teacherQuery, params);
 
@@ -35,7 +53,7 @@ export async function handler(event) {
             FROM teacher_subjects
         `);
 
-        // ================= MAP =================
+        // ================= MAP ASSIGNMENTS =================
         const assignmentMap = {};
 
         for (const a of assignmentsResult.rows) {
@@ -76,4 +94,4 @@ export async function handler(event) {
             body: JSON.stringify({ message: err.message })
         };
     }
-}
+                    }
