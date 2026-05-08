@@ -158,30 +158,35 @@ async function loadAssignments(){
 
     const data = await res.json();
 
-    const select =
-    document.getElementById("assignmentSelect");
-
+    const select = document.getElementById("assignmentSelect");
     select.innerHTML = "";
 
     data.forEach(t => {
 
-        if(t.id != currentUser.id) return;
+        // ✅ TEACHER: only their own assignments
+        if(role === "teacher" && t.username !== currentUser.username){
+            return;
+        }
 
-        t.assignments.forEach(a => {
+        // ❗ SECTOR ADMIN: no filtering (see everything)
+
+        (t.assignments || []).forEach(a => {
 
             select.innerHTML += `
             <option value="${a.class_name}|${a.subject}">
-              ${a.class_name} - ${a.subject}
+              ${t.full_name} - ${a.class_name} - ${a.subject}
             </option>
             `;
         });
+
     });
 
-    // AUTO LOAD FIRST
     if(select.options.length > 0){
         loadResults();
     }
-}
+  }
+
+    
 
 // CATEGORY
 function getCategory(mark){
