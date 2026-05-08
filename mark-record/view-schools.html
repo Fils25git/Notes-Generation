@@ -190,6 +190,28 @@ Download
 </table>
 
 </div>
+    <div class="table-container">
+
+<h2>School Performance Analysis</h2>
+
+<table id="analysisTable">
+
+<thead>
+<tr>
+<th>Position</th>
+<th>School & Class</th>
+<th>Average</th>
+<th>Passed</th>
+<th>Failed</th>
+<th>Pass Rate</th>
+</tr>
+</thead>
+
+<tbody id="analysisBody"></tbody>
+
+</table>
+
+    </div>
 
 <script>
 
@@ -311,6 +333,156 @@ document.getElementById("s3Section").style.display =
 s3.length ? "block" : "none";
 
 }
+
+
+function createSchoolAnalysis(data){
+
+const body = document.getElementById("analysisBody");
+body.innerHTML = "";
+
+let grouped = {};
+
+// ================= GROUP BY SCHOOL + CLASS =================
+data.forEach(s => {
+
+const key = `${s.school_name}___${s.class_name}`;
+
+if(!grouped[key]){
+
+grouped[key] = {
+school: s.school_name,
+class_name: s.class_name,
+students: [],
+subjects: {}
+};
+}
+
+grouped[key].students.push(s);
+
+});
+
+// ================= SUBJECTS =================
+const subjectsMap = {
+"Primary 6": [
+"english",
+"mathematics",
+"kinyarwanda",
+"social_studies",
+"science"
+],
+
+"Senior 3": [
+"english",
+"mathematics",
+"kinyarwanda",
+"chemistry",
+"physics",
+"biology",
+"geography",
+"history",
+"entrepreneurship"
+]
+};
+
+// ================= CALCULATE SCHOOL AVERAGE =================
+let results = [];
+
+Object.values(grouped).forEach(g => {
+
+const students = g.students;
+
+const schoolAverage = (
+students.reduce((sum,s)=>sum + Number(s.percentage || 0),0)
+/ students.length
+).toFixed(2);
+
+const pass = students.filter(s => Number(s.percentage)>=50).length;
+const fail = students.length - pass;
+const passRate = ((pass/students.length)*100).toFixed(2);
+
+// ================= SUBJECT ANALYSIS =================
+let subjectAnalysis = [];
+
+const subjects = subjectsMap[g.class_name] || [];
+
+subjects.forEach(subject => {
+
+const marks = students.map(s => Number(s[subject] || 0));
+
+const avg = (
+marks.reduce((a,b)=>a+b,0) / marks.length
+).toFixed(2);
+
+const passed = marks.filter(m=>m>=50).length;
+const failed = marks.length - passed;
+const rate = ((passed/marks.length)*100).toFixed(2);
+
+subjectAnalysis.push({
+subject,
+avg:Number(avg),
+passed,
+failed,
+rate
+});
+
+});
+
+// SORT SUBJECTS HIGH → LOW
+subjectAnalysis.sort((a,b)=>b.avg-a.avg);
+
+results.push({
+school:g.school,
+class_name:g.class_name,
+avg:Number(schoolAverage),
+pass,
+fail,
+passRate,
+subjectAnalysis
+});
+
+});
+
+// ================= SORT SCHOOLS HIGH → LOW =================
+results.sort((a,b)=>b.avg-a.avg);
+
+// ================= DISPLAY =================
+results.forEach((r,index)=>{
+
+body.innerHTML += `
+<tr style="background:#dbeafe;font-weight:bold;">
+<td>${index+1}</td>
+<td>
+${r.school}<br>
+<small>${r.class_name}</small>
+</td>
+<td>${r.avg}%</td>
+<td>${r.pass}</td>
+<td>${r.fail}</td>
+<td>${r.passRate}%</td>
+</tr>
+`;
+
+r.subjectAnalysis.forEach(sub=>{
+
+body.innerHTML += `
+<tr>
+<td></td>
+<td style="padding-left:30px;">
+${sub.subject.toUpperCase()}
+</td>
+<td>${sub.avg}%</td>
+<td>${sub.passed}</td>
+<td>${sub.failed}</td>
+<td>${sub.rate}%</td>
+</tr>
+`;
+
+});
+
+});
+
+}
+
 
 // DOWNLOAD
 function downloadTable(tableId,titleId){
