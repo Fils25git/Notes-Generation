@@ -61,6 +61,15 @@
     background:#1d4ed8;
 }
 
+.teacher-info{
+    background:#eef4ff;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+    line-height:1.8;
+    font-weight:600;
+}
+
   </style>
 </head>
 <body>
@@ -68,6 +77,7 @@
 <script>
 
 const role = localStorage.getItem("role");
+
 const currentUser =
 JSON.parse(localStorage.getItem("currentUser"));
 
@@ -102,11 +112,10 @@ if(role !== "teacher" && role !== "sector_admin"){
 
     </div>
 
-    <label>Select Class & Subject</label>
-
-    <select id="assignmentSelect"
-      onchange="loadResults()">
-    </select>
+    <!-- TEACHER INFO -->
+    <div id="teacherInfo" class="teacher-info">
+      Loading teacher information...
+    </div>
 
     <div class="table-container">
 
@@ -152,41 +161,77 @@ if(role !== "teacher" && role !== "sector_admin"){
 // LOAD ASSIGNMENTS
 async function loadAssignments(){
 
+    const targetTeacher =
+    localStorage.getItem("targetTeacher");
+
     const res = await fetch(
 `/.netlify/functions/getTeacher?school=${currentUser.school}`
     );
 
     const data = await res.json();
 
-    const select = document.getElementById("assignmentSelect");
-    select.innerHTML = "";
+    let selectedAssignment = null;
 
     data.forEach(t => {
 
-        // ✅ TEACHER: only their own assignments
-        if(role === "teacher" && t.username !== currentUser.username){
+        // TEACHER ACCOUNT
+        if(
+            role === "teacher" &&
+            t.username !== currentUser.username
+        ){
             return;
         }
 
-        // ❗ SECTOR ADMIN: no filtering (see everything)
+        // SECTOR ADMIN
+        if(
+            role === "sector_admin" &&
+            String(t.id) !== String(targetTeacher)
+        ){
+            return;
+        }
 
-        (t.assignments || []).forEach(a => {
+        if(
+            t.assignments &&
+            t.assignments.length
+        ){
 
-            select.innerHTML += `
-            <option value="${t.username}|${a.class_name}|${a.subject}">
-              ${t.full_name} - ${a.class_name} - ${a.subject}
-            </option>
-            `;
-        });
+            selectedAssignment = {
+                teacher: t,
+                assignment: t.assignments[0]
+            };
+        }
 
     });
 
-    if(select.options.length > 0){
-        loadResults();
-    }
-  }
+    // NO ASSIGNMENT FOUND
+    if(!selectedAssignment){
 
-    
+        document.getElementById("teacherInfo")
+        .innerHTML =
+        "No assignment found.";
+
+        return;
+    }
+
+    const t = selectedAssignment.teacher;
+    const a = selectedAssignment.assignment;
+
+    // SHOW INFO
+    document.getElementById("teacherInfo")
+    .innerHTML = `
+    <div>School: ${t.school}</div>
+    <div>Teacher: ${t.full_name}</div>
+    <div>Class: ${a.class_name}</div>
+    <div>Subject: ${a.subject}</div>
+    `;
+
+    // LOAD RESULTS
+    loadResults(
+        a.class_name,
+        a.subject,
+        t.id
+    );
+}
 
 // CATEGORY
 function getCategory(mark){
@@ -240,21 +285,19 @@ function getCategory(mark){
 }
 
 // LOAD RESULTS
-async function loadResults(){
+async function loadResults(
+    class_name,
+    subject,
+    teacher_id
+){
 
-    const value =
-    document.getElementById("assignmentSelect").value;
-
-    if(!value) return;
-
-    const [teacher, class_name, subject] = value.split("|");
     document.getElementById("tableTitle")
     .innerText =
 `${class_name} Students Performance in ${subject}`;
 
     const res = await fetch(
-`/.netlify/functions/getMarks?school=${currentUser.school}&class_name=${class_name}&subject=${subject}&teacher=${teacher}`
-);
+`/.netlify/functions/getMarks?school=${currentUser.school}&class_name=${class_name}&subject=${subject}&teacher_id=${teacher_id}&role=${role}`
+    );
 
     const data = await res.json();
 
@@ -387,7 +430,8 @@ function downloadTable(){
     </html>
     `;
 
-    const win = window.open("", "", "width=900,height=700");
+    const win =
+    window.open("", "", "width=900,height=700");
 
     win.document.write(content);
 
@@ -402,4 +446,4 @@ loadAssignments();
 </script>
 
 </body>
-    </html>
+  </html>
