@@ -14,7 +14,21 @@ export async function handler(event) {
 
         const params = event.queryStringParameters || {};
 
-        const { class_name, subject, school } = params;
+        const {
+            class_name,
+            subject,
+            school,
+            role
+        } = params;
+
+        // ================= CLEAN INPUT =================
+        const cleanSchool = school && school !== "undefined"
+            ? school.trim()
+            : null;
+
+        const cleanClass = class_name?.trim();
+
+        const cleanSubject = subject?.trim();
 
         // ================= SUBJECT MAP =================
         const subjectMap = {
@@ -25,7 +39,6 @@ export async function handler(event) {
             "SOCIAL AND RELIGIOUS STUDIES": "social_studies",
             "SST": "social_studies",
             "SCIENCE": "science",
-            "SCIENCE AND ELEMENTARY TECHNOLOGY": "science",
             "CHEMISTRY": "chemistry",
             "PHYSICS": "physics",
             "BIOLOGY": "biology",
@@ -34,7 +47,7 @@ export async function handler(event) {
             "ENTREPRENEURSHIP": "entrepreneurship"
         };
 
-        const column = subjectMap[subject?.trim().toUpperCase()];
+        const column = subjectMap[cleanSubject?.toUpperCase()];
 
         if (!column) {
             return {
@@ -43,9 +56,8 @@ export async function handler(event) {
             };
         }
 
-        // ================= MAIN QUERY =================
-        const result = await client.query(
-            `
+        // ================= BASE QUERY =================
+        let query = `
             SELECT
                 id,
                 student_name,
@@ -54,7 +66,6 @@ export async function handler(event) {
 
                 ${column} AS mark,
 
-                -- TOTAL
                 (
                     COALESCE(english,0) +
                     COALESCE(mathematics,0) +
@@ -69,7 +80,6 @@ export async function handler(event) {
                     COALESCE(entrepreneurship,0)
                 ) AS total,
 
-                -- PERCENTAGE
                 ROUND(
                     (
                         (
@@ -93,32 +103,48 @@ export async function handler(event) {
                     ) * 100
                 ,2) AS percentage,
 
-                -- POSITION
                 RANK() OVER (
                     PARTITION BY class_name
-                    ORDER BY
-                        (
-                            COALESCE(english,0) +
-                            COALESCE(mathematics,0) +
-                            COALESCE(kinyarwanda,0) +
-                            COALESCE(social_studies,0) +
-                            COALESCE(science,0) +
-                            COALESCE(chemistry,0) +
-                            COALESCE(physics,0) +
-                            COALESCE(biology,0) +
-                            COALESCE(geography,0) +
-                            COALESCE(history,0) +
-                            COALESCE(entrepreneurship,0)
-                        ) DESC
+                    ORDER BY (
+                        COALESCE(english,0) +
+                        COALESCE(mathematics,0) +
+                        COALESCE(kinyarwanda,0) +
+                        COALESCE(social_studies,0) +
+                        COALESCE(science,0) +
+                        COALESCE(chemistry,0) +
+                        COALESCE(physics,0) +
+                        COALESCE(biology,0) +
+                        COALESCE(geography,0) +
+                        COALESCE(history,0) +
+                        COALESCE(entrepreneurship,0)
+                    ) DESC
                 ) AS position
 
             FROM students
-            WHERE school_name = $1
-            AND class_name = $2
-            ORDER BY student_name ASC
-            `,
-            [school, class_name]
-        );
+            WHERE class_name = $1
+        `;
+
+        const values = [cleanClass];
+
+        // ================= ROLE-BASED ACCESS =================
+
+        // school_admin → only their school
+        if (role === "school_admin" && cleanSchool) {
+            query += ` AND school_name = $2`;
+            values.push(cleanSchool);
+        }
+
+        // teacher → only their school
+        else if (role === "teacher" && cleanSchool) {
+            query += ` AND school_name = $2`;
+            values.push(cleanSchool);
+        }
+
+        // sector_admin → NO restriction (sees all schools)
+
+        query += ` ORDER BY student_name ASC`;
+
+        const result = await client.query(query, values);
 
         await client.end();
 
@@ -129,7 +155,9 @@ export async function handler(event) {
 
     } catch (err) {
 
-        await client.end();
+        try {
+            await client.end();
+        } catch (e) {}
 
         return {
             statusCode: 500,
