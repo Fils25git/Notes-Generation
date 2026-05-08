@@ -175,7 +175,13 @@ button{
 
 <script>
 
-const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+const role = localStorage.getItem("role");
+const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+
+if(role !== "sector_admin" && role !== "school_admin"){
+    alert("Access denied");
+    location.href = "index.html";
+}
 
 function getCategory(p){
     if(p >= 80) return "A (Excellent)";
@@ -189,7 +195,13 @@ function getCategory(p){
 
 async function loadMarks(){
 
-const res = await fetch(`/.netlify/functions/getStudents?school_name=${currentUser.school}`);
+let url = "/.netlify/functions/getStudents";
+
+if(role === "school_admin"){
+    url += `?school_name=${currentUser.school}`;
+}
+
+const res = await fetch(url);
 const data = await res.json();
 
 let p6Body=document.getElementById("p6Body");
