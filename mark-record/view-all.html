@@ -22,15 +22,8 @@ padding:20px;
 text-align:center;
 }
 
-header h1{
-margin:0;
-font-size:24px;
-}
-
-header p{
-margin-top:5px;
-font-size:14px;
-}
+header h1{margin:0;font-size:24px;}
+header p{margin-top:5px;font-size:14px;}
 
 /* CONTAINER */
 .container{
@@ -49,7 +42,7 @@ margin-bottom:25px;
 box-shadow:0 4px 12px rgba(0,0,0,0.06);
 }
 
-/* SCHOOL TITLE */
+/* TITLE */
 .school-title{
 font-size:20px;
 font-weight:bold;
@@ -101,7 +94,7 @@ tr:hover{
 background:#f9fbff;
 }
 
-/* BUTTONS */
+/* BUTTON */
 .btn{
 border:none;
 padding:8px 14px;
@@ -109,14 +102,11 @@ border-radius:8px;
 cursor:pointer;
 font-weight:600;
 transition:0.2s;
-}
-
-.btn-view{
 background:#2563eb;
 color:white;
 }
 
-.btn-view:hover{
+.btn:hover{
 background:#1d4ed8;
 }
 
@@ -130,73 +120,41 @@ font-weight:600;
 text-decoration:underline;
 }
 
-/* MOBILE */
-@media(max-width:768px){
-
-table{
-font-size:12px;
-}
-
-th,td{
-padding:7px;
-}
-
-.admin-box{
-flex-direction:column;
-align-items:flex-start;
-}
-
-}
-
 </style>
 </head>
 
 <body>
 
 <script>
-
 const role = localStorage.getItem("role");
-const currentUser =
-JSON.parse(localStorage.getItem("currentUser"));
+const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if(role !== "sector_admin"){
 alert("Access denied");
 location.href = "login.html";
 }
-
 </script>
 
 <header>
-
 <h1>SECTOR SCHOOLS</h1>
-
-<p>
-View schools, admins and teachers
-</p>
-
+<p>View schools, admins and teachers</p>
 </header>
 
 <div class="container" id="schoolsContainer">
-
 Loading schools...
-
 </div>
 
 <script>
 
-// LOAD ALL SCHOOLS + TEACHERS
 async function loadSchools(){
 
-const container =
-document.getElementById("schoolsContainer");
-
+const container = document.getElementById("schoolsContainer");
 container.innerHTML = "Loading...";
 
-// GET USERS
-const res = await fetch(
-"/.netlify/functions/getTeacher"
-);
+try{
 
+// IMPORTANT FIX: get ALL users, not only teachers
+const res = await fetch("/.netlify/functions/getAllUsers");
 const data = await res.json();
 
 if(!res.ok){
@@ -212,35 +170,34 @@ data.forEach(user=>{
 if(!user.school) return;
 
 if(!schools[user.school]){
-schools[user.school]={
+schools[user.school] = {
 admin:null,
 teachers:[]
 };
 }
 
-// SCHOOL ADMIN
-if(user.role==="school_admin"){
-schools[user.school].admin=user;
+// ADMIN
+if(user.role === "school_admin"){
+schools[user.school].admin = user;
 }
 
 // TEACHERS
-if(user.role==="teacher"){
+if(user.role === "teacher"){
 schools[user.school].teachers.push(user);
 }
 
 });
 
-container.innerHTML="";
+container.innerHTML = "";
 
-// CREATE SCHOOL CARDS
+// RENDER
 Object.keys(schools).forEach((schoolName,index)=>{
 
 const school = schools[schoolName];
-
 const admin = school.admin;
 
 const teachers = school.teachers.sort((a,b)=>
-a.full_name.localeCompare(b.full_name)
+(a.full_name || "").localeCompare(b.full_name || "")
 );
 
 container.innerHTML += `
@@ -255,28 +212,21 @@ ${index + 1}. ${schoolName}
 
 <div class="admin-info">
 
-<div>
-<b>School:</b>
-${schoolName}
-</div>
+<div><b>School:</b> ${schoolName}</div>
 
-<div>
-<b>School Admin:</b>
-${admin?.full_name || "Not Found"}
-</div>
+<div><b>School Admin:</b> ${
+admin?.full_name || "Not Found"
+}</div>
 
-<div>
-<b>Username:</b>
-${admin?.username || "-"}
-</div>
+<div><b>Username:</b> ${
+admin?.username || "-"
+}</div>
 
 </div>
 
-<button class="btn btn-view"
+<button class="btn"
 onclick="viewSchoolMarks('${schoolName}')">
-
 View Marks
-
 </button>
 
 </div>
@@ -295,48 +245,35 @@ View Marks
 
 <tbody>
 
-${teachers.length ? teachers.map((t,i)=>`
+${
+teachers.length ? teachers.map((t,i)=>`
 
 <tr>
 
-<td>${i + 1}</td>
-
-<td>${t.full_name}</td>
-
-<td>${t.username}</td>
+<td>${i+1}</td>
+<td>${t.full_name || "-"}</td>
+<td>${t.username || "-"}</td>
 
 <td>
-
-${t.assignments?.map(a=>`
-<div>
-${a.class_name} - ${a.subject}
-</div>
-`).join("") || "-"}
-
+${t.assignments?.length ?
+t.assignments.map(a=>`
+<div>${a.class_name} - ${a.subject}</div>
+`).join("")
+: "-"}
 </td>
 
 <td>
-
 <span class="teacher-link"
 onclick="viewTeacherResults('${t.username}')">
-
 View Results
-
 </span>
-
 </td>
 
 </tr>
 
-`).join("") :
-
-`
-<tr>
-<td colspan="5">
-No teachers found
-</td>
-</tr>
-`
+`).join("")
+:
+`<tr><td colspan="5">No teachers found</td></tr>`
 }
 
 </tbody>
@@ -344,36 +281,29 @@ No teachers found
 </table>
 
 </div>
+
 `;
+
 });
 
+}catch(err){
+console.log(err);
+container.innerHTML = "Failed to load schools";
 }
 
-// VIEW SCHOOL MARKS
+}
+
+// NAVIGATION
 function viewSchoolMarks(school){
-
-localStorage.setItem(
-"targetSchool",
-school
-);
-
-window.location.href =
-"view-school-marks.html";
+localStorage.setItem("targetSchool", school);
+location.href = "view-school-marks.html";
 }
 
-// VIEW TEACHER RESULTS
 function viewTeacherResults(username){
-
-localStorage.setItem(
-"targetTeacher",
-username
-);
-
-window.location.href =
-"view-results.html";
+localStorage.setItem("targetTeacher", username);
+location.href = "view-results.html";
 }
 
-// INIT
 loadSchools();
 
 </script>
