@@ -9,7 +9,6 @@ export async function handler(event) {
     });
 
     try {
-
         await client.connect();
 
         const params = event.queryStringParameters || {};
@@ -22,16 +21,11 @@ export async function handler(event) {
             teacher_id
         } = params;
 
-        // ================= CLEAN INPUT =================
-        const cleanSchool = school && school !== "undefined"
-            ? school.trim()
-            : null;
-
+        const cleanSchool = school && school !== "undefined" ? school.trim() : null;
         const cleanClass = class_name?.trim();
         const cleanSubject = subject?.trim();
         const cleanTeacherId = teacher_id ? Number(teacher_id) : null;
 
-        // ================= SUBJECT MAP =================
         const subjectMap = {
             "ENGLISH": "english",
             "MATHEMATICS": "mathematics",
@@ -57,14 +51,15 @@ export async function handler(event) {
             };
         }
 
-        // ================= BASE QUERY (WITH JOIN FIX) =================
+        // ================= MAIN QUERY (FIXED LOGIC) =================
         let query = `
             SELECT
                 s.id,
                 s.student_name,
                 s.class_name,
                 s.school_name,
-                s.teacher_id,
+
+                ts.teacher_id,
 
                 ${column} AS mark,
 
@@ -123,27 +118,27 @@ export async function handler(event) {
                 ) AS position
 
             FROM students s
-            JOIN users u ON s.teacher_id = u.id
-            WHERE s.class_name = $1
+            JOIN teacher_subjects ts
+                ON ts.class_name = s.class_name
+                AND ts.subject = $2
         `;
 
-        const values = [cleanClass];
+        const values = [cleanClass, cleanSubject];
 
-        // ================= SCHOOL FILTER =================
+        // ================= ROLE FILTER =================
+
         if (role === "school_admin" && cleanSchool) {
-            query += ` AND s.school_name = $${values.length + 1}`;
+            query += ` WHERE s.class_name = $1 AND s.school_name = $3`;
             values.push(cleanSchool);
         }
 
-        if (role === "teacher" && cleanSchool) {
-            query += ` AND s.school_name = $${values.length + 1}`;
-            values.push(cleanSchool);
+        else if (role === "teacher" && cleanSchool) {
+            query += ` WHERE s.class_name = $1 AND s.school_name = $3 AND ts.teacher_id = $4`;
+            values.push(cleanSchool, cleanTeacherId);
         }
 
-        // ================= TEACHER FILTER (IMPORTANT FIX) =================
-        if (cleanTeacherId) {
-            query += ` AND u.id = $${values.length + 1}`;
-            values.push(cleanTeacherId);
+        else {
+            query += ` WHERE s.class_name = $1`;
         }
 
         query += ` ORDER BY s.student_name ASC`;
@@ -158,14 +153,11 @@ export async function handler(event) {
         };
 
     } catch (err) {
-
-        try {
-            await client.end();
-        } catch (e) {}
+        try { await client.end(); } catch (e) {}
 
         return {
             statusCode: 500,
             body: JSON.stringify({ message: err.message })
         };
     }
-    }
+                }
