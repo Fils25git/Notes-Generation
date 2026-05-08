@@ -14,7 +14,6 @@ background:#f4f6fb;
 color:#222;
 }
 
-/* HEADER */
 header{
 background:linear-gradient(135deg,#2563eb,#1d4ed8);
 color:white;
@@ -25,7 +24,6 @@ text-align:center;
 header h1{margin:0;font-size:24px;}
 header p{margin-top:5px;font-size:14px;}
 
-/* CONTAINER */
 .container{
 width:95%;
 max-width:1200px;
@@ -33,7 +31,6 @@ margin:auto;
 padding:20px;
 }
 
-/* SCHOOL CARD */
 .school-card{
 background:white;
 border-radius:12px;
@@ -42,7 +39,6 @@ margin-bottom:25px;
 box-shadow:0 4px 12px rgba(0,0,0,0.06);
 }
 
-/* TITLE */
 .school-title{
 font-size:20px;
 font-weight:bold;
@@ -52,7 +48,6 @@ border-left:5px solid #2563eb;
 padding-left:10px;
 }
 
-/* ADMIN BOX */
 .admin-box{
 background:#eef4ff;
 padding:12px;
@@ -65,11 +60,8 @@ flex-wrap:wrap;
 gap:10px;
 }
 
-.admin-info{
-line-height:1.7;
-}
+.admin-info{line-height:1.7;}
 
-/* TABLE */
 table{
 width:100%;
 border-collapse:collapse;
@@ -80,35 +72,27 @@ th{
 background:#1d4ed8;
 color:white;
 padding:10px;
-font-size:14px;
 text-align:left;
 }
 
 td{
 padding:10px;
 border-bottom:1px solid #eee;
-font-size:14px;
 }
 
-tr:hover{
-background:#f9fbff;
-}
+tr:hover{background:#f9fbff;}
 
-/* BUTTON */
 .btn{
 border:none;
 padding:8px 14px;
 border-radius:8px;
 cursor:pointer;
 font-weight:600;
-transition:0.2s;
 background:#2563eb;
 color:white;
 }
 
-.btn:hover{
-background:#1d4ed8;
-}
+.btn:hover{background:#1d4ed8;}
 
 .teacher-link{
 color:#2563eb;
@@ -116,9 +100,7 @@ cursor:pointer;
 font-weight:600;
 }
 
-.teacher-link:hover{
-text-decoration:underline;
-}
+.teacher-link:hover{text-decoration:underline;}
 
 </style>
 </head>
@@ -131,7 +113,7 @@ const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
 if(role !== "sector_admin"){
 alert("Access denied");
-location.href = "index.html";
+location.href = "login.html";
 }
 </script>
 
@@ -141,7 +123,7 @@ location.href = "index.html";
 </header>
 
 <div class="container" id="schoolsContainer">
-Loading schools...
+Loading...
 </div>
 
 <script>
@@ -153,11 +135,15 @@ container.innerHTML = "Loading...";
 
 try{
 
-// IMPORTANT FIX: get ALL users, not only teachers
-const res = await fetch("/.netlify/functions/getTeacher");
-const data = await res.json();
+// 🔵 1. GET ADMINS
+const adminRes = await fetch("/.netlify/functions/getSchoolAdmins");
+const admins = await adminRes.json();
 
-if(!res.ok){
+// 🔵 2. GET TEACHERS
+const teacherRes = await fetch("/.netlify/functions/getTeacher");
+const teachers = await teacherRes.json();
+
+if(!adminRes.ok || !teacherRes.ok){
 container.innerHTML = "Error loading data";
 return;
 }
@@ -165,47 +151,48 @@ return;
 // GROUP BY SCHOOL
 let schools = {};
 
-data.forEach(user=>{
+// ADD ADMINS
+admins.forEach(a=>{
+if(!a.school) return;
 
-if(!user.school) return;
+schools[a.school] = {
+admin: a,
+teachers: []
+};
+});
 
-if(!schools[user.school]){
-schools[user.school] = {
-admin:null,
-teachers:[]
+// ADD TEACHERS
+teachers.forEach(t=>{
+if(!t.school) return;
+
+if(!schools[t.school]){
+schools[t.school] = {
+admin: null,
+teachers: []
 };
 }
 
-// ADMIN
-if(user.role === "school_admin"){
-schools[user.school].admin = user;
-}
-
-// TEACHERS
-if(user.role === "teacher"){
-schools[user.school].teachers.push(user);
-}
-
+schools[t.school].teachers.push(t);
 });
 
 container.innerHTML = "";
 
-// RENDER
+// DISPLAY
 Object.keys(schools).forEach((schoolName,index)=>{
 
 const school = schools[schoolName];
+
 const admin = school.admin;
 
-const teachers = school.teachers.sort((a,b)=>
+const teachers = (school.teachers || []).sort((a,b)=>
 (a.full_name || "").localeCompare(b.full_name || "")
 );
 
 container.innerHTML += `
-
 <div class="school-card">
 
 <div class="school-title">
-${index + 1}. ${schoolName}
+${index+1}. ${schoolName}
 </div>
 
 <div class="admin-box">
@@ -214,13 +201,13 @@ ${index + 1}. ${schoolName}
 
 <div><b>School:</b> ${schoolName}</div>
 
-<div><b>School Admin:</b> ${
-admin?.full_name || "Not Found"
-}</div>
+<div><b>School Admin:</b>
+${admin?.full_name || "Not Found"}
+</div>
 
-<div><b>Username:</b> ${
-admin?.username || "-"
-}</div>
+<div><b>Username:</b>
+${admin?.username || "-"}
+</div>
 
 </div>
 
@@ -255,11 +242,9 @@ teachers.length ? teachers.map((t,i)=>`
 <td>${t.username || "-"}</td>
 
 <td>
-${t.assignments?.length ?
-t.assignments.map(a=>`
+${t.assignments?.map(a=>`
 <div>${a.class_name} - ${a.subject}</div>
-`).join("")
-: "-"}
+`).join("") || "-"}
 </td>
 
 <td>
@@ -281,14 +266,13 @@ View Results
 </table>
 
 </div>
-
 `;
 
 });
 
 }catch(err){
 console.log(err);
-container.innerHTML = "Failed to load schools";
+container.innerHTML = "Failed to load data";
 }
 
 }
