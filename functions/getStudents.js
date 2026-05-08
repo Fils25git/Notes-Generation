@@ -17,6 +17,7 @@ export async function handler(event) {
             SELECT
                 id,
                 student_name,
+                school_name,
                 class_name,
 
                 english,
