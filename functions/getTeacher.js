@@ -11,12 +11,14 @@ export async function handler(event) {
     try {
         await client.connect();
 
+        const params = event.queryStringParameters || {};
+
         const {
             school,
-            role
-        } = event.queryStringParameters || {};
+            role,
+            username
+        } = params;
 
-        // ================= CLEAN INPUT =================
         const cleanSchool = school && school !== "undefined"
             ? school.trim()
             : null;
@@ -28,24 +30,25 @@ export async function handler(event) {
             WHERE role = 'teacher'
         `;
 
-        const params = [];
+        const values = [];
 
         // ================= ROLE LOGIC =================
-        // teacher → only themselves (optional future use)
-        if (role === "teacher") {
+
+        // 🔵 teacher → ONLY themselves (SAFE)
+        if (role === "teacher" && username) {
             teacherQuery += ` AND username = $1`;
-            params.push(event.queryStringParameters?.username);
+            values.push(username);
         }
 
-        // school_admin → only their school
+        // 🟡 school_admin → only their school
         else if (role === "school_admin" && cleanSchool) {
             teacherQuery += ` AND school = $1`;
-            params.push(cleanSchool);
+            values.push(cleanSchool);
         }
 
-        // sector_admin → NO filter (sees everything)
+        // 🔴 sector_admin → no filter
 
-        const teachersResult = await client.query(teacherQuery, params);
+        const teachersResult = await client.query(teacherQuery, values);
 
         // ================= ASSIGNMENTS =================
         const assignmentsResult = await client.query(`
@@ -53,7 +56,7 @@ export async function handler(event) {
             FROM teacher_subjects
         `);
 
-        // ================= MAP ASSIGNMENTS =================
+        // ================= MAP =================
         const assignmentMap = {};
 
         for (const a of assignmentsResult.rows) {
@@ -85,13 +88,11 @@ export async function handler(event) {
 
     } catch (err) {
 
-        try {
-            await client.end();
-        } catch (e) {}
+        try { await client.end(); } catch (e) {}
 
         return {
             statusCode: 500,
             body: JSON.stringify({ message: err.message })
         };
     }
-                    }
+                }
