@@ -14,8 +14,7 @@
 
 <style>
 
-/* ================= MODAL ================= */
-
+/* ================= MODAL BASE ================= */
 .modal{
 display:none;
 position:fixed;
@@ -29,93 +28,59 @@ align-items:center;
 z-index:999;
 }
 
+/* stack modal (second level) */
+.modal.secondary{
+z-index:1000;
+}
+
 .modal-content{
 background:white;
-padding:25px;
+padding:20px;
 border-radius:12px;
 width:90%;
-max-width:450px;
+max-width:500px;
 box-shadow:0 10px 30px rgba(0,0,0,0.2);
 }
 
-.modal-content h2{
-margin-top:0;
-margin-bottom:15px;
+.btn{
+padding:10px 14px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
 }
 
-.modal-content input,
-.modal-content select{
+.primary{background:#2563eb;color:white;}
+.danger{background:#ef4444;color:white;}
+.success{background:#16a34a;color:white;}
+.gray{background:#e5e7eb;}
+
+table{
 width:100%;
-padding:12px;
-border:1px solid #ccc;
-border-radius:8px;
-font-size:15px;
+border-collapse:collapse;
 margin-top:10px;
-box-sizing:border-box;
 }
 
-.modal-buttons{
-display:flex;
-gap:10px;
-margin-top:20px;
-}
-
-.save-btn{
-background:#2563eb;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:8px;
-cursor:pointer;
-font-weight:600;
-}
-
-.cancel-btn{
-background:#ef4444;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:8px;
-cursor:pointer;
-font-weight:600;
-}
-
-.save-btn:hover{background:#1d4ed8;}
-.cancel-btn:hover{background:#dc2626;}
-
-.dashboard-card{
-background:#fff;
-padding:20px;
-border-radius:12px;
-box-shadow:0 3px 10px rgba(0,0,0,0.08);
-cursor:pointer;
-transition:0.2s;
-}
-
-.dashboard-card:hover{
-transform:scale(1.02);
-}
-
-.cards-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-margin-top:20px;
-}
-
-.top-header{
+th,td{
+border:1px solid #ddd;
+padding:8px;
 text-align:center;
-margin-bottom:20px;
+font-size:14px;
 }
 
-.logout-btn{
-background:#ef4444;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:8px;
+th{background:#1d4ed8;color:white;}
+
+.small{
+font-size:12px;
+color:gray;
+}
+
+.card{
+padding:15px;
+background:white;
+border-radius:10px;
 cursor:pointer;
-margin:10px;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 </style>
@@ -125,173 +90,98 @@ margin:10px;
 <body>
 
 <script>
-// ================= PROTECT PAGE =================
 const role = localStorage.getItem("role");
 
 if(role !== "sector_admin"){
-    alert("Access denied");
-    window.location.href = "index.html";
+alert("Access denied");
+location.href="index.html";
 }
 </script>
 
-<div class="landing-container">
-
-<header class="top-header">
-<h1>SECTOR ADMIN DASHBOARD</h1>
-<p>Manage schools, tests and results</p>
+<!-- ================= HEADER ================= -->
+<header style="text-align:center;padding:20px;background:#1d4ed8;color:white;">
+<h2>SECTOR ADMIN DASHBOARD</h2>
 </header>
 
-<button class="logout-btn" onclick="logout()">Logout</button>
+<div style="padding:20px;">
 
-<div class="cards-grid">
-
-<!-- SCHOOL ADMINS -->
-<div class="dashboard-card"
-onclick="window.location.href='school-admins.html'">
-<h2>School Admins</h2>
-<p>Create and manage school admins</p>
-</div>
-
-<!-- VIEW SCHOOLS -->
-<div class="dashboard-card"
-onclick="window.location.href='view-schools.html'">
-<h2>View Schools</h2>
-<p>School performance ranking</p>
-</div>
-
-<!-- VIEW ALL -->
-<div class="dashboard-card"
-onclick="window.location.href='view-all.html'">
-<h2>Sector Data</h2>
-<p>All schools & students</p>
-</div>
-
-<!-- ADD TEST -->
-<div class="dashboard-card"
-onclick="openTestModal()">
-<h2>Add New Test</h2>
-<p>Create exam session</p>
-</div>
-
-<!-- MANAGE TESTS -->
-<div class="dashboard-card"
-onclick="openManageTests()">
-<h2>Manage Tests</h2>
-<p>Switch between tests</p>
+<!-- ================= MANAGE TESTS CARD ================= -->
+<div class="card" onclick="openTestsModal()">
+<h3>Manage Tests</h3>
+<p>View, switch and create tests for all schools</p>
 </div>
 
 </div>
 
-</div>
+<!-- ===================================================== -->
+<!-- MODAL 1: TEST LIST + SWITCH -->
+<!-- ===================================================== -->
 
-<!-- ================= TEST MODAL ================= -->
-
-<div id="testModal" class="modal">
+<div id="testsModal" class="modal">
 <div class="modal-content">
 
-<h2>Create New Test</h2>
+<h3>Manage Tests</h3>
 
-<input type="text" id="testName" placeholder="e.g MID TERM 1">
+<button class="btn success" onclick="openCreateTestModal()">
++ Add New Test
+</button>
 
-<h3>Select Action</h3>
-
-<select id="testAction">
-<option value="create">Create New Active Test</option>
-</select>
-
-<div class="modal-buttons">
-
-<button class="save-btn" onclick="createTest()">Create</button>
-<button class="cancel-btn" onclick="closeTestModal()">Cancel</button>
-
+<div id="testsList" style="margin-top:15px;">
+Loading tests...
 </div>
+
+<br>
+
+<button class="btn danger" onclick="closeTestsModal()">Close</button>
 
 </div>
 </div>
 
-<!-- ================= MANAGE TESTS MODAL ================= -->
+<!-- ===================================================== -->
+<!-- MODAL 2: CREATE TEST (OVERLAY) -->
+<!-- ===================================================== -->
 
-<div id="manageModal" class="modal">
+<div id="createTestModal" class="modal secondary">
 <div class="modal-content">
 
-<h2>Manage Tests</h2>
+<h3>Create New Test</h3>
 
-<div id="testsList">Loading...</div>
+<input id="testName"
+placeholder="Enter test name"
+style="width:100%;padding:10px;margin-top:10px;border:1px solid #ccc;border-radius:8px;">
 
-<div class="modal-buttons">
-<button class="cancel-btn" onclick="closeManage()">Close</button>
-</div>
+<br><br>
+
+<button class="btn primary" onclick="createTest()">Create</button>
+<button class="btn danger" onclick="closeCreateTestModal()">Cancel</button>
 
 </div>
 </div>
 
 <script>
 
-// ================= LOGOUT =================
-function logout(){
-localStorage.clear();
-location.href="index.html";
+// ================= STATE =================
+let testsCache = [];
+
+// ================= OPEN TEST LIST =================
+async function openTestsModal(){
+document.getElementById("testsModal").style.display="flex";
+await loadTests();
 }
 
-// ================= OPEN TEST MODAL =================
-function openTestModal(){
-document.getElementById("testModal").style.display="flex";
+// ================= CLOSE =================
+function closeTestsModal(){
+document.getElementById("testsModal").style.display="none";
 }
 
-// ================= CLOSE TEST MODAL =================
-function closeTestModal(){
-document.getElementById("testModal").style.display="none";
+// ================= OPEN CREATE =================
+function openCreateTestModal(){
+document.getElementById("createTestModal").style.display="flex";
 }
 
-// ================= CREATE TEST =================
-async function createTest(){
-
-const name = document.getElementById("testName").value.trim();
-const user = JSON.parse(localStorage.getItem("currentUser")||"{}");
-
-if(!name){
-alert("Enter test name");
-return;
-}
-
-const ok = confirm(`Create "${name}" as NEW ACTIVE TEST?`);
-if(!ok) return;
-
-const res = await fetch("/.netlify/functions/createTest",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-test_name:name,
-created_by:user.id,
-role:"sector_admin",
-school_name:null
-})
-});
-
-const data = await res.json();
-
-if(!res.ok){
-alert(data.message);
-return;
-}
-
-// save active test
-localStorage.setItem("selectedTest", data.id);
-
-alert("Test created and activated");
-
-closeTestModal();
-document.getElementById("testName").value="";
-}
-
-// ================= MANAGE TESTS =================
-function openManageTests(){
-document.getElementById("manageModal").style.display="flex";
-loadTests();
-}
-
-function closeManage(){
-document.getElementById("manageModal").style.display="none";
+// ================= CLOSE CREATE =================
+function closeCreateTestModal(){
+document.getElementById("createTestModal").style.display="none";
 }
 
 // ================= LOAD TESTS =================
@@ -300,49 +190,97 @@ async function loadTests(){
 const res = await fetch("/.netlify/functions/getTests");
 const data = await res.json();
 
+testsCache = data;
+
 const box = document.getElementById("testsList");
-box.innerHTML = "";
 
-data.forEach(t=>{
+if(!data.length){
+box.innerHTML = "No tests found";
+return;
+}
 
-box.innerHTML += `
-<div style="padding:10px;border-bottom:1px solid #eee;">
+box.innerHTML = `
+<table>
+<tr>
+<th>Test</th>
+<th>Created</th>
+<th>Action</th>
+</tr>
 
-<b>${t.test_name}</b><br>
-<small>Created: ${new Date(t.created_at).toLocaleString()}</small><br>
-
-<button class="save-btn"
-style="margin-top:8px;"
-onclick="activateTest(${t.id})">
-Set Active
+${data.map(t=>`
+<tr>
+<td>${t.test_name}</td>
+<td class="small">${new Date(t.created_at).toLocaleString()}</td>
+<td>
+<button class="btn primary"
+onclick="switchTest('${t.id}')">
+Switch
 </button>
+</td>
+</tr>
+`).join("")}
 
-</div>
+</table>
 `;
-
-});
 
 }
 
-// ================= ACTIVATE TEST =================
-async function activateTest(id){
-
-const res = await fetch("/.netlify/functions/activateTest",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({id})
-});
-
-if(res.ok){
+// ================= SWITCH TEST =================
+async function switchTest(id){
 
 localStorage.setItem("selectedTest", id);
 
-alert("Test activated");
+alert("Test switched successfully");
 
-loadTests();
+closeTestsModal();
 
 }
 
+// ================= CREATE TEST =================
+async function createTest(){
+
+const name = document.getElementById("testName").value.trim();
+
+if(!name){
+alert("Enter test name");
+return;
+}
+
+const ok = confirm(`Create "${name}" as new test?`);
+if(!ok) return;
+
+const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+
+const res = await fetch("/.netlify/functions/createTest",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+test_name:name,
+created_by:currentUser.id,
+role:"sector_admin"
+})
+});
+
+const data = await res.json();
+
+if(!res.ok){
+alert(data.message || "Failed");
+return;
+}
+
+alert("Test created");
+
+document.getElementById("testName").value="";
+
+closeCreateTestModal();
+await loadTests();
+
+}
+
+// ================= LOGOUT =================
+function logout(){
+localStorage.clear();
+location.href="index.html";
 }
 
 </script>
