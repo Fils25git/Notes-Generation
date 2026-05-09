@@ -5,12 +5,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Sector Admin Dashboard</title>
-
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sector Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
 
 <style>
 
@@ -30,46 +28,21 @@ z-index:999;
 
 .modal-content{
 background:white;
-padding:25px;
-border-radius:12px;
+padding:20px;
+border-radius:10px;
 width:90%;
 max-width:450px;
-box-shadow:0 10px 30px rgba(0,0,0,0.2);
 }
 
-/* ================= CARDS ================= */
-.dashboard-card{
-background:#fff;
-padding:20px;
-border-radius:12px;
-box-shadow:0 3px 10px rgba(0,0,0,0.08);
-cursor:pointer;
-transition:0.2s;
-}
-
-.dashboard-card:hover{
-transform:scale(1.03);
-}
-
-.cards-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-margin-top:20px;
-}
-
-/* ================= BUTTONS ================= */
 .btn{
-padding:10px 14px;
+padding:8px 12px;
 border:none;
-border-radius:8px;
+border-radius:6px;
 cursor:pointer;
-font-weight:600;
 }
 
 .primary{background:#2563eb;color:white;}
 .danger{background:#ef4444;color:white;}
-.success{background:#16a34a;color:white;}
 
 </style>
 
@@ -78,142 +51,125 @@ font-weight:600;
 <body>
 
 <script>
+// PROTECT PAGE
 const role = localStorage.getItem("role");
 
 if(role !== "sector_admin"){
-alert("Access denied");
-location.href="index.html";
+    alert("Access denied");
+    window.location.href = "index.html";
 }
 </script>
 
-<header style="text-align:center;padding:20px;background:#1d4ed8;color:white;">
-<h2>SECTOR ADMIN DASHBOARD</h2>
-</header>
+<div class="landing-container">
 
-<div class="cards-grid">
+  <header class="top-header">
+    <h1>SECTOR ADMIN DASHBOARD</h1>
+    <p>Manage schools and administrators</p>
+  </header>
 
-<!-- KEEP ALL YOUR ORIGINAL CARDS -->
+  <button class="logout-btn" onclick="logout()">Logout</button>
 
-<div class="dashboard-card" onclick="location.href='school-admins.html'">
-<h3>School Admins</h3>
-</div>
+  <div class="cards-grid">
 
-<div class="dashboard-card" onclick="location.href='view-schools.html'">
-<h3>View Schools</h3>
-</div>
+    <div class="dashboard-card"
+         onclick="window.location.href='school-admins.html'">
+      <h2>Add School Admin</h2>
+      <p>Create and manage school administrator accounts.</p>
+    </div>
 
-<div class="dashboard-card" onclick="location.href='view-all.html'">
-<h3>Sector Data</h3>
-</div>
+    <div class="dashboard-card"
+         onclick="window.location.href='view-schools.html'">
+      <h2>View All Schools</h2>
+      <p>Monitor school performance and rankings.</p>
+    </div>
 
-<!-- ================= TEST SYSTEM ================= -->
+    <div class="dashboard-card"
+         onclick="window.location.href='view-all.html'">
+      <h2>View Sector Schools</h2>
+      <p>Monitor all schools data.</p>
+    </div>
 
-<div class="dashboard-card" onclick="openTestModal()">
-<h3>Add New Test</h3>
-<p>Create new exam session</p>
-</div>
+    <!-- ================= ADDED CARD ================= -->
+    <div class="dashboard-card"
+         onclick="openManageTests()">
+      <h2>Manage Tests</h2>
+      <p>Switch or create new tests</p>
+    </div>
 
-<div class="dashboard-card" onclick="openManageModal()">
-<h3>Manage Tests</h3>
-<p>Switch active test</p>
-</div>
-
-</div>
-
-<!-- ================= ADD TEST MODAL ================= -->
-
-<div id="testModal" class="modal">
-<div class="modal-content">
-
-<h3>Create New Test</h3>
-
-<input id="testName"
-placeholder="e.g MID TERM 1"
-style="width:100%;padding:10px;margin-top:10px">
-
-<br><br>
-
-<button class="btn primary" onclick="createTest()">Create</button>
-<button class="btn danger" onclick="closeTestModal()">Cancel</button>
+  </div>
 
 </div>
+
+<!-- ================= MANAGE TESTS MODAL ================= -->
+
+<div id="manageTestsModal" class="modal">
+  <div class="modal-content">
+
+    <h2>Manage Tests</h2>
+
+    <div id="testsList">Loading...</div>
+
+    <br>
+
+    <button class="btn primary" onclick="openCreateTestModal()">
+      + Add New Test
+    </button>
+
+    <button class="btn danger" onclick="closeManageTests()">
+      Close
+    </button>
+
+  </div>
 </div>
 
-<!-- ================= MANAGE TEST MODAL ================= -->
+<!-- ================= CREATE TEST MODAL ================= -->
 
-<div id="manageModal" class="modal">
-<div class="modal-content">
+<div id="createTestModal" class="modal">
+  <div class="modal-content">
 
-<h3>Manage Tests</h3>
+    <h2>Create New Test</h2>
 
-<div id="testList">Loading...</div>
+    <input id="testName" placeholder="Enter test name"
+    style="width:100%;padding:10px;margin-top:10px">
 
-<br>
+    <br><br>
 
-<button class="btn danger" onclick="closeManage()">Close</button>
+    <button class="btn primary" onclick="createTest()">
+      Create
+    </button>
 
-</div>
+    <button class="btn danger" onclick="closeCreateTest()">
+      Cancel
+    </button>
+
+  </div>
 </div>
 
 <script>
 
-// ================= MODALS =================
-function openTestModal(){
-document.getElementById("testModal").style.display="flex";
+// ================= LOGOUT =================
+function logout(){
+  localStorage.clear();
+  location.href="index.html";
 }
 
-function closeTestModal(){
-document.getElementById("testModal").style.display="none";
+// ================= OPEN MANAGE =================
+function openManageTests(){
+  document.getElementById("manageTestsModal").style.display="flex";
+  loadTests();
 }
 
-function openManageModal(){
-document.getElementById("manageModal").style.display="flex";
-loadTests();
+function closeManageTests(){
+  document.getElementById("manageTestsModal").style.display="none";
 }
 
-function closeManage(){
-document.getElementById("manageModal").style.display="none";
+// ================= OPEN CREATE =================
+function openCreateTestModal(){
+  document.getElementById("createTestModal").style.display="flex";
 }
 
-// ================= CREATE TEST =================
-async function createTest(){
-
-const name = document.getElementById("testName").value.trim();
-const user = JSON.parse(localStorage.getItem("currentUser")||"{}");
-
-if(!name){
-alert("Enter test name");
-return;
-}
-
-if(!confirm(`Create "${name}" as NEW ACTIVE TEST?`)) return;
-
-const res = await fetch("/.netlify/functions/createTest",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-test_name:name,
-created_by:user.id,
-role:"sector_admin",
-school_name:null
-})
-});
-
-const data = await res.json();
-
-if(!res.ok){
-alert(data.message || "Failed");
-return;
-}
-
-const testId = data.id || data.test?.id;
-
-localStorage.setItem("selectedTest", testId);
-
-alert("Test created & activated");
-
-document.getElementById("testName").value="";
-closeTestModal();
+function closeCreateTest(){
+  document.getElementById("createTestModal").style.display="none";
 }
 
 // ================= LOAD TESTS =================
@@ -222,25 +178,20 @@ async function loadTests(){
 const res = await fetch("/.netlify/functions/getTests");
 const data = await res.json();
 
-const box = document.getElementById("testList");
+const box = document.getElementById("testsList");
 box.innerHTML = "";
-
-if(!data.length){
-box.innerHTML = "No tests found";
-return;
-}
 
 data.forEach(t=>{
 
 box.innerHTML += `
-<div style="padding:10px;border-bottom:1px solid #eee">
+<div style="border-bottom:1px solid #eee;padding:10px">
 
 <b>${t.test_name}</b><br>
-<small>${new Date(t.created_at).toLocaleString()}</small><br><br>
+<small>Created: ${new Date(t.created_at).toLocaleString()}</small><br><br>
 
 <button class="btn primary"
-onclick="activateTest(${t.id})">
-Activate
+onclick="switchTest(${t.id})">
+Switch
 </button>
 
 </div>
@@ -250,21 +201,50 @@ Activate
 
 }
 
-// ================= ACTIVATE TEST =================
-async function activateTest(id){
+// ================= SWITCH TEST =================
+function switchTest(id){
 
 localStorage.setItem("selectedTest", id);
 
-alert("Test activated");
-
-closeManage();
+alert("Test switched");
 
 }
 
-// ================= LOGOUT =================
-function logout(){
-localStorage.clear();
-location.href="index.html";
+// ================= CREATE TEST =================
+async function createTest(){
+
+const name = document.getElementById("testName").value.trim();
+
+if(!name){
+alert("Enter test name");
+return;
+}
+
+if(!confirm(`Create "${name}" as new test?`)) return;
+
+const res = await fetch("/.netlify/functions/createTest",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+test_name:name,
+role:"sector_admin"
+})
+});
+
+const data = await res.json();
+
+if(!res.ok){
+alert(data.message);
+return;
+}
+
+alert("Test created");
+
+document.getElementById("testName").value="";
+
+closeCreateTest();
+loadTests();
+
 }
 
 </script>
