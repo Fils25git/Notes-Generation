@@ -15,7 +15,6 @@
 <style>
 
 /* ================= MODAL ================= */
-
 .modal{
 display:none;
 position:fixed;
@@ -38,34 +37,7 @@ max-width:450px;
 box-shadow:0 10px 30px rgba(0,0,0,0.2);
 }
 
-.modal-buttons{
-display:flex;
-gap:10px;
-margin-top:20px;
-}
-
-.save-btn{
-background:#2563eb;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:8px;
-cursor:pointer;
-font-weight:600;
-}
-
-.cancel-btn{
-background:#ef4444;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:8px;
-cursor:pointer;
-font-weight:600;
-}
-
-/* ================= DASHBOARD ================= */
-
+/* ================= CARDS ================= */
 .dashboard-card{
 background:#fff;
 padding:20px;
@@ -86,20 +58,18 @@ gap:20px;
 margin-top:20px;
 }
 
-.top-header{
-text-align:center;
-margin-bottom:20px;
-}
-
-.logout-btn{
-background:#ef4444;
-color:white;
+/* ================= BUTTONS ================= */
+.btn{
+padding:10px 14px;
 border:none;
-padding:10px 15px;
 border-radius:8px;
 cursor:pointer;
-margin:10px;
+font-weight:600;
 }
+
+.primary{background:#2563eb;color:white;}
+.danger{background:#ef4444;color:white;}
+.success{background:#16a34a;color:white;}
 
 </style>
 
@@ -116,98 +86,78 @@ location.href="index.html";
 }
 </script>
 
-<!-- ================= HEADER ================= -->
-<div class="landing-container">
-
-<header class="top-header">
-<h1>SECTOR ADMIN DASHBOARD</h1>
-<p>Manage schools, tests and results</p>
+<header style="text-align:center;padding:20px;background:#1d4ed8;color:white;">
+<h2>SECTOR ADMIN DASHBOARD</h2>
 </header>
-
-<button class="logout-btn" onclick="logout()">Logout</button>
 
 <div class="cards-grid">
 
-<!-- SCHOOL ADMINS -->
-<div class="dashboard-card"
-onclick="location.href='school-admins.html'">
-<h2>School Admins</h2>
-<p>Create and manage school admins</p>
+<!-- KEEP ALL YOUR ORIGINAL CARDS -->
+
+<div class="dashboard-card" onclick="location.href='school-admins.html'">
+<h3>School Admins</h3>
 </div>
 
-<!-- VIEW SCHOOLS -->
-<div class="dashboard-card"
-onclick="location.href='view-schools.html'">
-<h2>View Schools</h2>
-<p>Performance ranking</p>
+<div class="dashboard-card" onclick="location.href='view-schools.html'">
+<h3>View Schools</h3>
 </div>
 
-<!-- SECTOR DATA -->
-<div class="dashboard-card"
-onclick="location.href='view-all.html'">
-<h2>Sector Data</h2>
-<p>All schools & students</p>
+<div class="dashboard-card" onclick="location.href='view-all.html'">
+<h3>Sector Data</h3>
 </div>
 
-<!-- ADD TEST -->
-<div class="dashboard-card"
-onclick="openTestModal()">
-<h2>Add New Test</h2>
+<!-- ================= TEST SYSTEM ================= -->
+
+<div class="dashboard-card" onclick="openTestModal()">
+<h3>Add New Test</h3>
 <p>Create new exam session</p>
 </div>
 
-<!-- MANAGE TESTS -->
-<div class="dashboard-card"
-onclick="openManageModal()">
-<h2>Manage Tests</h2>
-<p>Switch between exams</p>
+<div class="dashboard-card" onclick="openManageModal()">
+<h3>Manage Tests</h3>
+<p>Switch active test</p>
 </div>
 
 </div>
-</div>
 
-<!-- ================= CREATE TEST MODAL ================= -->
+<!-- ================= ADD TEST MODAL ================= -->
 
 <div id="testModal" class="modal">
 <div class="modal-content">
 
-<h2>Create New Test</h2>
+<h3>Create New Test</h3>
 
-<input type="text" id="testName" placeholder="e.g MID TERM 1">
+<input id="testName"
+placeholder="e.g MID TERM 1"
+style="width:100%;padding:10px;margin-top:10px">
 
-<div class="modal-buttons">
-<button class="save-btn" onclick="createTest()">Create</button>
-<button class="cancel-btn" onclick="closeTestModal()">Cancel</button>
+<br><br>
+
+<button class="btn primary" onclick="createTest()">Create</button>
+<button class="btn danger" onclick="closeTestModal()">Cancel</button>
+
+</div>
 </div>
 
-</div>
-</div>
-
-<!-- ================= MANAGE TESTS MODAL ================= -->
+<!-- ================= MANAGE TEST MODAL ================= -->
 
 <div id="manageModal" class="modal">
 <div class="modal-content">
 
-<h2>Manage Tests</h2>
+<h3>Manage Tests</h3>
 
-<div id="testsList">Loading...</div>
+<div id="testList">Loading...</div>
 
-<div class="modal-buttons">
-<button class="cancel-btn" onclick="closeManageModal()">Close</button>
-</div>
+<br>
+
+<button class="btn danger" onclick="closeManage()">Close</button>
 
 </div>
 </div>
 
 <script>
 
-// ================= LOGOUT =================
-function logout(){
-localStorage.clear();
-location.href="index.html";
-}
-
-// ================= MODAL CONTROL =================
+// ================= MODALS =================
 function openTestModal(){
 document.getElementById("testModal").style.display="flex";
 }
@@ -221,7 +171,7 @@ document.getElementById("manageModal").style.display="flex";
 loadTests();
 }
 
-function closeManageModal(){
+function closeManage(){
 document.getElementById("manageModal").style.display="none";
 }
 
@@ -236,8 +186,7 @@ alert("Enter test name");
 return;
 }
 
-const ok = confirm(`Create "${name}" as NEW ACTIVE TEST?`);
-if(!ok) return;
+if(!confirm(`Create "${name}" as NEW ACTIVE TEST?`)) return;
 
 const res = await fetch("/.netlify/functions/createTest",{
 method:"POST",
@@ -246,8 +195,7 @@ body:JSON.stringify({
 test_name:name,
 created_by:user.id,
 role:"sector_admin",
-school_name:null,
-is_active:true
+school_name:null
 })
 });
 
@@ -258,17 +206,11 @@ alert(data.message || "Failed");
 return;
 }
 
-// SAFE ID HANDLING
-const newId = data.id || data.test?.id;
+const testId = data.id || data.test?.id;
 
-if(!newId){
-alert("Test created but ID missing");
-return;
-}
+localStorage.setItem("selectedTest", testId);
 
-localStorage.setItem("selectedTest", newId);
-
-alert("Test created and activated");
+alert("Test created & activated");
 
 document.getElementById("testName").value="";
 closeTestModal();
@@ -280,29 +222,25 @@ async function loadTests(){
 const res = await fetch("/.netlify/functions/getTests");
 const data = await res.json();
 
-const box = document.getElementById("testsList");
+const box = document.getElementById("testList");
 box.innerHTML = "";
 
-if(!Array.isArray(data) || data.length === 0){
+if(!data.length){
 box.innerHTML = "No tests found";
 return;
 }
 
-data.forEach(t => {
+data.forEach(t=>{
 
 box.innerHTML += `
 <div style="padding:10px;border-bottom:1px solid #eee">
 
 <b>${t.test_name}</b><br>
+<small>${new Date(t.created_at).toLocaleString()}</small><br><br>
 
-<small>
-Created: ${t.created_at ? new Date(t.created_at).toLocaleString() : "N/A"}
-</small><br>
-
-<button class="save-btn"
-style="margin-top:8px;"
+<button class="btn primary"
 onclick="activateTest(${t.id})">
-Set Active
+Activate
 </button>
 
 </div>
@@ -315,32 +253,21 @@ Set Active
 // ================= ACTIVATE TEST =================
 async function activateTest(id){
 
-if(!id){
-alert("Invalid test ID");
-return;
-}
-
-const res = await fetch("/.netlify/functions/activateTest",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({id})
-});
-
-if(res.ok){
-
 localStorage.setItem("selectedTest", id);
 
 alert("Test activated");
 
-loadTests();
+closeManage();
 
-}else{
-alert("Failed to activate test");
 }
 
+// ================= LOGOUT =================
+function logout(){
+localStorage.clear();
+location.href="index.html";
 }
 
 </script>
 
 </body>
-    </html>
+</html>
