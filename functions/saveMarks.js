@@ -65,7 +65,7 @@ export async function handler(event) {
         // 3️⃣ RECALCULATE PERCENTAGE
         await client.query(`
             UPDATE students
-            SET percentage = ROUND((total / 600.0) * 100, 2)
+            SET percentage = ROUND((total / 500.0) * 100, 2)
             WHERE school_name = $1 AND class_name = $2
         `, [school, class_name]);
 
