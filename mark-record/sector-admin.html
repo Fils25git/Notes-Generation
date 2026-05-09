@@ -1,91 +1,94 @@
 <!-- ========================= -->
-<!-- sector-admin.html -->
+<!-- school-admin.html -->
 <!-- ========================= -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Sector Admin Dashboard</title>
+<title>School Admin Dashboard</title>
 
 <link rel="stylesheet" href="style.css">
 
 <style>
 
+/* ================= LAYOUT ================= */
+
+body{
+    margin:0;
+    font-family:'Segoe UI', Arial;
+    background:#f3f6fb;
+}
+
+header{
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.container{
+    width:95%;
+    max-width:1000px;
+    margin:20px auto;
+}
+
+/* ================= CARDS ================= */
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:15px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* ================= BUTTONS ================= */
+
+.btn{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.btn-danger{
+    background:#ef4444;
+}
+
 /* ================= MODAL ================= */
 
 .modal{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
-justify-content:center;
-align-items:center;
-z-index:999;
+    display:none;
+    position:fixed;
+    top:0;left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
 }
 
 .modal-content{
-background:white;
-padding:25px;
-border-radius:12px;
-width:90%;
-max-width:400px;
-box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    width:90%;
+    max-width:400px;
 }
 
-.modal-content h2{
-margin-top:0;
-margin-bottom:15px;
-}
-
-.modal-content input{
-width:100%;
-padding:12px;
-border:1px solid #ccc;
-border-radius:8px;
-font-size:15px;
-margin-top:10px;
-box-sizing:border-box;
-}
-
-.modal-buttons{
-display:flex;
-gap:10px;
-margin-top:20px;
-}
-
-.save-btn{
-background:#2563eb;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:8px;
-cursor:pointer;
-font-weight:600;
-}
-
-.cancel-btn{
-background:#ef4444;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:8px;
-cursor:pointer;
-font-weight:600;
-}
-
-.save-btn:hover{
-background:#1d4ed8;
-}
-
-.cancel-btn:hover{
-background:#dc2626;
+.modal-content input,
+.modal-content select{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border:1px solid #ccc;
+    border-radius:8px;
 }
 
 </style>
@@ -96,107 +99,69 @@ background:#dc2626;
 
 <script>
 
-// ================= PROTECT PAGE =================
+// ================= PROTECT =================
 
 const role = localStorage.getItem("role");
+const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
-if(role !== "sector_admin"){
-
-alert("Access denied");
-
-window.location.href = "index.html";
-
+if(role !== "school_admin"){
+    alert("Access denied");
+    location.href="index.html";
 }
 
 </script>
 
-<div class="landing-container">
-
-<header class="top-header">
-
-<h1>SECTOR ADMIN DASHBOARD</h1>
-
-<p>Manage schools and administrators</p>
-
+<header>
+<h1>SCHOOL ADMIN DASHBOARD</h1>
+<p id="schoolInfo"></p>
 </header>
 
-<button class="logout-btn"
-onclick="logout()">
-Logout
+<div class="container">
+
+<!-- ================= ACTIVE TEST ================= -->
+
+<div class="card">
+
+<h2>Active Test</h2>
+
+<p id="activeTest">Loading...</p>
+
+<button class="btn" onclick="openTestModal()">
++ Create New Test
 </button>
 
-<div class="cards-grid">
-
-<!-- ================= SCHOOL ADMINS ================= -->
-
-<div class="dashboard-card"
-onclick="window.location.href='school-admins.html'">
-
-<h2>Add School Admin</h2>
-
-<p>
-Create and manage school administrator accounts.
-</p>
+<button class="btn" onclick="loadTests()">
+Switch Test
+</button>
 
 </div>
 
-<!-- ================= VIEW SCHOOLS ================= -->
+<!-- ================= ACTIONS ================= -->
 
-<div class="dashboard-card"
-onclick="window.location.href='view-schools.html'">
+<div class="card">
 
-<h2>View All Schools</h2>
+<h2>School Management</h2>
 
-<p>
-Monitor school performance and rankings.
-</p>
+<button class="btn"
+onclick="location.href='teachers.html'">
+Manage Teachers
+</button>
 
-</div>
+<button class="btn"
+onclick="location.href='students.html'">
+Manage Students
+</button>
 
-<!-- ================= VIEW ALL ================= -->
-
-<div class="dashboard-card"
-onclick="window.location.href='view-all.html'">
-
-<h2>View Sector Schools</h2>
-
-<p>
-Monitor all schools data.
-</p>
-
-</div>
-
-<!-- ================= NEW TEST ================= -->
-
-<div class="dashboard-card"
-onclick="openTestModal()">
-
-<h2>Add New Test</h2>
-
-<p>
-Create a new examination/test session.
-</p>
-
-</div>
-
-<!-- ================= MANAGE TESTS ================= -->
-
-<div class="dashboard-card"
-onclick="window.location.href='manage-tests.html'">
-
-<h2>Manage Tests</h2>
-
-<p>
-Switch between saved tests and results.
-</p>
+<button class="btn"
+onclick="location.href='school-marks.html'">
+View Results
+</button>
 
 </div>
 
 </div>
 
-</div>
-
-<!-- ================= TEST MODAL ================= -->
+<!-- ================= CREATE TEST MODAL ================= -->
 
 <div id="testModal" class="modal">
 
@@ -204,21 +169,18 @@ Switch between saved tests and results.
 
 <h2>Create New Test</h2>
 
-<label>Test Name</label>
-
-<input
-type="text"
+<input type="text"
 id="testName"
-placeholder="Example: MID TERM 1">
+placeholder="Enter test name">
 
-<div class="modal-buttons">
+<div style="display:flex;gap:10px;margin-top:15px;">
 
-<button class="save-btn"
+<button class="btn"
 onclick="createTest()">
 Create
 </button>
 
-<button class="cancel-btn"
+<button class="btn btn-danger"
 onclick="closeTestModal()">
 Cancel
 </button>
@@ -229,34 +191,43 @@ Cancel
 
 </div>
 
+<!-- ================= SWITCH TEST MODAL ================= -->
+
+<div id="switchModal" class="modal">
+
+<div class="modal-content">
+
+<h2>Switch Test</h2>
+
+<div id="testList">Loading...</div>
+
+<button class="btn btn-danger"
+onclick="closeSwitchModal()">
+Close
+</button>
+
+</div>
+
+</div>
+
 <script>
 
-// ================= LOGOUT =================
+// ================= INIT =================
 
-function logout(){
+document.getElementById("schoolInfo").innerText =
+"School: " + currentUser.school;
 
-localStorage.removeItem("role");
-localStorage.removeItem("currentUser");
+// ================= ACTIVE TEST =================
 
-alert("You have been logged out");
+async function loadActiveTest(){
 
-window.location.href = "index.html";
+const res = await fetch("/.netlify/functions/getTests");
+const tests = await res.json();
 
-}
+const active = tests.find(t => t.is_active);
 
-// ================= OPEN MODAL =================
-
-function openTestModal(){
-
-document.getElementById("testModal").style.display = "flex";
-
-}
-
-// ================= CLOSE MODAL =================
-
-function closeTestModal(){
-
-document.getElementById("testModal").style.display = "none";
+document.getElementById("activeTest").innerText =
+active ? active.test_name : "No active test";
 
 }
 
@@ -264,84 +235,118 @@ document.getElementById("testModal").style.display = "none";
 
 async function createTest(){
 
-const currentUser =
-JSON.parse(localStorage.getItem("currentUser") || "{}");
-
 const test_name =
 document.getElementById("testName").value.trim();
 
 if(!test_name){
-
-alert("Enter test name");
-
-return;
-
+    alert("Enter test name");
+    return;
 }
 
-// ================= CONFIRM =================
-
-const ok = confirm(
-`Do you want to add "${test_name}" as new test?`
-);
-
+const ok = confirm(`Create "${test_name}"?`);
 if(!ok) return;
 
-try{
-
-const res = await fetch(
-"/.netlify/functions/createTest",
-{
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-test_name,
-role:"sector_admin",
-school_name:null,
-created_by:currentUser.id
-
-})
-
+const res = await fetch("/.netlify/functions/createTest",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+        test_name,
+        role:"school_admin",
+        school_name:currentUser.school,
+        created_by:currentUser.id
+    })
 });
 
 const data = await res.json();
 
 if(!res.ok){
-
-alert(data.message || "Failed to create test");
-
-return;
-
+    alert(data.message);
+    return;
 }
 
-// ================= SAVE CURRENT TEST =================
+localStorage.setItem("selectedTest", data.id);
 
-localStorage.setItem(
-"selectedTest",
-data.test?.id || data.id
-);
-
-// ================= SUCCESS =================
-
-alert("New test created successfully");
-
-document.getElementById("testName").value = "";
+alert("Test created & activated");
 
 closeTestModal();
+loadActiveTest();
 
-}catch(err){
+}
 
-console.log(err);
+// ================= LOAD TESTS =================
 
-alert("Error creating test");
+async function loadTests(){
+
+const res = await fetch("/.netlify/functions/getTests");
+const tests = await res.json();
+
+const box = document.getElementById("testList");
+box.innerHTML = "";
+
+tests.forEach(t => {
+
+box.innerHTML += `
+<div class="card">
+
+<b>${t.test_name}</b><br>
+<small>${t.created_at}</small><br><br>
+
+<button class="btn"
+onclick="activateTest('${t.id}')">
+Switch
+</button>
+
+</div>
+`;
+
+});
+
+document.getElementById("switchModal").style.display="flex";
+
+}
+
+// ================= ACTIVATE TEST =================
+
+async function activateTest(id){
+
+const res = await fetch("/.netlify/functions/activateTest",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({id})
+});
+
+const data = await res.json();
+
+if(res.ok){
+
+localStorage.setItem("selectedTest", id);
+
+alert("Test switched");
+
+closeSwitchModal();
+loadActiveTest();
 
 }
 
 }
+
+// ================= MODALS =================
+
+function openTestModal(){
+document.getElementById("testModal").style.display="flex";
+}
+
+function closeTestModal(){
+document.getElementById("testModal").style.display="none";
+}
+
+function closeSwitchModal(){
+document.getElementById("switchModal").style.display="none";
+}
+
+// ================= LOAD INIT =================
+
+loadActiveTest();
 
 </script>
 
