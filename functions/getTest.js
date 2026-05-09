@@ -29,18 +29,25 @@ WHERE 1=1
 
 let values = [];
 
-// ================= SCHOOL ADMIN =================
+// ================= SCHOOL ADMIN FILTER =================
 
 if(role === "school_admin"){
 
-query += `
-AND (
-school_name = $1
-OR role = 'sector_admin'
-)
-`;
+if(!school_name){
+await client.end();
+return {
+statusCode:400,
+body:JSON.stringify({
+message:"school_name is required"
+})
+};
+}
 
 values.push(school_name);
+
+query += `
+AND (school_name = $1)
+`;
 
 }
 
@@ -52,8 +59,7 @@ ORDER BY id DESC
 
 // ================= EXECUTE =================
 
-const result =
-await client.query(query, values);
+const result = await client.query(query, values);
 
 await client.end();
 
@@ -75,4 +81,4 @@ message:err.message
 
 }
 
-  }
+}
