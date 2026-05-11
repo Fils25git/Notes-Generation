@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Teachers Management</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* MODAL BACKDROP */
+
+<style>
+
+/* MODAL BACKDROP */
 .modal {
     display: none;
     position: fixed;
@@ -36,110 +38,37 @@
     border: 1px solid #ccc;
     border-radius: 6px;
 }
-    /* =========================
-   GLOBAL BUTTON STYLE
-========================= */
 
+/* BUTTONS */
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     padding: 12px 18px;
     border: none;
     border-radius: 10px;
-
     font-size: 14px;
     font-weight: 600;
-
     cursor: pointer;
     transition: all 0.25s ease;
-
     color: white;
     background: linear-gradient(135deg, #2563eb, #1d4ed8);
-
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* hover effect */
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
-    background: linear-gradient(135deg, #1d4ed8, #1e40af);
 }
 
-/* active click effect */
-.btn:active {
-    transform: scale(0.98);
-}
+.btn-danger { background:#ef4444; }
+.btn-warning { background:#f59e0b; }
+.btn-success { background:#22c55e; }
 
-/* =========================
-   DANGER BUTTON (DELETE / CANCEL)
-========================= */
-
-.btn-danger {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-}
-
-.btn-danger:hover {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-}
-
-/* =========================
-   WARNING BUTTON (EDIT)
-========================= */
-
-.btn-warning {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.btn-warning:hover {
-    background: linear-gradient(135deg, #d97706, #b45309);
-}
-
-/* =========================
-   SUCCESS BUTTON (SAVE)
-========================= */
-
-.btn-success {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-}
-
-.btn-success:hover {
-    background: linear-gradient(135deg, #16a34a, #15803d);
-}
-
-/* =========================
-   SMALL BUTTON (TABLE ACTIONS)
-========================= */
-
-.btn-sm {
-    padding: 8px 12px;
-    font-size: 12px;
-    border-radius: 8px;
-}
-
-/* =========================
-   FULL WIDTH BUTTON (FOR FORMS)
-========================= */
-
-.btn-block {
-    width: 100%;
-}
-
-/* =========================
-   ICON BUTTON (OPTIONAL)
-========================= */
-
-.btn-icon {
-    gap: 6px;
-}
-  </style>
+</style>
 </head>
+
 <body>
 
 <script>
-// PROTECT PAGE
 const role = localStorage.getItem("role");
 const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
@@ -151,23 +80,17 @@ if(role !== "school_admin"){
 
 <header>
   <h1>TEACHERS MANAGEMENT</h1>
-  <p>Manage teachers, classes and subjects</p>
 </header>
 
 <main class="dashboard-container">
 
   <div class="card" style="max-width:1000px; width:95%;">
 
-    <!-- HEADER + ADD BUTTON -->
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <div style="display:flex; justify-content:space-between;">
       <h2>Teachers List</h2>
-
-      <button class="btn" onclick="openAddTeacher()">
-        + Add Teacher
-      </button>
+      <button class="btn" onclick="openAddTeacher()">+ Add Teacher</button>
     </div>
 
-    <!-- TABLE -->
     <table style="width:100%;">
       <thead>
         <tr>
@@ -180,16 +103,14 @@ if(role !== "school_admin"){
         </tr>
       </thead>
 
-      <tbody id="teacherTable">
-        <tr><td colspan="6">Loading...</td></tr>
-      </tbody>
+      <tbody id="teacherTable"></tbody>
     </table>
 
   </div>
 
 </main>
 
-<!-- ================= MODAL ================= -->
+<!-- MODAL -->
 <div id="modal" class="modal">
   <div class="modal-content">
 
@@ -200,8 +121,8 @@ if(role !== "school_admin"){
     <label>Full Name</label>
     <input type="text" id="teacherName">
 
-    <label>Phone Number</label>
-    <input type="tel" id="teacherUsername" placeholder=" Enter Phone; e.g,0786728623">
+    <label>Phone</label>
+    <input type="tel" id="teacherUsername">
 
     <label>Password</label>
     <input type="password" id="teacherPassword">
@@ -213,18 +134,14 @@ if(role !== "school_admin"){
       <option>Senior 3</option>
     </select>
 
-    <label>Subject</label>
-    <select id="subject">
+    <!-- ✅ CHANGED TO MULTIPLE -->
+    <label>Subjects</label>
+    <select id="subject" multiple>
       <option value="">-- Select Subject --</option>
     </select>
 
-    <button class="btn btn-success btn-block" onclick="saveTeacher()">
-      Save
-    </button>
-
-    <button class="btn btn-danger btn-block" onclick="closeModal()">
-      Cancel
-    </button>
+    <button class="btn btn-success" onclick="saveTeacher()">Save</button>
+    <button class="btn btn-danger" onclick="closeModal()">Cancel</button>
 
   </div>
 </div>
@@ -233,188 +150,120 @@ if(role !== "school_admin"){
 
 let editMode = false;
 
-// ================= LOAD TEACHERS =================
+// LOAD
 async function loadTeachers(){
 
-    const res = await fetch(
+const res = await fetch(
 `/.netlify/functions/getTeacher?role=school_admin&school=${encodeURIComponent(currentUser.school)}`
 );
 
-    const data = await res.json();
+const data = await res.json();
 
-    const table = document.getElementById("teacherTable");
-    table.innerHTML = "";
+const table = document.getElementById("teacherTable");
+table.innerHTML = "";
 
-    if(!res.ok){
-        table.innerHTML = `<tr><td colspan="6">Error loading data</td></tr>`;
-        return;
-    }
+data.forEach((t, index) => {
 
-    if(data.length === 0){
-        table.innerHTML = `<tr><td colspan="6">No teachers found</td></tr>`;
-        return;
-    }
+const subjects = t.assignments
+? t.assignments.map(a => a.subject).join(", ")
+: t.subject;
 
-    data.forEach((t, index) => {
-
-        const subjects = t.assignments
-    ? t.assignments.map(a => `${a.subject} (${a.class_name})`).join(", ")
-    : t.subject;
-
-        table.innerHTML += `
+table.innerHTML += `
 <tr>
-    <td>${index + 1}</td>
-    <td>${t.full_name}</td>
-    <td>${t.username}</td>
-
-    <td>
-        ${t.assignments?.map(a =>
-            `<div><b>${a.class_name}</b></div>`
-        ).join("") || "-"}
-    </td>
-
-    <td>
-        ${t.assignments?.map(a =>
-            `<span style="display:inline-block;
-            padding:3px 8px;
-            margin:2px;
-            background:#e0ecff;
-            border-radius:6px;
-            font-size:12px;">
-            ${a.subject}
-            </span>`
-        ).join("") || "-"}
-    </td>
-
-    <td>
-        <button class="btn btn-warning btn-sm"
-            onclick="openEditTeacher('${t.id}','${t.full_name}','${t.username}','${t.class_name}','${t.subject}')">
-            Edit
-        </button>
-    </td>
-</tr>`;
-    });
+<td>${index+1}</td>
+<td>${t.full_name}</td>
+<td>${t.username}</td>
+<td>${t.class_name}</td>
+<td>${subjects}</td>
+<td>
+<button class="btn btn-warning btn-sm">Edit</button>
+</td>
+</tr>
+`;
+});
 }
 
-// ================= OPEN ADD =================
+// ADD
 function openAddTeacher(){
-
-    editMode = false;
-
-    document.getElementById("modalTitle").innerText = "Add Teacher";
-
-    document.getElementById("editId").value = "";
-    document.getElementById("teacherName").value = "";
-    document.getElementById("teacherUsername").value = "";
-    document.getElementById("teacherPassword").value = "";
-    document.getElementById("class").value = "";
-    document.getElementById("subject").innerHTML =
-        '<option value="">-- Select Subject --</option>';
-
-    document.getElementById("modal").style.display = "flex";
+editMode = false;
+document.getElementById("modal").style.display="flex";
 }
 
-// ================= OPEN EDIT =================
-function openEditTeacher(id, name, username, className, subject){
-
-    editMode = true;
-
-    document.getElementById("modalTitle").innerText = "Edit Teacher";
-
-    document.getElementById("editId").value = id;
-    document.getElementById("teacherName").value = name;
-    document.getElementById("teacherUsername").value = username;
-    document.getElementById("class").value = className;
-    document.getElementById("subject").innerHTML =
-        `<option selected>${subject}</option>`;
-
-    document.getElementById("modal").style.display = "flex";
-}
-
-// ================= CLOSE MODAL =================
+// CLOSE
 function closeModal(){
-    document.getElementById("modal").style.display = "none";
+document.getElementById("modal").style.display="none";
 }
 
-// ================= SUBJECTS =================
+// SUBJECTS
 function updateSubjects(){
 
-    const selectedClass = document.getElementById("class").value;
-    const subject = document.getElementById("subject");
+const cls = document.getElementById("class").value;
+const subject = document.getElementById("subject");
 
-    subject.innerHTML = '<option value="">-- Select Subject --</option>';
+subject.innerHTML = "";
 
-    const p6 = [
-        "ENGLISH","MATHEMATICS","KINYARWANDA",
-        "SOCIAL AND RELIGIOUS STUDIES","SCIENCE AND ELEMENTARY TECHNOLOGY"
-    ];
+const p6 = ["ENGLISH","MATHEMATICS","KINYARWANDA","SST","SCIENCE"];
+const s3 = ["ENGLISH","MATHEMATICS","KINYARWANDA","CHEMISTRY","PHYSICS"];
 
-    const s3 = [
-        "ENGLISH","MATHEMATICS","KINYARWANDA",
-        "CHEMISTRY","PHYSICS","BIOLOGY",
-        "GEOGRAPHY","HISTORY","ENTREPRENEURSHIP"
-    ];
+let list = cls === "Primary 6" ? p6 : s3;
 
-    let list = selectedClass === "Primary 6" ? p6 : s3;
+list.forEach(s=>{
+subject.innerHTML += `<option value="${s}">${s}</option>`;
+});
 
-    list.forEach(sub=>{
-        subject.innerHTML += `<option>${sub}</option>`;
-    });
 }
 
-// ================= SAVE TEACHER =================
+// SAVE (✅ FIXED FOR MULTIPLE SUBJECTS)
 async function saveTeacher(){
 
-    const full_name = document.getElementById("teacherName").value.trim();
-    const username = document.getElementById("teacherUsername").value.trim();
-    const password = document.getElementById("teacherPassword").value;
-    const class_name = document.getElementById("class").value;
-    const subject = document.getElementById("subject").value;
+const full_name = document.getElementById("teacherName").value;
+const username = document.getElementById("teacherUsername").value;
+const password = document.getElementById("teacherPassword").value;
+const class_name = document.getElementById("class").value;
 
-    if(!full_name || !username || !class_name || !subject){
-        alert("Fill all required fields");
-        return;
-    }
+const subjectSelect = document.getElementById("subject");
 
-    const payload = {
-        full_name,
-        username,
-        password,
-        role: "teacher",
-        school: currentUser.school,
-        class_name,
-        subject
-    };
+const subjects = Array.from(subjectSelect.selectedOptions)
+.map(opt => opt.value);
 
-    let url = "/.netlify/functions/createUser";
-
-    if(editMode){
-        payload.id = document.getElementById("editId").value;
-        url = "/.netlify/functions/updateUser";
-    }
-
-    const res = await fetch(url, {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(payload)
-    });
-
-    const result = await res.json();
-
-    if(!res.ok){
-        alert(result.message);
-        return;
-    }
-
-    alert("Saved successfully");
-    closeModal();
-    loadTeachers();
+if(!full_name || !username || !class_name || subjects.length === 0){
+alert("Fill all fields");
+return;
 }
 
-// INIT
+const payload = {
+full_name,
+username,
+password,
+role:"teacher",
+school:currentUser.school,
+class_name,
+subjects   // ✅ ARRAY SENT
+};
+
+let url="/.netlify/functions/createUser";
+
+const res = await fetch(url,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(payload)
+});
+
+const result = await res.json();
+
+if(!res.ok){
+alert(result.message);
+return;
+}
+
+alert("Saved");
+closeModal();
+loadTeachers();
+}
+
 loadTeachers();
 
 </script>
 
 </body>
-      </html>
+  </html>
