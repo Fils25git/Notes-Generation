@@ -230,7 +230,9 @@ let editMode = false;
 
 async function loadStudents(){
 
-const res = await fetch(`/.netlify/functions/getStudents?school_name=${currentUser.school}`);
+const res = await fetch(
+`/.netlify/functions/getStudents?role=school_admin&school_name=${encodeURIComponent(currentUser.school)}`
+);
 const data = await res.json();
 
 const p6 = document.getElementById("p6Table");
