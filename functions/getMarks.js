@@ -14,15 +14,32 @@ export async function handler(event) {
         const params = event.queryStringParameters || {};
 
         const {
-            class_name,
-            subject,
-            school
-        } = params;
+    class_name,
+    subject,
+    school
+} = params;
 
-        const cleanSchool =
-            school && school !== "undefined"
-            ? school.trim()
-            : null;
+const cleanSchool =
+    school &&
+    school !== "undefined" &&
+    school !== "null" &&
+    school.trim() !== ""
+        ? school.trim()
+        : null;
+
+const cleanClass = class_name?.trim();
+const cleanSubject = subject?.trim();
+
+// ✅ SAFETY CHECK (IMPORTANT)
+if (!cleanSchool) {
+    await client.end();
+    return {
+        statusCode: 400,
+        body: JSON.stringify({
+            message: "School is required"
+        })
+    };
+}
 
         const cleanClass = class_name?.trim();
         const cleanSubject = subject?.trim();
