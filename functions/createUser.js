@@ -19,7 +19,7 @@ export async function handler(event) {
             role,
             school,
             class_name,
-            subject
+            subjects   // ✅ CHANGED HERE
         } = data;
 
         // ================= CHECK USER =================
@@ -48,25 +48,28 @@ export async function handler(event) {
                 role,
                 school || null,
                 class_name || null,
-                subject || null
+                subjects ? JSON.stringify(subjects) : null   // ✅ FIXED
             ]
         );
 
         const teacherId = userResult.rows[0].id;
 
         // ================= INSERT TEACHER SUBJECT =================
-        if(role === "teacher" && subject){
+        if(role === "teacher" && subjects && subjects.length > 0){
 
-            await client.query(
-                `INSERT INTO teacher_subjects(teacher_id, class_name, subject, school_name)
-                 VALUES($1,$2,$3,$4)`,
-                [
-                    teacherId,
-                    class_name,
-                    subject,
-                    school
-                ]
-            );
+            for(const subject of subjects){
+
+                await client.query(
+                    `INSERT INTO teacher_subjects(teacher_id, class_name, subject, school_name)
+                     VALUES($1,$2,$3,$4)`,
+                    [
+                        teacherId,
+                        class_name,
+                        subject,
+                        school
+                    ]
+                );
+            }
         }
 
         await client.end();
@@ -86,4 +89,4 @@ export async function handler(event) {
             body: JSON.stringify({ message: err.message })
         };
     }
-    }
+}
