@@ -123,8 +123,8 @@ function logout(){
         async function loadAssignments(){
 
     const res = await fetch(
-`/.netlify/functions/getTeacher?school=${currentUser.school}`
-    );
+`/.netlify/functions/getTeacher?role=school_admin&school=${encodeURIComponent(currentUser.school)}`
+);
 
     const data = await res.json();
 
