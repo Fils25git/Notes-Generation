@@ -51,16 +51,14 @@ export async function handler(event) {
             };
         }
 
-        // ================= MAIN QUERY (FIXED LOGIC) =================
+        // ================= MAIN QUERY =================
         let query = `
             SELECT
                 s.id,
                 s.student_name,
                 s.class_name,
                 s.school_name,
-
                 ts.teacher_id,
-
                 ${column} AS mark,
 
                 (
@@ -125,22 +123,19 @@ export async function handler(event) {
 
         const values = [cleanClass, cleanSubject];
 
+        // ================= FIX: ALWAYS FORCE SCHOOL FILTER FIRST =================
+
+        let where = ` WHERE s.class_name = $1 AND s.school_name = $3`;
+        values.push(cleanSchool);
+
         // ================= ROLE FILTER =================
 
-        if (role === "school_admin" && cleanSchool) {
-            query += ` WHERE s.class_name = $1 AND s.school_name = $3`;
-            values.push(cleanSchool);
+        if (role === "teacher") {
+            where += ` AND ts.teacher_id = $4`;
+            values.push(cleanTeacherId);
         }
 
-        else if (role === "teacher" && cleanSchool) {
-            query += ` WHERE s.class_name = $1 AND s.school_name = $3 AND ts.teacher_id = $4`;
-            values.push(cleanSchool, cleanTeacherId);
-        }
-
-        else {
-            query += ` WHERE s.class_name = $1`;
-        }
-
+        query += where;
         query += ` ORDER BY s.student_name ASC`;
 
         const result = await client.query(query, values);
@@ -160,4 +155,4 @@ export async function handler(event) {
             body: JSON.stringify({ message: err.message })
         };
     }
-                }
+}
