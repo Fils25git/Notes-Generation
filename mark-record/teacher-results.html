@@ -104,6 +104,15 @@ if(role !== "teacher" && role !== "sector_admin"){
           Students Performance
         </h2>
       </div>
+      <select id="assignmentSelect"
+    onchange="changeAssignment()"
+    style="
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    display:none;
+">
+      </select>
 
       <button class="download-btn"
         onclick="downloadTable()">
@@ -170,7 +179,7 @@ async function loadAssignments(){
 
     const data = await res.json();
 
-    let selectedAssignment = null;
+    let teacherData = null;
 
     data.forEach(t => {
 
@@ -190,48 +199,157 @@ async function loadAssignments(){
             return;
         }
 
-        if(
-            t.assignments &&
-            t.assignments.length
-        ){
-
-            selectedAssignment = {
-                teacher: t,
-                assignment: t.assignments[0]
-            };
-        }
-
+        teacherData = t;
     });
 
-    // NO ASSIGNMENT FOUND
-    if(!selectedAssignment){
+    // NO TEACHER
+    if(!teacherData){
 
         document.getElementById("teacherInfo")
-        .innerHTML =
-        "No assignment found.";
+        .innerHTML = "No assignment found.";
 
         return;
     }
 
-    const t = selectedAssignment.teacher;
-    const a = selectedAssignment.assignment;
+    // NO ASSIGNMENTS
+    if(
+        !teacherData.assignments ||
+        teacherData.assignments.length === 0
+    ){
+        document.getElementById("teacherInfo")
+        .innerHTML = "No assignments found.";
 
-    // SHOW INFO
-    document.getElementById("teacherInfo")
-    .innerHTML = `
-    <div>School: ${t.school}</div>
-    <div>Teacher: ${t.full_name}</div>
-    <div>Class: ${a.class_name}</div>
-    <div>Subject: ${a.subject}</div>
-    `;
+        return;
+    }
 
-    // LOAD RESULTS
-    loadResults(
-        a.class_name,
-        a.subject,
-        t.id
-    );
+    const select =
+    document.getElementById("assignmentSelect");
+
+    // ================= ONE ASSIGNMENT =================
+    if(teacherData.assignments.length === 1){
+
+        const a = teacherData.assignments[0];
+
+        // HIDE SELECT
+        select.style.display = "none";
+
+        // INFO
+        document.getElementById("teacherInfo")
+        .innerHTML = `
+        <div>School: ${teacherData.school}</div>
+        <div>Teacher: ${teacherData.full_name}</div>
+        <div>Class: ${a.class_name}</div>
+        <div>Subject: ${a.subject}</div>
+        `;
+
+        loadResults(
+            a.class_name,
+            a.subject,
+            teacherData.id
+        );
+
+    }
+
+    // ================= MANY ASSIGNMENTS =================
+    else{
+
+        select.style.display = "block";
+
+        select.innerHTML = "";
+
+        teacherData.assignments.forEach(a => {
+
+            select.innerHTML += `
+            <option value="${a.class_name}|${a.subject}">
+                ${a.class_name} - ${a.subject}
+            </option>
+            `;
+        });
+
+        const first =
+        teacherData.assignments[0];
+
+        // SHOW INFO
+        document.getElementById("teacherInfo")
+        .innerHTML = `
+        <div>School: ${teacherData.school}</div>
+        <div>Teacher: ${teacherData.full_name}</div>
+        <div id="currentAssignment">
+            Class: ${first.class_name}<br>
+            Subject: ${first.subject}
+        </div>
+        `;
+
+        loadResults(
+            first.class_name,
+            first.subject,
+            teacherData.id
+        );
+    }
 }
+  // CHANGE SUBJECT/CLASS
+function changeAssignment(){
+
+    const select =
+    document.getElementById("assignmentSelect");
+
+    const value = select.value;
+
+    if(!value) return;
+
+    const [class_name, subject] =
+    value.split("|");
+
+    const targetTeacher =
+    localStorage.getItem("targetTeacher");
+
+    fetch(
+`/.netlify/functions/getTeacher?school=${currentUser.school}`
+    )
+    .then(res => res.json())
+    .then(data => {
+
+        let teacher = null;
+
+        data.forEach(t => {
+
+            if(
+                role === "teacher" &&
+                t.username === currentUser.username
+            ){
+                teacher = t;
+            }
+
+            if(
+                role === "sector_admin" &&
+                String(t.id) === String(targetTeacher)
+            ){
+                teacher = t;
+            }
+
+        });
+
+        if(!teacher) return;
+
+        document.getElementById("teacherInfo")
+        .innerHTML = `
+        <div>School: ${teacher.school}</div>
+        <div>Teacher: ${teacher.full_name}</div>
+        <div>
+            Class: ${class_name}<br>
+            Subject: ${subject}
+        </div>
+        `;
+
+        loadResults(
+            class_name,
+            subject,
+            teacher.id
+        );
+
+    });
+
+        }
 
 // CATEGORY
 function getCategory(mark){
