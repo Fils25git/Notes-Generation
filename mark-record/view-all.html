@@ -160,11 +160,15 @@ container.innerHTML = "Loading...";
 try{
 
 // 1. ADMINS
-const adminRes = await fetch("/.netlify/functions/getSchoolAdmins");
+const adminRes = await fetch(
+`/.netlify/functions/getSchoolAdmins?sector=${encodeURIComponent(currentUser.sector)}`
+);
 const admins = await adminRes.json();
 
 // 2. TEACHERS
-const teacherRes = await fetch("/.netlify/functions/getTeacher");
+const teacherRes = await fetch(
+`/.netlify/functions/getTeacher?sector=${encodeURIComponent(currentUser.sector)}`
+);
 const teachers = await teacherRes.json();
 
 if(!adminRes.ok || !teacherRes.ok){
@@ -285,7 +289,7 @@ ${t.assignments?.map(a=>`
 
 <td>
 <span class="teacher-link"
-onclick="viewTeacherResults('${t.id}')">
+onclick="viewTeacherResults('${t.id}','${schoolName}')">
 View Results
 </span>
 </td>
@@ -318,10 +322,14 @@ function viewSchoolMarks(school){
 localStorage.setItem("targetSchool", school);
 location.href = "view-school-marks.html";
 }
-function viewTeacherResults(teacher_id){
+function viewTeacherResults(teacher_id, school){
+
     localStorage.setItem("targetTeacher", teacher_id);
+
+    localStorage.setItem("targetSchool", school);
+
     location.href = "teacher-results.html";
-  }
+}
 loadSchools();
 
 </script>
