@@ -413,9 +413,17 @@ async function loadResults(
     .innerText =
 `${class_name} Students Performance in ${subject}`;
 
-    const res = await fetch(
-`/.netlify/functions/getMarks?school=${currentUser.school}&class_name=${class_name}&subject=${subject}&teacher_id=${teacher_id}&role=${role}`
-    );
+    const selectedSchool =
+localStorage.getItem("targetSchool");
+
+const school =
+(role === "teacher" || role === "school_admin")
+? currentUser.school
+: selectedSchool;
+
+const res = await fetch(
+`/.netlify/functions/getMarks?school=${encodeURIComponent(school)}&class_name=${encodeURIComponent(class_name)}&subject=${encodeURIComponent(subject)}&teacher_id=${teacher_id}&role=${role}`
+);
 
     const data = await res.json();
 
