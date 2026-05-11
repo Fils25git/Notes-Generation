@@ -146,6 +146,21 @@ if(role !== "sector_admin"){
 </div>
 
 <script>
+  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+const role = localStorage.getItem("role");
+
+// HARD CHECK
+if (!currentUser || !role || !currentUser.id) {
+    window.location.href = "index.html";
+}
+
+// ROLE CHECK EXAMPLE
+const allowedRoles = ["school_admin", "sector_admin", "teacher"];
+
+if (!allowedRoles.includes(role)) {
+    localStorage.clear();
+    window.location.href = "index.html";
+  }
 
 // ================= LOGOUT =================
 function logout(){
