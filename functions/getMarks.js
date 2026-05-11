@@ -16,15 +16,16 @@ export async function handler(event) {
         const {
             class_name,
             subject,
-            school,
-            role,
-            teacher_id
+            school
         } = params;
 
-        const cleanSchool = school && school !== "undefined" ? school.trim() : null;
+        const cleanSchool =
+            school && school !== "undefined"
+            ? school.trim()
+            : null;
+
         const cleanClass = class_name?.trim();
         const cleanSubject = subject?.trim();
-        const cleanTeacherId = teacher_id ? Number(teacher_id) : null;
 
         const subjectMap = {
             "ENGLISH": "english",
@@ -42,23 +43,28 @@ export async function handler(event) {
             "ENTREPRENEURSHIP": "entrepreneurship"
         };
 
-        const column = subjectMap[cleanSubject?.toUpperCase()];
+        const column =
+            subjectMap[cleanSubject?.toUpperCase()];
 
         if (!column) {
+            await client.end();
+
             return {
                 statusCode: 400,
-                body: JSON.stringify({ message: "Invalid subject" })
+                body: JSON.stringify({
+                    message: "Invalid subject"
+                })
             };
         }
 
         // ================= MAIN QUERY =================
-        let query = `
+        const query = `
             SELECT
                 s.id,
                 s.student_name,
                 s.class_name,
                 s.school_name,
-                ts.teacher_id,
+
                 ${column} AS mark,
 
                 (
@@ -91,8 +97,12 @@ export async function handler(event) {
                             COALESCE(s.entrepreneurship,0)
                         ) /
                         CASE
-                            WHEN s.class_name = 'Primary 6' THEN 500.0
-                            WHEN s.class_name = 'Senior 3' THEN 900.0
+                            WHEN s.class_name = 'Primary 6'
+                                THEN 500.0
+
+                            WHEN s.class_name = 'Senior 3'
+                                THEN 900.0
+
                             ELSE 1
                         END
                     ) * 100
@@ -116,29 +126,20 @@ export async function handler(event) {
                 ) AS position
 
             FROM students s
-            JOIN teacher_subjects ts
-                ON ts.class_name = s.class_name
-                AND ts.subject = $2
+
+            WHERE s.class_name = $1
+            AND s.school_name = $2
+
+            ORDER BY s.student_name ASC
         `;
 
-        const values = [cleanClass, cleanSubject];
+        const values = [
+            cleanClass,
+            cleanSchool
+        ];
 
-        // ================= FIX: ALWAYS FORCE SCHOOL FILTER FIRST =================
-
-        let where = ` WHERE s.class_name = $1 AND s.school_name = $3`;
-        values.push(cleanSchool);
-
-        // ================= ROLE FILTER =================
-
-        if (role === "teacher") {
-            where += ` AND ts.teacher_id = $4`;
-            values.push(cleanTeacherId);
-        }
-
-        query += where;
-        query += ` ORDER BY s.student_name ASC`;
-
-        const result = await client.query(query, values);
+        const result =
+            await client.query(query, values);
 
         await client.end();
 
@@ -148,11 +149,16 @@ export async function handler(event) {
         };
 
     } catch (err) {
-        try { await client.end(); } catch (e) {}
+
+        try {
+            await client.end();
+        } catch (e) {}
 
         return {
             statusCode: 500,
-            body: JSON.stringify({ message: err.message })
+            body: JSON.stringify({
+                message: err.message
+            })
         };
     }
 }
