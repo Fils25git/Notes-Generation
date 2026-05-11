@@ -144,23 +144,32 @@ if(role !== "sector_admin"){
 
   </div>
 </div>
-
 <script>
-  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+// ================= SECURITY GUARD =================
+
+const currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
 const role = localStorage.getItem("role");
 
-// HARD CHECK
+// 1. MUST BE LOGGED IN
 if (!currentUser || !role || !currentUser.id) {
     window.location.href = "index.html";
 }
 
-// ROLE CHECK EXAMPLE
-const allowedRoles = ["school_admin", "sector_admin", "teacher"];
+// 2. MUST HAVE VALID ROLE
+const allowedRoles = ["sector_admin", "school_admin", "teacher"];
 
 if (!allowedRoles.includes(role)) {
     localStorage.clear();
     window.location.href = "index.html";
-  }
+}
+
+// 3. EXTRA SAFETY (prevents broken session reuse)
+if (role === "school_admin" && !currentUser.school) {
+    localStorage.clear();
+    window.location.href = "index.html";
+}
+</script>
+<script>
 
 // ================= LOGOUT =================
 function logout(){
