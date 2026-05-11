@@ -237,8 +237,8 @@ let editMode = false;
 async function loadTeachers(){
 
     const res = await fetch(
-        `/.netlify/functions/getTeacher?school=${currentUser.school}`
-    );
+`/.netlify/functions/getTeacher?role=school_admin&school=${encodeURIComponent(currentUser.school)}`
+);
 
     const data = await res.json();
 
