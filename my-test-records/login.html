@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Teacher Login</title>
+
+    <!-- GLOBAL CSS -->
+    <link rel="stylesheet" href="css/global.css">
+
+    <!-- LOGIN CSS -->
+    <link rel="stylesheet" href="css/login.css">
+
+    <!-- RESPONSIVE CSS -->
+    <link rel="stylesheet" href="css/responsive.css">
+
+    <!-- ICONS -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div class="login-page">
+
+        <div class="login-container">
+
+            <div class="login-card">
+
+                <!-- LOGO -->
+                <div class="login-logo">
+
+                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png">
+
+                    <h1>Marks Management</h1>
+
+                    <p>Teacher Record System</p>
+
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form class="login-form">
+
+                    <!-- EMAIL -->
+                    <div class="input-group">
+
+                        <label>Email</label>
+
+                        <input
+                        type="email"
+                        placeholder="Enter your email"
+                        required>
+
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="input-group">
+
+                        <label>Password</label>
+
+                        <div class="password-box">
+
+                            <input
+                            type="password"
+                            id="password"
+                            placeholder="Enter your password"
+                            required>
+
+                            <span class="show-password"
+                            onclick="togglePassword()">
+
+                                <i class="fa-solid fa-eye"></i>
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <!-- OPTIONS -->
+                    <div class="login-options">
+
+                        <div class="remember-box">
+
+                            <input type="checkbox">
+
+                            <label>Remember Me</label>
+
+                        </div>
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <button class="btn btn-primary login-btn">
+
+                        Login
+
+                    </button>
+
+                </form>
+
+                <!-- FOOTER -->
+                <div class="login-footer">
+
+                    <p>
+                        Academic Marks Recording System
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        function togglePassword(){
+
+            const password =
+            document.getElementById("password");
+
+            if(password.type === "password"){
+
+                password.type = "text";
+
+            }else{
+
+                password.type = "password";
+
+            }
+
+        }
+
+    </script>
+
+</body>
+  </html>
