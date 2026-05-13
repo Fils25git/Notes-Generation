@@ -15,6 +15,42 @@
     <!-- ICONS -->
     <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .sidebar .btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+        }
+        .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.stats-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+        .year-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+            }
+    </style>
 </head>
 <body>
 <script>
@@ -274,161 +310,7 @@ Academic Year
         </main>
 
     </div>
-
-</body>
-    <script>
-
-async function loadDashboardStats() {
-
-    try {
-
-        const res = await fetch("/.netlify/functions/get-DashboardStats");
-        const data = await res.json();
-
-        if (!res.ok) {
-            console.log("Error:", data.error);
-            return;
-        }
-
-        const cards = document.querySelectorAll(".stats-card h1");
-
-        cards[0].innerText = data.learners;
-        cards[1].innerText = data.classes;
-        cards[2].innerText = data.subjects;
-        cards[3].innerText = data.my_tests;
-
-    } catch (err) {
-        console.log("Network error:", err);
-    }
-
-}
-
-loadDashboardStats();
-
-</script>
-    <script>
-
-async function loadDashboardStats() {
-
-    const teacher = JSON.parse(localStorage.getItem("teacher"));
-
-    try {
-
-        const res = await fetch(
-            `/.netlify/functions/get-DashboardStats?teacher_id=${teacher?.id || ""}`
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            console.log(data.error);
-            return;
-        }
-
-        // STATS
-        const cards = document.querySelectorAll(".stats-card h1");
-
-        cards[0].innerText = data.learners;
-        cards[1].innerText = data.classes;
-        cards[2].innerText = data.subjects;
-        cards[3].innerText = data.my_tests;
-
-        // ACADEMIC YEAR + TERM (TOPBAR TEXT)
-        const topInfo = document.querySelector(".teacher-info p");
-
-        topInfo.innerText =
-            `Academic Year: ${data.academic_year} | ${data.term}`;
-
-        // TEACHER NAME
-        const teacherName = document.querySelector(".profile-box strong");
-        if (data.teacher?.full_name) {
-            teacherName.innerText = data.teacher.full_name;
-        } else if (teacher?.full_name) {
-            teacherName.innerText = teacher.full_name;
-        }
-
-    } catch (err) {
-        console.log("Error:", err);
-    }
-
-}
-        // OPEN MODAL
-function openAcademicModal(){
-    document.getElementById("academicModal").classList.add("active");
-}
-
-// CLOSE (optional)
-function closeAcademicModal(){
-    document.getElementById("academicModal").classList.remove("active");
-}
-
-// =========================
-// LOAD YEARS
-// =========================
-async function loadYears(){
-
-    const res = await fetch("/.netlify/functions/academic?action=getYears");
-    const data = await res.json();
-
-    const list = document.getElementById("yearList");
-    list.innerHTML = "";
-
-    data.forEach(year => {
-
-        list.innerHTML += `
-            <div style="display:flex;justify-content:space-between;margin:10px 0;">
-                <span>
-                    ${year.year_name}
-                    ${year.is_current ? "🔥 Current" : ""}
-                </span>
-
-                <button class="btn btn-success"
-                onclick="setYear(${year.id})">
-                    Set Active
-                </button>
-            </div>
-        `;
-    });
-
-}
-
-// =========================
-// ADD YEAR
-// =========================
-async function addYear(){
-
-    const year_name = document.getElementById("yearName").value;
-
-    await fetch("/.netlify/functions/academic?action=addYear", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ year_name })
-    });
-
-    document.getElementById("yearName").value = "";
-    loadYears();
-}
-
-// =========================
-// SET ACTIVE YEAR
-// =========================
-async function setYear(id){
-
-    await fetch("/.netlify/functions/academic?action=setActive", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ id })
-    });
-
-    loadYears();
-}
-
-// INIT
-loadYears();
-
-
-                                                                 </script>
-    <div class="modal" id="academicModal">
+<div class="modal" id="academicModal">
 
 <div class="modal-content">
 
@@ -451,5 +333,119 @@ Add Year
 
 </div>
 
-    </div>
+</div>
+    <script>
+
+const teacher = JSON.parse(localStorage.getItem("teacher"));
+
+// =========================
+// LOAD DASHBOARD STATS
+// =========================
+async function loadDashboardStats() {
+
+    try {
+
+        const res = await fetch(
+            `/.netlify/functions/get-DashboardStats?teacher_id=${teacher?.id || ""}`
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            console.log(data.error);
+            return;
+        }
+
+        const cards = document.querySelectorAll(".stats-card h1");
+
+        cards[0].innerText = data.students;
+        cards[1].innerText = data.classes;
+        cards[2].innerText = data.subjects;
+        cards[3].innerText = data.tests;
+
+        // TOP INFO
+        document.querySelector(".teacher-info p").innerText =
+            `Academic Year: ${data.academic_year} | ${data.term}`;
+
+        // TEACHER NAME
+        const teacherName = document.querySelector(".profile-box strong");
+        if (data.teacher?.full_name) {
+            teacherName.innerText = data.teacher.full_name;
+        }
+
+    } catch (err) {
+        console.log("Error:", err);
+    }
+}
+
+// =========================
+// ACADEMIC YEAR MODAL
+// =========================
+function openAcademicModal(){
+    document.getElementById("academicModal").classList.add("active");
+}
+
+function closeAcademicModal(){
+    document.getElementById("academicModal").classList.remove("active");
+}
+
+async function loadYears(){
+
+    const res = await fetch("/.netlify/functions/academic?action=getYears");
+    const data = await res.json();
+
+    const list = document.getElementById("yearList");
+    list.innerHTML = "";
+
+    data.forEach(year => {
+
+        list.innerHTML += `
+            <div class="year-item">
+                <span>
+                    ${year.year_name}
+                    ${year.is_current ? "🔥 Current" : ""}
+                </span>
+
+                <button class="btn btn-success" onclick="setYear(${year.id})">
+                    Set Active
+                </button>
+            </div>
+        `;
+    });
+}
+
+async function addYear(){
+
+    const year_name = document.getElementById("yearName").value;
+
+    await fetch("/.netlify/functions/academic?action=addYear", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ year_name })
+    });
+
+    document.getElementById("yearName").value = "";
+    loadYears();
+}
+
+async function setYear(id){
+
+    await fetch("/.netlify/functions/academic?action=setActive", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ id })
+    });
+
+    loadYears();
+}
+
+// INIT
+loadDashboardStats();
+loadYears();
+
+    </script>
+</body>
+        
+                                                            
+    
   </html>
