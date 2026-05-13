@@ -50,6 +50,27 @@
     padding: 8px;
     border-bottom: 1px solid #eee;
             }
+        /* GRID CONTROL (your cards already good, this improves spacing consistency) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+/* Academic year modal button alignment */
+#yearList .year-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* button consistency inside modal */
+#yearList .btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    }
     </style>
 </head>
 <body>
