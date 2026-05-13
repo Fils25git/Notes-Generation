@@ -10,7 +10,7 @@ exports.handler = async (event) => {
 
     const result = await db.query(
       `INSERT INTO students (full_name, gender, class_id)
-       VALUES ($1, $2, $4)
+       VALUES ($1, $2, $3)
        RETURNING *`,
       [full_name, gender, class_id]
     );
