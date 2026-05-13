@@ -157,8 +157,16 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
             return;
         }
 
-        localStorage.setItem("teacher", JSON.stringify(data.teacher));
+        if (!data.teacher || !data.teacher.id) {
+    alert("Login error: missing teacher ID");
+    return;
+}
 
+localStorage.setItem("teacher", JSON.stringify({
+    id: data.teacher.id,
+    full_name: data.teacher.full_name,
+    email: data.teacher.email
+}));
         window.location.href = "dashboard.html";
 
     } catch (error) {
