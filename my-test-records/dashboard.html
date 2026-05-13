@@ -115,7 +115,7 @@ if (!teacher) {
                 <div class="teacher-info">
 
                     <h2>
-                        Welcome, -- 👋
+                        Welcome, Dear👋
                     </h2>
 
                     <p>
@@ -328,13 +328,13 @@ async function loadDashboardStats() {
         cards[0].innerText = data.learners;
         cards[1].innerText = data.classes;
         cards[2].innerText = data.subjects;
-        cards[3].innerText = data.tests;
+        cards[3].innerText = data.my_tests;
 
         // ACADEMIC YEAR + TERM (TOPBAR TEXT)
         const topInfo = document.querySelector(".teacher-info p");
 
         topInfo.innerText =
-            `Academic Year: ${data.academic_year} | Term: ${data.term}`;
+            `Academic Year: ${data.academic_year} | ${data.term}`;
 
         // TEACHER NAME
         const teacherName = document.querySelector(".profile-box strong");
