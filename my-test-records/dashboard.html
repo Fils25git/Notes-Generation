@@ -92,6 +92,9 @@ if (!teacher) {
                     Settings
 
                 </a>
+                <button class="btn btn-primary" onclick="openAcademicModal()">
+Academic Year
+                </button>
 
                 <a href="login.html"
                 class="sidebar-link">
@@ -349,8 +352,105 @@ async function loadDashboardStats() {
     }
 
 }
+        // OPEN MODAL
+function openAcademicModal(){
+    document.getElementById("academicModal").classList.add("active");
+}
+
+// CLOSE (optional)
+function closeAcademicModal(){
+    document.getElementById("academicModal").classList.remove("active");
+}
+
+// =========================
+// LOAD YEARS
+// =========================
+async function loadYears(){
+
+    const res = await fetch("/.netlify/functions/academic?action=getYears");
+    const data = await res.json();
+
+    const list = document.getElementById("yearList");
+    list.innerHTML = "";
+
+    data.forEach(year => {
+
+        list.innerHTML += `
+            <div style="display:flex;justify-content:space-between;margin:10px 0;">
+                <span>
+                    ${year.year_name}
+                    ${year.is_current ? "🔥 Current" : ""}
+                </span>
+
+                <button class="btn btn-success"
+                onclick="setYear(${year.id})">
+                    Set Active
+                </button>
+            </div>
+        `;
+    });
+
+}
+
+// =========================
+// ADD YEAR
+// =========================
+async function addYear(){
+
+    const year_name = document.getElementById("yearName").value;
+
+    await fetch("/.netlify/functions/academic?action=addYear", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ year_name })
+    });
+
+    document.getElementById("yearName").value = "";
+    loadYears();
+}
+
+// =========================
+// SET ACTIVE YEAR
+// =========================
+async function setYear(id){
+
+    await fetch("/.netlify/functions/academic?action=setActive", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ id })
+    });
+
+    loadYears();
+}
+
+// INIT
+loadYears();
 
 loadDashboardStats();
 
                                                                  </script>
+    <div class="modal" id="academicModal">
+
+<div class="modal-content">
+
+<h2>Academic Year Management</h2>
+
+<!-- ADD YEAR -->
+<div class="input-group">
+<label>New Academic Year</label>
+<input id="yearName" placeholder="e.g. 2025-2026">
+</div>
+
+<button class="btn btn-primary" onclick="addYear()">
+Add Year
+</button>
+
+<hr>
+
+<!-- LIST YEARS -->
+<div id="yearList"></div>
+
+</div>
+
+    </div>
   </html>
