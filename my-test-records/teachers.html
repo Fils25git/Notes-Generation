@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Manage Teachers</title>
+
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/responsive.css">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+<div class="dashboard-wrapper">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+<div class="sidebar-logo">
+<h2>Marks System</h2>
+</div>
+
+<div class="sidebar-menu">
+
+<a href="dashboard.html" class="sidebar-link">
+<i class="fa-solid fa-house"></i> Dashboard
+</a>
+
+<a href="students.html" class="sidebar-link">
+<i class="fa-solid fa-users"></i> Students
+</a>
+
+<a href="marks.html" class="sidebar-link">
+<i class="fa-solid fa-pen"></i> Marks
+</a>
+
+<a href="results.html" class="sidebar-link">
+<i class="fa-solid fa-chart-column"></i> Results
+</a>
+
+<a href="teachers.html" class="sidebar-link active">
+<i class="fa-solid fa-user-tie"></i> Teachers
+</a>
+
+<a href="login.html" class="sidebar-link">
+<i class="fa-solid fa-right-from-bracket"></i> Logout
+</a>
+
+</div>
+
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+
+<!-- TOP -->
+<div class="topbar">
+
+<div class="teacher-info">
+<h2>Manage Teachers</h2>
+<p>Create new teacher accounts</p>
+</div>
+
+<button class="btn btn-primary" onclick="openModal()">
+<i class="fa-solid fa-plus"></i> Add Teacher
+</button>
+
+</div>
+
+<!-- TABLE -->
+<div class="card">
+
+<h2>Teachers List</h2>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Email</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody id="teachersTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="teacherModal">
+
+<div class="modal-content">
+
+<h2>Add Teacher</h2>
+
+<form id="addTeacherForm">
+
+<div class="input-group">
+<label>Full Name</label>
+<input id="name" required>
+</div>
+
+<div class="input-group">
+<label>Email</label>
+<input id="email" type="email" required>
+</div>
+
+<div class="input-group">
+<label>Password</label>
+<input id="password" type="password" required>
+</div>
+
+<div style="display:flex;gap:10px;margin-top:20px;">
+<button type="button" class="btn btn-danger" onclick="closeModal()">Cancel</button>
+<button class="btn btn-primary">Save Teacher</button>
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+<script>
+
+/* =========================
+OPEN / CLOSE MODAL
+========================= */
+function openModal(){
+document.getElementById("teacherModal").classList.add("active");
+}
+
+function closeModal(){
+document.getElementById("teacherModal").classList.remove("active");
+}
+
+/* =========================
+LOAD TEACHERS
+========================= */
+async function loadTeachers(){
+
+const res = await fetch("/.netlify/functions/get-Teachers");
+const data = await res.json();
+
+const table = document.getElementById("teachersTable");
+table.innerHTML = "";
+
+data.forEach((t,i)=>{
+
+table.innerHTML += `
+<tr>
+<td>${i+1}</td>
+<td>${t.full_name}</td>
+<td>${t.email}</td>
+<td>
+<button class="btn btn-danger">Delete</button>
+</td>
+</tr>
+`;
+
+});
+
+}
+
+/* =========================
+ADD TEACHER
+========================= */
+document.getElementById("addTeacherForm")
+.addEventListener("submit", async (e)=>{
+
+e.preventDefault();
+
+const body = {
+full_name: document.getElementById("name").value,
+email: document.getElementById("email").value,
+password: document.getElementById("password").value
+};
+
+try {
+
+const res = await fetch("/.netlify/functions/add-Teacher", {
+method: "POST",
+headers: {"Content-Type":"application/json"},
+body: JSON.stringify(body)
+});
+
+const data = await res.json();
+
+if (!res.ok) {
+alert("Error: " + data.error);
+return;
+}
+
+alert("Teacher added successfully!");
+closeModal();
+loadTeachers();
+
+} catch (err) {
+alert("Network error");
+console.log(err);
+}
+
+});
+
+/* INIT */
+loadTeachers();
+
+</script>
+
+</body>
+  </html>
