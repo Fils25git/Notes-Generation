@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Students</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/responsive.css">
+
+    <!-- ICONS -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-wrapper">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="sidebar-logo">
+
+                <h2>Marks System</h2>
+
+            </div>
+
+            <div class="sidebar-menu">
+
+                <a href="dashboard.html"
+                class="sidebar-link">
+
+                    <i class="fa-solid fa-house"></i>
+
+                    Dashboard
+
+                </a>
+
+                <a href="students.html"
+                class="sidebar-link active">
+
+                    <i class="fa-solid fa-users"></i>
+
+                    Manage Students
+
+                </a>
+
+                <a href="marks.html"
+                class="sidebar-link">
+
+                    <i class="fa-solid fa-pen"></i>
+
+                    Record Marks
+
+                </a>
+
+                <a href="results.html"
+                class="sidebar-link">
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    Marks Results
+
+                </a>
+
+                <a href="login.html"
+                class="sidebar-link">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    Logout
+
+                </a>
+
+            </div>
+
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <!-- TOPBAR -->
+            <div class="topbar">
+
+                <div class="teacher-info">
+
+                    <h2>
+                        Manage Students
+                    </h2>
+
+                    <p>
+                        Add, edit and delete students
+                    </p>
+
+                </div>
+
+                <button
+                class="btn btn-primary"
+                onclick="openModal()">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Add Student
+
+                </button>
+
+            </div>
+
+            <!-- CLASS SELECTOR -->
+            <div class="class-selector">
+
+                <button class="class-btn active">
+                    S1A
+                </button>
+
+                <button class="class-btn">
+                    S1B
+                </button>
+
+                <button class="class-btn">
+                    S2A
+                </button>
+
+                <button class="class-btn">
+                    S2B
+                </button>
+
+                <button class="class-btn">
+                    S3A
+                </button>
+
+            </div>
+
+            <!-- STUDENTS CARD -->
+            <div class="card">
+
+                <h2 style="margin-bottom:20px;">
+                    Students List
+                </h2>
+
+                <!-- SEARCH -->
+                <div class="student-search">
+
+                    <input
+                    type="text"
+                    placeholder="Search student...">
+
+                </div>
+
+                <!-- TABLE -->
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>Student Name</th>
+
+                                <th>Gender</th>
+
+                                <th>Registration No</th>
+
+                                <th>Actions</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>1</td>
+
+                                <td>Eric Niyomugabo</td>
+
+                                <td>Male</td>
+
+                                <td>2025-001</td>
+
+                                <td>
+
+                                    <button
+                                    class="btn btn-success">
+
+                                        Edit
+
+                                    </button>
+
+                                    <button
+                                    class="btn btn-danger">
+
+                                        Delete
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+                                <td>2</td>
+
+                                <td>Alice Uwase</td>
+
+                                <td>Female</td>
+
+                                <td>2025-002</td>
+
+                                <td>
+
+                                    <button
+                                    class="btn btn-success">
+
+                                        Edit
+
+                                    </button>
+
+                                    <button
+                                    class="btn btn-danger">
+
+                                        Delete
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal"
+    id="studentModal">
+
+        <div class="modal-content">
+
+            <h2 style="margin-bottom:20px;">
+
+                Add Student
+
+            </h2>
+
+            <!-- FORM -->
+            <form>
+
+                <!-- NAME -->
+                <div class="input-group">
+
+                    <label>
+                        Student Name
+                    </label>
+
+                    <input
+                    type="text"
+                    placeholder="Enter student name">
+
+                </div>
+
+                <!-- GENDER -->
+                <div class="input-group">
+
+                    <label>
+                        Gender
+                    </label>
+
+                    <select>
+
+                        <option>
+                            Male
+                        </option>
+
+                        <option>
+                            Female
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <!-- REG NUMBER -->
+                <div class="input-group">
+
+                    <label>
+                        Registration Number
+                    </label>
+
+                    <input
+                    type="text"
+                    placeholder="Enter registration number">
+
+                </div>
+
+                <!-- CLASS -->
+                <div class="input-group">
+
+                    <label>
+                        Class
+                    </label>
+
+                    <select>
+
+                        <option>S1A</option>
+                        <option>S1B</option>
+                        <option>S2A</option>
+                        <option>S2B</option>
+
+                    </select>
+
+                </div>
+
+                <!-- BUTTONS -->
+                <div style="
+                display:flex;
+                gap:10px;
+                margin-top:20px;
+                ">
+
+                    <button
+                    type="button"
+                    class="btn btn-danger"
+                    onclick="closeModal()">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                    class="btn btn-primary">
+
+                        Save Student
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // OPEN MODAL
+        function openModal(){
+
+            document
+            .getElementById("studentModal")
+            .classList.add("active");
+
+        }
+
+        // CLOSE MODAL
+        function closeModal(){
+
+            document
+            .getElementById("studentModal")
+            .classList.remove("active");
+
+        }
+
+        // CLASS BUTTON ACTIVE
+        const classButtons =
+        document.querySelectorAll(".class-btn");
+
+        classButtons.forEach(button=>{
+
+            button.addEventListener("click",()=>{
+
+                classButtons.forEach(btn=>{
+
+                    btn.classList.remove("active");
+
+                });
+
+                button.classList.add("active");
+
+            });
+
+        });
+
+    </script>
+
+</body>
+                  </html>
