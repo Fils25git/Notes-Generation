@@ -1,0 +1,360 @@
+/* =========================
+   GOOGLE FONT
+========================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* =========================
+   ROOT VARIABLES
+========================= */
+:root{
+    --primary:#2563eb;
+    --primary-dark:#1d4ed8;
+    --secondary:#0f172a;
+
+    --success:#16a34a;
+    --danger:#dc2626;
+    --warning:#f59e0b;
+
+    --bg:#f1f5f9;
+    --white:#ffffff;
+    --text:#1e293b;
+    --gray:#64748b;
+    --border:#e2e8f0;
+
+    --shadow:0 4px 15px rgba(0,0,0,0.08);
+
+    --radius:14px;
+
+    --transition:0.3s ease;
+}
+
+/* =========================
+   RESET
+========================= */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+}
+
+/* =========================
+   LINKS
+========================= */
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+.container{
+    width:95%;
+    max-width:1400px;
+    margin:auto;
+    padding:20px;
+}
+
+/* =========================
+   PAGE TITLE
+========================= */
+.page-title{
+    font-size:28px;
+    font-weight:600;
+    margin-bottom:20px;
+    color:var(--secondary);
+}
+
+/* =========================
+   CARDS
+========================= */
+.card{
+    background:var(--white);
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:var(--shadow);
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.btn{
+    border:none;
+    outline:none;
+    padding:12px 20px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:500;
+    transition:var(--transition);
+}
+
+.btn-primary{
+    background:var(--primary);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:var(--primary-dark);
+}
+
+.btn-danger{
+    background:var(--danger);
+    color:white;
+}
+
+.btn-success{
+    background:var(--success);
+    color:white;
+}
+
+.btn-warning{
+    background:var(--warning);
+    color:white;
+}
+
+/* =========================
+   INPUTS
+========================= */
+.input-group{
+    display:flex;
+    flex-direction:column;
+    margin-bottom:18px;
+}
+
+.input-group label{
+    margin-bottom:8px;
+    font-weight:500;
+    color:var(--secondary);
+}
+
+.input-group input,
+.input-group select{
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    font-size:15px;
+    outline:none;
+    transition:var(--transition);
+}
+
+.input-group input:focus,
+.input-group select:focus{
+    border-color:var(--primary);
+}
+
+/* =========================
+   TABLES
+========================= */
+.table-container{
+    overflow-x:auto;
+    margin-top:20px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border-radius:var(--radius);
+    overflow:hidden;
+}
+
+table thead{
+    background:var(--primary);
+    color:white;
+}
+
+table th,
+table td{
+    padding:14px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+    white-space:nowrap;
+}
+
+table tbody tr:hover{
+    background:#f8fafc;
+}
+
+/* =========================
+   CLASS BUTTONS
+========================= */
+.class-selector{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:20px 0;
+}
+
+.class-btn{
+    padding:12px 18px;
+    background:white;
+    border:2px solid var(--border);
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:500;
+    transition:var(--transition);
+}
+
+.class-btn.active{
+    background:var(--primary);
+    color:white;
+    border-color:var(--primary);
+}
+
+/* =========================
+   DASHBOARD CARDS
+========================= */
+.dashboard-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.dashboard-card{
+    background:white;
+    padding:25px;
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    transition:var(--transition);
+    cursor:pointer;
+}
+
+.dashboard-card:hover{
+    transform:translateY(-5px);
+}
+
+.dashboard-card h3{
+    margin-top:10px;
+    font-size:20px;
+}
+
+/* =========================
+   MODAL
+========================= */
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.4);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+
+    opacity:0;
+    visibility:hidden;
+    transition:var(--transition);
+}
+
+.modal.active{
+    opacity:1;
+    visibility:visible;
+}
+
+.modal-content{
+    background:white;
+    width:100%;
+    max-width:500px;
+    border-radius:20px;
+    padding:25px;
+    animation:popup 0.3s ease;
+}
+
+@keyframes popup{
+    from{
+        transform:scale(0.8);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+/* =========================
+   HEADER
+========================= */
+.header{
+    background:white;
+    padding:15px 25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+}
+
+.header h1{
+    font-size:22px;
+}
+
+/* =========================
+   PROFILE
+========================= */
+.profile-box{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.profile-box img{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+/* =========================
+   TOAST
+========================= */
+.toast{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:var(--success);
+    color:white;
+    padding:14px 18px;
+    border-radius:10px;
+    box-shadow:var(--shadow);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media(max-width:768px){
+
+    .page-title{
+        font-size:22px;
+    }
+
+    .header{
+        flex-direction:column;
+        gap:15px;
+        align-items:flex-start;
+    }
+
+    .dashboard-grid{
+        grid-template-columns:1fr;
+    }
+
+    table th,
+    table td{
+        padding:10px;
+        font-size:14px;
+    }
+
+    .btn{
+        width:100%;
+    }
+      }
