@@ -115,13 +115,11 @@ if (!teacher) {
                 <div class="teacher-info">
 
                     <h2>
-                        Welcome, Mr Teacher 👋
+                        Welcome, -- 👋
                     </h2>
 
                     <p>
-                        Academic Year:
-                        2025-2026 |
-                        Term 3
+                        Academic year:--
                     </p>
 
                 </div>
@@ -139,7 +137,7 @@ if (!teacher) {
                                 Teacher
                             </strong>
 
-                            <p>Mathematics</p>
+                            <p>--</p>
 
                         </div>
 
@@ -161,7 +159,7 @@ if (!teacher) {
 
                     <h3>Total Students</h3>
 
-                    <h1>240</h1>
+                    <h1>--</h1>
 
                 </div>
 
@@ -169,7 +167,7 @@ if (!teacher) {
 
                     <h3>Classes</h3>
 
-                    <h1>8</h1>
+                    <h1>--</h1>
 
                 </div>
 
@@ -177,7 +175,7 @@ if (!teacher) {
 
                     <h3>Subjects</h3>
 
-                    <h1>3</h1>
+                    <h1>--</h1>
 
                 </div>
 
@@ -185,7 +183,7 @@ if (!teacher) {
 
                     <h3>Tests Recorded</h3>
 
-                    <h1>12</h1>
+                    <h1>--</h1>
 
                 </div>
 
@@ -294,7 +292,7 @@ async function loadDashboardStats() {
         cards[0].innerText = data.learners;
         cards[1].innerText = data.classes;
         cards[2].innerText = data.subjects;
-        cards[3].innerText = data.tests;
+        cards[3].innerText = data.my_tests;
 
     } catch (err) {
         console.log("Network error:", err);
@@ -305,4 +303,54 @@ async function loadDashboardStats() {
 loadDashboardStats();
 
 </script>
+    <script>
+
+async function loadDashboardStats() {
+
+    const teacher = JSON.parse(localStorage.getItem("teacher"));
+
+    try {
+
+        const res = await fetch(
+            `/.netlify/functions/get-DashboardStats?teacher_id=${teacher?.id || ""}`
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            console.log(data.error);
+            return;
+        }
+
+        // STATS
+        const cards = document.querySelectorAll(".stats-card h1");
+
+        cards[0].innerText = data.learners;
+        cards[1].innerText = data.classes;
+        cards[2].innerText = data.subjects;
+        cards[3].innerText = data.tests;
+
+        // ACADEMIC YEAR + TERM (TOPBAR TEXT)
+        const topInfo = document.querySelector(".teacher-info p");
+
+        topInfo.innerText =
+            `Academic Year: ${data.academic_year} | Term: ${data.term}`;
+
+        // TEACHER NAME
+        const teacherName = document.querySelector(".profile-box strong");
+        if (data.teacher?.full_name) {
+            teacherName.innerText = data.teacher.full_name;
+        } else if (teacher?.full_name) {
+            teacherName.innerText = teacher.full_name;
+        }
+
+    } catch (err) {
+        console.log("Error:", err);
+    }
+
+}
+
+loadDashboardStats();
+
+                                                                 </script>
   </html>
