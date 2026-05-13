@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+    <title>Record Marks</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/marks.css">
+    <link rel="stylesheet" href="css/responsive.css">
+
+    <!-- ICONS -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-wrapper">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="sidebar-logo">
+
+                <h2>Marks System</h2>
+
+            </div>
+
+            <div class="sidebar-menu">
+
+                <a href="dashboard.html"
+                class="sidebar-link">
+
+                    <i class="fa-solid fa-house"></i>
+
+                    Dashboard
+
+                </a>
+
+                <a href="students.html"
+                class="sidebar-link">
+
+                    <i class="fa-solid fa-users"></i>
+
+                    Manage Students
+
+                </a>
+
+                <a href="marks.html"
+                class="sidebar-link active">
+
+                    <i class="fa-solid fa-pen"></i>
+
+                    Record Marks
+
+                </a>
+
+                <a href="results.html"
+                class="sidebar-link">
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    Marks Results
+
+                </a>
+
+                <a href="login.html"
+                class="sidebar-link">
+
+                    <i class="fa-solid fa-right-from-bracket"></i>
+
+                    Logout
+
+                </a>
+
+            </div>
+
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <!-- TOPBAR -->
+            <div class="topbar">
+
+                <div class="teacher-info">
+
+                    <h2>
+                        Record Marks
+                    </h2>
+
+                    <p>
+                        Record tests and exams
+                    </p>
+
+                </div>
+
+                <div class="marks-actions">
+
+                    <button
+                    class="btn btn-primary add-test-btn"
+                    onclick="openTestModal()">
+
+                        <i class="fa-solid fa-plus"></i>
+
+                        Add Test
+
+                    </button>
+
+                    <button
+                    class="btn btn-success">
+
+                        Save Marks
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- SUBJECTS -->
+            <div class="subject-selector">
+
+                <button class="subject-btn active">
+                    Mathematics
+                </button>
+
+                <button class="subject-btn">
+                    English
+                </button>
+
+                <button class="subject-btn">
+                    Biology
+                </button>
+
+            </div>
+
+            <!-- CLASSES -->
+            <div class="class-selector">
+
+                <button class="class-btn active">
+                    S1A
+                </button>
+
+                <button class="class-btn">
+                    S1B
+                </button>
+
+                <button class="class-btn">
+                    S2A
+                </button>
+
+                <button class="class-btn">
+                    S2B
+                </button>
+
+            </div>
+
+            <!-- SEARCH -->
+            <div class="student-search">
+
+                <input
+                type="text"
+                placeholder="Search student...">
+
+            </div>
+
+            <!-- MARKS TABLE -->
+            <div class="card">
+
+                <div class="table-container">
+
+                    <table
+                    class="marks-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>Student Name</th>
+
+                                <th>Test 1 /20</th>
+
+                                <th>Test 2 /10</th>
+
+                                <th>Exam /70</th>
+
+                                <th>TOTAL</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <!-- STUDENT 1 -->
+                            <tr>
+
+                                <td>1</td>
+
+                                <td>
+                                    Eric Niyomugabo
+                                </td>
+
+                                <td>
+
+                                    <input
+                                    type="number"
+                                    value="15"
+                                    class="mark-input">
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                    type="number"
+                                    value="8"
+                                    class="mark-input">
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                    type="number"
+                                    value="60"
+                                    class="mark-input">
+
+                                </td>
+
+                                <td>
+
+                                    <span
+                                    class="total-box">
+
+                                        83
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            <!-- STUDENT 2 -->
+                            <tr>
+
+                                <td>2</td>
+
+                                <td>
+                                    Alice Uwase
+                                </td>
+
+                                <td>
+
+                                    <input
+                                    type="number"
+                                    value="18"
+                                    class="mark-input">
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                    type="number"
+                                    value="10"
+                                    class="mark-input">
+
+                                </td>
+
+                                <td>
+
+                                    <input
+                                    type="number"
+                                    value="65"
+                                    class="mark-input">
+
+                                </td>
+
+                                <td>
+
+                                    <span
+                                    class="total-box">
+
+                                        93
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- ADD TEST MODAL -->
+    <div class="modal"
+    id="testModal">
+
+        <div class="modal-content">
+
+            <h2 style="margin-bottom:20px;">
+
+                Add New Test
+
+            </h2>
+
+            <form>
+
+                <!-- TEST NAME -->
+                <div class="input-group">
+
+                    <label>
+                        Test Name
+                    </label>
+
+                    <input
+                    type="text"
+                    placeholder="Example: Quiz 1">
+
+                </div>
+
+                <!-- OUT OF -->
+                <div class="input-group">
+
+                    <label>
+                        Out Of
+                    </label>
+
+                    <input
+                    type="number"
+                    placeholder="Example: 20">
+
+                </div>
+
+                <!-- BUTTONS -->
+                <div style="
+                display:flex;
+                gap:10px;
+                margin-top:20px;
+                ">
+
+                    <button
+                    type="button"
+                    class="btn btn-danger"
+                    onclick="closeTestModal()">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                    class="btn btn-primary">
+
+                        Add Test
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // =========================
+        // SUBJECT ACTIVE
+        // =========================
+
+        const subjectButtons =
+        document.querySelectorAll(".subject-btn");
+
+        subjectButtons.forEach(button=>{
+
+            button.addEventListener("click",()=>{
+
+                subjectButtons.forEach(btn=>{
+
+                    btn.classList.remove("active");
+
+                });
+
+                button.classList.add("active");
+
+            });
+
+        });
+
+        // =========================
+        // CLASS ACTIVE
+        // =========================
+
+        const classButtons =
+        document.querySelectorAll(".class-btn");
+
+        classButtons.forEach(button=>{
+
+            button.addEventListener("click",()=>{
+
+                classButtons.forEach(btn=>{
+
+                    btn.classList.remove("active");
+
+                });
+
+                button.classList.add("active");
+
+            });
+
+        });
+
+        // =========================
+        // MODAL
+        // =========================
+
+        function openTestModal(){
+
+            document
+            .getElementById("testModal")
+            .classList.add("active");
+
+        }
+
+        function closeTestModal(){
+
+            document
+            .getElementById("testModal")
+            .classList.remove("active");
+
+        }
+
+    </script>
+
+</body>
+                  </html>
