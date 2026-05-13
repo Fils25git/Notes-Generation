@@ -9,7 +9,7 @@ exports.handler = async (event) => {
     } = JSON.parse(event.body);
 
     const result = await db.query(
-      `INSERT INTO students (full_name, gender, class_id)
+      `INSERT INTO learners (full_name, gender, class_id)
        VALUES ($1, $2, $3)
        RETURNING *`,
       [full_name, gender, class_id]
