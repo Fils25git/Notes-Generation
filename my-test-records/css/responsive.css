@@ -1,0 +1,113 @@
+/* =========================
+   LARGE TABLETS
+========================= */
+
+@media(max-width:992px){
+
+    .sidebar{
+        width:230px;
+    }
+
+    .main-content{
+        margin-left:230px;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:15px;
+    }
+}
+
+/* =========================
+   TABLETS
+========================= */
+
+@media(max-width:768px){
+
+    .sidebar{
+        position:fixed;
+        left:-100%;
+        transition:0.3s ease;
+        z-index:1000;
+    }
+
+    .sidebar.active{
+        left:0;
+    }
+
+    .main-content{
+        margin-left:0;
+        width:100%;
+        padding:15px;
+    }
+
+    .stats-grid,
+    .action-grid,
+    .dashboard-grid{
+        grid-template-columns:1fr;
+    }
+
+    .marks-header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .marks-actions{
+        width:100%;
+    }
+
+    .marks-actions .btn{
+        flex:1;
+    }
+
+    .table-container{
+        overflow-x:auto;
+    }
+
+    table{
+        min-width:700px;
+    }
+
+    .login-card{
+        padding:25px;
+    }
+}
+
+/* =========================
+   PHONES
+========================= */
+
+@media(max-width:480px){
+
+    .page-title{
+        font-size:20px;
+    }
+
+    .teacher-info h2{
+        font-size:20px;
+    }
+
+    .stats-card h1{
+        font-size:26px;
+    }
+
+    .btn{
+        padding:11px 14px;
+        font-size:14px;
+    }
+
+    .class-btn,
+    .subject-btn{
+        width:100%;
+        text-align:center;
+    }
+
+    .modal-content{
+        padding:20px;
+    }
+
+    .login-logo h1{
+        font-size:24px;
+    }
+      }
