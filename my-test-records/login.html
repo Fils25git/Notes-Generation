@@ -47,7 +47,7 @@
                         <label>Email</label>
 
                         <input
-                        type="email"
+                        type="email" id="email"
                         placeholder="Enter your email"
                         required>
 
@@ -61,7 +61,7 @@
                         <div class="password-box">
 
                             <input
-                            type="password"
+                            type="password" id="password"
                             id="password"
                             placeholder="Enter your password"
                             required>
@@ -91,7 +91,7 @@
                     </div>
 
                     <!-- BUTTON -->
-                    <button class="btn btn-primary login-btn">
+                    <button class="btn btn-primary login-btn" type="submit">
 
                         Login
 
@@ -133,6 +133,41 @@
 
         }
 
+    </script>
+    <script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+        const res = await fetch("/.netlify/functions/auth", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert("Login failed: " + data.message);
+            return;
+        }
+
+        // SAVE TEACHER SESSION
+        localStorage.setItem("teacher", JSON.stringify(data.teacher));
+
+        // REDIRECT
+        window.location.href = "dashboard.html";
+
+    } catch (error) {
+        alert("Server error");
+        console.log(error);
+    }
+});
     </script>
 
 </body>
