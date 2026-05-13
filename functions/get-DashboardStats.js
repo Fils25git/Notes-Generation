@@ -4,10 +4,10 @@ exports.handler = async (event) => {
   try {
 
     // COUNTS
-    const students = await db.query("SELECT COUNT(*) FROM learners");
+    const learners = await db.query("SELECT COUNT(*) FROM learners");
     const classes = await db.query("SELECT COUNT(*) FROM classes");
     const subjects = await db.query("SELECT COUNT(*) FROM subjects");
-    const tests = await db.query("SELECT COUNT(*) FROM tests");
+    const my_tests = await db.query("SELECT COUNT(*) FROM my_tests");
 
     // CURRENT ACADEMIC YEAR
     const yearRes = await db.query(
@@ -45,10 +45,10 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        students: students.rows[0].count,
+        learners: students.rows[0].count,
         classes: classes.rows[0].count,
         subjects: subjects.rows[0].count,
-        tests: tests.rows[0].count,
+        my_tests: tests.rows[0].count,
 
         academic_year: currentYear?.year_name || "No Year Set",
         term: currentTerm?.term_name || "No Term Set",
