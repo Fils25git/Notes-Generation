@@ -1,406 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-    content="width=device-width, initial-scale=1.0">
+<title>Manage Students</title>
 
-    <title>Manage Students</title>
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/responsive.css">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/responsive.css">
-
-    <!-- ICONS -->
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
 <body>
 
-    <div class="dashboard-wrapper">
+<div class="dashboard-wrapper">
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+<div class="sidebar-logo">
+<h2>Marks System</h2>
+</div>
 
-            <div class="sidebar-logo">
+<div class="sidebar-menu">
+<a href="dashboard.html" class="sidebar-link">
+<i class="fa-solid fa-house"></i> Dashboard
+</a>
 
-                <h2>Marks System</h2>
+<a href="students.html" class="sidebar-link active">
+<i class="fa-solid fa-users"></i> Manage Students
+</a>
 
-            </div>
+<a href="marks.html" class="sidebar-link">
+<i class="fa-solid fa-pen"></i> Record Marks
+</a>
 
-            <div class="sidebar-menu">
+<a href="results.html" class="sidebar-link">
+<i class="fa-solid fa-chart-column"></i> Results
+</a>
 
-                <a href="dashboard.html"
-                class="sidebar-link">
+<a href="login.html" class="sidebar-link">
+<i class="fa-solid fa-right-from-bracket"></i> Logout
+</a>
 
-                    <i class="fa-solid fa-house"></i>
+</div>
+</aside>
 
-                    Dashboard
+<!-- MAIN -->
+<main class="main-content">
 
-                </a>
+<div class="topbar">
 
-                <a href="students.html"
-                class="sidebar-link active">
+<div class="teacher-info">
+<h2>Manage Students</h2>
+<p>All data loaded from database</p>
+</div>
 
-                    <i class="fa-solid fa-users"></i>
+<button class="btn btn-primary" onclick="openModal()">
+<i class="fa-solid fa-plus"></i> Add Student
+</button>
 
-                    Manage Students
+</div>
 
-                </a>
+<!-- CLASSES FROM DB -->
+<div id="classContainer" class="class-selector"></div>
 
-                <a href="marks.html"
-                class="sidebar-link">
+<!-- CARD -->
+<div class="card">
 
-                    <i class="fa-solid fa-pen"></i>
+<h2>Students List</h2>
 
-                    Record Marks
+<div class="student-search">
+<input type="text" id="searchInput" placeholder="Search student...">
+</div>
 
-                </a>
+<div class="table-container">
 
-                <a href="results.html"
-                class="sidebar-link">
+<table>
 
-                    <i class="fa-solid fa-chart-column"></i>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Gender</th>
+<th>Reg No</th>
+<th>Actions</th>
+</tr>
+</thead>
 
-                    Marks Results
+<tbody id="studentsTable"></tbody>
 
-                </a>
+</table>
 
-                <a href="login.html"
-                class="sidebar-link">
+</div>
 
-                    <i class="fa-solid fa-right-from-bracket"></i>
+</div>
 
-                    Logout
+</main>
 
-                </a>
+</div>
 
-            </div>
+<!-- MODAL -->
+<div class="modal" id="studentModal">
 
-        </aside>
+<div class="modal-content">
 
-        <!-- MAIN CONTENT -->
-        <main class="main-content">
+<h2>Add Student</h2>
 
-            <!-- TOPBAR -->
-            <div class="topbar">
+<form id="addStudentForm">
 
-                <div class="teacher-info">
+<div class="input-group">
+<label>Name</label>
+<input id="name" required>
+</div>
 
-                    <h2>
-                        Manage Students
-                    </h2>
+<div class="input-group">
+<label>Gender</label>
+<select id="gender">
+<option>Male</option>
+<option>Female</option>
+</select>
+</div>
 
-                    <p>
-                        Add, edit and delete students
-                    </p>
+<div class="input-group">
+<label>Reg Number</label>
+<input id="reg">
+</div>
 
-                </div>
+<div class="input-group">
+<label>Class</label>
+<select id="classSelect"></select>
+</div>
 
-                <button
-                class="btn btn-primary"
-                onclick="openModal()">
+<div style="display:flex;gap:10px;margin-top:20px;">
+<button type="button" class="btn btn-danger" onclick="closeModal()">Cancel</button>
+<button class="btn btn-primary">Save</button>
+</div>
 
-                    <i class="fa-solid fa-plus"></i>
+</form>
 
-                    Add Student
+</div>
 
-                </button>
+</div>
 
-            </div>
+<script>
 
-            <!-- CLASS SELECTOR -->
-            <div class="class-selector">
+let selectedClass = null;
 
-                <button class="class-btn active">
-                    S1A
-                </button>
+/* =========================
+LOAD CLASSES FROM DB
+========================= */
+async function loadClasses(){
 
-                <button class="class-btn">
-                    S1B
-                </button>
+const res = await fetch("/.netlify/functions/get-Classes");
+const data = await res.json();
 
-                <button class="class-btn">
-                    S2A
-                </button>
+const classContainer = document.getElementById("classContainer");
+const classSelect = document.getElementById("classSelect");
 
-                <button class="class-btn">
-                    S2B
-                </button>
+classContainer.innerHTML = "";
+classSelect.innerHTML = "";
 
-                <button class="class-btn">
-                    S3A
-                </button>
+data.forEach((c, index) => {
 
-            </div>
+classContainer.innerHTML += `
+<button class="class-btn ${index===0?'active':''}" 
+onclick="selectClass(${c.id})">
+${c.class_name}
+</button>
+`;
 
-            <!-- STUDENTS CARD -->
-            <div class="card">
+classSelect.innerHTML += `
+<option value="${c.id}">${c.class_name}</option>
+`;
 
-                <h2 style="margin-bottom:20px;">
-                    Students List
-                </h2>
+});
 
-                <!-- SEARCH -->
-                <div class="student-search">
+selectedClass = data[0]?.id;
+loadStudents();
 
-                    <input
-                    type="text"
-                    placeholder="Search student...">
+}
 
-                </div>
+/* =========================
+SELECT CLASS
+========================= */
+function selectClass(id){
 
-                <!-- TABLE -->
-                <div class="table-container">
+selectedClass = id;
+loadStudents();
 
-                    <table>
+document.querySelectorAll(".class-btn")
+.forEach(btn => btn.classList.remove("active"));
 
-                        <thead>
+event.target.classList.add("active");
 
-                            <tr>
+}
 
-                                <th>#</th>
+/* =========================
+LOAD STUDENTS FROM DB
+========================= */
+async function loadStudents(){
 
-                                <th>Student Name</th>
+const res = await fetch(`/.netlify/functions/get-Students?class_id=${selectedClass}`);
+const data = await res.json();
 
-                                <th>Gender</th>
+const table = document.getElementById("studentsTable");
+table.innerHTML = "";
 
-                                <th>Registration No</th>
+data.forEach((s,i)=>{
 
-                                <th>Actions</th>
+table.innerHTML += `
+<tr>
+<td>${i+1}</td>
+<td>${s.full_name}</td>
+<td>${s.gender}</td>
+<td>${s.reg_number || ""}</td>
+<td>
+<button class="btn btn-success">Edit</button>
+<button class="btn btn-danger">Delete</button>
+</td>
+</tr>
+`;
 
-                            </tr>
+});
 
-                        </thead>
+}
 
-                        <tbody>
+/* =========================
+ADD STUDENT (DB)
+========================= */
+document.getElementById("addStudentForm")
+.addEventListener("submit", async (e)=>{
 
-                            <tr>
+e.preventDefault();
 
-                                <td>1</td>
+const body = {
+full_name: document.getElementById("name").value,
+gender: document.getElementById("gender").value,
+reg_number: document.getElementById("reg").value,
+class_id: document.getElementById("classSelect").value
+};
 
-                                <td>Eric Niyomugabo</td>
+await fetch("/.netlify/functions/add-Student", {
+method: "POST",
+headers: {"Content-Type":"application/json"},
+body: JSON.stringify(body)
+});
 
-                                <td>Male</td>
+closeModal();
+loadStudents();
 
-                                <td>2025-001</td>
+});
 
-                                <td>
+/* =========================
+MODAL
+========================= */
+function openModal(){
+document.getElementById("studentModal").classList.add("active");
+}
 
-                                    <button
-                                    class="btn btn-success">
+function closeModal(){
+document.getElementById("studentModal").classList.remove("active");
+}
 
-                                        Edit
+/* =========================
+INIT
+========================= */
+loadClasses();
 
-                                    </button>
-
-                                    <button
-                                    class="btn btn-danger">
-
-                                        Delete
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                            <tr>
-
-                                <td>2</td>
-
-                                <td>Alice Uwase</td>
-
-                                <td>Female</td>
-
-                                <td>2025-002</td>
-
-                                <td>
-
-                                    <button
-                                    class="btn btn-success">
-
-                                        Edit
-
-                                    </button>
-
-                                    <button
-                                    class="btn btn-danger">
-
-                                        Delete
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </main>
-
-    </div>
-
-    <!-- MODAL -->
-    <div class="modal"
-    id="studentModal">
-
-        <div class="modal-content">
-
-            <h2 style="margin-bottom:20px;">
-
-                Add Student
-
-            </h2>
-
-            <!-- FORM -->
-            <form>
-
-                <!-- NAME -->
-                <div class="input-group">
-
-                    <label>
-                        Student Name
-                    </label>
-
-                    <input
-                    type="text"
-                    placeholder="Enter student name">
-
-                </div>
-
-                <!-- GENDER -->
-                <div class="input-group">
-
-                    <label>
-                        Gender
-                    </label>
-
-                    <select>
-
-                        <option>
-                            Male
-                        </option>
-
-                        <option>
-                            Female
-                        </option>
-
-                    </select>
-
-                </div>
-
-                <!-- REG NUMBER -->
-                <div class="input-group">
-
-                    <label>
-                        Registration Number
-                    </label>
-
-                    <input
-                    type="text"
-                    placeholder="Enter registration number">
-
-                </div>
-
-                <!-- CLASS -->
-                <div class="input-group">
-
-                    <label>
-                        Class
-                    </label>
-
-                    <select>
-
-                        <option>S1A</option>
-                        <option>S1B</option>
-                        <option>S2A</option>
-                        <option>S2B</option>
-
-                    </select>
-
-                </div>
-
-                <!-- BUTTONS -->
-                <div style="
-                display:flex;
-                gap:10px;
-                margin-top:20px;
-                ">
-
-                    <button
-                    type="button"
-                    class="btn btn-danger"
-                    onclick="closeModal()">
-
-                        Cancel
-
-                    </button>
-
-                    <button
-                    class="btn btn-primary">
-
-                        Save Student
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-    <script>
-
-        // OPEN MODAL
-        function openModal(){
-
-            document
-            .getElementById("studentModal")
-            .classList.add("active");
-
-        }
-
-        // CLOSE MODAL
-        function closeModal(){
-
-            document
-            .getElementById("studentModal")
-            .classList.remove("active");
-
-        }
-
-        // CLASS BUTTON ACTIVE
-        const classButtons =
-        document.querySelectorAll(".class-btn");
-
-        classButtons.forEach(button=>{
-
-            button.addEventListener("click",()=>{
-
-                classButtons.forEach(btn=>{
-
-                    btn.classList.remove("active");
-
-                });
-
-                button.classList.add("active");
-
-            });
-
-        });
-
-    </script>
+</script>
 
 </body>
-                  </html>
+    </html>
