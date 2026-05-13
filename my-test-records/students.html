@@ -85,7 +85,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 <th>#</th>
 <th>Name</th>
 <th>Gender</th>
-<th>Reg No</th>
 <th>Actions</th>
 </tr>
 </thead>
@@ -122,12 +121,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 <option>Male</option>
 <option>Female</option>
 </select>
-</div>
 
-<div class="input-group">
-<label>Reg Number</label>
-<input id="reg">
-</div>
 
 <div class="input-group">
 <label>Class</label>
@@ -216,7 +210,6 @@ table.innerHTML += `
 <td>${i+1}</td>
 <td>${s.full_name}</td>
 <td>${s.gender}</td>
-<td>${s.reg_number || ""}</td>
 <td>
 <button class="btn btn-success">Edit</button>
 <button class="btn btn-danger">Delete</button>
@@ -239,7 +232,6 @@ e.preventDefault();
 const body = {
 full_name: document.getElementById("name").value,
 gender: document.getElementById("gender").value,
-reg_number: document.getElementById("reg").value,
 class_id: document.getElementById("classSelect").value
 };
 
