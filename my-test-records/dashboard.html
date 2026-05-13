@@ -377,7 +377,7 @@
         try {
 
             const res = await fetch(
-                `/.netlify/functions/get-dashboard-stats?teacher_id=${teacher?.id || ""}`
+                `/.netlify/functions/get-DashboardStats?teacher_id=${teacher?.id || ""}`
             );
 
             const data = await res.json();
