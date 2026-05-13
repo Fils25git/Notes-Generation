@@ -275,4 +275,34 @@ if (!teacher) {
     </div>
 
 </body>
+    <script>
+
+async function loadDashboardStats() {
+
+    try {
+
+        const res = await fetch("/.netlify/functions/get-DashboardStats");
+        const data = await res.json();
+
+        if (!res.ok) {
+            console.log("Error:", data.error);
+            return;
+        }
+
+        const cards = document.querySelectorAll(".stats-card h1");
+
+        cards[0].innerText = data.students;
+        cards[1].innerText = data.classes;
+        cards[2].innerText = data.subjects;
+        cards[3].innerText = data.tests;
+
+    } catch (err) {
+        console.log("Network error:", err);
+    }
+
+}
+
+loadDashboardStats();
+
+</script>
   </html>
