@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-    content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Dashboard</title>
 
@@ -15,191 +14,222 @@
     <!-- ICONS -->
     <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
+
         .sidebar .btn {
-    width: 100%;
-    margin-top: 10px;
-    padding: 12px;
-    border-radius: 10px;
-    font-weight: bold;
-    cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
         }
+
         .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-}
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
 
-.stats-card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
+        .stats-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
 
-/* MOBILE RESPONSIVE */
-@media (max-width: 768px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-}
         .year-item {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-    padding: 8px;
-    border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-success {
+            background: green;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .close-btn {
+            margin-top: 15px;
+            background: crimson;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
-        /* GRID CONTROL (your cards already good, this improves spacing consistency) */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
-}
 
-/* Academic year modal button alignment */
-#yearList .year-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-}
+            .year-item {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
 
-/* button consistency inside modal */
-#yearList .btn {
-    padding: 6px 12px;
-    font-size: 12px;
-    }
     </style>
 </head>
+
 <body>
+
 <script>
-const teacher = localStorage.getItem("teacher");
 
-if (!teacher) {
-    window.location.href = "login.html";
-}
+    // CHECK LOGIN
+    const teacher = JSON.parse(localStorage.getItem("teacher"));
+
+    if (!teacher) {
+        window.location.href = "login.html";
+    }
+
 </script>
-    <div class="dashboard-wrapper">
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
+<div class="dashboard-wrapper">
 
-            <!-- LOGO -->
-            <div class="sidebar-logo">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
 
-                <h2>Marks System</h2>
+        <!-- LOGO -->
+        <div class="sidebar-logo">
+            <h2>Marks System</h2>
+        </div>
 
-            </div>
+        <!-- MENU -->
+        <div class="sidebar-menu">
 
-            <!-- MENU -->
-            <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-link active">
+                <i class="fa-solid fa-house"></i>
+                Dashboard
+            </a>
 
-                <a href="dashboard.html"
-                class="sidebar-link active">
+            <a href="students.html" class="sidebar-link">
+                <i class="fa-solid fa-users"></i>
+                Manage Students
+            </a>
 
-                    <i class="fa-solid fa-house"></i>
+            <a href="marks.html" class="sidebar-link">
+                <i class="fa-solid fa-pen"></i>
+                Record Marks
+            </a>
 
-                    Dashboard
+            <a href="results.html" class="sidebar-link">
+                <i class="fa-solid fa-chart-column"></i>
+                Marks Results
+            </a>
 
-                </a>
+            <a href="#" class="sidebar-link">
+                <i class="fa-solid fa-calendar"></i>
+                Academic Years
+            </a>
 
-                <a href="students.html"
-                class="sidebar-link">
+            <a href="#" class="sidebar-link">
+                <i class="fa-solid fa-gear"></i>
+                Settings
+            </a>
 
-                    <i class="fa-solid fa-users"></i>
+            <button class="btn btn-primary" onclick="openAcademicModal()">
+                Academic Year
+            </button>
 
-                    Manage Students
+            <a href="login.html" class="sidebar-link">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
 
-                </a>
+        </div>
 
-                <a href="marks.html"
-                class="sidebar-link">
+    </aside>
 
-                    <i class="fa-solid fa-pen"></i>
+    <!-- MAIN -->
+    <main class="main-content">
 
-                    Record Marks
+        <!-- TOPBAR -->
+        <div class="topbar">
 
-                </a>
+            <div class="teacher-info">
 
-                <a href="results.html"
-                class="sidebar-link">
+                <h2>Welcome, Dear 👋</h2>
 
-                    <i class="fa-solid fa-chart-column"></i>
-
-                    Marks Results
-
-                </a>
-
-                <a href="#"
-                class="sidebar-link">
-
-                    <i class="fa-solid fa-calendar"></i>
-
-                    Academic Years
-
-                </a>
-
-                <a href="#"
-                class="sidebar-link">
-
-                    <i class="fa-solid fa-gear"></i>
-
-                    Settings
-
-                </a>
-                <button class="btn btn-primary" onclick="openAcademicModal()">
-Academic Year
-                </button>
-
-                <a href="login.html"
-                class="sidebar-link">
-
-                    <i class="fa-solid fa-right-from-bracket"></i>
-
-                    Logout
-
-                </a>
+                <p>
+                    Academic Year: --
+                </p>
 
             </div>
 
-        </aside>
+            <div class="topbar-right">
 
-        <!-- MAIN -->
-        <main class="main-content">
+                <div class="profile-box">
 
-            <!-- TOPBAR -->
-            <div class="topbar">
+                    <img
+                    src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                    alt="Teacher">
 
-                <div class="teacher-info">
+                    <div>
 
-                    <h2>
-                        Welcome, Dear👋
-                    </h2>
+                        <strong>Teacher</strong>
 
-                    <p>
-                        Academic year:--
-                    </p>
-
-                </div>
-
-                <div class="topbar-right">
-
-                    <div class="profile-box">
-
-                        <img
-                        src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-
-                        <div>
-
-                            <strong>
-                                Teacher
-                            </strong>
-
-                            <p>--</p>
-
-                        </div>
+                        <p>--</p>
 
                     </div>
 
@@ -207,298 +237,341 @@ Academic Year
 
             </div>
 
-            <!-- PAGE TITLE -->
-            <h1 class="page-title">
-                Dashboard Overview
-            </h1>
+        </div>
 
-            <!-- STATS -->
-            <div class="stats-grid">
+        <!-- PAGE TITLE -->
+        <h1 class="page-title">
+            Dashboard Overview
+        </h1>
 
-                <div class="stats-card">
+        <!-- STATS -->
+        <div class="stats-grid">
 
-                    <h3>Total Students</h3>
+            <div class="stats-card">
+                <h3>Total Students</h3>
+                <h1>--</h1>
+            </div>
 
-                    <h1>--</h1>
+            <div class="stats-card">
+                <h3>Classes</h3>
+                <h1>--</h1>
+            </div>
 
-                </div>
+            <div class="stats-card">
+                <h3>Subjects</h3>
+                <h1>--</h1>
+            </div>
 
-                <div class="stats-card">
+            <div class="stats-card">
+                <h3>Tests Recorded</h3>
+                <h1>--</h1>
+            </div>
 
-                    <h3>Classes</h3>
+        </div>
 
-                    <h1>--</h1>
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions">
 
-                </div>
+            <h2>Quick Actions</h2>
 
-                <div class="stats-card">
+            <div class="action-grid">
 
-                    <h3>Subjects</h3>
+                <a href="students.html" class="action-card">
 
-                    <h1>--</h1>
+                    <i class="fa-solid fa-users"></i>
 
-                </div>
+                    <h3>Manage Students</h3>
 
-                <div class="stats-card">
+                    <p>
+                        Add, edit and remove students from classes.
+                    </p>
 
-                    <h3>Tests Recorded</h3>
+                </a>
 
-                    <h1>--</h1>
+                <a href="marks.html" class="action-card">
 
-                </div>
+                    <i class="fa-solid fa-pen"></i>
+
+                    <h3>Record Marks</h3>
+
+                    <p>
+                        Enter tests, exams and marks for students.
+                    </p>
+
+                </a>
+
+                <a href="results.html" class="action-card">
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    <h3>Results Analysis</h3>
+
+                    <p>
+                        View totals, percentages and download reports.
+                    </p>
+
+                </a>
+
+                <a href="#" class="action-card">
+
+                    <i class="fa-solid fa-calendar"></i>
+
+                    <h3>Academic Years</h3>
+
+                    <p>
+                        Manage terms and academic years professionally.
+                    </p>
+
+                </a>
 
             </div>
 
-            <!-- QUICK ACTIONS -->
-            <div class="quick-actions">
+        </div>
 
-                <h2>Quick Actions</h2>
+    </main>
 
-                <div class="action-grid">
+</div>
 
-                    <!-- STUDENTS -->
-                    <a href="students.html"
-                    class="action-card">
-
-                        <i class="fa-solid fa-users"></i>
-
-                        <h3>
-                            Manage Students
-                        </h3>
-
-                        <p>
-                            Add, edit and remove students
-                            from classes.
-                        </p>
-
-                    </a>
-
-                    <!-- MARKS -->
-                    <a href="marks.html"
-                    class="action-card">
-
-                        <i class="fa-solid fa-pen"></i>
-
-                        <h3>
-                            Record Marks
-                        </h3>
-
-                        <p>
-                            Enter tests, exams and marks
-                            for students.
-                        </p>
-
-                    </a>
-
-                    <!-- RESULTS -->
-                    <a href="results.html"
-                    class="action-card">
-
-                        <i class="fa-solid fa-chart-column"></i>
-
-                        <h3>
-                            Results Analysis
-                        </h3>
-
-                        <p>
-                            View totals, percentages and
-                            download reports.
-                        </p>
-
-                    </a>
-
-                    <!-- YEARS -->
-                    <a href="#"
-                    class="action-card">
-
-                        <i class="fa-solid fa-calendar"></i>
-
-                        <h3>
-                            Academic Years
-                        </h3>
-
-                        <p>
-                            Manage terms and academic
-                            years professionally.
-                        </p>
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </main>
-
-    </div>
+<!-- MODAL -->
 <div class="modal" id="academicModal">
 
-<div class="modal-content">
+    <div class="modal-content">
 
-<h2>Academic Year Management</h2>
+        <h2>Academic Year Management</h2>
 
-<!-- ADD YEAR -->
-<div class="input-group">
-<label>New Academic Year</label>
-<input id="yearName" placeholder="e.g. 2025-2026">
+        <!-- ADD YEAR -->
+        <div class="input-group">
+
+            <label>New Academic Year</label>
+
+            <input
+            id="yearName"
+            placeholder="e.g. 2025-2026">
+
+        </div>
+
+        <button class="btn btn-primary" onclick="addYear()">
+            Add Year
+        </button>
+
+        <hr style="margin:20px 0;">
+
+        <!-- YEARS -->
+        <div id="yearList"></div>
+
+        <button class="close-btn" onclick="closeAcademicModal()">
+            Close
+        </button>
+
+    </div>
+
 </div>
 
-<button class="btn btn-primary" onclick="addYear()">
-Add Year
-</button>
+<script>
 
-<hr>
+    // =========================
+    // LOAD DASHBOARD STATS
+    // =========================
+    async function loadDashboardStats() {
 
-<!-- LIST YEARS -->
-<div id="yearList"></div>
+        try {
 
-</div>
+            const res = await fetch(
+                `/.netlify/functions/get-dashboard-stats?teacher_id=${teacher?.id || ""}`
+            );
 
-</div>
+            const data = await res.json();
+
+            if (!res.ok) {
+                console.log(data.error);
+                return;
+            }
+
+            const cards = document.querySelectorAll(".stats-card h1");
+
+            cards[0].innerText = data.students || 0;
+            cards[1].innerText = data.classes || 0;
+            cards[2].innerText = data.subjects || 0;
+            cards[3].innerText = data.tests || 0;
+
+            // TOP INFO
+            document.querySelector(".teacher-info p").innerText =
+                `Academic Year: ${data.academic_year} | ${data.term}`;
+
+            // TEACHER NAME
+            const teacherName = document.querySelector(".profile-box strong");
+
+            if (data.teacher?.full_name) {
+                teacherName.innerText = data.teacher.full_name;
+            }
+
+        } catch (err) {
+
+            console.log("Dashboard Error:", err);
+
+        }
+    }
+
+    // =========================
+    // MODAL
+    // =========================
+    function openAcademicModal() {
+
+        document
+        .getElementById("academicModal")
+        .classList.add("active");
+    }
+
+    function closeAcademicModal() {
+
+        document
+        .getElementById("academicModal")
+        .classList.remove("active");
+    }
+
+    // =========================
+    // LOAD YEARS
+    // =========================
+    async function loadYears() {
+
+        try {
+
+            const res = await fetch(
+                "/.netlify/functions/academic?action=getYears"
+            );
+
+            const data = await res.json();
+
+            const list = document.getElementById("yearList");
+
+            list.innerHTML = "";
+
+            // SAFETY CHECK
+            if (!Array.isArray(data)) {
+
+                list.innerHTML =
+                    "<p>Failed to load academic years.</p>";
+
+                console.log(data);
+
+                return;
+            }
+
+            data.forEach(year => {
+
+                list.innerHTML += `
+                    <div class="year-item">
+
+                        <span>
+                            ${year.year_name}
+                            ${year.is_current ? "🔥 Current" : ""}
+                        </span>
+
+                        <button
+                        class="btn-success"
+                        onclick="setYear(${year.id})">
+
+                            Set Active
+
+                        </button>
+
+                    </div>
+                `;
+            });
+
+        } catch (err) {
+
+            console.log("Year Load Error:", err);
+
+        }
+    }
+
+    // =========================
+    // ADD YEAR
+    // =========================
+    async function addYear() {
+
+        try {
+
+            const year_name =
+                document.getElementById("yearName").value.trim();
+
+            if (!year_name) {
+                alert("Please enter academic year");
+                return;
+            }
+
+            const res = await fetch(
+                "/.netlify/functions/academic?action=addYear",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":"application/json"
+                    },
+                    body: JSON.stringify({ year_name })
+                }
+            );
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.error || "Failed to add year");
+                return;
+            }
+
+            document.getElementById("yearName").value = "";
+
+            loadYears();
+
+        } catch (err) {
+
+            console.log("Add Year Error:", err);
+
+        }
+    }
+
+    // =========================
+    // SET ACTIVE YEAR
+    // =========================
+    async function setYear(id) {
+
+        try {
+
+            const res = await fetch(
+                "/.netlify/functions/academic?action=setActive",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":"application/json"
+                    },
+                    body: JSON.stringify({ id })
+                }
+            );
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                alert(data.error || "Failed to update year");
+                return;
+            }
+
+            loadYears();
+            loadDashboardStats();
+
+        } catch (err) {
+
+            console.log("Set Year Error:", err);
+
+        }
+    }
+
+    // =========================
+    // INIT
+    // =========================
+    loadDashboardStats();
+    loadYears();
+
+</script>
 
 </body>
-        
-                                                            
-    <script>
-document.addEventListener("DOMContentLoaded", () => {
-    initDashboard();
-});
-
-const teacher = JSON.parse(localStorage.getItem("teacher") || "{}");
-
-// =========================
-// INIT
-// =========================
-async function initDashboard() {
-    if (!teacher?.id) {
-        console.log("No teacher found in localStorage");
-        window.location.href = "login.html";
-        return;
-    }
-
-    await loadDashboardStats();
-    await loadYears();
-}
-
-// =========================
-// DASHBOARD STATS
-// =========================
-async function loadDashboardStats() {
-    try {
-        const res = await fetch(
-            `/.netlify/functions/get-DashboardStats?teacher_id=${teacher.id}`
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-            console.log("Backend error:", data.error);
-            return;
-        }
-
-        const cards = document.querySelectorAll(".stats-card h1");
-
-        if (cards.length === 4) {
-            cards[0].textContent = data.students || 0;
-            cards[1].textContent = data.classes || 0;
-            cards[2].textContent = data.subjects || 0;
-            cards[3].textContent = data.tests || 0;
-        }
-
-        const topInfo = document.querySelector(".teacher-info p");
-        if (topInfo) {
-            topInfo.textContent =
-                `Academic Year: ${data.academic_year || "-"} | ${data.term || "-"}`;
-        }
-
-        const teacherName = document.querySelector(".profile-box strong");
-        if (teacherName && data.teacher?.full_name) {
-            teacherName.textContent = data.teacher.full_name;
-        }
-
-    } catch (err) {
-        console.log("Stats error:", err);
-    }
-}
-
-// =========================
-// MODAL
-// =========================
-function openAcademicModal() {
-    document.getElementById("academicModal")?.classList.add("active");
-}
-
-function closeAcademicModal() {
-    document.getElementById("academicModal")?.classList.remove("active");
-}
-
-// =========================
-// LOAD YEARS
-// =========================
-async function loadYears() {
-    try {
-        const res = await fetch("/.netlify/functions/academic?action=getYears");
-        const data = await res.json();
-
-        if (!Array.isArray(data)) return;
-
-        const list = document.getElementById("yearList");
-        if (!list) return;
-
-        list.innerHTML = "";
-
-        data.forEach(year => {
-            const div = document.createElement("div");
-            div.className = "year-item";
-
-            div.innerHTML = `
-                <span>
-                    ${year.year_name}
-                    ${year.is_current ? "🔥 Current" : ""}
-                </span>
-                <button class="btn btn-success" onclick="setYear(${year.id})">
-                    Set Active
-                </button>
-            `;
-
-            list.appendChild(div);
-        });
-
-    } catch (err) {
-        console.log("Years error:", err);
-    }
-}
-
-// =========================
-// ADD YEAR
-// =========================
-async function addYear() {
-    const input = document.getElementById("yearName");
-    const year_name = input?.value?.trim();
-
-    if (!year_name) return;
-
-    await fetch("/.netlify/functions/academic?action=addYear", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ year_name })
-    });
-
-    input.value = "";
-    loadYears();
-}
-
-// =========================
-// SET ACTIVE YEAR
-// =========================
-async function setYear(id) {
-    await fetch("/.netlify/functions/academic?action=setActive", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-    });
-
-    loadYears();
-}
-</script>
-  </html>
+                    </html>
