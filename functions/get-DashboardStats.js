@@ -4,7 +4,7 @@ exports.handler = async (event) => {
   try {
 
     // COUNTS
-    const students = await db.query("SELECT COUNT(*) FROM learners");
+    const students = await db.query("SELECT COUNT(*) FROM students");
     const classes = await db.query("SELECT COUNT(*) FROM classes");
     const subjects = await db.query("SELECT COUNT(*) FROM subjects");
     const tests = await db.query("SELECT COUNT(*) FROM tests");
