@@ -121,6 +121,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 <option>Male</option>
 <option>Female</option>
 </select>
+</div>
 
 
 <div class="input-group">
@@ -225,48 +226,49 @@ table.innerHTML += `
 ADD STUDENT (DB)
 ========================= */
 document.getElementById("addStudentForm")
-.addEventListener("submit", async (e)=>{
+.addEventListener("submit", async (e) => {
 
-e.preventDefault();
+    e.preventDefault();
 
-const classValue = document.getElementById("classSelect").value;
+    const classValue = document.getElementById("classSelect").value;
 
-if (!classValue) {
-    alert("Please select class");
-    return;
-}
-
-const body = {
-    full_name: document.getElementById("name").value,
-    gender: document.getElementById("gender").value,
-    class_id: classValue
-};
-
-try {
-
-    const res = await fetch("/.netlify/functions/add-Student", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-        alert("Error: " + data.error);
+    if (!classValue) {
+        alert("Please select class");
         return;
     }
 
-    alert("Student added successfully!");
+    const body = {
+        full_name: document.getElementById("name").value,
+        gender: document.getElementById("gender").value,
+        class_id: classValue
+    };
 
-    closeModal();
-    loadStudents();
+    try {
 
-} catch (error) {
-    alert("Network error");
-    console.log(error);
-}
+        const res = await fetch("/.netlify/functions/add-Student", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
 
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert("Error: " + data.error);
+            return;
+        }
+
+        alert("Student added successfully!");
+
+        closeModal();
+        loadStudents();
+
+    } catch (error) {
+        alert("Network error");
+        console.log(error);
+    }
+
+});
 /* =========================
 MODAL
 ========================= */
