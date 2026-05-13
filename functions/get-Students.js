@@ -8,12 +8,12 @@ exports.handler = async (event) => {
 
     if (class_id) {
       result = await db.query(
-        "SELECT * FROM students WHERE class_id = $1 ORDER BY id ASC",
+        "SELECT * FROM learners WHERE class_id = $1 ORDER BY id ASC",
         [class_id]
       );
     } else {
       result = await db.query(
-        "SELECT * FROM students ORDER BY id ASC"
+        "SELECT * FROM learners ORDER BY id ASC"
       );
     }
 
