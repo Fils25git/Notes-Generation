@@ -1,0 +1,93 @@
+/* =========================
+   LOGIN PAGE
+========================= */
+
+.login-page{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:linear-gradient(135deg,#2563eb,#1e3a8a);
+}
+
+.login-container{
+    width:100%;
+    max-width:420px;
+}
+
+.login-card{
+    background:white;
+    border-radius:25px;
+    padding:35px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+
+.login-logo{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.login-logo img{
+    width:90px;
+    margin-bottom:15px;
+}
+
+.login-logo h1{
+    font-size:28px;
+    color:var(--secondary);
+}
+
+.login-logo p{
+    color:var(--gray);
+    margin-top:5px;
+}
+
+.login-form{
+    margin-top:20px;
+}
+
+.password-box{
+    position:relative;
+}
+
+.password-box input{
+    width:100%;
+    padding-right:50px;
+}
+
+.show-password{
+    position:absolute;
+    right:15px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    color:var(--gray);
+}
+
+.login-options{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:15px 0 25px;
+    font-size:14px;
+}
+
+.remember-box{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.login-btn{
+    width:100%;
+    padding:14px;
+    font-size:16px;
+}
+
+.login-footer{
+    text-align:center;
+    margin-top:25px;
+    color:var(--gray);
+    font-size:14px;
+  }
