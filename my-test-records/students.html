@@ -229,22 +229,43 @@ document.getElementById("addStudentForm")
 
 e.preventDefault();
 
+const classValue = document.getElementById("classSelect").value;
+
+if (!classValue) {
+    alert("Please select class");
+    return;
+}
+
 const body = {
-full_name: document.getElementById("name").value,
-gender: document.getElementById("gender").value,
-class_id: document.getElementById("classSelect").value
+    full_name: document.getElementById("name").value,
+    gender: document.getElementById("gender").value,
+    class_id: classValue
 };
 
-await fetch("/.netlify/functions/add-Student", {
-method: "POST",
-headers: {"Content-Type":"application/json"},
-body: JSON.stringify(body)
-});
+try {
 
-closeModal();
-loadStudents();
+    const res = await fetch("/.netlify/functions/add-Student", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    });
 
-});
+    const data = await res.json();
+
+    if (!res.ok) {
+        alert("Error: " + data.error);
+        return;
+    }
+
+    alert("Student added successfully!");
+
+    closeModal();
+    loadStudents();
+
+} catch (error) {
+    alert("Network error");
+    console.log(error);
+}
 
 /* =========================
 MODAL
