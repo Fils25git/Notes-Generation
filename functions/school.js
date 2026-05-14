@@ -42,65 +42,61 @@ exports.handler = async (event) => {
         // =========================
         if (action === "getMarks") {
 
-            const { class_id, subject_id } =
-                event.queryStringParameters;
+    const { class_id, subject_id } =
+        event.queryStringParameters;
 
-            // learners in class
-            const learnersRes = await db.query(
-                `SELECT *
-                 FROM learners
-                 WHERE class_id = $1
-                 ORDER BY full_name ASC`,
-                [class_id]
-            );
+    const learnersRes = await db.query(
+        `SELECT *
+         FROM learners
+         WHERE class_id = $1
+         ORDER BY full_name ASC`,
+        [class_id]
+    );
 
-            // existing marks for subject/class
-            const marksRes = await db.query(
-                `SELECT *
-                 FROM marks
-                 WHERE class_id = $1
-                 AND subject_id = $2`,
-                [class_id, subject_id]
-            );
+    const marksRes = await db.query(
+        `SELECT *
+         FROM marks
+         WHERE class_id = $1
+         AND subject_id = $2`,
+        [class_id, subject_id]
+    );
 
-            // fixed assessment types (you control UI)
-            const assessmentTypes = [
-                "Test 1",
-                "Test 2",
-                "Exam"
-            ];
+    const assessmentTypes = ["Test 1", "Test 2", "Exam"];
 
-            const data = learnersRes.rows.map(learner => {
+    const marksMap = {};
 
-                const marks = assessmentTypes.map(type => {
+    for (const m of marksRes.rows) {
+        const key = `${m.learner_id}_${m.assessment_type}`;
+        marksMap[key] = m;
+    }
 
-                    const found = marksRes.rows.find(m =>
-                        Number(m.learner_id) === Number(learner.id) &&
-                        m.assessment_type === type
-                    );
+    const data = learnersRes.rows.map(learner => {
 
-                    return {
-                        assessment_type: type,
-                        score: found?.score || "",
-                        max_score: found?.max_score || 100
-                    };
+        const marks = assessmentTypes.map(type => {
 
-                });
-
-                return {
-                    id: learner.id,
-                    full_name: learner.full_name,
-                    marks
-                };
-
-            });
+            const found = marksMap[`${learner.id}_${type}`];
 
             return {
-                statusCode: 200,
-                body: JSON.stringify(data)
+                assessment_type: type,
+                score: found?.score || "",
+                max_score: found?.max_score || 100
             };
-        }
 
+        });
+
+        return {
+            id: learner.id,
+            full_name: learner.full_name,
+            marks
+        };
+
+    });
+
+    return {
+        statusCode: 200,
+        body: JSON.stringify(data)
+    };
+            }
         // =========================
         // SAVE MARK (FIXED)
         // =========================
