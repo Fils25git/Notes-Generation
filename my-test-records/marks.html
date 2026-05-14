@@ -1,621 +1,363 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-    content="width=device-width, initial-scale=1.0">
+<title>Record Marks</title>
 
-    <title>Record Marks</title>
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/marks.css">
+<link rel="stylesheet" href="css/responsive.css">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/marks.css">
-    <link rel="stylesheet" href="css/responsive.css">
-
-    <!-- ICONS -->
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
 <body>
 
-    <div class="dashboard-wrapper">
+<div class="dashboard-wrapper">
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+<div class="sidebar-logo">
+<h2>Marks System</h2>
+</div>
 
-            <div class="sidebar-logo">
+<div class="sidebar-menu">
 
-                <h2>Marks System</h2>
+<a href="dashboard.html" class="sidebar-link">
+<i class="fa-solid fa-house"></i> Dashboard
+</a>
 
-            </div>
+<a href="students.html" class="sidebar-link">
+<i class="fa-solid fa-users"></i> Manage Students
+</a>
 
-            <div class="sidebar-menu">
+<a href="marks.html" class="sidebar-link active">
+<i class="fa-solid fa-pen"></i> Record Marks
+</a>
 
-                <a href="dashboard.html"
-                class="sidebar-link">
+<a href="results.html" class="sidebar-link">
+<i class="fa-solid fa-chart-column"></i> Results
+</a>
 
-                    <i class="fa-solid fa-house"></i>
+<a href="login.html" class="sidebar-link">
+<i class="fa-solid fa-right-from-bracket"></i> Logout
+</a>
 
-                    Dashboard
+</div>
+</aside>
 
-                </a>
+<!-- MAIN -->
+<main class="main-content">
 
-                <a href="students.html"
-                class="sidebar-link">
+<div class="topbar">
 
-                    <i class="fa-solid fa-users"></i>
+<div class="teacher-info">
+<h2>Record Marks</h2>
+<p>Record tests and exams</p>
+</div>
 
-                    Manage Students
+<div class="marks-actions">
 
-                </a>
+<button class="btn btn-primary" onclick="openTestModal()">
+<i class="fa-solid fa-plus"></i> Add Test
+</button>
 
-                <a href="marks.html"
-                class="sidebar-link active">
+<button class="btn btn-success">Save Marks</button>
 
-                    <i class="fa-solid fa-pen"></i>
+</div>
 
-                    Record Marks
+</div>
 
-                </a>
+<!-- SUBJECTS -->
+<div id="subjectContainer" class="subject-selector"></div>
 
-                <a href="results.html"
-                class="sidebar-link">
+<!-- CLASSES -->
+<div id="classContainer" class="class-selector"></div>
 
-                    <i class="fa-solid fa-chart-column"></i>
+<!-- SEARCH -->
+<div class="student-search">
+<input type="text" placeholder="Search student...">
+</div>
 
-                    Marks Results
+<!-- TABLE -->
+<div class="card">
+<div class="table-container">
 
-                </a>
+<table class="marks-table">
 
-                <a href="login.html"
-                class="sidebar-link">
+<thead>
+<tr>
+<th>#</th>
+<th>Student Name</th>
+<th>Test 1</th>
+<th>Test 2</th>
+<th>Exam</th>
+<th>Total</th>
+</tr>
+</thead>
 
-                    <i class="fa-solid fa-right-from-bracket"></i>
+<tbody id="marksTable"></tbody>
 
-                    Logout
+</table>
 
-                </a>
+</div>
+</div>
 
-            </div>
+</main>
+</div>
 
-        </aside>
+<!-- MODAL -->
+<div class="modal" id="testModal">
+<div class="modal-content">
 
-        <!-- MAIN CONTENT -->
-        <main class="main-content">
+<h2>Add New Test</h2>
 
-            <!-- TOPBAR -->
-            <div class="topbar">
+<div class="input-group">
+<label>Test Name</label>
+<input type="text">
+</div>
+
+<div class="input-group">
+<label>Out Of</label>
+<input type="number">
+</div>
+
+<div style="display:flex;gap:10px;margin-top:20px;">
+<button class="btn btn-danger" onclick="closeTestModal()">Cancel</button>
+<button class="btn btn-primary">Add Test</button>
+</div>
+
+</div>
+</div>
 
-                <div class="teacher-info">
-
-                    <h2>
-                        Record Marks
-                    </h2>
-
-                    <p>
-                        Record tests and exams
-                    </p>
-
-                </div>
-
-                <div class="marks-actions">
-
-                    <button
-                    class="btn btn-primary add-test-btn"
-                    onclick="openTestModal()">
-
-                        <i class="fa-solid fa-plus"></i>
-
-                        Add Test
-
-                    </button>
-
-                    <button
-                    class="btn btn-success">
-
-                        Save Marks
-
-                    </button>
-
-                </div>
-
-            </div>
-
-            <!-- SUBJECTS -->
-            <div class="subject-selector" id="subjectContainer"></div>
-
-            <!-- CLASSES -->
-            <div class="class-selector" id="classContainer"></div>
-
-            <!-- SEARCH -->
-            <div class="student-search">
-
-                <input
-                type="text"
-                placeholder="Search student...">
-
-            </div>
-
-            <!-- MARKS TABLE -->
-            <div class="card">
-
-                <div class="table-container">
-
-                    <table
-                    class="marks-table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>#</th>
-
-                                <th>Student Name</th>
-
-                                <th>Test 1 /20</th>
-
-                                <th>Test 2 /10</th>
-
-                                <th>Exam /70</th>
-
-                                <th>TOTAL</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="marksTable">
-
-                            <!-- STUDENT 1 -->
-                            <tr>
-
-                                <td>1</td>
-
-                                <td>
-                                    Eric Niyomugabo
-                                </td>
-
-                                <td>
-
-                                    <input
-                                    type="number"
-                                    value="15"
-                                    class="mark-input">
-
-                                </td>
-
-                                <td>
-
-                                    <input
-                                    type="number"
-                                    value="8"
-                                    class="mark-input">
-
-                                </td>
-
-                                <td>
-
-                                    <input
-                                    type="number"
-                                    value="60"
-                                    class="mark-input">
-
-                                </td>
-
-                                <td>
-
-                                    <span
-                                    class="total-box">
-
-                                        83
-
-                                    </span>
-
-                                </td>
-
-                            </tr>
-
-                            <!-- STUDENT 2 -->
-                            <tr>
-
-                                <td>2</td>
-
-                                <td>
-                                    Alice Uwase
-                                </td>
-
-                                <td>
-
-                                    <input
-                                    type="number"
-                                    value="18"
-                                    class="mark-input">
-
-                                </td>
-
-                                <td>
-
-                                    <input
-                                    type="number"
-                                    value="10"
-                                    class="mark-input">
-
-                                </td>
-
-                                <td>
-
-                                    <input
-                                    type="number"
-                                    value="65"
-                                    class="mark-input">
-
-                                </td>
-
-                                <td>
-
-                                    <span
-                                    class="total-box">
-
-                                        93
-
-                                    </span>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </main>
-
-    </div>
-
-    <!-- ADD TEST MODAL -->
-    <div class="modal"
-    id="testModal">
-
-        <div class="modal-content">
-
-            <h2 style="margin-bottom:20px;">
-
-                Add New Test
-
-            </h2>
-
-            <form>
-
-                <!-- TEST NAME -->
-                <div class="input-group">
-
-                    <label>
-                        Test Name
-                    </label>
-
-                    <input
-                    type="text"
-                    placeholder="Example: Quiz 1">
-
-                </div>
-
-                <!-- OUT OF -->
-                <div class="input-group">
-
-                    <label>
-                        Out Of
-                    </label>
-
-                    <input
-                    type="number"
-                    placeholder="Example: 20">
-
-                </div>
-
-                <!-- BUTTONS -->
-                <div style="
-                display:flex;
-                gap:10px;
-                margin-top:20px;
-                ">
-
-                    <button
-                    type="button"
-                    class="btn btn-danger"
-                    onclick="closeTestModal()">
-
-                        Cancel
-
-                    </button>
-
-                    <button
-                    class="btn btn-primary">
-
-                        Add Test
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
 <script>
 
-const teacher = JSON.parse(localStorage.getItem("teacher"));
+const teacher = JSON.parse(localStorage.getItem("teacher") || "{}");
 
 let selectedSubject = null;
 let selectedClass = null;
 
 // =========================
-// MAIN SCHOOL FUNCTION
+// API WRAPPER
 // =========================
 async function school(action, body = {}) {
 
     try {
 
-        let url =
-        `/.netlify/functions/school?action=${action}`;
+        const url = `/.netlify/functions/school?action=${action}`;
 
         const options = {
-            method: body && Object.keys(body).length
-            ? "POST"
-            : "GET",
-
-            headers: {
-                "Content-Type":"application/json"
-            }
+            method: Object.keys(body).length ? "POST" : "GET",
+            headers: {"Content-Type":"application/json"}
         };
 
-        if(options.method === "POST"){
+        if (options.method === "POST") {
             options.body = JSON.stringify(body);
         }
 
         const res = await fetch(url, options);
+        const data = await res.json();
 
-        return await res.json();
+        console.log("API:", action, data);
 
-    } catch(err){
+        return data;
 
-        console.log(err);
+    } catch (err) {
+        console.log("API ERROR:", err);
         return [];
-
     }
-
 }
 
 // =========================
 // LOAD SUBJECTS
 // =========================
-async function loadSubjects(){
+async function loadSubjects() {
 
     const data = await school("getSubjects");
 
-    const container =
-    document.getElementById("subjectContainer");
+    if (!data.length) {
+        console.log("❌ No subjects");
+        return;
+    }
 
+    const container = document.getElementById("subjectContainer");
     container.innerHTML = "";
 
-    data.forEach((subject,index)=>{
+    data.forEach((subject, i) => {
 
         container.innerHTML += `
-            <button
-            class="subject-btn ${index===0 ? 'active' : ''}"
-            onclick="selectSubject(${subject.id}, event)">
-
-                ${subject.subject_name}
-
-            </button>
-        `;
-
+        <button class="subject-btn ${i===0?'active':''}"
+        onclick="selectSubject(${subject.id}, event)">
+            ${subject.subject_name}
+        </button>`;
     });
 
-    selectedSubject = data[0]?.id;
+    selectedSubject = data[0].id;
+    console.log("✔ Subject:", selectedSubject);
 
     loadClasses();
-
 }
 
 // =========================
 // SELECT SUBJECT
 // =========================
-function selectSubject(id,event){
+function selectSubject(id, event) {
 
     selectedSubject = id;
 
     document.querySelectorAll(".subject-btn")
-    .forEach(btn=>btn.classList.remove("active"));
+    .forEach(b => b.classList.remove("active"));
 
     event.target.classList.add("active");
 
     loadMarks();
-
 }
 
 // =========================
 // LOAD CLASSES
 // =========================
-async function loadClasses(){
+async function loadClasses() {
 
     const data = await school("getClasses");
 
-    const container =
-    document.getElementById("classContainer");
+    if (!data.length) {
+        console.log("❌ No classes");
+        return;
+    }
 
+    const container = document.getElementById("classContainer");
     container.innerHTML = "";
 
-    data.forEach((cls,index)=>{
+    data.forEach((cls, i) => {
 
         container.innerHTML += `
-            <button
-            class="class-btn ${index===0 ? 'active' : ''}"
-            onclick="selectClass(${cls.id}, event)">
-
-                ${cls.class_name}
-
-            </button>
-        `;
-
+        <button class="class-btn ${i===0?'active':''}"
+        onclick="selectClass(${cls.id}, event)">
+            ${cls.class_name}
+        </button>`;
     });
 
-    selectedClass = data[0]?.id;
+    selectedClass = data[0].id;
+    console.log("✔ Class:", selectedClass);
 
     loadMarks();
-
 }
 
 // =========================
 // SELECT CLASS
 // =========================
-function selectClass(id,event){
+function selectClass(id, event) {
 
     selectedClass = id;
 
     document.querySelectorAll(".class-btn")
-    .forEach(btn=>btn.classList.remove("active"));
+    .forEach(b => b.classList.remove("active"));
 
     event.target.classList.add("active");
 
     loadMarks();
-
 }
 
 // =========================
 // LOAD MARKS
 // =========================
-async function loadMarks(){
+async function loadMarks() {
 
-    if(!selectedClass || !selectedSubject) return;
+    console.log("LOAD MARKS TRIGGERED");
 
-    const data = await school("getMarks",{
-        class_id:selectedClass,
-        subject_id:selectedSubject
+    if (!selectedClass) {
+        console.log("❌ No class selected");
+        return;
+    }
+
+    if (!selectedSubject) {
+        console.log("❌ No subject selected");
+        return;
+    }
+
+    const data = await school("getMarks", {
+        class_id: selectedClass,
+        subject_id: selectedSubject
     });
 
-    const table =
-    document.getElementById("marksTable");
-
+    const table = document.getElementById("marksTable");
     table.innerHTML = "";
 
-    data.forEach((student,index)=>{
+    if (!data.length) {
+        table.innerHTML = `
+        <tr><td colspan="6">No learners found</td></tr>`;
+        return;
+    }
+
+    data.forEach((student, i) => {
 
         let total = 0;
 
-        student.marks.forEach(mark=>{
-            total += Number(mark.score || 0);
+        student.marks.forEach(m => {
+            total += Number(m.score || 0);
         });
 
         table.innerHTML += `
         <tr>
-
-            <td>${index+1}</td>
-
+            <td>${i+1}</td>
             <td>${student.full_name}</td>
 
-            ${student.marks.map(mark=>`
-
+            ${student.marks.map(m => `
                 <td>
-
-                    <input
-                    type="number"
-                    value="${mark.score || ''}"
-                    class="mark-input"
-
+                    <input type="number"
+                    value="${m.score || ''}"
                     onchange="saveMark(
                         ${student.id},
                         ${selectedSubject},
                         ${selectedClass},
-                        '${mark.assessment_type}',
+                        '${m.assessment_type}',
                         this.value
                     )">
-
                 </td>
-
             `).join("")}
 
-            <td>
-
-                <span class="total-box">
-                    ${total}
-                </span>
-
-            </td>
-
-        </tr>
-        `;
-
+            <td><span>${total}</span></td>
+        </tr>`;
     });
-
 }
 
 // =========================
 // SAVE MARK
 // =========================
-async function saveMark(
-    student_id,
-    subject_id,
-    class_id,
-    assessment_type,
-    score
-){
+async function saveMark(student_id, subject_id, class_id, assessment_type, score) {
 
-    try{
-
-        await school("saveMark",{
-
-            student_id,
-            subject_id,
-            class_id,
-
-            academic_year_id:1,
-            term_id:1,
-
-            teacher_id:teacher?.id,
-
-            assessment_type,
-            score,
-            max_score:100
-
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-    }
-
+    await school("saveMark", {
+        student_id,
+        subject_id,
+        class_id,
+        academic_year_id: 1,
+        term_id: 1,
+        teacher_id: teacher?.id,
+        assessment_type,
+        score,
+        max_score: 100
+    });
 }
 
 // =========================
 // MODAL
 // =========================
-function openTestModal(){
-
-    document
-    .getElementById("testModal")
-    .classList.add("active");
-
+function openTestModal() {
+    document.getElementById("testModal").classList.add("active");
 }
 
-function closeTestModal(){
-
-    document
-    .getElementById("testModal")
-    .classList.remove("active");
-
+function closeTestModal() {
+    document.getElementById("testModal").classList.remove("active");
 }
 
 // INIT
 loadSubjects();
 
-            </script>
+</script>
+
 </body>
-                  </html>
+    </html>
