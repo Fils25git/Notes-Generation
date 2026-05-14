@@ -133,7 +133,6 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 </div>
 </div>
-
 <script>
 
 const teacher = JSON.parse(localStorage.getItem("teacher") || "{}");
@@ -144,22 +143,41 @@ let selectedClass = null;
 // =========================
 // API WRAPPER
 // =========================
-async function school(action, body = {}) {
+async function school(action, body = {}, method = "GET") {
 
     try {
 
-        const url = `/.netlify/functions/school?action=${action}`;
+        let url =
+            `/.netlify/functions/school?action=${action}`;
 
         const options = {
-            method: Object.keys(body).length ? "POST" : "GET",
-            headers: {"Content-Type":"application/json"}
+            method,
+            headers: {
+                "Content-Type":"application/json"
+            }
         };
 
-        if (options.method === "POST") {
+        // GET REQUEST
+        if (method === "GET") {
+
+            const params =
+                new URLSearchParams(body).toString();
+
+            if (params) {
+                url += `&${params}`;
+            }
+
+        }
+
+        // POST REQUEST
+        else {
+
             options.body = JSON.stringify(body);
+
         }
 
         const res = await fetch(url, options);
+
         const data = await res.json();
 
         console.log("API:", action, data);
@@ -167,7 +185,9 @@ async function school(action, body = {}) {
         return data;
 
     } catch (err) {
+
         console.log("API ERROR:", err);
+
         return [];
     }
 }
@@ -184,19 +204,25 @@ async function loadSubjects() {
         return;
     }
 
-    const container = document.getElementById("subjectContainer");
+    const container =
+        document.getElementById("subjectContainer");
+
     container.innerHTML = "";
 
     data.forEach((subject, i) => {
 
         container.innerHTML += `
-        <button class="subject-btn ${i===0?'active':''}"
+        <button
+        class="subject-btn ${i===0?'active':''}"
         onclick="selectSubject(${subject.id}, event)">
+
             ${subject.subject_name}
+
         </button>`;
     });
 
     selectedSubject = data[0].id;
+
     console.log("✔ Subject:", selectedSubject);
 
     loadClasses();
@@ -210,7 +236,9 @@ function selectSubject(id, event) {
     selectedSubject = id;
 
     document.querySelectorAll(".subject-btn")
-    .forEach(b => b.classList.remove("active"));
+    .forEach(btn =>
+        btn.classList.remove("active")
+    );
 
     event.target.classList.add("active");
 
@@ -225,23 +253,31 @@ async function loadClasses() {
     const data = await school("getClasses");
 
     if (!data.length) {
+
         console.log("❌ No classes");
+
         return;
     }
 
-    const container = document.getElementById("classContainer");
+    const container =
+        document.getElementById("classContainer");
+
     container.innerHTML = "";
 
     data.forEach((cls, i) => {
 
         container.innerHTML += `
-        <button class="class-btn ${i===0?'active':''}"
+        <button
+        class="class-btn ${i===0?'active':''}"
         onclick="selectClass(${cls.id}, event)">
+
             ${cls.class_name}
+
         </button>`;
     });
 
     selectedClass = data[0].id;
+
     console.log("✔ Class:", selectedClass);
 
     loadMarks();
@@ -255,7 +291,9 @@ function selectClass(id, event) {
     selectedClass = id;
 
     document.querySelectorAll(".class-btn")
-    .forEach(b => b.classList.remove("active"));
+    .forEach(btn =>
+        btn.classList.remove("active")
+    );
 
     event.target.classList.add("active");
 
@@ -270,57 +308,88 @@ async function loadMarks() {
     console.log("LOAD MARKS TRIGGERED");
 
     if (!selectedClass) {
+
         console.log("❌ No class selected");
+
         return;
     }
 
     if (!selectedSubject) {
+
         console.log("❌ No subject selected");
+
         return;
     }
 
-    const data = await school("getMarks", {
-        class_id: selectedClass,
-        subject_id: selectedSubject
-    });
+    const data = await school(
+        "getMarks",
+        {
+            class_id: selectedClass,
+            subject_id: selectedSubject
+        },
+        "GET"
+    );
 
-    const table = document.getElementById("marksTable");
+    console.log("MARKS DATA:", data);
+
+    const table =
+        document.getElementById("marksTable");
+
     table.innerHTML = "";
 
-    if (!data.length) {
+    if (!Array.isArray(data) || !data.length) {
+
         table.innerHTML = `
-        <tr><td colspan="6">No learners found</td></tr>`;
+        <tr>
+            <td colspan="6">
+                No learners found
+            </td>
+        </tr>`;
+
         return;
     }
 
-    data.forEach((student, i) => {
+    data.forEach((learner, i) => {
 
         let total = 0;
 
-        student.marks.forEach(m => {
-            total += Number(m.score || 0);
+        learner.marks.forEach(mark => {
+
+            total += Number(mark.score || 0);
+
         });
 
         table.innerHTML += `
         <tr>
-            <td>${i+1}</td>
-            <td>${student.full_name}</td>
 
-            ${student.marks.map(m => `
+            <td>${i + 1}</td>
+
+            <td>${learner.full_name}</td>
+
+            ${learner.marks.map(mark => `
+
                 <td>
-                    <input type="number"
-                    value="${m.score || ''}"
+
+                    <input
+                    type="number"
+                    value="${mark.score || ''}"
+
                     onchange="saveMark(
-                        ${student.id},
+                        ${learner.id},
                         ${selectedSubject},
                         ${selectedClass},
-                        '${m.assessment_type}',
+                        '${mark.assessment_type}',
                         this.value
                     )">
+
                 </td>
+
             `).join("")}
 
-            <td><span>${total}</span></td>
+            <td>
+                <span>${total}</span>
+            </td>
+
         </tr>`;
     });
 }
@@ -328,30 +397,48 @@ async function loadMarks() {
 // =========================
 // SAVE MARK
 // =========================
-async function saveMark(student_id, subject_id, class_id, assessment_type, score) {
+async function saveMark(
+    learner_id,
+    subject_id,
+    class_id,
+    assessment_type,
+    score
+) {
 
-    await school("saveMark", {
-        student_id,
-        subject_id,
-        class_id,
-        academic_year_id: 1,
-        term_id: 1,
-        teacher_id: teacher?.id,
-        assessment_type,
-        score,
-        max_score: 100
-    });
+    const response = await school(
+        "saveMark",
+        {
+            learner_id,
+            subject_id,
+            class_id,
+            academic_year_id: 1,
+            term_id: 1,
+            teacher_id: teacher?.id,
+            assessment_type,
+            score,
+            max_score: 100
+        },
+        "POST"
+    );
+
+    console.log("SAVE RESPONSE:", response);
 }
 
 // =========================
 // MODAL
 // =========================
 function openTestModal() {
-    document.getElementById("testModal").classList.add("active");
+
+    document
+    .getElementById("testModal")
+    .classList.add("active");
 }
 
 function closeTestModal() {
-    document.getElementById("testModal").classList.remove("active");
+
+    document
+    .getElementById("testModal")
+    .classList.remove("active");
 }
 
 // INIT
