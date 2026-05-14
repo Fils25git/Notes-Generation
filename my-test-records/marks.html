@@ -380,76 +380,274 @@
         </div>
 
     </div>
+<script>
 
-    <script>
+const teacher = JSON.parse(localStorage.getItem("teacher"));
 
-        // =========================
-        // SUBJECT ACTIVE
-        // =========================
+let selectedSubject = null;
+let selectedClass = null;
 
-        const subjectButtons =
-        document.querySelectorAll(".subject-btn");
+// =========================
+// MAIN SCHOOL FUNCTION
+// =========================
+async function school(action, body = {}) {
 
-        subjectButtons.forEach(button=>{
+    try {
 
-            button.addEventListener("click",()=>{
+        let url =
+        `/.netlify/functions/school?action=${action}`;
 
-                subjectButtons.forEach(btn=>{
+        const options = {
+            method: body && Object.keys(body).length
+            ? "POST"
+            : "GET",
 
-                    btn.classList.remove("active");
+            headers: {
+                "Content-Type":"application/json"
+            }
+        };
 
-                });
+        if(options.method === "POST"){
+            options.body = JSON.stringify(body);
+        }
 
-                button.classList.add("active");
+        const res = await fetch(url, options);
 
-            });
+        return await res.json();
+
+    } catch(err){
+
+        console.log(err);
+        return [];
+
+    }
+
+}
+
+// =========================
+// LOAD SUBJECTS
+// =========================
+async function loadSubjects(){
+
+    const data = await school("getSubjects");
+
+    const container =
+    document.getElementById("subjectContainer");
+
+    container.innerHTML = "";
+
+    data.forEach((subject,index)=>{
+
+        container.innerHTML += `
+            <button
+            class="subject-btn ${index===0 ? 'active' : ''}"
+            onclick="selectSubject(${subject.id}, event)">
+
+                ${subject.subject_name}
+
+            </button>
+        `;
+
+    });
+
+    selectedSubject = data[0]?.id;
+
+    loadClasses();
+
+}
+
+// =========================
+// SELECT SUBJECT
+// =========================
+function selectSubject(id,event){
+
+    selectedSubject = id;
+
+    document.querySelectorAll(".subject-btn")
+    .forEach(btn=>btn.classList.remove("active"));
+
+    event.target.classList.add("active");
+
+    loadMarks();
+
+}
+
+// =========================
+// LOAD CLASSES
+// =========================
+async function loadClasses(){
+
+    const data = await school("getClasses");
+
+    const container =
+    document.getElementById("classContainer");
+
+    container.innerHTML = "";
+
+    data.forEach((cls,index)=>{
+
+        container.innerHTML += `
+            <button
+            class="class-btn ${index===0 ? 'active' : ''}"
+            onclick="selectClass(${cls.id}, event)">
+
+                ${cls.class_name}
+
+            </button>
+        `;
+
+    });
+
+    selectedClass = data[0]?.id;
+
+    loadMarks();
+
+}
+
+// =========================
+// SELECT CLASS
+// =========================
+function selectClass(id,event){
+
+    selectedClass = id;
+
+    document.querySelectorAll(".class-btn")
+    .forEach(btn=>btn.classList.remove("active"));
+
+    event.target.classList.add("active");
+
+    loadMarks();
+
+}
+
+// =========================
+// LOAD MARKS
+// =========================
+async function loadMarks(){
+
+    if(!selectedClass || !selectedSubject) return;
+
+    const data = await school("getMarks",{
+        class_id:selectedClass,
+        subject_id:selectedSubject
+    });
+
+    const table =
+    document.getElementById("marksTable");
+
+    table.innerHTML = "";
+
+    data.forEach((student,index)=>{
+
+        let total = 0;
+
+        student.marks.forEach(mark=>{
+            total += Number(mark.score || 0);
+        });
+
+        table.innerHTML += `
+        <tr>
+
+            <td>${index+1}</td>
+
+            <td>${student.full_name}</td>
+
+            ${student.marks.map(mark=>`
+
+                <td>
+
+                    <input
+                    type="number"
+                    value="${mark.score || ''}"
+                    class="mark-input"
+
+                    onchange="saveMark(
+                        ${student.id},
+                        ${selectedSubject},
+                        ${selectedClass},
+                        '${mark.assessment_type}',
+                        this.value
+                    )">
+
+                </td>
+
+            `).join("")}
+
+            <td>
+
+                <span class="total-box">
+                    ${total}
+                </span>
+
+            </td>
+
+        </tr>
+        `;
+
+    });
+
+}
+
+// =========================
+// SAVE MARK
+// =========================
+async function saveMark(
+    student_id,
+    subject_id,
+    class_id,
+    assessment_type,
+    score
+){
+
+    try{
+
+        await school("saveMark",{
+
+            student_id,
+            subject_id,
+            class_id,
+
+            academic_year_id:1,
+            term_id:1,
+
+            teacher_id:teacher?.id,
+
+            assessment_type,
+            score,
+            max_score:100
 
         });
 
-        // =========================
-        // CLASS ACTIVE
-        // =========================
+    }catch(err){
 
-        const classButtons =
-        document.querySelectorAll(".class-btn");
+        console.log(err);
 
-        classButtons.forEach(button=>{
+    }
 
-            button.addEventListener("click",()=>{
+}
 
-                classButtons.forEach(btn=>{
+// =========================
+// MODAL
+// =========================
+function openTestModal(){
 
-                    btn.classList.remove("active");
+    document
+    .getElementById("testModal")
+    .classList.add("active");
 
-                });
+}
 
-                button.classList.add("active");
+function closeTestModal(){
 
-            });
+    document
+    .getElementById("testModal")
+    .classList.remove("active");
 
-        });
+}
 
-        // =========================
-        // MODAL
-        // =========================
+// INIT
+loadSubjects();
 
-        function openTestModal(){
-
-            document
-            .getElementById("testModal")
-            .classList.add("active");
-
-        }
-
-        function closeTestModal(){
-
-            document
-            .getElementById("testModal")
-            .classList.remove("active");
-
-        }
-
-    </script>
-
+            </script>
 </body>
                   </html>
