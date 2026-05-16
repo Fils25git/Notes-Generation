@@ -137,370 +137,637 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 </div>
 
 </div>
-</div>
-<script>
+    </div>
+    <script>
 
-const teacher = JSON.parse(localStorage.getItem("teacher") || "{}");
+const teacher = JSON.parse(
+    localStorage.getItem("teacher") || "{}"
+);
 
-let selectedSubject = null;
-let selectedClass = null;
-let selectedTerm = null;
-let selectedYear = null;
+let selectedSubject=null;
+let selectedClass=null;
+let selectedTerm=null;
+let selectedYear=null;
+
+
 // =========================
 // API WRAPPER
 // =========================
-async function school(action, body = {}, method = "GET") {
+async function school(
+    action,
+    body={},
+    method="GET"
+){
 
-    try {
+try{
 
-        let url =
-            `/.netlify/functions/school?action=${action}`;
+let url=
+`/.netlify/functions/school?action=${action}`;
 
-        const options = {
-            method,
-            headers: {
-                "Content-Type":"application/json"
-            }
-        };
-
-        // GET REQUEST
-        if (method === "GET") {
-
-            const params =
-                new URLSearchParams(body).toString();
-
-            if (params) {
-                url += `&${params}`;
-            }
-
-        }
-
-        // POST REQUEST
-        else {
-
-            options.body = JSON.stringify(body);
-
-        }
-
-        const res = await fetch(url, options);
-
-        const data = await res.json();
-
-        console.log("API:", action, data);
-
-        return data;
-
-    } catch (err) {
-
-        console.log("API ERROR:", err);
-
-        return [];
-    }
+const options={
+method,
+headers:{
+"Content-Type":"application/json"
 }
+};
+
+
+if(method==="GET"){
+
+const params=
+new URLSearchParams(body).toString();
+
+if(params){
+
+url+=`&${params}`;
+
+}
+
+}else{
+
+options.body=
+JSON.stringify(body);
+
+}
+
+const res=
+await fetch(url,options);
+
+const data=
+await res.json();
+
+console.log("API:",action,data);
+
+return data;
+
+}catch(err){
+
+console.log(
+"API ERROR:",
+err
+);
+
+return [];
+
+}
+
+}
+
+
+// =========================
+// LOAD ACADEMIC CONTEXT
+// =========================
+
+async function loadAcademicContext(){
+
+try{
+
+const res=
+await fetch(
+"/.netlify/functions/academic?action=getCurrent"
+);
+
+const data=
+await res.json();
+
+selectedYear=
+data?.year?.id || null;
+
+selectedTerm=
+data?.term?.id || null;
+
+console.log(
+"Academic:",
+data
+);
+
+}catch(err){
+
+console.log(
+"Academic error",
+err
+);
+
+}
+
+}
+
+
+// =========================
+// LOAD TERMS
+// =========================
+
+async function loadTerms(){
+
+const res=
+await fetch(
+"/.netlify/functions/academic?action=getTerms"
+);
+
+const data=
+await res.json();
+
+if(
+!Array.isArray(data)
+||
+!data.length
+){
+
+console.log(
+"No terms"
+);
+
+return;
+
+}
+
+const container=
+document.getElementById(
+"termContainer"
+);
+
+container.innerHTML="";
+
+data.forEach(
+(term,i)=>{
+
+container.innerHTML+=`
+
+<button
+class="class-btn ${i===0?'active':''}"
+onclick="selectTerm(${term.id},event)"
+>
+
+${term.term_name}
+
+</button>
+
+`;
+
+});
+
+selectedTerm=
+selectedTerm ||
+data[0].id;
+
+}
+
+
+// =========================
+// SELECT TERM
+// =========================
+
+function selectTerm(
+id,
+event
+){
+
+selectedTerm=id;
+
+document
+.querySelectorAll(
+"#termContainer button"
+)
+.forEach(
+btn=>
+btn.classList.remove(
+"active"
+)
+);
+
+event.target
+.classList.add(
+"active"
+);
+
+loadMarks();
+
+}
+
 
 // =========================
 // LOAD SUBJECTS
 // =========================
-async function loadSubjects() {
 
-    const data = await school("getSubjects");
+async function loadSubjects(){
 
-    if (!data.length) {
-        console.log("❌ No subjects");
-        return;
-    }
+const data=
+await school(
+"getSubjects"
+);
 
-    const container =
-        document.getElementById("subjectContainer");
+if(
+!Array.isArray(data)
+||
+!data.length
+){
 
-    container.innerHTML = "";
+console.log(
+"No subjects"
+);
 
-    data.forEach((subject, i) => {
+return;
 
-        container.innerHTML += `
-        <button
-        class="subject-btn ${i===0?'active':''}"
-        onclick="selectSubject(${subject.id}, event)">
-
-            ${subject.subject_name}
-
-        </button>`;
-    });
-
-    selectedSubject = data[0].id;
-
-    console.log("✔ Subject:", selectedSubject);
-
-    loadClasses();
 }
+
+const container=
+document.getElementById(
+"subjectContainer"
+);
+
+container.innerHTML="";
+
+data.forEach(
+(subject,i)=>{
+
+container.innerHTML+=`
+
+<button
+class="subject-btn ${i===0?'active':''}"
+onclick="
+selectSubject(
+${subject.id},
+event
+)
+">
+
+${subject.subject_name}
+
+</button>
+
+`;
+
+});
+
+selectedSubject=
+data[0].id;
+
+}
+
 
 // =========================
 // SELECT SUBJECT
 // =========================
-function selectSubject(id, event) {
 
-    selectedSubject = id;
+function selectSubject(
+id,
+event
+){
 
-    document.querySelectorAll(".subject-btn")
-    .forEach(btn =>
-        btn.classList.remove("active")
-    );
+selectedSubject=id;
 
-    event.target.classList.add("active");
+document
+.querySelectorAll(
+".subject-btn"
+)
+.forEach(
+btn=>
+btn.classList.remove(
+"active"
+)
+);
 
-    loadMarks();
+event.target
+.classList.add(
+"active"
+);
+
+loadMarks();
+
 }
+
 
 // =========================
 // LOAD CLASSES
 // =========================
-async function loadClasses() {
 
-    const data = await school("getClasses");
+async function loadClasses(){
 
-    if (!data.length) {
+const data=
+await school(
+"getClasses"
+);
 
-        console.log("❌ No classes");
+if(
+!Array.isArray(data)
+||
+!data.length
+){
 
-        return;
-    }
+console.log(
+"No classes"
+);
 
-    const container =
-        document.getElementById("classContainer");
+return;
 
-    container.innerHTML = "";
-
-    data.forEach((cls, i) => {
-
-        container.innerHTML += `
-        <button
-        class="class-btn ${i===0?'active':''}"
-        onclick="selectClass(${cls.id}, event)">
-
-            ${cls.class_name}
-
-        </button>`;
-    });
-
-    selectedClass = data[0].id;
-
-    console.log("✔ Class:", selectedClass);
-
-    loadMarks();
-}
-    async function loadAcademicContext() {
-
-    const res = await fetch("/.netlify/functions/academic?action=getCurrent");
-    const data = await res.json();
-
-    selectedYear = data.year.id;
-    selectedTerm = data.term.id;
-
-    console.log("✔ Academic:", data);
-        }
-    async function loadTerms() {
-
-    const res = await fetch("/.netlify/functions/academic?action=getTerms");
-    const data = await res.json();
-
-    const container = document.getElementById("termContainer");
-    container.innerHTML = "";
-
-    data.forEach((term, i) => {
-
-        container.innerHTML += `
-        <button class="class-btn ${i===0?'active':''}"
-        onclick="selectTerm(${term.id}, event)">
-            ${term.term_name}
-        </button>`;
-    });
-
-    selectedTerm = data[0].id;
-
-    loadMarks();
 }
 
-function selectTerm(id, event) {
+const container=
+document.getElementById(
+"classContainer"
+);
 
-    selectedTerm = id;
+container.innerHTML="";
 
-    document.querySelectorAll("#termContainer button")
-        .forEach(b => b.classList.remove("active"));
+data.forEach(
+(cls,i)=>{
 
-    event.target.classList.add("active");
+container.innerHTML+=`
 
-    loadMarks();
+<button
+class="class-btn ${i===0?'active':''}"
+onclick="
+selectClass(
+${cls.id},
+event
+)
+">
+
+${cls.class_name}
+
+</button>
+
+`;
+
+});
+
+selectedClass=
+data[0].id;
+
 }
+
 
 // =========================
 // SELECT CLASS
 // =========================
-function selectClass(id, event) {
 
-    selectedClass = id;
+function selectClass(
+id,
+event
+){
 
-    document.querySelectorAll(".class-btn")
-    .forEach(btn =>
-        btn.classList.remove("active")
-    );
+selectedClass=id;
 
-    event.target.classList.add("active");
+document
+.querySelectorAll(
+".class-btn"
+)
+.forEach(
+btn=>
+btn.classList.remove(
+"active"
+)
+);
 
-    loadMarks();
+event.target
+.classList.add(
+"active"
+);
+
+loadMarks();
+
 }
+
 
 // =========================
 // LOAD MARKS
 // =========================
-async function loadMarks() {
 
-    if (!selectedTerm || !selectedYear) {
-    console.log("❌ Academic context missing");
-    return;
-    }
+async function loadMarks(){
 
-    console.log("LOAD MARKS TRIGGERED");
+if(
+!selectedYear
+||
+!selectedTerm
+||
+!selectedClass
+||
+!selectedSubject
+){
 
-    if (!selectedClass) {
+return;
 
-        console.log("❌ No class selected");
-
-        return;
-    }
-
-    if (!selectedSubject) {
-
-        console.log("❌ No subject selected");
-
-        return;
-    }
-
-    const data = await school("getMarks", {
-    class_id: selectedClass,
-    subject_id: selectedSubject,
-    term_id: selectedTerm,
-    academic_year_id: selectedYear
-        },
-        "GET"
-    );
-
-    console.log("MARKS DATA:", data);
-
-    const table =
-        document.getElementById("marksTable");
-
-    table.innerHTML = "";
-
-    if (!Array.isArray(data) || !data.length) {
-
-        table.innerHTML = `
-        <tr>
-            <td colspan="6">
-                No learners found
-            </td>
-        </tr>`;
-
-        return;
-    }
-
-    data.forEach((learner, i) => {
-
-        let total = 0;
-
-        learner.marks.forEach(mark => {
-
-            total += Number(mark.score || 0);
-
-        });
-
-        table.innerHTML += `
-        <tr>
-
-            <td>${i + 1}</td>
-
-            <td>${learner.full_name}</td>
-
-            ${learner.marks.map(mark => `
-
-                <td>
-
-                    <input
-                    type="number"
-                    value="${mark.score || ''}"
-
-                    onchange="saveMark(
-                        ${learner.id},
-                        ${selectedSubject},
-                        ${selectedClass},
-                        '${mark.assessment_type}',
-                        this.value
-                    )">
-
-                </td>
-
-            `).join("")}
-
-            <td>
-                <span>${total}</span>
-            </td>
-
-        </tr>`;
-    });
 }
+
+const data=
+await school(
+"getMarks",
+{
+class_id:selectedClass,
+subject_id:selectedSubject,
+term_id:selectedTerm,
+academic_year_id:selectedYear
+},
+"GET"
+);
+
+const table=
+document.getElementById(
+"marksTable"
+);
+
+table.innerHTML="";
+
+
+if(
+!Array.isArray(data)
+||
+!data.length
+){
+
+table.innerHTML=`
+
+<tr>
+<td colspan="8">
+
+No learners found
+
+</td>
+</tr>
+
+`;
+
+return;
+
+}
+
+
+data.forEach(
+(learner,i)=>{
+
+let total=0;
+
+const marks=
+learner.marks || [];
+
+marks.forEach(
+mark=>{
+
+total+=
+Number(
+mark.score || 0
+);
+
+}
+);
+
+table.innerHTML+=`
+
+<tr>
+
+<td>
+${i+1}
+</td>
+
+<td>
+${learner.full_name}
+</td>
+
+${marks.map(mark=>`
+
+<td>
+
+<input
+type="number"
+value="${mark.score || ''}"
+
+onchange="saveMark(
+${learner.id},
+${selectedSubject},
+${selectedClass},
+'${mark.assessment_type}',
+this.value
+)"
+
+>
+
+</td>
+
+`).join("")}
+
+<td>
+
+${total}
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
 
 // =========================
 // SAVE MARK
 // =========================
+
 async function saveMark(
-    learner_id,
-    subject_id,
-    class_id,
-    assessment_type,
-    score
-) {
+learner_id,
+subject_id,
+class_id,
+assessment_type,
+score
+){
 
-    const response = await school(
-        "saveMark",
-        {
-            learner_id,
-            subject_id,
-            class_id,
-            academic_year_id: selectedYear,
-term_id: selectedTerm,
-            teacher_id: teacher?.id,
-            assessment_type,
-            score,
-            max_score: 100
-        },
-        "POST"
-    );
+if(
+!teacher.id
+){
 
-    console.log("SAVE RESPONSE:", response);
+alert(
+"Teacher not found. Login again."
+);
+
+return;
+
 }
+
+const response=
+await school(
+"saveMark",
+{
+
+learner_id,
+subject_id,
+class_id,
+
+academic_year_id:
+selectedYear,
+
+term_id:
+selectedTerm,
+
+teacher_id:
+teacher.id,
+
+assessment_type,
+
+score,
+
+max_score:100
+
+},
+"POST"
+);
+
+console.log(
+"SAVED:",
+response
+);
+
+}
+
 
 // =========================
 // MODAL
 // =========================
-function openTestModal() {
 
-    document
-    .getElementById("testModal")
-    .classList.add("active");
+function openTestModal(){
+
+document
+.getElementById(
+"testModal"
+)
+.classList.add(
+"active"
+);
+
 }
 
-function closeTestModal() {
 
-    document
-    .getElementById("testModal")
-    .classList.remove("active");
+function closeTestModal(){
+
+document
+.getElementById(
+"testModal"
+)
+.classList.remove(
+"active"
+);
+
 }
 
+
+// =========================
 // INIT
-loadAcademicContext().then(() => {
-    loadTerms();
-    loadSubjects();
-});
-</script>
+// =========================
 
-</body>
-    </html>
+async function init(){
+
+await loadAcademicContext();
+
+await loadTerms();
+
+await loadSubjects();
+
+await loadClasses();
+
+await loadMarks();
+
+}
+
+init();
+
+    </script>
