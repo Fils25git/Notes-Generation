@@ -77,6 +77,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 <!-- CLASSES -->
 <div id="classContainer" class="class-selector"></div>
+    <!-- TERMS (ADD THIS) -->
+<div id="termContainer" class="class-selector"></div>
 
 <!-- SEARCH -->
 <div class="student-search">
@@ -139,7 +141,8 @@ const teacher = JSON.parse(localStorage.getItem("teacher") || "{}");
 
 let selectedSubject = null;
 let selectedClass = null;
-
+let selectedTerm = null;
+let selectedYear = null;
 // =========================
 // API WRAPPER
 // =========================
@@ -282,6 +285,39 @@ async function loadClasses() {
 
     loadMarks();
 }
+    async function loadTerms() {
+
+    const res = await fetch("/.netlify/functions/academic?action=getTerms");
+    const data = await res.json();
+
+    const container = document.getElementById("termContainer");
+    container.innerHTML = "";
+
+    data.forEach((term, i) => {
+
+        container.innerHTML += `
+        <button class="class-btn ${i===0?'active':''}"
+        onclick="selectTerm(${term.id}, event)">
+            ${term.term_name}
+        </button>`;
+    });
+
+    selectedTerm = data[0].id;
+
+    loadMarks();
+}
+
+function selectTerm(id, event) {
+
+    selectedTerm = id;
+
+    document.querySelectorAll("#termContainer button")
+        .forEach(b => b.classList.remove("active"));
+
+    event.target.classList.add("active");
+
+    loadMarks();
+}
 
 // =========================
 // SELECT CLASS
@@ -321,11 +357,11 @@ async function loadMarks() {
         return;
     }
 
-    const data = await school(
-        "getMarks",
-        {
-            class_id: selectedClass,
-            subject_id: selectedSubject
+    const data = await school("getMarks", {
+    class_id: selectedClass,
+    subject_id: selectedSubject,
+    term_id: selectedTerm,
+    academic_year_id: selectedYear
         },
         "GET"
     );
@@ -442,6 +478,7 @@ function closeTestModal() {
 }
 
 // INIT
+loadTerms();
 loadSubjects();
 
 </script>
