@@ -285,6 +285,16 @@ async function loadClasses() {
 
     loadMarks();
 }
+    async function loadAcademicContext() {
+
+    const res = await fetch("/.netlify/functions/academic?action=getCurrent");
+    const data = await res.json();
+
+    selectedYear = data.year.id;
+    selectedTerm = data.term.id;
+
+    console.log("✔ Academic:", data);
+        }
     async function loadTerms() {
 
     const res = await fetch("/.netlify/functions/academic?action=getTerms");
@@ -340,6 +350,11 @@ function selectClass(id, event) {
 // LOAD MARKS
 // =========================
 async function loadMarks() {
+
+    if (!selectedTerm || !selectedYear) {
+    console.log("❌ Academic context missing");
+    return;
+    }
 
     console.log("LOAD MARKS TRIGGERED");
 
@@ -447,8 +462,8 @@ async function saveMark(
             learner_id,
             subject_id,
             class_id,
-            academic_year_id: 1,
-            term_id: 1,
+            academic_year_id: selectedYear,
+term_id: selectedTerm,
             teacher_id: teacher?.id,
             assessment_type,
             score,
@@ -478,9 +493,10 @@ function closeTestModal() {
 }
 
 // INIT
-loadTerms();
-loadSubjects();
-
+loadAcademicContext().then(() => {
+    loadTerms();
+    loadSubjects();
+});
 </script>
 
 </body>
