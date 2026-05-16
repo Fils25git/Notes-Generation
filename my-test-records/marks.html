@@ -312,9 +312,11 @@ async function loadClasses() {
         </button>`;
     });
 
+    if (!selectedTerm) {
     selectedTerm = data[0].id;
+}
 
-    loadMarks();
+loadMarks();
 }
 
 function selectTerm(id, event) {
@@ -350,6 +352,10 @@ function selectClass(id, event) {
 // LOAD MARKS
 // =========================
 async function loadMarks() {
+    if (!selectedYear || !selectedTerm || !selectedClass || !selectedSubject) {
+    console.log("⛔ Waiting for full context...");
+    return;
+    }
 
     if (!selectedTerm || !selectedYear) {
     console.log("❌ Academic context missing");
@@ -494,8 +500,8 @@ function closeTestModal() {
 
 // INIT
 loadAcademicContext().then(() => {
-    loadTerms();
     loadSubjects();
+    loadTerms();
 });
 </script>
 
