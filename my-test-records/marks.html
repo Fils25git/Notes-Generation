@@ -152,17 +152,22 @@ Debug logs...
     <script>
 
 const teacher = JSON.parse(
-    localStorage.getItem("teacher") || "{}"
+localStorage.getItem("teacher") || "{}"
 );
 
-let selectedSubject=null;
-let selectedClass=null;
-let selectedTerm=null;
-let selectedYear=null;
+let selectedSubject = null;
+let selectedClass = null;
+let selectedTerm = null;
+let selectedYear = null;
 
-                function debug(message){
 
-debug(message);
+// =========================
+// DEBUG
+// =========================
+
+function debug(message){
+
+console.log(message);
 
 const box =
 document.getElementById(
@@ -172,67 +177,87 @@ document.getElementById(
 if(box){
 
 box.innerHTML +=
-message + "\n";
+message + "<br>";
+
+box.scrollTop =
+box.scrollHeight;
 
 }
 
-                }
+}
+
 
 // =========================
 // API WRAPPER
 // =========================
+
 async function school(
-    action,
-    body={},
-    method="GET"
+action,
+body={},
+method="GET"
 ){
 
 try{
 
-let url=
+let url =
 `/.netlify/functions/school?action=${action}`;
 
-const options={
+const options = {
 method,
 headers:{
 "Content-Type":"application/json"
 }
 };
 
-
 if(method==="GET"){
 
-const params=
-new URLSearchParams(body).toString();
+const params =
+new URLSearchParams(
+body
+).toString();
 
 if(params){
 
-url+=`&${params}`;
+url += `&${params}`;
 
 }
 
-}else{
+}
+else{
 
-options.body=
+options.body =
 JSON.stringify(body);
 
 }
 
-const res=
-await fetch(url,options);
+debug(
+"REQUEST: " + url
+);
 
-const data=
+const res =
+await fetch(
+url,
+options
+);
+
+const data =
 await res.json();
 
-debug("API:",action,data);
+debug(
+"API " +
+action +
+": " +
+JSON.stringify(data)
+);
 
 return data;
 
-}catch(err){
+}
+catch(err){
 
 debug(
-"API ERROR:",
-err
+"API ERROR: " +
+err.message
 );
 
 return [];
@@ -243,37 +268,43 @@ return [];
 
 
 // =========================
-// LOAD ACADEMIC CONTEXT
+// LOAD ACADEMIC
 // =========================
 
 async function loadAcademicContext(){
 
 try{
 
-const res=
+const res =
 await fetch(
 "/.netlify/functions/academic?action=getCurrent"
 );
 
-const data=
+const data =
 await res.json();
 
-selectedYear=
-data?.year?.id || null;
+selectedYear =
+data?.year?.id;
 
-selectedTerm=
-data?.term?.id || null;
-
-console.log(
-"Academic:",
-data
-);
-
-}catch(err){
+selectedTerm =
+data?.term?.id;
 
 debug(
-"Academic error",
-err
+"Academic Year: " +
+selectedYear
+);
+
+debug(
+"Term: " +
+selectedTerm
+);
+
+}
+catch(err){
+
+debug(
+"Academic error: " +
+err.message
 );
 
 }
@@ -287,13 +318,13 @@ err
 
 async function loadTerms(){
 
-const res=
+const data =
 await fetch(
 "/.netlify/functions/academic?action=getTerms"
+)
+.then(
+r=>r.json()
 );
-
-const data=
-await res.json();
 
 if(
 !Array.isArray(data)
@@ -309,7 +340,7 @@ return;
 
 }
 
-const container=
+const container =
 document.getElementById(
 "termContainer"
 );
@@ -319,10 +350,10 @@ container.innerHTML="";
 data.forEach(
 (term,i)=>{
 
-container.innerHTML+=`
+container.innerHTML += `
 
 <button
-class="class-btn ${i===0?'active':''}"
+class="class-btn ${i===0?"active":""}"
 onclick="selectTerm(${term.id},event)"
 >
 
@@ -334,7 +365,7 @@ ${term.term_name}
 
 });
 
-selectedTerm=
+selectedTerm =
 selectedTerm ||
 data[0].id;
 
@@ -357,8 +388,8 @@ document
 "#termContainer button"
 )
 .forEach(
-btn=>
-btn.classList.remove(
+b=>
+b.classList.remove(
 "active"
 )
 );
@@ -379,7 +410,7 @@ loadMarks();
 
 async function loadSubjects(){
 
-const data=
+const data =
 await school(
 "getSubjects"
 );
@@ -390,7 +421,7 @@ if(
 !data.length
 ){
 
-console.log(
+debug(
 "No subjects"
 );
 
@@ -398,7 +429,7 @@ return;
 
 }
 
-const container=
+const container =
 document.getElementById(
 "subjectContainer"
 );
@@ -408,16 +439,12 @@ container.innerHTML="";
 data.forEach(
 (subject,i)=>{
 
-container.innerHTML+=`
+container.innerHTML += `
 
 <button
-class="subject-btn ${i===0?'active':''}"
-onclick="
-selectSubject(
-${subject.id},
-event
-)
-">
+class="subject-btn ${i===0?"active":""}"
+onclick="selectSubject(${subject.id},event)"
+>
 
 ${subject.subject_name}
 
@@ -427,7 +454,7 @@ ${subject.subject_name}
 
 });
 
-selectedSubject=
+selectedSubject =
 data[0].id;
 
 }
@@ -449,8 +476,8 @@ document
 ".subject-btn"
 )
 .forEach(
-btn=>
-btn.classList.remove(
+b=>
+b.classList.remove(
 "active"
 )
 );
@@ -471,7 +498,7 @@ loadMarks();
 
 async function loadClasses(){
 
-const data=
+const data =
 await school(
 "getClasses"
 );
@@ -490,7 +517,7 @@ return;
 
 }
 
-const container=
+const container =
 document.getElementById(
 "classContainer"
 );
@@ -500,16 +527,12 @@ container.innerHTML="";
 data.forEach(
 (cls,i)=>{
 
-container.innerHTML+=`
+container.innerHTML += `
 
 <button
-class="class-btn ${i===0?'active':''}"
-onclick="
-selectClass(
-${cls.id},
-event
-)
-">
+class="class-btn ${i===0?"active":""}"
+onclick="selectClass(${cls.id},event)"
+>
 
 ${cls.class_name}
 
@@ -519,7 +542,7 @@ ${cls.class_name}
 
 });
 
-selectedClass=
+selectedClass =
 data[0].id;
 
 }
@@ -541,8 +564,8 @@ document
 ".class-btn"
 )
 .forEach(
-btn=>
-btn.classList.remove(
+b=>
+b.classList.remove(
 "active"
 )
 );
@@ -563,27 +586,47 @@ loadMarks();
 
 async function loadMarks(){
 
-alert(
-"Year: " + selectedYear +
-"\nTerm: " + selectedTerm +
-"\nClass: " + selectedClass +
-"\nSubject: " + selectedSubject
+debug(
+"Loading marks..."
+);
+
+debug(
+"Year: " +
+selectedYear
+);
+
+debug(
+"Term: " +
+selectedTerm
+);
+
+debug(
+"Class: " +
+selectedClass
+);
+
+debug(
+"Subject: " +
+selectedSubject
 );
 
 if(
-!selectedYear ||
-!selectedTerm ||
-!selectedClass ||
+!selectedYear
+||
+!selectedTerm
+||
+!selectedClass
+||
 !selectedSubject
 ){
 
-alert("Missing values");
+debug(
+"Missing required values"
+);
 
 return;
 
 }
-
-alert("Sending getMarks request");
 
 const data =
 await school(
@@ -593,13 +636,7 @@ class_id:selectedClass,
 subject_id:selectedSubject,
 term_id:selectedTerm,
 academic_year_id:selectedYear
-},
-"GET"
-);
-
-alert(
-"Returned learners: " +
-JSON.stringify(data)
+}
 );
 
 const table =
@@ -615,32 +652,44 @@ if(
 !data.length
 ){
 
+debug(
+"No learners returned"
+);
+
 table.innerHTML=`
+
 <tr>
 <td colspan="8">
 No learners found
 </td>
 </tr>
+
 `;
 
 return;
 
 }
 
-data.forEach((learner,i)=>{
+debug(
+"Learners: " +
+data.length
+);
+
+data.forEach(
+(learner,i)=>{
 
 let total=0;
 
-const marks=
-learner.marks || [];
+learner.marks.forEach(
+mark=>{
 
-marks.forEach(mark=>{
-
-total += Number(
+total +=
+Number(
 mark.score || 0
 );
 
-});
+}
+);
 
 table.innerHTML += `
 
@@ -650,17 +699,29 @@ table.innerHTML += `
 
 <td>${learner.full_name}</td>
 
-${marks.map(mark=>`
+${learner.marks.map(
+mark=>`
 
 <td>
 
 <input
 type="number"
-value="${mark.score || ''}">
+value="${mark.score||''}"
+
+onchange="
+saveMark(
+${learner.id},
+${selectedSubject},
+${selectedClass},
+'${mark.assessment_type}',
+this.value
+)
+">
 
 </td>
 
-`).join("")}
+`
+).join("")}
 
 <td>${total}</td>
 
@@ -670,7 +731,7 @@ value="${mark.score || ''}">
 
 });
 
-              }
+}
 
 
 // =========================
@@ -685,49 +746,26 @@ assessment_type,
 score
 ){
 
-if(
-!teacher.id
-){
-
-alert(
-"Teacher not found. Login again."
-);
-
-return;
-
-}
-
-const response=
+const response =
 await school(
 "saveMark",
 {
-
 learner_id,
 subject_id,
 class_id,
-
-academic_year_id:
-selectedYear,
-
-term_id:
-selectedTerm,
-
-teacher_id:
-teacher.id,
-
+academic_year_id:selectedYear,
+term_id:selectedTerm,
+teacher_id:teacher.id,
 assessment_type,
-
 score,
-
 max_score:100
-
 },
 "POST"
 );
 
 debug(
-"SAVED:",
-response
+"Saved: " +
+JSON.stringify(response)
 );
 
 }
@@ -749,7 +787,6 @@ document
 
 }
 
-
 function closeTestModal(){
 
 document
@@ -769,6 +806,10 @@ document
 
 async function init(){
 
+debug(
+"Starting..."
+);
+
 await loadAcademicContext();
 
 await loadTerms();
@@ -784,3 +825,5 @@ await loadMarks();
 init();
 
     </script>
+</body>
+</html>
