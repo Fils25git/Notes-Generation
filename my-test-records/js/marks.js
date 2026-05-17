@@ -655,13 +655,19 @@ mark.max_score||0
 
 if(mark.is_exam){
 
-exam+=score;
-examMax+=max;
+exam += score;
+
+if(mark.score !== ""){
+examMax += max;
+}
 
 }else{
 
-totalTests+=score;
-totalTestsMax+=max;
+totalTests += score;
+
+if(mark.score !== ""){
+totalTestsMax += max;
+}
 
 }
   debug(
