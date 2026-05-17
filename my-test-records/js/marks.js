@@ -1,4 +1,4 @@
-const teacher =
+const teacher=
 JSON.parse(
 localStorage.getItem("teacher")
 || "{}"
@@ -25,8 +25,8 @@ document.getElementById(
 
 if(box){
 
-box.innerHTML +=
-message + "<br>";
+box.innerHTML+=
+message+"<br>";
 
 box.scrollTop=
 box.scrollHeight;
@@ -62,7 +62,6 @@ headers:{
 
 };
 
-
 if(method==="GET"){
 
 const params=
@@ -72,18 +71,16 @@ body
 
 if(params){
 
-url +=
-"&"+params;
+url+="&"+params;
 
 }
 
 }
+
 else{
 
 options.body=
-JSON.stringify(
-body
-);
+JSON.stringify(body);
 
 }
 
@@ -96,11 +93,10 @@ options
 return await response.json();
 
 }
+
 catch(error){
 
-debug(
-error.message
-);
+debug(error.message);
 
 return [];
 
@@ -111,7 +107,7 @@ return [];
 
 
 // ======================
-// CURRENT SETTINGS
+// LOAD ACADEMIC
 // ======================
 
 async function loadAcademicContext(){
@@ -124,10 +120,16 @@ await fetch(
 r=>r.json()
 );
 
+
 selectedYear=
 data.year?.id;
 
+
 selectedTerm=
+localStorage.getItem(
+"selectedTerm"
+)
+||
 data.term?.id;
 
 }
@@ -155,15 +157,19 @@ document.getElementById(
 
 container.innerHTML="";
 
-
 data.forEach(term=>{
 
-container.innerHTML +=`
+const active=
+selectedTerm==
+term.id;
+
+container.innerHTML+=`
 
 <button
+
 class="
 class-btn
-${term.is_current?"active":""}
+${active?"active":""}
 "
 
 onclick="
@@ -193,6 +199,11 @@ event
 ){
 
 selectedTerm=id;
+
+localStorage.setItem(
+"selectedTerm",
+id
+);
 
 await fetch(
 "/.netlify/functions/academic?action=setTerm",
@@ -252,8 +263,22 @@ document.getElementById(
 
 container.innerHTML="";
 
+
+selectedSubject=
+localStorage.getItem(
+"selectedSubject"
+)
+||
+data[0]?.id;
+
+
+
 data.forEach(
-(s,i)=>{
+s=>{
+
+const active=
+selectedSubject==
+s.id;
 
 container.innerHTML+=`
 
@@ -261,7 +286,7 @@ container.innerHTML+=`
 
 class="
 subject-btn
-${i===0?"active":""}
+${active?"active":""}
 "
 
 onclick="
@@ -279,11 +304,7 @@ ${s.subject_name}
 
 `;
 
-}
-);
-
-selectedSubject=
-data[0]?.id;
+});
 
 }
 
@@ -296,13 +317,18 @@ event
 
 selectedSubject=id;
 
+localStorage.setItem(
+"selectedSubject",
+id
+);
+
 document
 .querySelectorAll(
 ".subject-btn"
 )
 .forEach(
-x=>
-x.classList.remove(
+b=>
+b.classList.remove(
 "active"
 )
 );
@@ -337,16 +363,29 @@ document.getElementById(
 container.innerHTML="";
 
 
-data.forEach(
-(c,i)=>{
+selectedClass=
+localStorage.getItem(
+"selectedClass"
+)
+||
+data[0]?.id;
 
-container.innerHTML +=`
+
+
+data.forEach(
+c=>{
+
+const active=
+selectedClass==
+c.id;
+
+container.innerHTML+=`
 
 <button
 
 class="
 class-btn
-${i===0?"active":""}
+${active?"active":""}
 "
 
 onclick="
@@ -364,11 +403,7 @@ ${c.class_name}
 
 `;
 
-}
-);
-
-selectedClass=
-data[0]?.id;
+});
 
 }
 
@@ -381,13 +416,18 @@ event
 
 selectedClass=id;
 
+localStorage.setItem(
+"selectedClass",
+id
+);
+
 document
 .querySelectorAll(
 ".class-btn"
 )
 .forEach(
-x=>
-x.classList.remove(
+b=>
+b.classList.remove(
 "active"
 )
 );
@@ -410,24 +450,22 @@ loadMarks();
 async function addTest(){
 
 const test_name=
-
 document.getElementById(
 "testName"
 ).value;
 
 
 const max_score=
-
 document.getElementById(
 "testMax"
 ).value;
 
 
 const is_exam=
-
 document.getElementById(
 "isExam"
 ).checked;
+
 
 
 if(
@@ -443,6 +481,7 @@ alert(
 return;
 
 }
+
 
 
 await school(
@@ -468,6 +507,7 @@ is_exam
 "POST"
 );
 
+
 closeTestModal();
 
 loadMarks();
@@ -492,11 +532,7 @@ if(
 ||
 !selectedSubject
 
-){
-
-return;
-
-}
+)return;
 
 
 const data=
@@ -520,6 +556,7 @@ selectedTerm
 );
 
 
+
 const header=
 document.getElementById(
 "marksHeader"
@@ -533,15 +570,18 @@ header.innerHTML=`
 `;
 
 
+
 if(data.length){
 
 data[0].marks
 .forEach(
 m=>{
 
-header.innerHTML +=`
+header.innerHTML+=`
 
-<th>
+<th
+style="cursor:pointer"
+>
 
 ${m.assessment_type}
 
@@ -553,24 +593,19 @@ ${m.assessment_type}
 
 `;
 
-}
-);
+});
 
 }
 
 
-header.innerHTML +=`
+
+header.innerHTML+=`
 
 <th>Total Tests</th>
-
 <th>Overall Test</th>
-
 <th>Exam</th>
-
 <th>Overall Exam</th>
-
 <th>Total Marks</th>
-
 <th>Percentage</th>
 
 `;
@@ -589,10 +624,11 @@ table.innerHTML="";
 data.forEach(
 (learner,i)=>{
 
+
 let totalTests=0;
 let exam=0;
-
 let maxTotal=0;
+
 
 
 const cells=
@@ -612,17 +648,18 @@ mark.max_score||0
 
 if(mark.is_exam){
 
-exam += score;
+exam+=score;
 
 }
+
 else{
 
-totalTests += score;
+totalTests+=score;
 
 }
 
 
-maxTotal += max;
+maxTotal+=max;
 
 
 return`
@@ -633,23 +670,17 @@ return`
 
 type="number"
 
-value="
-${score||""}
-"
+value="${score||""}"
 
-max="
-${max}
-"
+max="${max}"
 
 oninput="
 
 if(
-this.value>
-${max}
+this.value>${max}
 ){
 
-this.style.border=
-'2px solid red'
+this.style.border='2px solid red'
 
 }
 
@@ -678,8 +709,8 @@ ${max}
 
 `;
 
-}
-).join("");
+}).join("");
+
 
 
 const total=
@@ -688,18 +719,16 @@ exam;
 
 
 const percentage=
-
 maxTotal
 ?
-
 (
 (total/maxTotal)*100
 ).toFixed(1)
-
 :0;
 
 
-table.innerHTML +=`
+
+table.innerHTML+=`
 
 <tr>
 
@@ -725,8 +754,7 @@ ${cells}
 
 `;
 
-}
-);
+});
 
 }
 
@@ -747,7 +775,7 @@ document
 .getElementById(
 "saveStatus"
 )
-innerHTML=
+.innerHTML=
 "Saving...";
 
 
@@ -809,6 +837,15 @@ document
 // SEARCH
 // ======================
 
+document
+.getElementById(
+"searchInput"
+)
+.addEventListener(
+"input",
+searchLearners
+);
+
 function searchLearners(){
 
 const value=
@@ -818,6 +855,7 @@ document
 )
 .value
 .toLowerCase();
+
 
 document
 .querySelectorAll(
@@ -831,16 +869,13 @@ row.innerText
 .toLowerCase();
 
 row.style.display=
-text.includes(
-value
-)
+text.includes(value)
 ?
 ""
 :
 "none";
 
-}
-);
+});
 
 }
 
@@ -861,6 +896,7 @@ document
 );
 
 }
+
 
 function closeTestModal(){
 
