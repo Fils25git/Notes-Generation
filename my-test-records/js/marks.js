@@ -1,17 +1,23 @@
-const teacher =
+const teacher=
 JSON.parse(
 localStorage.getItem("teacher")
 || "{}"
 );
 
-let selectedSubject =
-localStorage.getItem("selectedSubject");
+let selectedSubject=
+localStorage.getItem(
+"selectedSubject"
+);
 
-let selectedClass =
-localStorage.getItem("selectedClass");
+let selectedClass=
+localStorage.getItem(
+"selectedClass"
+);
 
-let selectedTerm =
-localStorage.getItem("selectedTerm");
+let selectedTerm=
+localStorage.getItem(
+"selectedTerm"
+);
 
 let selectedYear=null;
 
@@ -31,7 +37,7 @@ document.getElementById(
 
 if(box){
 
-box.innerHTML +=
+box.innerHTML+=
 message+"<br>";
 
 box.scrollTop=
@@ -40,6 +46,7 @@ box.scrollHeight;
 }
 
 }
+
 
 
 // ======================
@@ -67,11 +74,13 @@ headers:{
 
 };
 
+
 if(method==="GET"){
 
 const params=
-new URLSearchParams(body)
-.toString();
+new URLSearchParams(
+body
+).toString();
 
 if(params){
 
@@ -79,12 +88,16 @@ url+="&"+params;
 
 }
 
-}else{
+}
+else{
 
 options.body=
-JSON.stringify(body);
+JSON.stringify(
+body
+);
 
 }
+
 
 const response=
 await fetch(
@@ -97,7 +110,9 @@ return await response.json();
 }
 catch(error){
 
-debug(error.message);
+debug(
+error.message
+);
 
 return[];
 
@@ -117,10 +132,13 @@ const data=
 await fetch(
 "/.netlify/functions/academic?action=getCurrent"
 )
-.then(r=>r.json());
+.then(
+r=>r.json()
+);
 
 selectedYear=
 data.year?.id;
+
 
 if(
 !selectedTerm
@@ -161,27 +179,34 @@ document.getElementById(
 
 container.innerHTML="";
 
+
 data.forEach(term=>{
 
 const active=
-Number(selectedTerm)===
+Number(selectedTerm)
+===
 term.id;
 
 container.innerHTML+=`
 
 <button
+
 class="
 class-btn
 ${active?"active":""}
 "
+
 onclick="
 selectTerm(
 ${term.id},
 event
 )
 "
+
 >
+
 ${term.term_name}
+
 </button>
 
 `;
@@ -189,6 +214,7 @@ ${term.term_name}
 });
 
 }
+
 
 
 async function selectTerm(
@@ -203,20 +229,6 @@ localStorage.setItem(
 id
 );
 
-await fetch(
-"/.netlify/functions/academic?action=setTerm",
-{
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-id
-})
-}
-);
 
 document
 .querySelectorAll(
@@ -258,6 +270,7 @@ document.getElementById(
 
 container.innerHTML="";
 
+
 if(
 !selectedSubject
 ){
@@ -272,16 +285,21 @@ selectedSubject
 
 }
 
+
 data.forEach(s=>{
 
 const active=
-Number(selectedSubject)
+Number(
+selectedSubject
+)
 ===
 s.id;
+
 
 container.innerHTML+=`
 
 <button
+
 class="
 subject-btn
 ${active?"active":""}
@@ -320,6 +338,7 @@ localStorage.setItem(
 id
 );
 
+
 document
 .querySelectorAll(
 ".subject-btn"
@@ -330,6 +349,7 @@ x.classList.remove(
 "active"
 )
 );
+
 
 event.target
 .classList.add(
@@ -360,6 +380,7 @@ document.getElementById(
 
 container.innerHTML="";
 
+
 if(
 !selectedClass
 ){
@@ -374,16 +395,21 @@ selectedClass
 
 }
 
+
 data.forEach(c=>{
 
 const active=
-Number(selectedClass)
+Number(
+selectedClass
+)
 ===
 c.id;
+
 
 container.innerHTML+=`
 
 <button
+
 class="
 class-btn
 ${active?"active":""}
@@ -465,6 +491,7 @@ document.getElementById(
 "isExam"
 ).checked;
 
+
 if(
 !test_name
 ||
@@ -479,12 +506,16 @@ return;
 
 }
 
+
 await school(
 "addTest",
 {
 
 subject_id:
 selectedSubject,
+
+class_id:
+selectedClass,
 
 academic_year_id:
 selectedYear,
@@ -499,6 +530,7 @@ is_exam
 },
 "POST"
 );
+
 
 closeTestModal();
 
@@ -528,6 +560,7 @@ return;
 
 }
 
+
 const data=
 await school(
 "getMarks",
@@ -548,6 +581,7 @@ selectedTerm
 }
 );
 
+
 const header=
 document.getElementById(
 "marksHeader"
@@ -556,21 +590,42 @@ document.getElementById(
 header.innerHTML=`
 
 <th>#</th>
+
 <th>Pupil Name</th>
 
 `;
 
+
 if(data.length){
 
-data[0].marks.forEach(
+data[0].marks
+.forEach(
 m=>{
 
 header.innerHTML+=`
 
-<th>
+<th
+
+style="
+cursor:pointer
+"
+
+onclick="
+editTest(
+${m.test_id},
+'${m.assessment_type}',
+${m.max_score}
+)
+"
+
+>
+
 ${m.assessment_type}
+
 <br>
+
 /${m.max_score}
+
 </th>
 
 `;
@@ -579,14 +634,23 @@ ${m.assessment_type}
 
 }
 
+
 header.innerHTML+=`
 
 <th>Total Tests</th>
+
+<th>Overall Test</th>
+
 <th>Exam</th>
-<th>Total Marks</th>
-<th>Percentage</th>
+
+<th>Overall Exam</th>
+
+<th>Total</th>
+
+<th>%</th>
 
 `;
+
 
 const table=
 document.getElementById(
@@ -600,11 +664,15 @@ data.forEach(
 (learner,i)=>{
 
 let totalTests=0;
+let totalTestsMax=0;
+
 let exam=0;
-let maxTotal=0;
+let examMax=0;
+
 
 const cells=
-learner.marks.map(
+learner.marks
+.map(
 mark=>{
 
 const score=
@@ -617,23 +685,31 @@ Number(
 mark.max_score||0
 );
 
-if(mark.is_exam){
+
+if(
+mark.is_exam
+){
 
 exam+=score;
 
-}else{
+examMax+=max;
+
+}
+else{
 
 totalTests+=score;
 
+totalTestsMax+=max;
+
 }
 
-maxTotal+=max;
 
 return`
 
 <td>
 
 <input
+
 type="number"
 
 value="${
@@ -642,26 +718,10 @@ score||""
 
 max="${max}"
 
-oninput="
-
-if(
-this.value>${max}
-){
-
-this.style.border='2px solid red';
-
-}else{
-
-this.style.border='';
-
-}
-
-"
-
 onchange="
 saveMark(
 ${learner.id},
-'${mark.assessment_type}',
+${mark.test_id},
 this.value,
 ${max}
 )
@@ -673,18 +733,27 @@ ${max}
 
 `;
 
-}).join("");
+}
+).join("");
+
 
 const total=
 totalTests+
 exam;
 
+const totalMax=
+totalTestsMax+
+examMax;
+
+
 const percentage=
-maxTotal
+totalMax
 ?
+
 (
-(total/maxTotal)*100
+(total/totalMax)*100
 ).toFixed(1)
+
 :0;
 
 
@@ -700,7 +769,11 @@ ${cells}
 
 <td>${totalTests}</td>
 
+<td>${totalTestsMax}</td>
+
 <td>${exam}</td>
+
+<td>${examMax}</td>
 
 <td>${total}</td>
 
@@ -722,14 +795,17 @@ ${cells}
 
 async function saveMark(
 learner_id,
-assessment_type,
+test_id,
 score,
 max_score
 ){
 
-if(score===""){
+if(
+score===""
+){
 return;
 }
+
 
 document
 .getElementById(
@@ -737,6 +813,7 @@ document
 )
 .innerHTML=
 "Saving...";
+
 
 await school(
 "saveMark",
@@ -759,13 +836,16 @@ selectedTerm,
 teacher_id:
 teacher.id,
 
-assessment_type,
+test_id,
+
 score,
+
 max_score
 
 },
 "POST"
 );
+
 
 document
 .getElementById(
@@ -774,7 +854,6 @@ document
 .innerHTML=
 "✓ Saved";
 
-loadMarks();
 
 setTimeout(()=>{
 
@@ -785,6 +864,59 @@ document
 .innerHTML="";
 
 },2000);
+
+}
+
+
+
+// ======================
+// EDIT TEST
+// ======================
+
+async function editTest(
+id,
+name,
+max
+){
+
+const test_name=
+prompt(
+"Edit test name",
+name
+);
+
+if(
+!test_name
+){
+return;
+}
+
+const max_score=
+prompt(
+"Edit max score",
+max
+);
+
+if(
+!max_score
+){
+return;
+}
+
+
+await school(
+"updateTest",
+{
+
+id,
+test_name,
+max_score
+
+},
+"POST"
+);
+
+loadMarks();
 
 }
 
@@ -803,6 +935,7 @@ document
 searchLearners
 );
 
+
 function searchLearners(){
 
 const value=
@@ -812,6 +945,7 @@ document
 )
 .value
 .toLowerCase();
+
 
 document
 .querySelectorAll(
@@ -850,6 +984,7 @@ document
 );
 
 }
+
 
 function closeTestModal(){
 
