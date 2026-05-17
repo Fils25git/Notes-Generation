@@ -8,7 +8,6 @@ const action=
 event.queryStringParameters?.action;
 
 
-
 // ===================================
 // GET SUBJECTS
 // ===================================
@@ -86,6 +85,47 @@ is_exam
 }=body;
 
 
+// avoid duplicate test names
+
+const existing=
+await db.query(
+
+`
+SELECT id
+FROM marks
+
+WHERE learner_id IS NULL
+AND subject_id=$1
+AND academic_year_id=$2
+AND term_id=$3
+AND assessment_type=$4
+`,
+[
+subject_id,
+academic_year_id,
+term_id,
+test_name
+]
+
+);
+
+
+if(existing.rows.length){
+
+return{
+
+statusCode:400,
+
+body:JSON.stringify({
+
+message:"Test already exists"
+
+})
+
+};
+
+}
+
 
 await db.query(
 
@@ -98,7 +138,6 @@ class_id,
 academic_year_id,
 term_id,
 teacher_id,
-
 assessment_type,
 score,
 max_score,
@@ -114,14 +153,12 @@ NULL,
 $2,
 $3,
 NULL,
-
 $4,
 0,
 $5,
 $6
 
 )
-
 `,
 [
 subject_id,
@@ -151,7 +188,6 @@ message:"Test added"
 
 
 
-
 // ===================================
 // GET MARKS
 // ===================================
@@ -170,15 +206,19 @@ term_id
 event.queryStringParameters;
 
 
+// learners
 
 const learners=
 await db.query(
 
 `
 SELECT *
+
 FROM learners
+
 WHERE class_id=$1
 AND academic_year_id=$2
+
 ORDER BY full_name
 `,
 [
@@ -189,9 +229,7 @@ academic_year_id
 );
 
 
-
-
-// GET ALL TESTS
+// get test definitions only
 
 const tests=
 await db.query(
@@ -205,11 +243,12 @@ is_exam
 
 FROM marks
 
-WHERE subject_id=$1
+WHERE learner_id IS NULL
+AND subject_id=$1
 AND academic_year_id=$2
 AND term_id=$3
 
-ORDER BY assessment_type
+ORDER BY id
 `,
 [
 subject_id,
@@ -220,18 +259,18 @@ term_id
 );
 
 
-
-
-// GET SCORES
+// get real learner marks only
 
 const marks=
 await db.query(
 
 `
 SELECT *
+
 FROM marks
 
-WHERE class_id=$1
+WHERE learner_id IS NOT NULL
+AND class_id=$1
 AND subject_id=$2
 AND academic_year_id=$3
 AND term_id=$4
@@ -244,8 +283,6 @@ term_id
 ]
 
 );
-
-
 
 
 const marksMap={};
@@ -266,8 +303,6 @@ m;
 );
 
 
-
-
 const finalData=
 
 learners.rows.map(
@@ -285,7 +320,6 @@ const found=
 marksMap[
 `${learner.id}_${test.assessment_type}`
 ];
-
 
 return{
 
@@ -326,7 +360,6 @@ learnerMarks
 );
 
 
-
 return{
 
 statusCode:200,
@@ -341,7 +374,6 @@ finalData
 
 
 
-
 // ===================================
 // SAVE MARK
 // ===================================
@@ -350,8 +382,7 @@ if(action==="saveMark"){
 
 const body=
 JSON.parse(
-event.body
-);
+event.body);
 
 
 const{
@@ -369,6 +400,24 @@ max_score
 }=body;
 
 
+// validation
+
+if(Number(score)>Number(max_score)){
+
+return{
+
+statusCode:400,
+
+body:JSON.stringify({
+
+message:
+"Score cannot exceed maximum score"
+
+})
+
+};
+
+}
 
 
 const exists=
@@ -377,6 +426,7 @@ await db.query(
 
 `
 SELECT id
+
 FROM marks
 
 WHERE learner_id=$1
@@ -398,19 +448,21 @@ assessment_type
 );
 
 
-
-
 if(exists.rows.length){
 
 await db.query(
 
 `
 UPDATE marks
-SET score=$1
-WHERE id=$2
+
+SET score=$1,
+max_score=$2
+
+WHERE id=$3
 `,
 [
 score,
+max_score,
 exists.rows[0].id
 ]
 
@@ -431,7 +483,6 @@ class_id,
 academic_year_id,
 term_id,
 teacher_id,
-
 assessment_type,
 score,
 max_score
@@ -440,18 +491,8 @@ max_score
 
 VALUES(
 
-$1,
-$2,
-$3,
-$4,
-$5,
-$6,
-
-$7,
-$8,
-$9
+$1,$2,$3,$4,$5,$6,$7,$8,$9
 )
-
 `,
 [
 learner_id,
@@ -460,7 +501,6 @@ class_id,
 academic_year_id,
 term_id,
 teacher_id,
-
 assessment_type,
 score,
 max_score
@@ -471,21 +511,20 @@ max_score
 }
 
 
-
 return{
 
 statusCode:200,
 
 body:JSON.stringify({
 
-message:"Saved successfully"
+message:
+"Saved successfully"
 
 })
 
 };
 
 }
-
 
 
 
