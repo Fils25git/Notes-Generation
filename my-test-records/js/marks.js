@@ -679,6 +679,25 @@ score||""
 
 max="${max}"
 
+oninput="
+
+if(
+Number(this.value)>
+${max}
+){
+
+this.style.border=
+'2px solid red';
+
+}
+else{
+
+this.style.border='';
+
+}
+
+"
+
 onchange="
 saveMark(
 ${learner.id},
@@ -698,7 +717,13 @@ ${max}
 ).join("");
 
 
-// Calculate learner overall test score
+
+
+
+// ===================
+// REAL CALCULATIONS
+// ===================
+
 let overallTest=0;
 
 if(
@@ -708,19 +733,15 @@ totalTestsMax>0
 overallTest=
 
 (
-(
 totalTests/
 totalTestsMax
 )
 *
-overallTestMax
-).toFixed(1);
+overallTestMax;
 
 }
 
 
-
-// Calculate learner overall exam score
 let overallExam=0;
 
 if(
@@ -730,19 +751,22 @@ examMax>0
 overallExam=
 
 (
-(
 exam/
 examMax
 )
 *
-overallExamMax
-).toFixed(1);
+overallExamMax;
 
 }
 
 
+overallTest=
+overallTest.toFixed(1);
 
-// Final score
+overallExam=
+overallExam.toFixed(1);
+
+
 const total=
 
 (
@@ -752,9 +776,7 @@ Number(overallExam)
 ).toFixed(1);
 
 
-
-// Percentage based on configured maximums
-const grandMax=
+const maxPossible=
 
 Number(overallTestMax)
 +
@@ -763,14 +785,14 @@ Number(overallExamMax);
 
 const percentage=
 
-grandMax>0
+maxPossible>0
 
 ?
 
 (
 (
 total/
-grandMax
+maxPossible
 )
 *
 100
