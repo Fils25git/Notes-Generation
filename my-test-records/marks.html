@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -32,38 +33,54 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 
 </div>
 
+
 <div class="sidebar-menu">
 
-<a href="dashboard.html" class="sidebar-link">
+<a href="dashboard.html"
+class="sidebar-link">
+
 <i class="fa-solid fa-house"></i>
+
 Dashboard
+
 </a>
 
-<a href="students.html" class="sidebar-link">
+
+<a href="students.html"
+class="sidebar-link">
+
 <i class="fa-solid fa-users"></i>
+
 Manage Students
+
 </a>
+
 
 <a href="marks.html"
 class="sidebar-link active">
 
 <i class="fa-solid fa-pen"></i>
+
 Record Marks
 
 </a>
+
 
 <a href="results.html"
 class="sidebar-link">
 
 <i class="fa-solid fa-chart-column"></i>
+
 Results
 
 </a>
+
 
 <a href="login.html"
 class="sidebar-link">
 
 <i class="fa-solid fa-right-from-bracket"></i>
+
 Logout
 
 </a>
@@ -74,7 +91,7 @@ Logout
 
 
 
-<!-- MAIN -->
+<!-- MAIN CONTENT -->
 
 <main class="main-content">
 
@@ -110,6 +127,7 @@ Add Test
 </div>
 
 
+
 <!-- SUBJECTS -->
 
 <div
@@ -119,6 +137,7 @@ class="subject-selector">
 </div>
 
 
+
 <!-- CLASSES -->
 
 <div
@@ -126,6 +145,7 @@ id="classContainer"
 class="class-selector">
 
 </div>
+
 
 
 <!-- TERMS -->
@@ -144,9 +164,9 @@ class="class-selector">
 
 <input
 type="text"
-placeholder="Search learner..."
 id="searchInput"
->
+placeholder="Search learner..."
+onkeyup="searchLearners()">
 
 </div>
 
@@ -156,6 +176,7 @@ id="searchInput"
 
 <div
 id="saveStatus"
+
 style="
 padding:10px;
 font-weight:bold;
@@ -163,6 +184,7 @@ color:green;
 ">
 
 </div>
+
 
 
 
@@ -190,6 +212,7 @@ Debug logs...
 
 
 
+
 <!-- TABLE -->
 
 <div class="card">
@@ -204,11 +227,26 @@ Debug logs...
 
 <th>#</th>
 
-<th>Student Name</th>
+<th>Pupil Name</th>
+
+<!-- TESTS WILL COME FROM DATABASE -->
+
+<th>Total Tests</th>
+
+<th>Overall Test</th>
+
+<th>Exam</th>
+
+<th>Overall Exam</th>
+
+<th>Total Marks</th>
+
+<th>Percentage</th>
 
 </tr>
 
 </thead>
+
 
 <tbody id="marksTable">
 
@@ -226,7 +264,8 @@ Debug logs...
 
 
 
-<!-- MODAL -->
+
+<!-- ADD TEST MODAL -->
 
 <div
 class="modal"
@@ -241,6 +280,7 @@ Add New Test
 </h2>
 
 
+
 <div class="input-group">
 
 <label>
@@ -252,10 +292,10 @@ Test Name
 <input
 id="testName"
 type="text"
-placeholder="Test name"
->
+placeholder="Example: Test 1">
 
 </div>
+
 
 
 
@@ -270,10 +310,10 @@ Out Of
 <input
 id="testMax"
 type="number"
-placeholder="Maximum score"
->
+placeholder="Maximum score">
 
 </div>
+
 
 
 
@@ -286,14 +326,14 @@ margin-top:15px;
 
 <input
 id="isExam"
-type="checkbox"
->
+type="checkbox">
 
 Is Exam
 
 </label>
 
 </div>
+
 
 
 
@@ -328,9 +368,8 @@ Add Test
 </div>
 
 
-<!-- SCRIPT GOES HERE -->
 
 <script src="js/marks.js"></script>
 
 </body>
-</html>
+  </html>
