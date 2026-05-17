@@ -1,12 +1,11 @@
 const db = require("./db");
 
-exports.handler = async (event)=>{
+exports.handler = async(event)=>{
 
 try{
 
 const action=
 event.queryStringParameters?.action;
-
 
 
 // ===================================
@@ -23,17 +22,13 @@ ORDER BY id
 `);
 
 return{
-
 statusCode:200,
-
 body:JSON.stringify(
 result.rows
 )
-
 };
 
 }
-
 
 
 // ===================================
@@ -50,17 +45,13 @@ ORDER BY id
 `);
 
 return{
-
 statusCode:200,
-
 body:JSON.stringify(
 result.rows
 )
-
 };
 
 }
-
 
 
 // ===================================
@@ -75,16 +66,13 @@ event.body
 );
 
 const{
-
 subject_id,
 academic_year_id,
 term_id,
 test_name,
 max_score,
 is_exam
-
 }=body;
-
 
 
 if(
@@ -96,26 +84,19 @@ if(
 ){
 
 return{
-
 statusCode:400,
-
 body:JSON.stringify({
-
-message:"Missing required fields"
-
+message:"Missing fields"
 })
-
 };
 
 }
-
 
 
 const result=
 await db.query(
 
 `
-
 INSERT INTO subject_tests(
 
 subject_id,
@@ -153,15 +134,17 @@ is_exam || false
 );
 
 
-
 return{
 
 statusCode:200,
 
 body:JSON.stringify({
 
-message:"Test created successfully",
-data:result.rows[0]
+message:
+"Test created",
+
+data:
+result.rows[0]
 
 })
 
@@ -170,6 +153,60 @@ data:result.rows[0]
 }
 
 
+
+// ===================================
+// UPDATE TEST
+// ===================================
+
+if(action==="updateTest"){
+
+const body=
+JSON.parse(
+event.body
+);
+
+const{
+id,
+test_name,
+max_score
+}=body;
+
+
+await db.query(
+
+`
+UPDATE subject_tests
+
+SET
+
+test_name=$1,
+max_score=$2
+
+WHERE id=$3
+`,
+[
+test_name,
+max_score,
+id
+]
+
+);
+
+
+return{
+
+statusCode:200,
+
+body:JSON.stringify({
+
+message:
+"Updated"
+
+})
+
+};
+
+}
 
 
 
@@ -180,12 +217,10 @@ data:result.rows[0]
 if(action==="getMarks"){
 
 const{
-
 class_id,
 subject_id,
 academic_year_id,
 term_id
-
 }
 =
 event.queryStringParameters;
@@ -199,9 +234,12 @@ await db.query(
 
 `
 SELECT *
+
 FROM learners
+
 WHERE class_id=$1
 AND academic_year_id=$2
+
 ORDER BY full_name
 `,
 [
@@ -239,7 +277,8 @@ term_id
 
 
 
-// learner scores
+
+// learner marks
 
 const marks=
 await db.query(
@@ -268,13 +307,16 @@ term_id
 
 const marksMap={};
 
+
 marks.rows.forEach(
 
 m=>{
 
 marksMap[
 `${m.learner_id}_${m.assessment_type}`
-]=m;
+]
+=
+m;
 
 }
 
@@ -305,6 +347,9 @@ marksMap[
 
 return{
 
+test_id:
+test.id,
+
 assessment_type:
 test.test_name,
 
@@ -322,7 +367,6 @@ test.is_exam
 }
 
 );
-
 
 
 return{
@@ -344,6 +388,7 @@ learnerMarks
 
 
 
+
 return{
 
 statusCode:200,
@@ -359,7 +404,6 @@ finalData
 
 
 
-
 // ===================================
 // SAVE MARK
 // ===================================
@@ -370,8 +414,6 @@ const body=
 JSON.parse(
 event.body
 );
-
-
 
 const{
 
@@ -389,7 +431,6 @@ max_score
 
 
 
-
 if(
 Number(score)>
 Number(max_score)
@@ -402,14 +443,13 @@ statusCode:400,
 body:JSON.stringify({
 
 message:
-"Score cannot exceed maximum score"
+"Score cannot exceed maximum"
 
 })
 
 };
 
 }
-
 
 
 
@@ -451,6 +491,7 @@ await db.query(
 UPDATE marks
 
 SET
+
 score=$1,
 max_score=$2
 
@@ -465,13 +506,11 @@ existing.rows[0].id
 );
 
 }
-
 else{
 
 await db.query(
 
 `
-
 INSERT INTO marks(
 
 learner_id,
@@ -495,7 +534,6 @@ $3,
 $4,
 $5,
 $6,
-
 $7,
 $8,
 $9
@@ -529,14 +567,13 @@ statusCode:200,
 body:JSON.stringify({
 
 message:
-"Saved successfully"
+"Saved"
 
 })
 
 };
 
 }
-
 
 
 
