@@ -2,10 +2,14 @@ const db = require("./db");
 
 exports.handler = async (event) => {
 
-try{
+try {
 
-const action=
+const action =
 event.queryStringParameters?.action;
+
+console.log("========== NEW REQUEST ==========");
+console.log("ACTION:", action);
+console.log("QUERY:", event.queryStringParameters);
 
 
 // =========================
@@ -14,6 +18,8 @@ event.queryStringParameters?.action;
 
 if(action==="getSubjects"){
 
+console.log("Loading subjects...");
+
 const result=
 await db.query(
 `
@@ -21,6 +27,11 @@ SELECT *
 FROM subjects
 ORDER BY id ASC
 `
+);
+
+console.log(
+"Subjects found:",
+result.rows.length
 );
 
 return{
@@ -37,6 +48,8 @@ body:JSON.stringify(result.rows)
 
 if(action==="getClasses"){
 
+console.log("Loading classes...");
+
 const result=
 await db.query(
 `
@@ -44,6 +57,11 @@ SELECT *
 FROM classes
 ORDER BY id ASC
 `
+);
+
+console.log(
+"Classes found:",
+result.rows.length
 );
 
 return{
@@ -70,12 +88,23 @@ academic_year_id
 event.queryStringParameters;
 
 
+console.log("GET MARKS PARAMETERS:");
+console.log("class_id:",class_id);
+console.log("subject_id:",subject_id);
+console.log("term_id:",term_id);
+console.log("academic_year_id:",academic_year_id);
+
+
 if(
 !class_id ||
 !subject_id ||
 !term_id ||
 !academic_year_id
 ){
+
+console.log(
+"Missing required parameters"
+);
 
 return{
 statusCode:400,
@@ -88,8 +117,53 @@ error:"Missing required fields"
 
 
 // =========================
+// DEBUG DATABASE VALUES
+// =========================
+
+const learnersCheck=
+await db.query(
+`
+SELECT
+id,
+full_name,
+class_id,
+academic_year_id
+FROM learners
+ORDER BY id
+`
+);
+
+console.log(
+"ALL LEARNERS IN DATABASE:"
+);
+
+console.log(
+JSON.stringify(
+learnersCheck.rows,
+null,
+2
+)
+);
+
+
+// =========================
 // GET LEARNERS
 // =========================
+
+console.log(
+"Searching learners with:"
+);
+
+console.log(
+"class_id=",
+class_id
+);
+
+console.log(
+"academic_year_id=",
+academic_year_id
+);
+
 
 const learnersRes=
 await db.query(
@@ -104,6 +178,24 @@ ORDER BY full_name ASC
 class_id,
 academic_year_id
 ]
+);
+
+
+console.log(
+"FOUND LEARNERS:"
+);
+
+console.log(
+JSON.stringify(
+learnersRes.rows,
+null,
+2
+)
+);
+
+console.log(
+"TOTAL LEARNERS:",
+learnersRes.rows.length
 );
 
 
@@ -127,6 +219,19 @@ subject_id,
 academic_year_id,
 term_id
 ]
+);
+
+console.log(
+"TOTAL MARKS:",
+marksRes.rows.length
+);
+
+console.log(
+JSON.stringify(
+marksRes.rows,
+null,
+2
+)
 );
 
 
@@ -195,14 +300,26 @@ return{
 
 id:learner.id,
 
-full_name:
-learner.full_name,
+full_name:learner.full_name,
 
 marks
 
 };
 
 }
+);
+
+
+console.log(
+"FINAL RESPONSE:"
+);
+
+console.log(
+JSON.stringify(
+data,
+null,
+2
+)
 );
 
 
@@ -222,6 +339,21 @@ body:JSON.stringify(data)
 
 if(action==="saveMark"){
 
+const body=
+JSON.parse(event.body);
+
+console.log(
+"SAVE MARK BODY:"
+);
+
+console.log(
+JSON.stringify(
+body,
+null,
+2
+)
+);
+
 const{
 
 learner_id,
@@ -234,35 +366,8 @@ assessment_type,
 score,
 max_score
 
-}
-=
-JSON.parse(
-event.body
-);
+}=body;
 
-
-if(
-!learner_id ||
-!subject_id ||
-!class_id ||
-!academic_year_id ||
-!term_id ||
-!assessment_type
-){
-
-return{
-statusCode:400,
-body:JSON.stringify({
-error:"Missing fields"
-})
-};
-
-}
-
-
-// =========================
-// CHECK EXISTING
-// =========================
 
 const existing=
 await db.query(
@@ -287,13 +392,17 @@ assessment_type
 );
 
 
-// =========================
-// UPDATE
-// =========================
+console.log(
+"Existing mark count:",
+existing.rows.length
+);
 
-if(
-existing.rows.length>0
-){
+
+if(existing.rows.length>0){
+
+console.log(
+"Updating mark..."
+);
 
 await db.query(
 `
@@ -310,18 +419,15 @@ existing.rows[0].id
 );
 
 }
-
-
-// =========================
-// INSERT
-// =========================
-
 else{
+
+console.log(
+"Inserting mark..."
+);
 
 await db.query(
 `
 INSERT INTO marks(
-
 learner_id,
 subject_id,
 class_id,
@@ -331,7 +437,6 @@ teacher_id,
 assessment_type,
 score,
 max_score
-
 )
 
 VALUES(
@@ -353,88 +458,34 @@ max_score || 100
 
 }
 
-
 return{
-
 statusCode:200,
 body:JSON.stringify({
 message:"Saved"
 })
-
 };
 
 }
 
 
 // =========================
-// ADD TEST
-// =========================
-
-if(action==="addTest"){
-
-const{
-test_name,
-subject_id,
-total_marks
-}
-=
-JSON.parse(
-event.body
-);
-
-const result=
-await db.query(
-`
-INSERT INTO tests(
-
-test_name,
-subject_id,
-total_marks
-
-)
-
-VALUES(
-$1,$2,$3
-)
-
-RETURNING *
-`,
-[
-test_name,
-subject_id,
-total_marks
-]
-);
-
-
-return{
-
-statusCode:200,
-body:JSON.stringify(
-result.rows[0]
-)
-
-};
-
-}
-
-
-// =========================
-// INVALID
+// INVALID ACTION
 // =========================
 
 return{
-
 statusCode:400,
 body:JSON.stringify({
 message:"Invalid action"
 })
-
 };
 
 }
 
 catch(error){
+
+console.log(
+"SERVER ERROR:"
+);
 
 console.log(error);
 
@@ -443,9 +494,7 @@ return{
 statusCode:500,
 
 body:JSON.stringify({
-
 error:error.message
-
 })
 
 };
