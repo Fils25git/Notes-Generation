@@ -664,6 +664,13 @@ totalTests+=score;
 totalTestsMax+=max;
 
 }
+  debug(
+"Test: "+
+mark.assessment_type+
+" | Score: "+score+
+" | Max: "+max+
+" | IsExam: "+mark.is_exam
+);
 
 
 return`
