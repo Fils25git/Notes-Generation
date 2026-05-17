@@ -84,6 +84,17 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 <div class="student-search">
 <input type="text" placeholder="Search student...">
 </div>
+    <div id="debugBox" style="
+background:black;
+color:lime;
+padding:10px;
+margin:10px;
+font-size:12px;
+height:200px;
+overflow:auto;
+white-space:pre-wrap;">
+Debug logs...
+    </div>
 
 <!-- TABLE -->
 <div class="card">
@@ -149,6 +160,23 @@ let selectedClass=null;
 let selectedTerm=null;
 let selectedYear=null;
 
+                function debug(message){
+
+debug(message);
+
+const box =
+document.getElementById(
+"debugBox"
+);
+
+if(box){
+
+box.innerHTML +=
+message + "\n";
+
+}
+
+                }
 
 // =========================
 // API WRAPPER
@@ -196,13 +224,13 @@ await fetch(url,options);
 const data=
 await res.json();
 
-console.log("API:",action,data);
+debug("API:",action,data);
 
 return data;
 
 }catch(err){
 
-console.log(
+debug(
 "API ERROR:",
 err
 );
@@ -243,7 +271,7 @@ data
 
 }catch(err){
 
-console.log(
+debug(
 "Academic error",
 err
 );
@@ -273,7 +301,7 @@ if(
 !data.length
 ){
 
-console.log(
+debug(
 "No terms"
 );
 
@@ -454,7 +482,7 @@ if(
 !data.length
 ){
 
-console.log(
+debug(
 "No classes"
 );
 
@@ -535,21 +563,29 @@ loadMarks();
 
 async function loadMarks(){
 
+alert(
+"Year: " + selectedYear +
+"\nTerm: " + selectedTerm +
+"\nClass: " + selectedClass +
+"\nSubject: " + selectedSubject
+);
+
 if(
-!selectedYear
-||
-!selectedTerm
-||
-!selectedClass
-||
+!selectedYear ||
+!selectedTerm ||
+!selectedClass ||
 !selectedSubject
 ){
+
+alert("Missing values");
 
 return;
 
 }
 
-const data=
+alert("Sending getMarks request");
+
+const data =
 await school(
 "getMarks",
 {
@@ -561,13 +597,17 @@ academic_year_id:selectedYear
 "GET"
 );
 
-const table=
+alert(
+"Returned learners: " +
+JSON.stringify(data)
+);
+
+const table =
 document.getElementById(
 "marksTable"
 );
 
 table.innerHTML="";
-
 
 if(
 !Array.isArray(data)
@@ -576,52 +616,39 @@ if(
 ){
 
 table.innerHTML=`
-
 <tr>
 <td colspan="8">
-
 No learners found
-
 </td>
 </tr>
-
 `;
 
 return;
 
 }
 
-
-data.forEach(
-(learner,i)=>{
+data.forEach((learner,i)=>{
 
 let total=0;
 
 const marks=
 learner.marks || [];
 
-marks.forEach(
-mark=>{
+marks.forEach(mark=>{
 
-total+=
-Number(
+total += Number(
 mark.score || 0
 );
 
-}
-);
+});
 
-table.innerHTML+=`
+table.innerHTML += `
 
 <tr>
 
-<td>
-${i+1}
-</td>
+<td>${i+1}</td>
 
-<td>
-${learner.full_name}
-</td>
+<td>${learner.full_name}</td>
 
 ${marks.map(mark=>`
 
@@ -629,27 +656,13 @@ ${marks.map(mark=>`
 
 <input
 type="number"
-value="${mark.score || ''}"
-
-onchange="saveMark(
-${learner.id},
-${selectedSubject},
-${selectedClass},
-'${mark.assessment_type}',
-this.value
-)"
-
->
+value="${mark.score || ''}">
 
 </td>
 
 `).join("")}
 
-<td>
-
-${total}
-
-</td>
+<td>${total}</td>
 
 </tr>
 
@@ -657,7 +670,7 @@ ${total}
 
 });
 
-}
+              }
 
 
 // =========================
@@ -712,7 +725,7 @@ max_score:100
 "POST"
 );
 
-console.log(
+debug(
 "SAVED:",
 response
 );
