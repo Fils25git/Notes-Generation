@@ -851,15 +851,15 @@ table.innerHTML+=`
 
 ${cells}
 
-<td>${totalTests}</td>
+<td>${totalTests}/${totalTestsMax}</td>
 
-<td>${overallTest}</td>
+<td>${overallTest}/${overallTestMax}</td>
 
-<td>${exam}</td>
+<td>${exam}/${examMax}</td>
 
-<td>${overallExam}</td>
+<td>${overallExam}/${overallExamMax}</td>
 
-<td>${total}</td>
+<td>${total}/${maxPossible}</td>
 
 <td>${percentage}%</td>
 
