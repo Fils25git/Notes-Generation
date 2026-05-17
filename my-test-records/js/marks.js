@@ -811,9 +811,9 @@ overallExam.toFixed(1);
 const total=
 
 (
-Number(overallTest)
+Number(totalTests)
 +
-Number(overallExam)
+Number(exam)
 ).toFixed(1);
 
 
