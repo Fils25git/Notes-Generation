@@ -569,12 +569,47 @@ ${m.assessment_type}
 }
 
 
+let headerTotalTestsMax=0;
+let headerExamMax=0;
+let headerMaxPossible=0;
+
+if(data.length){
+
+data[0].marks.forEach(
+m=>{
+
+if(m.is_exam){
+
+headerExamMax+=
+Number(
+m.max_score||0
+);
+
+}else{
+
+headerTotalTestsMax+=
+Number(
+m.max_score||0
+);
+
+}
+
+}
+);
+
+headerMaxPossible=
+
+headerTotalTestsMax+
+headerExamMax;
+
+}
+
 
 header.innerHTML+=`
 
 <th>Total Tests
 <br>
-/${totalTestsMax}</th>
+/${headerTotalTestsMax}</th>
 
 <th
 style="
@@ -594,7 +629,7 @@ Overall Test
 
 <th>Exam
 <br>
-/${examMax}</th>
+/${headerExamMax}</th>
 
 <th
 style="
@@ -614,7 +649,7 @@ Overall Exam
 
 <th>Total
 <br>
-/${maxPossible}</th>
+/${headerMaxPossible}</th>
 
 <th>%</th>
 
