@@ -67,11 +67,20 @@ result.rows
 // ADD TEST
 // ===================================
 
+// ===================================
+// ADD TEST
+// ===================================
+
 if(action==="addTest"){
 
+console.log("ADD TEST REQUEST RECEIVED");
+
 const body=
-JSON.parse(
-event.body
+JSON.parse(event.body);
+
+console.log(
+"BODY:",
+JSON.stringify(body,null,2)
 );
 
 const{
@@ -86,7 +95,34 @@ is_exam
 }=body;
 
 
+if(
+!subject_id ||
+!academic_year_id ||
+!term_id ||
+!test_name ||
+!max_score
+){
 
+console.log("MISSING DATA");
+
+return{
+
+statusCode:400,
+
+body:JSON.stringify({
+
+message:"Missing required fields"
+
+})
+
+};
+
+}
+
+
+console.log("INSERTING TEST...");
+
+const result=
 await db.query(
 
 `
@@ -98,7 +134,6 @@ class_id,
 academic_year_id,
 term_id,
 teacher_id,
-
 assessment_type,
 score,
 max_score,
@@ -114,7 +149,6 @@ NULL,
 $2,
 $3,
 NULL,
-
 $4,
 0,
 $5,
@@ -122,6 +156,7 @@ $6
 
 )
 
+RETURNING *
 `,
 [
 subject_id,
@@ -129,11 +164,19 @@ academic_year_id,
 term_id,
 test_name,
 max_score,
-is_exam
+is_exam || false
 ]
 
 );
 
+console.log(
+"CREATED:",
+JSON.stringify(
+result.rows[0],
+null,
+2
+)
+);
 
 return{
 
@@ -141,16 +184,14 @@ statusCode:200,
 
 body:JSON.stringify({
 
-message:"Test added"
+message:"Test added",
+data:result.rows[0]
 
 })
 
 };
 
 }
-
-
-
 
 // ===================================
 // GET MARKS
