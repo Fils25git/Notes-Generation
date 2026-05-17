@@ -468,7 +468,321 @@ loadMarks();
 
 }
 
+// ======================
+// LOAD MARKS
+// ======================
 
+async function loadMarks(){
+
+if(
+!selectedYear||
+!selectedTerm||
+!selectedClass||
+!selectedSubject
+){
+return;
+}
+
+
+const data=
+await school(
+"getMarks",
+{
+class_id:selectedClass,
+subject_id:selectedSubject,
+academic_year_id:selectedYear,
+term_id:selectedTerm
+}
+);
+
+
+const settings=
+await school(
+"getGradingSettings",
+{
+subject_id:selectedSubject,
+class_id:selectedClass,
+academic_year_id:selectedYear,
+term_id:selectedTerm
+}
+);
+
+
+const overallTestMax=
+Number(
+settings.overall_test_max||100
+);
+
+const overallExamMax=
+Number(
+settings.overall_exam_max||100
+);
+
+
+
+const header=
+document.getElementById(
+"marksHeader"
+);
+
+header.innerHTML=`
+
+<th>#</th>
+<th>Pupil Name</th>
+
+`;
+
+
+if(data.length){
+
+data[0].marks.forEach(
+m=>{
+
+header.innerHTML+=`
+
+<th
+style="
+cursor:pointer
+"
+
+onclick="
+editTest(
+${m.test_id},
+'${m.assessment_type}',
+${m.max_score}
+)
+"
+>
+
+${m.assessment_type}
+
+<br>
+
+/${m.max_score}
+
+</th>
+
+`;
+
+});
+
+}
+
+
+
+header.innerHTML+=`
+
+<th>Total Tests</th>
+
+<th
+style="
+cursor:pointer
+"
+
+onclick="
+editOverallTest()
+"
+>
+
+Overall Test
+<br>
+/${overallTestMax}
+
+</th>
+
+<th>Exam</th>
+
+<th
+style="
+cursor:pointer
+"
+
+onclick="
+editOverallExam()
+"
+>
+
+Overall Exam
+<br>
+/${overallExamMax}
+
+</th>
+
+<th>Total</th>
+
+<th>%</th>
+
+`;
+
+
+
+const table=
+document.getElementById(
+"marksTable"
+);
+
+table.innerHTML="";
+
+
+
+data.forEach(
+(learner,i)=>{
+
+
+let totalTests=0;
+let totalTestsMax=0;
+
+let exam=0;
+let examMax=0;
+
+
+
+const cells=
+learner.marks
+.map(
+mark=>{
+
+const score=
+Number(
+mark.score||0
+);
+
+const max=
+Number(
+mark.max_score||0
+);
+
+
+if(mark.is_exam){
+
+exam+=score;
+examMax+=max;
+
+}else{
+
+totalTests+=score;
+totalTestsMax+=max;
+
+}
+
+
+return`
+
+<td>
+
+<input
+type="number"
+
+value="${
+score||""
+}"
+
+max="${max}"
+
+onchange="
+saveMark(
+${learner.id},
+${mark.test_id},
+this.value,
+${max}
+)
+"
+
+>
+
+</td>
+
+`;
+
+}
+).join("");
+
+
+
+const overallTest=
+
+totalTestsMax
+?
+
+(
+totalTests*
+overallTestMax
+/
+totalTestsMax
+).toFixed(1)
+
+:0;
+
+
+
+const overallExam=
+
+examMax
+?
+
+(
+exam*
+overallExamMax
+/
+examMax
+).toFixed(1)
+
+:0;
+
+
+
+const total=
+
+Number(overallTest)
++
+Number(overallExam);
+
+
+
+const percentage=
+
+(
+(
+total/
+(
+overallTestMax+
+overallExamMax
+)
+)
+*100
+).toFixed(1);
+
+
+
+table.innerHTML+=`
+
+<tr>
+
+<td>${i+1}</td>
+
+<td>${learner.full_name}</td>
+
+${cells}
+
+<td>${totalTests}</td>
+
+<td>${overallTest}</td>
+
+<td>${exam}</td>
+
+<td>${overallExam}</td>
+
+<td>${total}</td>
+
+<td>${percentage}%</td>
+
+</tr>
+
+`;
+
+});
+
+}
 
 // ======================
 // ADD TEST
@@ -539,253 +853,6 @@ loadMarks();
 }
 
 
-
-// ======================
-// LOAD MARKS
-// ======================
-
-async function loadMarks(){
-
-if(
-!selectedYear
-||
-!selectedTerm
-||
-!selectedClass
-||
-!selectedSubject
-){
-
-return;
-
-}
-
-
-const data=
-await school(
-"getMarks",
-{
-
-class_id:
-selectedClass,
-
-subject_id:
-selectedSubject,
-
-academic_year_id:
-selectedYear,
-
-term_id:
-selectedTerm
-
-}
-);
-
-
-const header=
-document.getElementById(
-"marksHeader"
-);
-
-header.innerHTML=`
-
-<th>#</th>
-
-<th>Pupil Name</th>
-
-`;
-
-
-if(data.length){
-
-data[0].marks
-.forEach(
-m=>{
-
-header.innerHTML+=`
-
-<th
-
-style="
-cursor:pointer
-"
-
-onclick="
-editTest(
-${m.test_id},
-'${m.assessment_type}',
-${m.max_score}
-)
-"
-
->
-
-${m.assessment_type}
-
-<br>
-
-/${m.max_score}
-
-</th>
-
-`;
-
-});
-
-}
-
-
-header.innerHTML+=`
-
-<th>Total Tests</th>
-
-<th>Overall Test</th>
-
-<th>Exam</th>
-
-<th>Overall Exam</th>
-
-<th>Total</th>
-
-<th>%</th>
-
-`;
-
-
-const table=
-document.getElementById(
-"marksTable"
-);
-
-table.innerHTML="";
-
-
-data.forEach(
-(learner,i)=>{
-
-let totalTests=0;
-let totalTestsMax=0;
-
-let exam=0;
-let examMax=0;
-
-
-const cells=
-learner.marks
-.map(
-mark=>{
-
-const score=
-Number(
-mark.score||0
-);
-
-const max=
-Number(
-mark.max_score||0
-);
-
-
-if(
-mark.is_exam
-){
-
-exam+=score;
-
-examMax+=max;
-
-}
-else{
-
-totalTests+=score;
-
-totalTestsMax+=max;
-
-}
-
-
-return`
-
-<td>
-
-<input
-
-type="number"
-
-value="${
-score||""
-}"
-
-max="${max}"
-
-onchange="
-saveMark(
-${learner.id},
-${mark.test_id},
-this.value,
-${max}
-)
-"
-
->
-
-</td>
-
-`;
-
-}
-).join("");
-
-
-const total=
-totalTests+
-exam;
-
-const totalMax=
-totalTestsMax+
-examMax;
-
-
-const percentage=
-totalMax
-?
-
-(
-(total/totalMax)*100
-).toFixed(1)
-
-:0;
-
-
-table.innerHTML+=`
-
-<tr>
-
-<td>${i+1}</td>
-
-<td>${learner.full_name}</td>
-
-${cells}
-
-<td>${totalTests}</td>
-
-<td>${totalTestsMax}</td>
-
-<td>${exam}</td>
-
-<td>${examMax}</td>
-
-<td>${total}</td>
-
-<td>${percentage}%</td>
-
-</tr>
-
-`;
-
-});
-
-}
 
 
 
@@ -920,7 +987,103 @@ loadMarks();
 
 }
 
+// ======================
+// EDIT OVERALL TEST
+// ======================
 
+async function editOverallTest(){
+
+const value=
+prompt(
+"Set overall test maximum"
+);
+
+if(!value)return;
+
+
+const settings=
+await school(
+"getGradingSettings",
+{
+subject_id:selectedSubject,
+class_id:selectedClass,
+academic_year_id:selectedYear,
+term_id:selectedTerm
+}
+);
+
+
+await school(
+"saveGradingSettings",
+{
+
+subject_id:selectedSubject,
+class_id:selectedClass,
+academic_year_id:selectedYear,
+term_id:selectedTerm,
+
+overall_test_max:value,
+
+overall_exam_max:
+settings.overall_exam_max||100
+
+},
+"POST"
+);
+
+loadMarks();
+
+}
+
+
+
+// ======================
+// EDIT OVERALL EXAM
+// ======================
+
+async function editOverallExam(){
+
+const value=
+prompt(
+"Set overall exam maximum"
+);
+
+if(!value)return;
+
+
+const settings=
+await school(
+"getGradingSettings",
+{
+subject_id:selectedSubject,
+class_id:selectedClass,
+academic_year_id:selectedYear,
+term_id:selectedTerm
+}
+);
+
+
+await school(
+"saveGradingSettings",
+{
+
+subject_id:selectedSubject,
+class_id:selectedClass,
+academic_year_id:selectedYear,
+term_id:selectedTerm,
+
+overall_test_max:
+settings.overall_test_max||100,
+
+overall_exam_max:value
+
+},
+"POST"
+);
+
+loadMarks();
+
+  }
 
 // ======================
 // SEARCH
