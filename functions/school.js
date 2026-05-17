@@ -8,9 +8,9 @@ const action=
 event.queryStringParameters?.action;
 
 
-// ===================================
+// =========================
 // GET SUBJECTS
-// ===================================
+// =========================
 
 if(action==="getSubjects"){
 
@@ -23,17 +23,15 @@ ORDER BY id
 
 return{
 statusCode:200,
-body:JSON.stringify(
-result.rows
-)
+body:JSON.stringify(result.rows)
 };
 
 }
 
 
-// ===================================
+// =========================
 // GET CLASSES
-// ===================================
+// =========================
 
 if(action==="getClasses"){
 
@@ -46,17 +44,15 @@ ORDER BY id
 
 return{
 statusCode:200,
-body:JSON.stringify(
-result.rows
-)
+body:JSON.stringify(result.rows)
 };
 
 }
 
 
-// ===================================
+// =========================
 // ADD TEST
-// ===================================
+// =========================
 
 if(action==="addTest"){
 
@@ -65,6 +61,7 @@ JSON.parse(event.body);
 
 const{
 subject_id,
+class_id,
 academic_year_id,
 term_id,
 test_name,
@@ -80,6 +77,7 @@ await db.query(
 INSERT INTO subject_tests(
 
 subject_id,
+class_id,
 academic_year_id,
 term_id,
 test_name,
@@ -89,14 +87,14 @@ is_exam
 )
 
 VALUES(
-$1,$2,$3,$4,$5,$6
+$1,$2,$3,$4,$5,$6,$7
 )
 
 RETURNING *
-
 `,
 [
 subject_id,
+class_id,
 academic_year_id,
 term_id,
 test_name,
@@ -110,20 +108,18 @@ return{
 
 statusCode:200,
 
-body:JSON.stringify({
-message:"Created",
-data:result.rows[0]
-})
+body:JSON.stringify(
+result.rows[0]
+)
 
 };
 
 }
 
 
-
-// ===================================
+// =========================
 // UPDATE TEST
-// ===================================
+// =========================
 
 if(action==="updateTest"){
 
@@ -157,15 +153,11 @@ id
 );
 
 
-// update linked marks also
-
 await db.query(
 
 `
 UPDATE marks
-
 SET max_score=$1
-
 WHERE test_id=$2
 `,
 [
@@ -175,12 +167,15 @@ id
 
 );
 
+
 return{
 
 statusCode:200,
 
 body:JSON.stringify({
-message:"Updated"
+
+message:"updated"
+
 })
 
 };
@@ -189,9 +184,9 @@ message:"Updated"
 
 
 
-// ===================================
+// =========================
 // GET MARKS
-// ===================================
+// =========================
 
 if(action==="getMarks"){
 
@@ -203,7 +198,6 @@ term_id
 }
 =
 event.queryStringParameters;
-
 
 
 const learners=
@@ -227,7 +221,6 @@ academic_year_id
 );
 
 
-
 const tests=
 await db.query(
 
@@ -237,19 +230,20 @@ SELECT *
 FROM subject_tests
 
 WHERE subject_id=$1
-AND academic_year_id=$2
-AND term_id=$3
+AND class_id=$2
+AND academic_year_id=$3
+AND term_id=$4
 
 ORDER BY id
 `,
 [
 subject_id,
+class_id,
 academic_year_id,
 term_id
 ]
 
 );
-
 
 
 const marks=
@@ -275,7 +269,6 @@ term_id
 );
 
 
-
 const marksMap={};
 
 marks.rows.forEach(m=>{
@@ -287,7 +280,6 @@ marksMap[
 m;
 
 });
-
 
 
 const finalData=
@@ -310,8 +302,7 @@ marksMap[
 
 return{
 
-test_id:
-test.id,
+test_id:test.id,
 
 assessment_type:
 test.test_name,
@@ -334,8 +325,7 @@ test.is_exam
 
 return{
 
-id:
-learner.id,
+id:learner.id,
 
 full_name:
 learner.full_name,
@@ -348,7 +338,6 @@ learnerMarks
 }
 
 );
-
 
 
 return{
@@ -365,9 +354,9 @@ finalData
 
 
 
-// ===================================
+// =========================
 // SAVE MARK
-// ===================================
+// =========================
 
 if(action==="saveMark"){
 
@@ -389,34 +378,7 @@ max_score
 }=body;
 
 
-const finalScore=
-Number(score)||0;
-
-const finalMax=
-Number(max_score)||0;
-
-
-if(finalScore>finalMax){
-
-return{
-
-statusCode:400,
-
-body:JSON.stringify({
-
-message:
-"Score exceeds maximum"
-
-})
-
-};
-
-}
-
-
-
 const existing=
-
 await db.query(
 
 `
@@ -435,21 +397,17 @@ test_id
 );
 
 
-
 if(existing.rows.length){
 
 await db.query(
 
 `
 UPDATE marks
-
-SET
-score=$1
-
+SET score=$1
 WHERE id=$2
 `,
 [
-finalScore,
+score,
 existing.rows[0].id
 ]
 
@@ -478,7 +436,6 @@ max_score
 VALUES(
 $1,$2,$3,$4,$5,$6,$7,$8,$9
 )
-
 `,
 [
 learner_id,
@@ -488,8 +445,8 @@ academic_year_id,
 term_id,
 teacher_id,
 test_id,
-finalScore,
-finalMax
+score,
+max_score
 ]
 
 );
@@ -503,7 +460,7 @@ statusCode:200,
 
 body:JSON.stringify({
 
-message:"Saved"
+message:"saved"
 
 })
 
@@ -512,10 +469,7 @@ message:"Saved"
 }
 
 
-
-// ===================================
-// INVALID
-// ===================================
+// =========================
 
 return{
 
@@ -524,6 +478,7 @@ statusCode:400,
 body:JSON.stringify({
 
 message:"Invalid action"
+
 })
 
 };
