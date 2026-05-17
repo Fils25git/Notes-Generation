@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
 <title>Record Marks</title>
 
@@ -13,6 +15,7 @@
 
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
 </head>
 
 <body>
@@ -20,817 +23,314 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 <div class="dashboard-wrapper">
 
 <!-- SIDEBAR -->
+
 <aside class="sidebar">
+
 <div class="sidebar-logo">
+
 <h2>Marks System</h2>
+
 </div>
 
 <div class="sidebar-menu">
 
 <a href="dashboard.html" class="sidebar-link">
-<i class="fa-solid fa-house"></i> Dashboard
+<i class="fa-solid fa-house"></i>
+Dashboard
 </a>
 
 <a href="students.html" class="sidebar-link">
-<i class="fa-solid fa-users"></i> Manage Students
+<i class="fa-solid fa-users"></i>
+Manage Students
 </a>
 
-<a href="marks.html" class="sidebar-link active">
-<i class="fa-solid fa-pen"></i> Record Marks
+<a href="marks.html"
+class="sidebar-link active">
+
+<i class="fa-solid fa-pen"></i>
+Record Marks
+
 </a>
 
-<a href="results.html" class="sidebar-link">
-<i class="fa-solid fa-chart-column"></i> Results
+<a href="results.html"
+class="sidebar-link">
+
+<i class="fa-solid fa-chart-column"></i>
+Results
+
 </a>
 
-<a href="login.html" class="sidebar-link">
-<i class="fa-solid fa-right-from-bracket"></i> Logout
+<a href="login.html"
+class="sidebar-link">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+Logout
+
 </a>
 
 </div>
+
 </aside>
 
+
+
 <!-- MAIN -->
+
 <main class="main-content">
 
 <div class="topbar">
 
 <div class="teacher-info">
+
 <h2>Record Marks</h2>
-<p>Record tests and exams</p>
+
+<p>
+
+Record tests and exams
+
+</p>
+
 </div>
+
 
 <div class="marks-actions">
 
-<button class="btn btn-primary" onclick="openTestModal()">
-<i class="fa-solid fa-plus"></i> Add Test
+<button
+class="btn btn-primary"
+onclick="openTestModal()">
+
+<i class="fa-solid fa-plus"></i>
+
+Add Test
+
 </button>
 
-<button class="btn btn-success">Save Marks</button>
-
 </div>
 
 </div>
+
 
 <!-- SUBJECTS -->
-<div id="subjectContainer" class="subject-selector"></div>
+
+<div
+id="subjectContainer"
+class="subject-selector">
+
+</div>
+
 
 <!-- CLASSES -->
-<div id="classContainer" class="class-selector"></div>
-    <!-- TERMS (ADD THIS) -->
-<div id="termContainer" class="class-selector"></div>
+
+<div
+id="classContainer"
+class="class-selector">
+
+</div>
+
+
+<!-- TERMS -->
+
+<div
+id="termContainer"
+class="class-selector">
+
+</div>
+
+
 
 <!-- SEARCH -->
+
 <div class="student-search">
-<input type="text" placeholder="Search student...">
+
+<input
+type="text"
+placeholder="Search learner..."
+id="searchInput"
+>
+
 </div>
-    <div id="debugBox" style="
+
+
+
+<!-- SAVE STATUS -->
+
+<div
+id="saveStatus"
+style="
+padding:10px;
+font-weight:bold;
+color:green;
+">
+
+</div>
+
+
+
+<!-- DEBUG -->
+
+<div
+id="debugBox"
+
+style="
+
 background:black;
 color:lime;
 padding:10px;
 margin:10px;
 font-size:12px;
-height:200px;
+height:150px;
 overflow:auto;
-white-space:pre-wrap;">
+white-space:pre-wrap;
+
+">
+
 Debug logs...
-    </div>
+
+</div>
+
+
 
 <!-- TABLE -->
+
 <div class="card">
+
 <div class="table-container">
 
 <table class="marks-table">
 
 <thead>
-<tr>
+
+<tr id="marksHeader">
+
 <th>#</th>
+
 <th>Student Name</th>
-<th>Test/..</th>
-<th>Test/..</th>
-<th>Overall Test/90</th>
-<th>Total</th>
-<th>Exam/..</th>
-<th>Overall exam/90</th>
-    
+
 </tr>
+
 </thead>
 
-<tbody id="marksTable"></tbody>
+<tbody id="marksTable">
+
+</tbody>
 
 </table>
 
 </div>
+
 </div>
 
 </main>
+
 </div>
+
+
 
 <!-- MODAL -->
-<div class="modal" id="testModal">
+
+<div
+class="modal"
+id="testModal">
+
 <div class="modal-content">
 
-<h2>Add New Test</h2>
+<h2>
+
+Add New Test
+
+</h2>
+
 
 <div class="input-group">
-<label>Test Name</label>
-<input type="text">
-</div>
 
-<div class="input-group">
-<label>Out Of</label>
-<input type="number">
-</div>
+<label>
 
-<div style="display:flex;gap:10px;margin-top:20px;">
-<button class="btn btn-danger" onclick="closeTestModal()">Cancel</button>
-<button class="btn btn-primary">Add Test</button>
-</div>
+Test Name
 
-</div>
-    </div>
-    <script>
-
-const teacher = JSON.parse(
-localStorage.getItem("teacher") || "{}"
-);
-
-let selectedSubject = null;
-let selectedClass = null;
-let selectedTerm = null;
-let selectedYear = null;
-
-
-// =========================
-// DEBUG
-// =========================
-
-function debug(message){
-
-console.log(message);
-
-const box =
-document.getElementById(
-"debugBox"
-);
-
-if(box){
-
-box.innerHTML +=
-message + "<br>";
-
-box.scrollTop =
-box.scrollHeight;
-
-}
-
-}
-
-
-// =========================
-// API WRAPPER
-// =========================
-
-async function school(
-action,
-body={},
-method="GET"
-){
-
-try{
-
-let url =
-`/.netlify/functions/school?action=${action}`;
-
-const options = {
-method,
-headers:{
-"Content-Type":"application/json"
-}
-};
-
-if(method==="GET"){
-
-const params =
-new URLSearchParams(
-body
-).toString();
-
-if(params){
-
-url += `&${params}`;
-
-}
-
-}
-else{
-
-options.body =
-JSON.stringify(body);
-
-}
-
-debug(
-"REQUEST: " + url
-);
-
-const res =
-await fetch(
-url,
-options
-);
-
-const data =
-await res.json();
-
-debug(
-"API " +
-action +
-": " +
-JSON.stringify(data)
-);
-
-return data;
-
-}
-catch(err){
-
-debug(
-"API ERROR: " +
-err.message
-);
-
-return [];
-
-}
-
-}
-
-
-// =========================
-// LOAD ACADEMIC
-// =========================
-
-async function loadAcademicContext(){
-
-try{
-
-const res =
-await fetch(
-"/.netlify/functions/academic?action=getCurrent"
-);
-
-const data =
-await res.json();
-
-debug(
-"FULL ACADEMIC RESPONSE:"
-);
-
-debug(
-JSON.stringify(data)
-);
-
-selectedYear =
-data?.year?.id || data?.academic_year_id || null;
-
-selectedTerm =
-data?.term?.id || data?.term_id || null;
-
-debug(
-"Academic Year: " +
-selectedYear
-);
-
-debug(
-"Term: " +
-selectedTerm
-);
-
-}
-catch(err){
-
-debug(
-"Academic error: " +
-err.message
-);
-
-}
-
-}
-
-// =========================
-// LOAD TERMS
-// =========================
-
-async function loadTerms(){
-
-const data =
-await fetch(
-"/.netlify/functions/academic?action=getTerms"
-)
-.then(
-r=>r.json()
-);
-
-if(
-!Array.isArray(data)
-||
-!data.length
-){
-
-debug(
-"No terms"
-);
-
-return;
-
-}
-
-const container =
-document.getElementById(
-"termContainer"
-);
-
-container.innerHTML="";
-
-data.forEach(
-(term,i)=>{
-
-container.innerHTML += `
-
-<button
-class="class-btn ${i===0?"active":""}"
-onclick="selectTerm(${term.id},event)"
->
-
-${term.term_name}
-
-</button>
-
-`;
-
-});
-
-selectedTerm =
-selectedTerm ||
-data[0].id;
-
-}
-
-
-// =========================
-// SELECT TERM
-// =========================
-
-function selectTerm(
-id,
-event
-){
-
-selectedTerm=id;
-
-document
-.querySelectorAll(
-"#termContainer button"
-)
-.forEach(
-b=>
-b.classList.remove(
-"active"
-)
-);
-
-event.target
-.classList.add(
-"active"
-);
-
-loadMarks();
-
-}
-
-
-// =========================
-// LOAD SUBJECTS
-// =========================
-
-async function loadSubjects(){
-
-const data =
-await school(
-"getSubjects"
-);
-
-if(
-!Array.isArray(data)
-||
-!data.length
-){
-
-debug(
-"No subjects"
-);
-
-return;
-
-}
-
-const container =
-document.getElementById(
-"subjectContainer"
-);
-
-container.innerHTML="";
-
-data.forEach(
-(subject,i)=>{
-
-container.innerHTML += `
-
-<button
-class="subject-btn ${i===0?"active":""}"
-onclick="selectSubject(${subject.id},event)"
->
-
-${subject.subject_name}
-
-</button>
-
-`;
-
-});
-
-selectedSubject =
-data[0].id;
-
-}
-
-
-// =========================
-// SELECT SUBJECT
-// =========================
-
-function selectSubject(
-id,
-event
-){
-
-selectedSubject=id;
-
-document
-.querySelectorAll(
-".subject-btn"
-)
-.forEach(
-b=>
-b.classList.remove(
-"active"
-)
-);
-
-event.target
-.classList.add(
-"active"
-);
-
-loadMarks();
-
-}
-
-
-// =========================
-// LOAD CLASSES
-// =========================
-
-async function loadClasses(){
-
-const data =
-await school(
-"getClasses"
-);
-
-if(
-!Array.isArray(data)
-||
-!data.length
-){
-
-debug(
-"No classes"
-);
-
-return;
-
-}
-
-const container =
-document.getElementById(
-"classContainer"
-);
-
-container.innerHTML="";
-
-data.forEach(
-(cls,i)=>{
-
-container.innerHTML += `
-
-<button
-class="class-btn ${i===0?"active":""}"
-onclick="selectClass(${cls.id},event)"
->
-
-${cls.class_name}
-
-</button>
-
-`;
-
-});
-
-selectedClass =
-data[0].id;
-
-}
-
-
-// =========================
-// SELECT CLASS
-// =========================
-
-function selectClass(
-id,
-event
-){
-
-selectedClass=id;
-
-document
-.querySelectorAll(
-".class-btn"
-)
-.forEach(
-b=>
-b.classList.remove(
-"active"
-)
-);
-
-event.target
-.classList.add(
-"active"
-);
-
-loadMarks();
-
-}
-
-
-// =========================
-// LOAD MARKS
-// =========================
-
-async function loadMarks(){
-
-debug(
-"Loading marks..."
-);
-
-debug(
-"Year: " +
-selectedYear
-);
-
-debug(
-"Term: " +
-selectedTerm
-);
-
-debug(
-"Class: " +
-selectedClass
-);
-
-debug(
-"Subject: " +
-selectedSubject
-);
-
-if(
-!selectedYear
-||
-!selectedTerm
-||
-!selectedClass
-||
-!selectedSubject
-){
-
-debug(
-"Missing required values"
-);
-
-return;
-
-}
-
-const data =
-await school(
-"getMarks",
-{
-class_id:selectedClass,
-subject_id:selectedSubject,
-term_id:selectedTerm,
-academic_year_id:selectedYear
-}
-);
-
-const table =
-document.getElementById(
-"marksTable"
-);
-
-table.innerHTML="";
-
-if(
-!Array.isArray(data)
-||
-!data.length
-){
-
-debug(
-"No learners returned"
-);
-
-table.innerHTML=`
-
-<tr>
-<td colspan="8">
-No learners found
-</td>
-</tr>
-
-`;
-
-return;
-
-}
-
-debug(
-"Learners: " +
-data.length
-);
-
-data.forEach(
-(learner,i)=>{
-
-let total=0;
-
-learner.marks.forEach(
-mark=>{
-
-total +=
-Number(
-mark.score || 0
-);
-
-}
-);
-
-table.innerHTML += `
-
-<tr>
-
-<td>${i+1}</td>
-
-<td>${learner.full_name}</td>
-
-${learner.marks.map(
-mark=>`
-
-<td>
+</label>
 
 <input
-type="number"
-value="${mark.score||''}"
+id="testName"
+type="text"
+placeholder="Test name"
+>
 
-onchange="
-saveMark(
-${learner.id},
-${selectedSubject},
-${selectedClass},
-'${mark.assessment_type}',
-this.value
-)
+</div>
+
+
+
+<div class="input-group">
+
+<label>
+
+Out Of
+
+</label>
+
+<input
+id="testMax"
+type="number"
+placeholder="Maximum score"
+>
+
+</div>
+
+
+
+<div
+style="
+margin-top:15px;
 ">
 
-</td>
+<label>
 
-`
-).join("")}
+<input
+id="isExam"
+type="checkbox"
+>
 
-<td>${total}</td>
+Is Exam
 
-</tr>
+</label>
 
-`;
-
-});
-
-}
+</div>
 
 
-// =========================
-// SAVE MARK
-// =========================
 
-async function saveMark(
-learner_id,
-subject_id,
-class_id,
-assessment_type,
-score
-){
+<div
+style="
+display:flex;
+gap:10px;
+margin-top:20px;
+">
 
-const response =
-await school(
-"saveMark",
-{
-learner_id,
-subject_id,
-class_id,
-academic_year_id:selectedYear,
-term_id:selectedTerm,
-teacher_id:teacher.id,
-assessment_type,
-score,
-max_score:100
-},
-"POST"
-);
+<button
+class="btn btn-danger"
+onclick="closeTestModal()">
 
-debug(
-"Saved: " +
-JSON.stringify(response)
-);
+Cancel
 
-}
+</button>
 
 
-// =========================
-// MODAL
-// =========================
+<button
+class="btn btn-primary"
+onclick="addTest()">
 
-function openTestModal(){
+Add Test
 
-document
-.getElementById(
-"testModal"
-)
-.classList.add(
-"active"
-);
+</button>
 
-}
+</div>
 
-function closeTestModal(){
+</div>
 
-document
-.getElementById(
-"testModal"
-)
-.classList.remove(
-"active"
-);
-
-}
+</div>
 
 
-// =========================
-// INIT
-// =========================
+<!-- SCRIPT GOES HERE -->
 
-async function init(){
+<script src="js/marks.js"></script>
 
-debug(
-"Starting..."
-);
-
-await loadAcademicContext();
-
-await loadTerms();
-
-await loadSubjects();
-
-await loadClasses();
-
-await loadMarks();
-
-}
-
-init();
-
-    </script>
 </body>
 </html>
