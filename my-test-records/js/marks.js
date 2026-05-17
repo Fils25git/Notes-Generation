@@ -572,7 +572,9 @@ ${m.assessment_type}
 
 header.innerHTML+=`
 
-<th>Total Tests</th>
+<th>Total Tests
+<br>
+/${totalTestsMax}</th>
 
 <th
 style="
@@ -590,7 +592,9 @@ Overall Test
 
 </th>
 
-<th>Exam</th>
+<th>Exam
+<br>
+/${examMax}</th>
 
 <th
 style="
@@ -608,7 +612,9 @@ Overall Exam
 
 </th>
 
-<th>Total</th>
+<th>Total
+<br>
+/${maxPossible}</th>
 
 <th>%</th>
 
