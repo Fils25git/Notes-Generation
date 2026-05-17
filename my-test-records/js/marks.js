@@ -819,9 +819,9 @@ Number(exam)
 
 const maxPossible=
 
-Number(overallTestMax)
+Number(totalTestsMax)
 +
-Number(overallExamMax);
+Number(examMax);
 
 
 const percentage=
