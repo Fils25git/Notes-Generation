@@ -1,12 +1,18 @@
-const teacher=
+const teacher =
 JSON.parse(
 localStorage.getItem("teacher")
 || "{}"
 );
 
-let selectedSubject=null;
-let selectedClass=null;
-let selectedTerm=null;
+let selectedSubject =
+localStorage.getItem("selectedSubject");
+
+let selectedClass =
+localStorage.getItem("selectedClass");
+
+let selectedTerm =
+localStorage.getItem("selectedTerm");
+
 let selectedYear=null;
 
 
@@ -25,7 +31,7 @@ document.getElementById(
 
 if(box){
 
-box.innerHTML+=
+box.innerHTML +=
 message+"<br>";
 
 box.scrollTop=
@@ -34,7 +40,6 @@ box.scrollHeight;
 }
 
 }
-
 
 
 // ======================
@@ -65,9 +70,8 @@ headers:{
 if(method==="GET"){
 
 const params=
-new URLSearchParams(
-body
-).toString();
+new URLSearchParams(body)
+.toString();
 
 if(params){
 
@@ -75,9 +79,7 @@ url+="&"+params;
 
 }
 
-}
-
-else{
+}else{
 
 options.body=
 JSON.stringify(body);
@@ -93,12 +95,11 @@ options
 return await response.json();
 
 }
-
 catch(error){
 
 debug(error.message);
 
-return [];
+return[];
 
 }
 
@@ -107,7 +108,7 @@ return [];
 
 
 // ======================
-// LOAD ACADEMIC
+// CURRENT SETTINGS
 // ======================
 
 async function loadAcademicContext(){
@@ -116,21 +117,24 @@ const data=
 await fetch(
 "/.netlify/functions/academic?action=getCurrent"
 )
-.then(
-r=>r.json()
-);
-
+.then(r=>r.json());
 
 selectedYear=
 data.year?.id;
 
+if(
+!selectedTerm
+){
 
 selectedTerm=
-localStorage.getItem(
-"selectedTerm"
-)
-||
 data.term?.id;
+
+localStorage.setItem(
+"selectedTerm",
+selectedTerm
+);
+
+}
 
 }
 
@@ -160,29 +164,24 @@ container.innerHTML="";
 data.forEach(term=>{
 
 const active=
-selectedTerm==
+Number(selectedTerm)===
 term.id;
 
 container.innerHTML+=`
 
 <button
-
 class="
 class-btn
 ${active?"active":""}
 "
-
 onclick="
 selectTerm(
 ${term.id},
 event
 )
 "
-
 >
-
 ${term.term_name}
-
 </button>
 
 `;
@@ -190,7 +189,6 @@ ${term.term_name}
 });
 
 }
-
 
 
 async function selectTerm(
@@ -208,7 +206,6 @@ id
 await fetch(
 "/.netlify/functions/academic?action=setTerm",
 {
-
 method:"POST",
 
 headers:{
@@ -218,18 +215,16 @@ headers:{
 body:JSON.stringify({
 id
 })
-
 }
 );
-
 
 document
 .querySelectorAll(
 "#termContainer button"
 )
 .forEach(
-b=>
-b.classList.remove(
+x=>
+x.classList.remove(
 "active"
 )
 );
@@ -263,27 +258,30 @@ document.getElementById(
 
 container.innerHTML="";
 
+if(
+!selectedSubject
+){
 
 selectedSubject=
-localStorage.getItem(
-"selectedSubject"
-)
-||
 data[0]?.id;
 
+localStorage.setItem(
+"selectedSubject",
+selectedSubject
+);
 
+}
 
-data.forEach(
-s=>{
+data.forEach(s=>{
 
 const active=
-selectedSubject==
+Number(selectedSubject)
+===
 s.id;
 
 container.innerHTML+=`
 
 <button
-
 class="
 subject-btn
 ${active?"active":""}
@@ -327,8 +325,8 @@ document
 ".subject-btn"
 )
 .forEach(
-b=>
-b.classList.remove(
+x=>
+x.classList.remove(
 "active"
 )
 );
@@ -362,27 +360,30 @@ document.getElementById(
 
 container.innerHTML="";
 
+if(
+!selectedClass
+){
 
 selectedClass=
-localStorage.getItem(
-"selectedClass"
-)
-||
 data[0]?.id;
 
+localStorage.setItem(
+"selectedClass",
+selectedClass
+);
 
+}
 
-data.forEach(
-c=>{
+data.forEach(c=>{
 
 const active=
-selectedClass==
+Number(selectedClass)
+===
 c.id;
 
 container.innerHTML+=`
 
 <button
-
 class="
 class-btn
 ${active?"active":""}
@@ -426,8 +427,8 @@ document
 ".class-btn"
 )
 .forEach(
-b=>
-b.classList.remove(
+x=>
+x.classList.remove(
 "active"
 )
 );
@@ -452,21 +453,17 @@ async function addTest(){
 const test_name=
 document.getElementById(
 "testName"
-).value;
-
+).value.trim();
 
 const max_score=
 document.getElementById(
 "testMax"
 ).value;
 
-
 const is_exam=
 document.getElementById(
 "isExam"
 ).checked;
-
-
 
 if(
 !test_name
@@ -482,8 +479,6 @@ return;
 
 }
 
-
-
 await school(
 "addTest",
 {
@@ -498,15 +493,12 @@ term_id:
 selectedTerm,
 
 test_name,
-
 max_score,
-
 is_exam
 
 },
 "POST"
 );
-
 
 closeTestModal();
 
@@ -523,7 +515,6 @@ loadMarks();
 async function loadMarks(){
 
 if(
-
 !selectedYear
 ||
 !selectedTerm
@@ -531,9 +522,11 @@ if(
 !selectedClass
 ||
 !selectedSubject
+){
 
-)return;
+return;
 
+}
 
 const data=
 await school(
@@ -555,8 +548,6 @@ selectedTerm
 }
 );
 
-
-
 const header=
 document.getElementById(
 "marksHeader"
@@ -569,26 +560,17 @@ header.innerHTML=`
 
 `;
 
-
-
 if(data.length){
 
-data[0].marks
-.forEach(
+data[0].marks.forEach(
 m=>{
 
 header.innerHTML+=`
 
-<th
-style="cursor:pointer"
->
-
+<th>
 ${m.assessment_type}
-
 <br>
-
 /${m.max_score}
-
 </th>
 
 `;
@@ -597,20 +579,14 @@ ${m.assessment_type}
 
 }
 
-
-
 header.innerHTML+=`
 
 <th>Total Tests</th>
-<th>Overall Test</th>
 <th>Exam</th>
-<th>Overall Exam</th>
 <th>Total Marks</th>
 <th>Percentage</th>
 
 `;
-
-
 
 const table=
 document.getElementById(
@@ -620,16 +596,12 @@ document.getElementById(
 table.innerHTML="";
 
 
-
 data.forEach(
 (learner,i)=>{
-
 
 let totalTests=0;
 let exam=0;
 let maxTotal=0;
-
-
 
 const cells=
 learner.marks.map(
@@ -645,32 +617,28 @@ Number(
 mark.max_score||0
 );
 
-
 if(mark.is_exam){
 
 exam+=score;
 
-}
-
-else{
+}else{
 
 totalTests+=score;
 
 }
 
-
 maxTotal+=max;
-
 
 return`
 
 <td>
 
 <input
-
 type="number"
 
-value="${score||""}"
+value="${
+score||""
+}"
 
 max="${max}"
 
@@ -680,27 +648,23 @@ if(
 this.value>${max}
 ){
 
-this.style.border='2px solid red'
+this.style.border='2px solid red';
 
-}
+}else{
 
-else{
-
-this.style.border=''
+this.style.border='';
 
 }
 
 "
 
 onchange="
-
 saveMark(
 ${learner.id},
 '${mark.assessment_type}',
 this.value,
 ${max}
 )
-
 "
 
 >
@@ -711,12 +675,9 @@ ${max}
 
 }).join("");
 
-
-
 const total=
 totalTests+
 exam;
-
 
 const percentage=
 maxTotal
@@ -725,7 +686,6 @@ maxTotal
 (total/maxTotal)*100
 ).toFixed(1)
 :0;
-
 
 
 table.innerHTML+=`
@@ -739,10 +699,6 @@ table.innerHTML+=`
 ${cells}
 
 <td>${totalTests}</td>
-
-<td>${totalTests}</td>
-
-<td>${exam}</td>
 
 <td>${exam}</td>
 
@@ -761,7 +717,7 @@ ${cells}
 
 
 // ======================
-// SAVE
+// SAVE MARK
 // ======================
 
 async function saveMark(
@@ -771,13 +727,16 @@ score,
 max_score
 ){
 
+if(score===""){
+return;
+}
+
 document
 .getElementById(
 "saveStatus"
 )
 .innerHTML=
 "Saving...";
-
 
 await school(
 "saveMark",
@@ -801,15 +760,12 @@ teacher_id:
 teacher.id,
 
 assessment_type,
-
 score,
-
 max_score
 
 },
 "POST"
 );
-
 
 document
 .getElementById(
@@ -818,6 +774,7 @@ document
 .innerHTML=
 "✓ Saved";
 
+loadMarks();
 
 setTimeout(()=>{
 
@@ -856,7 +813,6 @@ document
 .value
 .toLowerCase();
 
-
 document
 .querySelectorAll(
 "#marksTable tr"
@@ -864,12 +820,10 @@ document
 .forEach(
 row=>{
 
-const text=
-row.innerText
-.toLowerCase();
-
 row.style.display=
-text.includes(value)
+row.innerText
+.toLowerCase()
+.includes(value)
 ?
 ""
 :
@@ -896,7 +850,6 @@ document
 );
 
 }
-
 
 function closeTestModal(){
 
