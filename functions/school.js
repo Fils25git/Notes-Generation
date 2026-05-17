@@ -1,6 +1,6 @@
-const db = require("./db");
+const db=require("./db");
 
-exports.handler = async(event)=>{
+exports.handler=async(event)=>{
 
 try{
 
@@ -61,9 +61,7 @@ result.rows
 if(action==="addTest"){
 
 const body=
-JSON.parse(
-event.body
-);
+JSON.parse(event.body);
 
 const{
 subject_id,
@@ -73,24 +71,6 @@ test_name,
 max_score,
 is_exam
 }=body;
-
-
-if(
-!subject_id ||
-!academic_year_id ||
-!term_id ||
-!test_name ||
-!max_score
-){
-
-return{
-statusCode:400,
-body:JSON.stringify({
-message:"Missing fields"
-})
-};
-
-}
 
 
 const result=
@@ -109,14 +89,7 @@ is_exam
 )
 
 VALUES(
-
-$1,
-$2,
-$3,
-$4,
-$5,
-$6
-
+$1,$2,$3,$4,$5,$6
 )
 
 RETURNING *
@@ -127,25 +100,19 @@ subject_id,
 academic_year_id,
 term_id,
 test_name,
-max_score,
-is_exam || false
+Number(max_score),
+is_exam||false
 ]
 
 );
-
 
 return{
 
 statusCode:200,
 
 body:JSON.stringify({
-
-message:
-"Test created",
-
-data:
-result.rows[0]
-
+message:"Created",
+data:result.rows[0]
 })
 
 };
@@ -161,9 +128,7 @@ result.rows[0]
 if(action==="updateTest"){
 
 const body=
-JSON.parse(
-event.body
-);
+JSON.parse(event.body);
 
 const{
 id,
@@ -178,7 +143,6 @@ await db.query(
 UPDATE subject_tests
 
 SET
-
 test_name=$1,
 max_score=$2
 
@@ -186,22 +150,37 @@ WHERE id=$3
 `,
 [
 test_name,
-max_score,
+Number(max_score),
 id
 ]
 
 );
 
 
+// update linked marks also
+
+await db.query(
+
+`
+UPDATE marks
+
+SET max_score=$1
+
+WHERE test_id=$2
+`,
+[
+Number(max_score),
+id
+]
+
+);
+
 return{
 
 statusCode:200,
 
 body:JSON.stringify({
-
-message:
-"Updated"
-
+message:"Updated"
 })
 
 };
@@ -227,8 +206,6 @@ event.queryStringParameters;
 
 
 
-// learners
-
 const learners=
 await db.query(
 
@@ -250,8 +227,6 @@ academic_year_id
 );
 
 
-
-// tests
 
 const tests=
 await db.query(
@@ -277,9 +252,6 @@ term_id
 
 
 
-
-// learner marks
-
 const marks=
 await db.query(
 
@@ -304,24 +276,17 @@ term_id
 
 
 
-
 const marksMap={};
 
-
-marks.rows.forEach(
-
-m=>{
+marks.rows.forEach(m=>{
 
 marksMap[
-`${m.learner_id}_${m.assessment_type}`
+`${m.learner_id}_${m.test_id}`
 ]
 =
 m;
 
-}
-
-);
-
+});
 
 
 
@@ -330,7 +295,6 @@ const finalData=
 learners.rows.map(
 
 learner=>{
-
 
 const learnerMarks=
 
@@ -341,9 +305,8 @@ test=>{
 const found=
 
 marksMap[
-`${learner.id}_${test.test_name}`
+`${learner.id}_${test.id}`
 ];
-
 
 return{
 
@@ -354,7 +317,7 @@ assessment_type:
 test.test_name,
 
 score:
-found?.score || "",
+found?.score||"",
 
 max_score:
 test.max_score,
@@ -388,7 +351,6 @@ learnerMarks
 
 
 
-
 return{
 
 statusCode:200,
@@ -403,7 +365,6 @@ finalData
 
 
 
-
 // ===================================
 // SAVE MARK
 // ===================================
@@ -411,9 +372,7 @@ finalData
 if(action==="saveMark"){
 
 const body=
-JSON.parse(
-event.body
-);
+JSON.parse(event.body);
 
 const{
 
@@ -423,18 +382,21 @@ class_id,
 academic_year_id,
 term_id,
 teacher_id,
-assessment_type,
+test_id,
 score,
 max_score
 
 }=body;
 
 
+const finalScore=
+Number(score)||0;
 
-if(
-Number(score)>
-Number(max_score)
-){
+const finalMax=
+Number(max_score)||0;
+
+
+if(finalScore>finalMax){
 
 return{
 
@@ -443,7 +405,7 @@ statusCode:400,
 body:JSON.stringify({
 
 message:
-"Score cannot exceed maximum"
+"Score exceeds maximum"
 
 })
 
@@ -463,23 +425,14 @@ SELECT id
 FROM marks
 
 WHERE learner_id=$1
-AND subject_id=$2
-AND class_id=$3
-AND academic_year_id=$4
-AND term_id=$5
-AND assessment_type=$6
+AND test_id=$2
 `,
 [
 learner_id,
-subject_id,
-class_id,
-academic_year_id,
-term_id,
-assessment_type
+test_id
 ]
 
 );
-
 
 
 
@@ -491,15 +444,12 @@ await db.query(
 UPDATE marks
 
 SET
+score=$1
 
-score=$1,
-max_score=$2
-
-WHERE id=$3
+WHERE id=$2
 `,
 [
-score,
-max_score,
+finalScore,
 existing.rows[0].id
 ]
 
@@ -519,25 +469,14 @@ class_id,
 academic_year_id,
 term_id,
 teacher_id,
-
-assessment_type,
+test_id,
 score,
 max_score
 
 )
 
 VALUES(
-
-$1,
-$2,
-$3,
-$4,
-$5,
-$6,
-$7,
-$8,
-$9
-
+$1,$2,$3,$4,$5,$6,$7,$8,$9
 )
 
 `,
@@ -548,16 +487,14 @@ class_id,
 academic_year_id,
 term_id,
 teacher_id,
-
-assessment_type,
-score,
-max_score
+test_id,
+finalScore,
+finalMax
 ]
 
 );
 
 }
-
 
 
 return{
@@ -566,8 +503,7 @@ statusCode:200,
 
 body:JSON.stringify({
 
-message:
-"Saved"
+message:"Saved"
 
 })
 
@@ -587,9 +523,7 @@ statusCode:400,
 
 body:JSON.stringify({
 
-message:
-"Invalid action"
-
+message:"Invalid action"
 })
 
 };
@@ -606,8 +540,7 @@ statusCode:500,
 
 body:JSON.stringify({
 
-error:
-error.message
+error:error.message
 
 })
 
