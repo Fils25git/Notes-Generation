@@ -1,5 +1,4 @@
-
-const teacher=
+const teacher =
 JSON.parse(
 localStorage.getItem("teacher")
 || "{}"
@@ -11,11 +10,44 @@ let selectedTerm=null;
 let selectedYear=null;
 
 
+// ======================
+// DEBUG
+// ======================
+
+function debug(message){
+
+console.log(message);
+
+const box=
+document.getElementById(
+"debugBox"
+);
+
+if(box){
+
+box.innerHTML +=
+message + "<br>";
+
+box.scrollTop=
+box.scrollHeight;
+
+}
+
+}
+
+
+
+// ======================
+// API
+// ======================
+
 async function school(
 action,
 body={},
 method="GET"
 ){
+
+try{
 
 let url=
 `/.netlify/functions/school?action=${action}`;
@@ -30,6 +62,7 @@ headers:{
 
 };
 
+
 if(method==="GET"){
 
 const params=
@@ -39,12 +72,12 @@ body
 
 if(params){
 
-url+="&"+params;
+url +=
+"&"+params;
 
 }
 
 }
-
 else{
 
 options.body=
@@ -63,10 +96,23 @@ options
 return await response.json();
 
 }
+catch(error){
+
+debug(
+error.message
+);
+
+return [];
+
+}
+
+}
 
 
 
-// LOAD CURRENT SETTINGS
+// ======================
+// CURRENT SETTINGS
+// ======================
 
 async function loadAcademicContext(){
 
@@ -74,7 +120,9 @@ const data=
 await fetch(
 "/.netlify/functions/academic?action=getCurrent"
 )
-.then(r=>r.json());
+.then(
+r=>r.json()
+);
 
 selectedYear=
 data.year?.id;
@@ -86,7 +134,9 @@ data.term?.id;
 
 
 
+// ======================
 // TERMS
+// ======================
 
 async function loadTerms(){
 
@@ -94,7 +144,9 @@ const data=
 await fetch(
 "/.netlify/functions/academic?action=getTerms"
 )
-.then(r=>r.json());
+.then(
+r=>r.json()
+);
 
 const container=
 document.getElementById(
@@ -103,9 +155,10 @@ document.getElementById(
 
 container.innerHTML="";
 
+
 data.forEach(term=>{
 
-container.innerHTML+=`
+container.innerHTML +=`
 
 <button
 class="
@@ -156,20 +209,18 @@ id
 })
 
 }
-
 );
+
 
 document
 .querySelectorAll(
 "#termContainer button"
 )
 .forEach(
-
 b=>
 b.classList.remove(
 "active"
 )
-
 );
 
 event.target
@@ -183,7 +234,9 @@ loadMarks();
 
 
 
+// ======================
 // SUBJECTS
+// ======================
 
 async function loadSubjects(){
 
@@ -199,7 +252,8 @@ document.getElementById(
 
 container.innerHTML="";
 
-data.forEach((s,i)=>{
+data.forEach(
+(s,i)=>{
 
 container.innerHTML+=`
 
@@ -225,7 +279,8 @@ ${s.subject_name}
 
 `;
 
-});
+}
+);
 
 selectedSubject=
 data[0]?.id;
@@ -234,7 +289,38 @@ data[0]?.id;
 
 
 
+function selectSubject(
+id,
+event
+){
+
+selectedSubject=id;
+
+document
+.querySelectorAll(
+".subject-btn"
+)
+.forEach(
+x=>
+x.classList.remove(
+"active"
+)
+);
+
+event.target
+.classList.add(
+"active"
+);
+
+loadMarks();
+
+}
+
+
+
+// ======================
 // CLASSES
+// ======================
 
 async function loadClasses(){
 
@@ -250,9 +336,11 @@ document.getElementById(
 
 container.innerHTML="";
 
-data.forEach((c,i)=>{
 
-container.innerHTML+=`
+data.forEach(
+(c,i)=>{
+
+container.innerHTML +=`
 
 <button
 
@@ -276,25 +364,14 @@ ${c.class_name}
 
 `;
 
-});
+}
+);
 
 selectedClass=
 data[0]?.id;
 
 }
 
-
-
-function selectSubject(
-id,
-event
-){
-
-selectedSubject=id;
-
-loadMarks();
-
-}
 
 
 function selectClass(
@@ -304,13 +381,31 @@ event
 
 selectedClass=id;
 
+document
+.querySelectorAll(
+".class-btn"
+)
+.forEach(
+x=>
+x.classList.remove(
+"active"
+)
+);
+
+event.target
+.classList.add(
+"active"
+);
+
 loadMarks();
 
 }
 
 
 
+// ======================
 // ADD TEST
+// ======================
 
 async function addTest(){
 
@@ -333,6 +428,21 @@ const is_exam=
 document.getElementById(
 "isExam"
 ).checked;
+
+
+if(
+!test_name
+||
+!max_score
+){
+
+alert(
+"Fill all fields"
+);
+
+return;
+
+}
 
 
 await school(
@@ -366,7 +476,9 @@ loadMarks();
 
 
 
+// ======================
 // LOAD MARKS
+// ======================
 
 async function loadMarks(){
 
@@ -416,19 +528,18 @@ document.getElementById(
 header.innerHTML=`
 
 <th>#</th>
-<th>Name</th>
+<th>Pupil Name</th>
 
 `;
 
 
-if(
-data.length
-){
+if(data.length){
 
-data[0].marks.forEach(
+data[0].marks
+.forEach(
 m=>{
 
-header.innerHTML+=`
+header.innerHTML +=`
 
 <th>
 
@@ -442,17 +553,28 @@ ${m.assessment_type}
 
 `;
 
-});
+}
+);
 
 }
 
 
-header.innerHTML+=`
+header.innerHTML +=`
 
-<th>Total</th>
-<th>%</th>
+<th>Total Tests</th>
+
+<th>Overall Test</th>
+
+<th>Exam</th>
+
+<th>Overall Exam</th>
+
+<th>Total Marks</th>
+
+<th>Percentage</th>
 
 `;
+
 
 
 const table=
@@ -463,27 +585,44 @@ document.getElementById(
 table.innerHTML="";
 
 
+
 data.forEach(
 (learner,i)=>{
 
-let total=0;
+let totalTests=0;
+let exam=0;
 
-let max=0;
+let maxTotal=0;
 
 
 const cells=
 learner.marks.map(
 mark=>{
 
-total+=
+const score=
 Number(
 mark.score||0
 );
 
-max+=
+const max=
 Number(
 mark.max_score||0
 );
+
+
+if(mark.is_exam){
+
+exam += score;
+
+}
+else{
+
+totalTests += score;
+
+}
+
+
+maxTotal += max;
 
 
 return`
@@ -495,27 +634,28 @@ return`
 type="number"
 
 value="
-${mark.score||""}
+${score||""}
 "
 
 max="
-${mark.max_score}
+${max}
 "
 
 oninput="
 
 if(
 this.value>
-${mark.max_score}
+${max}
 ){
 
-this.style.color='red'
+this.style.border=
+'2px solid red'
 
 }
 
 else{
 
-this.style.color='black'
+this.style.border=''
 
 }
 
@@ -527,7 +667,7 @@ saveMark(
 ${learner.id},
 '${mark.assessment_type}',
 this.value,
-${mark.max_score}
+${max}
 )
 
 "
@@ -542,16 +682,24 @@ ${mark.max_score}
 ).join("");
 
 
-const percent=
+const total=
+totalTests+
+exam;
 
-max?
+
+const percentage=
+
+maxTotal
+?
+
 (
-(total/max)*100
+(total/maxTotal)*100
 ).toFixed(1)
+
 :0;
 
 
-table.innerHTML+=`
+table.innerHTML +=`
 
 <tr>
 
@@ -561,21 +709,32 @@ table.innerHTML+=`
 
 ${cells}
 
+<td>${totalTests}</td>
+
+<td>${totalTests}</td>
+
+<td>${exam}</td>
+
+<td>${exam}</td>
+
 <td>${total}</td>
 
-<td>${percent}%</td>
+<td>${percentage}%</td>
 
 </tr>
 
 `;
 
-});
+}
+);
 
 }
 
 
 
+// ======================
 // SAVE
+// ======================
 
 async function saveMark(
 learner_id,
@@ -588,7 +747,7 @@ document
 .getElementById(
 "saveStatus"
 )
-.innerHTML=
+innerHTML=
 "Saving...";
 
 
@@ -631,9 +790,65 @@ document
 .innerHTML=
 "✓ Saved";
 
+
+setTimeout(()=>{
+
+document
+.getElementById(
+"saveStatus"
+)
+.innerHTML="";
+
+},2000);
+
 }
 
 
+
+// ======================
+// SEARCH
+// ======================
+
+function searchLearners(){
+
+const value=
+document
+.getElementById(
+"searchInput"
+)
+.value
+.toLowerCase();
+
+document
+.querySelectorAll(
+"#marksTable tr"
+)
+.forEach(
+row=>{
+
+const text=
+row.innerText
+.toLowerCase();
+
+row.style.display=
+text.includes(
+value
+)
+?
+""
+:
+"none";
+
+}
+);
+
+}
+
+
+
+// ======================
+// MODAL
+// ======================
 
 function openTestModal(){
 
@@ -646,7 +861,6 @@ document
 );
 
 }
-
 
 function closeTestModal(){
 
@@ -661,6 +875,10 @@ document
 }
 
 
+
+// ======================
+// INIT
+// ======================
 
 async function init(){
 
