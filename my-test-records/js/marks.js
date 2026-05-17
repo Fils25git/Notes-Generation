@@ -698,60 +698,85 @@ ${max}
 ).join("");
 
 
+// Calculate learner overall test score
+let overallTest=0;
 
-const overallTest=
+if(
+totalTestsMax>0
+){
 
-totalTestsMax
-?
+overallTest=
 
 (
-totalTests*
+(
+totalTests/
+totalTestsMax
+)
+*
 overallTestMax
-/
-totalTestsMax
-).toFixed(1)
+).toFixed(1);
 
-:0;
+}
 
 
 
-const overallExam=
+// Calculate learner overall exam score
+let overallExam=0;
 
-examMax
-?
+if(
+examMax>0
+){
+
+overallExam=
 
 (
-exam*
-overallExamMax
-/
+(
+exam/
 examMax
-).toFixed(1)
+)
+*
+overallExamMax
+).toFixed(1);
 
-:0;
+}
 
 
 
+// Final score
 const total=
 
+(
 Number(overallTest)
 +
-Number(overallExam);
+Number(overallExam)
+).toFixed(1);
 
+
+
+// Percentage based on configured maximums
+const grandMax=
+
+Number(overallTestMax)
++
+Number(overallExamMax);
 
 
 const percentage=
 
+grandMax>0
+
+?
+
 (
 (
 total/
-(
-overallTestMax+
-overallExamMax
+grandMax
 )
-)
-*100
-).toFixed(1);
+*
+100
+).toFixed(1)
 
+:0;
 
 
 table.innerHTML+=`
