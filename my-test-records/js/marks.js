@@ -723,6 +723,35 @@ ${max}
 // ===================
 // REAL CALCULATIONS
 // ===================
+  console.log(
+"totalTests:",
+totalTests
+);
+
+console.log(
+"totalTestsMax:",
+totalTestsMax
+);
+
+console.log(
+"exam:",
+exam
+);
+
+console.log(
+"examMax:",
+examMax
+);
+
+console.log(
+"overallTestMax:",
+overallTestMax
+);
+
+console.log(
+"overallExamMax:",
+overallExamMax
+);
 
 let overallTest=0;
 
@@ -791,11 +820,10 @@ maxPossible>0
 
 (
 (
-total/
-maxPossible
+total*100
 )
-*
-100
+/
+maxPossible
 ).toFixed(1)
 
 :0;
