@@ -352,7 +352,200 @@ finalData
 
 }
 
+// ===================================
+// GET GRADING SETTINGS
+// ===================================
 
+if(action==="getGradingSettings"){
+
+const{
+
+subject_id,
+class_id,
+academic_year_id,
+term_id
+
+}
+=
+event.queryStringParameters;
+
+
+const result=
+await db.query(
+
+`
+SELECT *
+
+FROM grading_settings
+
+WHERE
+subject_id=$1
+AND class_id=$2
+AND academic_year_id=$3
+AND term_id=$4
+`,
+[
+subject_id,
+class_id,
+academic_year_id,
+term_id
+]
+
+);
+
+
+if(result.rows.length){
+
+return{
+
+statusCode:200,
+body:JSON.stringify(
+result.rows[0]
+)
+
+};
+
+}
+
+
+return{
+
+statusCode:200,
+
+body:JSON.stringify({
+
+overall_test_max:100,
+overall_exam_max:100
+
+})
+
+};
+
+}
+
+
+
+// ===================================
+// SAVE GRADING SETTINGS
+// ===================================
+
+if(action==="saveGradingSettings"){
+
+const body=
+JSON.parse(
+event.body
+);
+
+const{
+
+subject_id,
+class_id,
+academic_year_id,
+term_id,
+
+overall_test_max,
+overall_exam_max
+
+}
+=
+body;
+
+
+const existing=
+await db.query(
+
+`
+SELECT id
+
+FROM grading_settings
+
+WHERE
+subject_id=$1
+AND class_id=$2
+AND academic_year_id=$3
+AND term_id=$4
+`,
+[
+subject_id,
+class_id,
+academic_year_id,
+term_id
+]
+
+);
+
+
+if(existing.rows.length){
+
+await db.query(
+
+`
+UPDATE grading_settings
+
+SET
+
+overall_test_max=$1,
+overall_exam_max=$2
+
+WHERE id=$3
+`,
+[
+overall_test_max,
+overall_exam_max,
+existing.rows[0].id
+]
+
+);
+
+}else{
+
+await db.query(
+
+`
+INSERT INTO grading_settings(
+
+subject_id,
+class_id,
+academic_year_id,
+term_id,
+
+overall_test_max,
+overall_exam_max
+
+)
+
+VALUES(
+$1,$2,$3,$4,$5,$6
+)
+`,
+[
+subject_id,
+class_id,
+academic_year_id,
+term_id,
+
+overall_test_max,
+overall_exam_max
+]
+
+);
+
+}
+
+
+return{
+
+statusCode:200,
+
+body:JSON.stringify({
+
+message:"Saved"
+
+})
+
+};
+
+}
 
 // =========================
 // SAVE MARK
