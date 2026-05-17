@@ -283,11 +283,19 @@ await fetch(
 const data =
 await res.json();
 
+debug(
+"FULL ACADEMIC RESPONSE:"
+);
+
+debug(
+JSON.stringify(data)
+);
+
 selectedYear =
-data?.year?.id;
+data?.year?.id || data?.academic_year_id || null;
 
 selectedTerm =
-data?.term?.id;
+data?.term?.id || data?.term_id || null;
 
 debug(
 "Academic Year: " +
@@ -310,7 +318,6 @@ err.message
 }
 
 }
-
 
 // =========================
 // LOAD TERMS
