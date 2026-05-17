@@ -1,129 +1,18 @@
-const db = require("./db");
+const db=require("./db");
 
-exports.handler = async (event) => {
+exports.handler=async(event)=>{
 
 try{
 
-const action =
+const action=
 event.queryStringParameters?.action;
 
 
-// =========================
-// GET ALL YEARS
-// =========================
-if(action==="getYears"){
+// GET CURRENT
 
-const result=
-await db.query(
-`
-SELECT *
-FROM academic_years
-ORDER BY id DESC
-`
-);
-
-return{
-statusCode:200,
-body:JSON.stringify(
-result.rows
-)
-};
-
-}
-
-
-// =========================
-// ADD YEAR
-// =========================
-if(action==="addYear"){
-
-const{
-year_name
-}=
-JSON.parse(
-event.body
-);
-
-const result=
-await db.query(
-`
-INSERT INTO academic_years
-(
-year_name,
-is_current
-)
-
-VALUES
-(
-$1,
-false
-)
-
-RETURNING *
-`,
-[
-year_name
-]
-);
-
-return{
-statusCode:200,
-body:JSON.stringify(
-result.rows[0]
-)
-};
-
-}
-
-
-// =========================
-// SET ACTIVE YEAR
-// =========================
-if(action==="setActive"){
-
-const{
-id
-}=
-JSON.parse(
-event.body
-);
-
-await db.query(
-`
-UPDATE academic_years
-SET is_current=false
-`
-);
-
-const result=
-await db.query(
-`
-UPDATE academic_years
-SET is_current=true
-WHERE id=$1
-RETURNING *
-`,
-[
-id
-]
-);
-
-return{
-statusCode:200,
-body:JSON.stringify(
-result.rows[0]
-)
-};
-
-}
-
-
-// =========================
-// GET CURRENT YEAR + TERM
-// =========================
 if(action==="getCurrent"){
 
-const yearRes=
+const year=
 await db.query(
 `
 SELECT *
@@ -133,7 +22,7 @@ LIMIT 1
 `
 );
 
-const termRes=
+const term=
 await db.query(
 `
 SELECT *
@@ -150,10 +39,10 @@ statusCode:200,
 body:JSON.stringify({
 
 year:
-yearRes.rows[0] || null,
+year.rows[0],
 
 term:
-termRes.rows[0] || null
+term.rows[0]
 
 })
 
@@ -162,9 +51,8 @@ termRes.rows[0] || null
 }
 
 
-// =========================
 // GET TERMS
-// =========================
+
 if(action==="getTerms"){
 
 const result=
@@ -172,7 +60,7 @@ await db.query(
 `
 SELECT *
 FROM terms
-ORDER BY id ASC
+ORDER BY id
 `
 );
 
@@ -189,17 +77,36 @@ result.rows
 }
 
 
-// =========================
-// INVALID
-// =========================
+// SET ACTIVE TERM
+
+if(action==="setTerm"){
+
+const {id}=
+JSON.parse(event.body);
+
+await db.query(
+`
+UPDATE terms
+SET is_current=false
+`
+);
+
+await db.query(
+`
+UPDATE terms
+SET is_current=true
+WHERE id=$1
+`,
+[id]
+);
+
 return{
 
-statusCode:400,
+statusCode:200,
 
 body:JSON.stringify({
 
-message:
-"Invalid action"
+message:"Updated"
 
 })
 
@@ -207,9 +114,20 @@ message:
 
 }
 
-catch(error){
 
-console.log(error);
+return{
+
+statusCode:400,
+
+body:JSON.stringify({
+
+message:"Invalid action"
+
+})
+
+};
+
+}catch(error){
 
 return{
 
@@ -217,8 +135,7 @@ statusCode:500,
 
 body:JSON.stringify({
 
-error:
-error.message
+error:error.message
 
 })
 
