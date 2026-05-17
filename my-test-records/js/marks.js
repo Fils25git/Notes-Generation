@@ -723,36 +723,35 @@ ${max}
 // ===================
 // REAL CALCULATIONS
 // ===================
-  console.log(
-"totalTests:",
+  debug(
+"totalTests: " +
 totalTests
 );
 
-console.log(
-"totalTestsMax:",
+debug(
+"totalTestsMax: " +
 totalTestsMax
 );
 
-console.log(
-"exam:",
+debug(
+"exam: " +
 exam
 );
 
-console.log(
-"examMax:",
+debug(
+"examMax: " +
 examMax
 );
 
-console.log(
-"overallTestMax:",
+debug(
+"overallTestMax: " +
 overallTestMax
 );
 
-console.log(
-"overallExamMax:",
+debug(
+"overallExamMax: " +
 overallExamMax
 );
-
 let overallTest=0;
 
 if(
