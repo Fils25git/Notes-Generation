@@ -557,7 +557,14 @@ document.getElementById(
 
 table.innerHTML="";
 
+let classTotal=0;
 
+let highest=0;
+
+let lowest=100;
+
+let passed=0;
+  
 data.forEach(
 (learner,i)=>{
 
@@ -669,7 +676,45 @@ overallExamMax
 
 ).toFixed(1);
 
+classTotal+=
+Number(
+percentage
+);
 
+
+if(
+Number(percentage)>
+highest
+){
+
+highest=
+Number(
+percentage
+);
+
+}
+
+
+if(
+Number(percentage)<
+lowest
+){
+
+lowest=
+Number(
+percentage
+);
+
+}
+
+
+if(
+Number(percentage)>=50
+){
+
+passed++;
+
+  }
 
 const category=
 getCategory(
@@ -718,6 +763,50 @@ ${category.text}
 `;
 
 });
+  const average=
+
+data.length
+
+?
+
+(
+classTotal/
+data.length
+).toFixed(1)
+
+:0;
+
+
+document
+.getElementById(
+"classAverage"
+)
+.innerHTML=
+average+"%";
+
+
+document
+.getElementById(
+"highestScore"
+)
+.innerHTML=
+highest+"%";
+
+
+document
+.getElementById(
+"lowestScore"
+)
+.innerHTML=
+lowest+"%";
+
+
+document
+.getElementById(
+"studentsPassed"
+)
+.innerHTML=
+passed;
 
 }
 
@@ -751,3 +840,67 @@ await loadResults();
 }
 
 init();
+
+// =====================
+// PDF
+// =====================
+
+function downloadPDF(){
+
+window.print();
+
+}
+
+
+
+// =====================
+// EXCEL
+// =====================
+
+function exportExcel(){
+
+let table=
+document.querySelector(
+"table"
+);
+
+let html=
+table.outerHTML;
+
+let blob=
+new Blob(
+[html],
+{
+type:
+"application/vnd.ms-excel"
+}
+);
+
+let link=
+document.createElement(
+"a"
+);
+
+link.href=
+URL.createObjectURL(
+blob
+);
+
+link.download=
+"results.xls";
+
+link.click();
+
+}
+
+
+
+// =====================
+// PRINT
+// =====================
+
+function printResults(){
+
+window.print();
+
+}
