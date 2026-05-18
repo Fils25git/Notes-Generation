@@ -684,11 +684,11 @@ overallExamMax;
 const total=
 
 Number(
-overallTest
+totalTests
 )
 +
 Number(
-overallExam
+totalExam
 );
 
 
@@ -700,8 +700,8 @@ total*100
 )
 /
 (
-overallTestMax+
-overallExamMax
+totalTestsMax+
+totalExamMax
 )
 
 ).toFixed(1);
