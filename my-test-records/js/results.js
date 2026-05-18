@@ -555,19 +555,68 @@ ${m.assessment_type}
 });
 
 }
+  let headerTotalTestsMax=0;
+let headerExamMax=0;
+let headerMaxPossible=0;
+
+if(data.length){
+
+data[0].marks.forEach(
+m=>{
+
+if(m.is_exam){
+
+headerExamMax+=
+Number(
+m.max_score||0
+);
+
+}else{
+
+headerTotalTestsMax+=
+Number(
+m.max_score||0
+);
+
+}
+
+}
+);
+
+headerMaxPossible=
+
+headerTotalTestsMax+
+headerExamMax;
+
+  }
 
 
 header.innerHTML+=`
 
-<th>Total Tests</th>
+<th>Total Tests
+<br>
+/${headerTotalTestsMax}
+</th>
 
-<th>Overall Test</th>
+<th>Overall Test
+<br>
+/${overallTestMax}
+</th>
 
-<th>Exam</th>
+<th>Exam
+<br>
+/${headerExamMax}
+</th>
 
-<th>Overall Exam</th>
+<th>Overall Exam
+<br>
+/${overallExamMax}
+</th>
 
-<th>Total</th>
+<th>Total
+<br>
+/${headerMaxPossible}
+</th>
 
 <th>%</th>
 
