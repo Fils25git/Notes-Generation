@@ -544,6 +544,8 @@ header.innerHTML+=`
 style="
 cursor:pointer;
 user-select:none;
+-webkit-user-select:none;
+-webkit-touch-callout:none;
 "
 
 onclick="
@@ -555,6 +557,7 @@ ${m.max_score}
 "
 
 ontouchstart="
+event.preventDefault();
 startDeleteTimer(
 ${m.test_id},
 '${m.assessment_type}'
@@ -565,16 +568,14 @@ ontouchend="
 cancelDeleteTimer()
 "
 
-onmousedown="
-startDeleteTimer(
-${m.test_id},
-'${m.assessment_type}'
-)
-"
-
-onmouseup="
+ontouchcancel="
 cancelDeleteTimer()
 "
+
+oncontextmenu="
+return false
+"
+
 >
 
 ${m.assessment_type}
@@ -586,7 +587,6 @@ ${m.assessment_type}
 </th>
 
 `;
-
 });
 
 }
