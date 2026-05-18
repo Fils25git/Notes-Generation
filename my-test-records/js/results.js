@@ -165,7 +165,275 @@ text:"Fail"
 
 }
 
+// =====================
+// SUBJECTS
+// =====================
 
+async function loadSubjects(){
+
+const data=
+await school(
+"getSubjects"
+);
+
+const container=
+document.getElementById(
+"subjectContainer"
+);
+
+container.innerHTML="";
+
+if(!selectedSubject){
+
+selectedSubject=
+data[0]?.id;
+
+}
+
+data.forEach(s=>{
+
+const active=
+Number(selectedSubject)
+===
+s.id;
+
+container.innerHTML+=`
+
+<button
+class="
+subject-btn
+${active?"active":""}
+"
+onclick="
+selectSubject(
+${s.id},
+event
+)
+"
+>
+
+${s.subject_name}
+
+</button>
+
+`;
+
+});
+
+}
+
+
+function selectSubject(
+id,
+event
+){
+
+selectedSubject=id;
+
+localStorage.setItem(
+"selectedSubject",
+id
+);
+
+document
+.querySelectorAll(
+".subject-btn"
+)
+.forEach(
+x=>
+x.classList.remove(
+"active"
+)
+);
+
+event.target
+.classList.add(
+"active"
+);
+
+loadResults();
+
+}
+
+
+
+// =====================
+// CLASSES
+// =====================
+
+async function loadClasses(){
+
+const data=
+await school(
+"getClasses"
+);
+
+const container=
+document.getElementById(
+"classContainer"
+);
+
+container.innerHTML="";
+
+if(!selectedClass){
+
+selectedClass=
+data[0]?.id;
+
+}
+
+data.forEach(c=>{
+
+const active=
+Number(selectedClass)
+===
+c.id;
+
+container.innerHTML+=`
+
+<button
+class="
+class-btn
+${active?"active":""}
+"
+onclick="
+selectClass(
+${c.id},
+event
+)
+"
+>
+
+${c.class_name}
+
+</button>
+
+`;
+
+});
+
+}
+
+
+function selectClass(
+id,
+event
+){
+
+selectedClass=id;
+
+localStorage.setItem(
+"selectedClass",
+id
+);
+
+document
+.querySelectorAll(
+".class-btn"
+)
+.forEach(
+x=>
+x.classList.remove(
+"active"
+)
+);
+
+event.target
+.classList.add(
+"active"
+);
+
+loadResults();
+
+}
+
+
+
+// =====================
+// TERMS
+// =====================
+
+async function loadTerms(){
+
+const data=
+await fetch(
+"/.netlify/functions/academic?action=getTerms"
+)
+.then(
+r=>r.json()
+);
+
+const container=
+document.getElementById(
+"termContainer"
+);
+
+container.innerHTML="";
+
+data.forEach(term=>{
+
+const active=
+Number(selectedTerm)
+===
+term.id;
+
+container.innerHTML+=`
+
+<button
+class="
+class-btn
+${active?"active":""}
+"
+onclick="
+selectTerm(
+${term.id},
+event
+)
+"
+>
+
+${term.term_name}
+
+</button>
+
+`;
+
+});
+
+}
+
+
+function selectTerm(
+id,
+event
+){
+
+selectedTerm=id;
+
+localStorage.setItem(
+"selectedTerm",
+id
+);
+
+document
+.querySelectorAll(
+"#termContainer button"
+)
+.forEach(
+x=>
+x.classList.remove(
+"active"
+)
+);
+
+event.target
+.classList.add(
+"active"
+);
+
+loadResults();
+
+}
 
 // =====================
 // LOAD RESULTS
@@ -472,7 +740,13 @@ r=>r.json()
 selectedYear=
 context.year?.id;
 
-loadResults();
+await loadTerms();
+
+await loadSubjects();
+
+await loadClasses();
+
+await loadResults();
 
 }
 
