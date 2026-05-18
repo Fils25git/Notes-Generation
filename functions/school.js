@@ -182,6 +182,60 @@ message:"updated"
 
 }
 
+ // ===================================
+// DELETE TEST
+// ===================================
+
+if(action==="deleteTest"){
+
+const {
+test_id
+}=
+JSON.parse(event.body);
+
+
+// delete marks linked to test
+
+await db.query(
+
+`
+DELETE FROM marks
+WHERE test_id=$1
+`,
+[
+test_id
+]
+
+);
+
+
+// delete test
+
+await db.query(
+
+`
+DELETE FROM subject_tests
+WHERE id=$1
+`,
+[
+test_id
+]
+
+);
+
+return{
+
+statusCode:200,
+
+body:JSON.stringify({
+
+message:"Deleted"
+
+})
+
+};
+
+} 
 
 
 // =========================
