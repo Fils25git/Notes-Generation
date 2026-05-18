@@ -103,31 +103,36 @@
                 <div class="marks-actions">
 
                     <button
-                    class="btn btn-primary">
+class="btn btn-primary"
+onclick="downloadPDF()">
 
-                        <i class="fa-solid fa-download"></i>
+<i class="fa-solid fa-download"></i>
 
-                        Download PDF
+Download PDF
 
-                    </button>
+</button>
 
-                    <button
-                    class="btn btn-success">
 
-                        <i class="fa-solid fa-file-excel"></i>
+<button
+class="btn btn-success"
+onclick="exportExcel()">
 
-                        Export Excel
+<i class="fa-solid fa-file-excel"></i>
 
-                    </button>
+Export Excel
 
-                    <button
-                    class="btn btn-warning">
+</button>
 
-                        <i class="fa-solid fa-print"></i>
 
-                        Print
+<button
+class="btn btn-warning"
+onclick="printResults()">
 
-                    </button>
+<i class="fa-solid fa-print"></i>
+
+Print
+
+</button>
 
                 </div>
 
@@ -195,52 +200,70 @@ class="class-selector">
 
             </div>
 
-            <!-- SUMMARY -->
-            <div class="stats-grid"
-            style="margin-top:25px;">
+            <<div
+class="stats-grid"
+style="margin-top:25px;">
 
-                <div class="stats-card">
+<div class="stats-card">
 
-                    <h3>
-                        Class Average
-                    </h3>
+<h3>
+Class Average
+</h3>
 
-                    <h1>65%</h1>
+<h1 id="classAverage">
 
-                </div>
+0%
 
-                <div class="stats-card">
+</h1>
 
-                    <h3>
-                        Highest Score
-                    </h3>
+</div>
 
-                    <h1>93%</h1>
 
-                </div>
+<div class="stats-card">
 
-                <div class="stats-card">
+<h3>
+Highest Score
+</h3>
 
-                    <h3>
-                        Lowest Score
-                    </h3>
+<h1 id="highestScore">
 
-                    <h1>28%</h1>
+0%
 
-                </div>
+</h1>
 
-                <div class="stats-card">
+</div>
 
-                    <h3>
-                        Students Passed
-                    </h3>
 
-                    <h1>3</h1>
+<div class="stats-card">
 
-                </div>
+<h3>
+Lowest Score
+</h3>
 
-            </div>
+<h1 id="lowestScore">
 
+0%
+
+</h1>
+
+</div>
+
+
+<div class="stats-card">
+
+<h3>
+Students Passed
+</h3>
+
+<h1 id="studentsPassed">
+
+0
+
+</h1>
+
+</div>
+
+    </div>
         </main>
 
     </div>
