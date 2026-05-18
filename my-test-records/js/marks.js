@@ -23,145 +23,6 @@ let selectedYear=null;
 
 
 // ======================
-// DEBUG
-// ======================
-
-function debug(message){
-
-console.log(message);
-
-const box=
-document.getElementById(
-"debugBox"
-);
-
-if(box){
-
-box.innerHTML+=
-message+"<br>";
-
-box.scrollTop=
-box.scrollHeight;
-
-}
-
-}
-
-// ======================
-// FLOATING MESSAGE
-// ======================
-function Msg(
-text,
-callback=null,
-needInput=false,
-defaultValue=""
-){
-
-const box=
-document.createElement(
-"div"
-);
-
-box.className="msg-overlay";
-
-box.innerHTML=`
-
-<div class="msg-box">
-
-<p>${text}</p>
-
-${
-needInput
-?
-`
-<input
-id="msgInput"
-type="text"
-value="${defaultValue}"
->
-`
-:
-""
-}
-
-<div
-style="
-margin-top:15px;
-display:flex;
-gap:10px;
-justify-content:center;
-"
->
-
-<button
-id="msgOk"
->
-
-OK
-
-</button>
-
-<button
-id="msgCancel"
->
-
-Cancel
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-document.body.appendChild(
-box
-);
-
-document
-.getElementById(
-"msgOk"
-)
-.onclick=()=>{
-
-let value=true;
-
-if(needInput){
-
-value=
-document
-.getElementById(
-"msgInput"
-)
-.value;
-
-}
-
-box.remove();
-
-if(callback){
-
-callback(value);
-
-}
-
-};
-
-
-document
-.getElementById(
-"msgCancel"
-)
-.onclick=()=>{
-
-box.remove();
-
-};
-
-}
-
-// ======================
 // API
 // ======================
 
@@ -852,14 +713,7 @@ totalTestsMax += max;
 }
 
 }
-  debug(
-"Test: "+
-mark.assessment_type+
-" | Score: "+score+
-" | Max: "+max+
-" | IsExam: "+mark.is_exam
-);
-
+  
 
 return`
 
@@ -918,35 +772,7 @@ ${max}
 // ===================
 // REAL CALCULATIONS
 // ===================
-  debug(
-"totalTests: " +
-totalTests
-);
-
-debug(
-"totalTestsMax: " +
-totalTestsMax
-);
-
-debug(
-"exam: " +
-exam
-);
-
-debug(
-"examMax: " +
-examMax
-);
-
-debug(
-"overallTestMax: " +
-overallTestMax
-);
-
-debug(
-"overallExamMax: " +
-overallExamMax
-);
+  
 let overallTest=0;
 
 if(
@@ -1081,7 +907,7 @@ if(
 !max_score
 ){
 
-Msg(
+alert(
 "Fill all fields"
 );
 
@@ -1204,6 +1030,7 @@ document
 }
 
 
+
 // ======================
 // EDIT TEST
 // ======================
@@ -1214,20 +1041,29 @@ name,
 max
 ){
 
-Msg(
+const test_name=
+prompt(
 "Edit test name",
+name
+);
 
-(test_name)=>{
+if(
+!test_name
+){
+return;
+}
 
-if(!test_name)return;
-
-
-Msg(
+const max_score=
+prompt(
 "Edit max score",
+max
+);
 
-async(max_score)=>{
-
-if(!max_score)return;
+if(
+!max_score
+){
+return;
+}
 
 
 await school(
@@ -1244,20 +1080,6 @@ max_score
 
 loadMarks();
 
-},
-
-true,
-max
-
-);
-
-},
-
-true,
-name
-
-);
-
 }
 
 // ======================
@@ -1266,12 +1088,13 @@ name
 
 async function editOverallTest(){
 
-Msg(
-"Set overall test maximum",
-
-async(value)=>{
+const value=
+prompt(
+"Set overall test maximum"
+);
 
 if(!value)return;
+
 
 const settings=
 await school(
@@ -1283,6 +1106,7 @@ academic_year_id:selectedYear,
 term_id:selectedTerm
 }
 );
+
 
 await school(
 "saveGradingSettings",
@@ -1304,13 +1128,9 @@ settings.overall_exam_max||100
 
 loadMarks();
 
-},
+}
 
-true
 
-);
-
-  }
 
 // ======================
 // EDIT OVERALL EXAM
@@ -1318,12 +1138,13 @@ true
 
 async function editOverallExam(){
 
-Msg(
-"Set overall exam maximum",
-
-async(value)=>{
+const value=
+prompt(
+"Set overall exam maximum"
+);
 
 if(!value)return;
+
 
 const settings=
 await school(
@@ -1335,6 +1156,7 @@ academic_year_id:selectedYear,
 term_id:selectedTerm
 }
 );
+
 
 await school(
 "saveGradingSettings",
@@ -1356,14 +1178,7 @@ overall_exam_max:value
 
 loadMarks();
 
-},
-
-true
-
-);
-
-}
-
+  }
 let deleteTimer=null;
 
 
@@ -1408,10 +1223,17 @@ id,
 name
 ){
 
-Msg(
-`Are you sure you want to delete "${name}" ?`,
+const yes=
+confirm(
 
-async()=>{
+`Are you sure you want to delete "${name}" ?`
+
+);
+
+if(!yes){
+return;
+}
+
 
 await school(
 "deleteTest",
@@ -1421,11 +1243,8 @@ test_id:id
 "POST"
 );
 
+
 loadMarks();
-
-}
-
-);
 
   }
 
