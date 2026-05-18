@@ -862,8 +862,8 @@ examMax>0
 overallExam=
 
 (
-TotalExam/
-TotalExamMax
+totalExam/
+totalExamMax
 )
 *
 overallExamMax;
