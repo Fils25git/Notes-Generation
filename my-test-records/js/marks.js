@@ -699,6 +699,9 @@ let totalTestsMax=0;
 let exam=0;
 let examMax=0;
 
+let totalExam=0;
+let totalExamMax=0;
+
 
 
 const cells=
@@ -724,6 +727,9 @@ exam += score;
 if(mark.score !== ""){
 examMax += max;
 }
+
+totalExam += score;
+totalExamMax += max;
 
 }else{
 
@@ -856,8 +862,8 @@ examMax>0
 overallExam=
 
 (
-exam/
-examMax
+TotalExam/
+TotalExamMax
 )
 *
 overallExamMax;
@@ -877,7 +883,7 @@ const total=
 (
 Number(totalTests)
 +
-Number(exam)
+Number(totalExam)
 ).toFixed(1);
 
 
@@ -885,7 +891,7 @@ const maxPossible=
 
 Number(totalTestsMax)
 +
-Number(examMax);
+Number(totalExamMax);
 
 
 const percentage=
