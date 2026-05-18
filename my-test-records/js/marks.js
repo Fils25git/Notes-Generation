@@ -542,7 +542,8 @@ header.innerHTML+=`
 
 <th
 style="
-cursor:pointer
+cursor:pointer;
+user-select:none;
 "
 
 onclick="
@@ -551,6 +552,28 @@ ${m.test_id},
 '${m.assessment_type}',
 ${m.max_score}
 )
+"
+
+ontouchstart="
+startDeleteTimer(
+${m.test_id},
+'${m.assessment_type}'
+)
+"
+
+ontouchend="
+cancelDeleteTimer()
+"
+
+onmousedown="
+startDeleteTimer(
+${m.test_id},
+'${m.assessment_type}'
+)
+"
+
+onmouseup="
+cancelDeleteTimer()
 "
 >
 
@@ -1208,6 +1231,74 @@ overall_exam_max:value
 },
 "POST"
 );
+
+loadMarks();
+
+  }
+let deleteTimer=null;
+
+
+// ======================
+// HOLD TO DELETE
+// ======================
+
+function startDeleteTimer(
+id,
+name
+){
+
+deleteTimer=
+setTimeout(()=>{
+
+confirmDeleteTest(
+id,
+name
+);
+
+},1000);
+
+}
+
+
+function cancelDeleteTimer(){
+
+clearTimeout(
+deleteTimer
+);
+
+}
+
+
+
+// ======================
+// DELETE TEST
+// ======================
+
+async function confirmDeleteTest(
+id,
+name
+){
+
+const yes=
+confirm(
+
+`Are you sure you want to delete "${name}" ?`
+
+);
+
+if(!yes){
+return;
+}
+
+
+await school(
+"deleteTest",
+{
+test_id:id
+},
+"POST"
+);
+
 
 loadMarks();
 
