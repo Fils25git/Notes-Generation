@@ -47,7 +47,69 @@ box.scrollHeight;
 
 }
 
+// ======================
+// FLOATING MESSAGE
+// ======================
+function Msg(
+text,
+callback=null
+){
 
+const box=
+document.createElement(
+"div"
+);
+
+box.innerHTML=`
+
+<div class="msg-box">
+
+<p>${text}</p>
+
+<input
+id="msgInput"
+type="text"
+>
+
+<button
+onclick="
+finishMsg()
+"
+>
+
+OK
+
+</button>
+
+</div>
+
+`;
+
+document.body.appendChild(
+box
+);
+
+window.finishMsg=
+()=>{
+
+const value=
+document.getElementById(
+"msgInput"
+).value;
+
+box.remove();
+
+if(callback){
+
+callback(
+value
+);
+
+}
+
+};
+
+}
 
 // ======================
 // API
@@ -969,7 +1031,7 @@ if(
 !max_score
 ){
 
-alert(
+msg(
 "Fill all fields"
 );
 
@@ -1104,7 +1166,7 @@ max
 ){
 
 const test_name=
-prompt(
+msg(
 "Edit test name",
 name
 );
@@ -1116,7 +1178,7 @@ return;
 }
 
 const max_score=
-prompt(
+msg(
 "Edit max score",
 max
 );
@@ -1151,7 +1213,7 @@ loadMarks();
 async function editOverallTest(){
 
 const value=
-prompt(
+msg(
 "Set overall test maximum"
 );
 
@@ -1201,7 +1263,7 @@ loadMarks();
 async function editOverallExam(){
 
 const value=
-prompt(
+msg(
 "Set overall exam maximum"
 );
 
@@ -1286,7 +1348,7 @@ name
 ){
 
 const yes=
-confirm(
+msg(
 
 `Are you sure you want to delete "${name}" ?`
 
