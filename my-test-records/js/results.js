@@ -485,7 +485,37 @@ Number(
 settings.overall_exam_max||100
 );
 
+const className=
 
+document
+.querySelector(
+".class-btn.active"
+)
+?.innerText
+
+||
+"Class";
+
+
+const termName=
+
+document
+.querySelector(
+"#termContainer .active"
+)
+?.innerText
+
+||
+"Term";
+
+
+document
+.getElementById(
+"reportTitle"
+)
+.innerHTML=
+
+`Students Marksheet for ${className} in ${termName}`;
 
 // HEADER
 
@@ -776,37 +806,93 @@ data.length
 
 :0;
 
+let failed=
+
+data.length-passed;
+
+
+let passRate=
+
+data.length
+
+?
+
+(
+(
+passed*100
+)
+/
+data.length
+).toFixed(1)
+
+:0;
+
+
+const subjectName=
+
+document
+.querySelector(
+".subject-btn.active"
+)
+?.innerText
+
+||
+"Unknown";
+
 
 document
 .getElementById(
-"classAverage"
+"analysisTable"
 )
-.innerHTML=
-average+"%";
+.innerHTML=`
 
+<tr>
 
-document
-.getElementById(
-"highestScore"
-)
-.innerHTML=
-highest+"%";
+<td>
 
+${subjectName}
 
-document
-.getElementById(
-"lowestScore"
-)
-.innerHTML=
-lowest+"%";
+</td>
 
+<td>
 
-document
-.getElementById(
-"studentsPassed"
-)
-.innerHTML=
-passed;
+${average}%
+
+</td>
+
+<td>
+
+${passed}
+
+</td>
+
+<td>
+
+${failed}
+
+</td>
+
+<td>
+
+${lowest}%
+
+</td>
+
+<td>
+
+${highest}%
+
+</td>
+
+<td>
+
+${passRate}%
+
+</td>
+
+</tr>
+
+`;
 
 }
 
@@ -847,7 +933,47 @@ init();
 
 function downloadPDF(){
 
-window.print();
+const content=`
+
+<h2>
+
+${document.getElementById(
+"reportTitle"
+).innerHTML}
+
+</h2>
+
+${document.querySelector(
+".card"
+).outerHTML}
+
+<h2>
+
+Analysis
+
+</h2>
+
+${document.getElementById(
+"analysisTable"
+).closest("table")
+.outerHTML}
+
+`;
+
+const printWindow=
+window.open(
+"",
+"",
+"width=900,height=700"
+);
+
+printWindow.document.write(
+content
+);
+
+printWindow.document.close();
+
+printWindow.print();
 
 }
 
@@ -901,6 +1027,6 @@ link.click();
 
 function printResults(){
 
-window.print();
+downloadPDF();
 
 }
