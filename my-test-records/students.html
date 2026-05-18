@@ -211,9 +211,37 @@ table.innerHTML += `
 <td>${i+1}</td>
 <td>${s.full_name}</td>
 <td>${s.gender}</td>
-<td>
-<button class="btn btn-success">Edit</button>
-<button class="btn btn-danger">Delete</button>
+<td class="action-cell">
+
+<button
+class="action-btn edit-btn"
+onclick="
+editStudent(
+${s.id},
+'${s.full_name}',
+'${s.gender}',
+${s.class_id}
+)
+"
+>
+
+<i class="fa-solid fa-pen"></i>
+
+</button>
+
+<button
+class="action-btn delete-btn"
+onclick="
+deleteStudent(
+${s.id}
+)
+"
+>
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
 </td>
 </tr>
 `;
@@ -221,6 +249,86 @@ table.innerHTML += `
 });
 
 }
+    /* =========================
+EDIT STUDENT
+========================= */
+
+async function editStudent(
+id,
+name,
+gender,
+class_id
+){
+
+const full_name=
+prompt(
+"Edit student name",
+name
+);
+
+if(!full_name)return;
+
+const body={
+
+id,
+full_name,
+gender,
+class_id
+
+};
+
+await fetch(
+"/.netlify/functions/update-Student",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify(body)
+
+}
+);
+
+loadStudents();
+
+}
+
+
+
+/* =========================
+DELETE STUDENT
+========================= */
+
+async function deleteStudent(id){
+
+const yes=
+confirm(
+"Delete this student?"
+);
+
+if(!yes)return;
+
+await fetch(
+"/.netlify/functions/delete-Student",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+id
+})
+
+}
+);
+
+loadStudents();
+
+    }
 
 /* =========================
 ADD STUDENT (DB)
