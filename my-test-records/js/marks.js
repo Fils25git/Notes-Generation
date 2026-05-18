@@ -52,7 +52,9 @@ box.scrollHeight;
 // ======================
 function Msg(
 text,
-callback=null
+callback=null,
+needInput=false,
+defaultValue=""
 ){
 
 const box=
@@ -60,26 +62,54 @@ document.createElement(
 "div"
 );
 
+box.className="msg-overlay";
+
 box.innerHTML=`
 
 <div class="msg-box">
 
 <p>${text}</p>
 
+${
+needInput
+?
+`
 <input
 id="msgInput"
 type="text"
+value="${defaultValue}"
+>
+`
+:
+""
+}
+
+<div
+style="
+margin-top:15px;
+display:flex;
+gap:10px;
+justify-content:center;
+"
 >
 
 <button
-onclick="
-finishMsg()
-"
+id="msgOk"
 >
 
 OK
 
 </button>
+
+<button
+id="msgCancel"
+>
+
+Cancel
+
+</button>
+
+</div>
 
 </div>
 
@@ -89,23 +119,43 @@ document.body.appendChild(
 box
 );
 
-window.finishMsg=
-()=>{
+document
+.getElementById(
+"msgOk"
+)
+.onclick=()=>{
 
-const value=
-document.getElementById(
+let value=true;
+
+if(needInput){
+
+value=
+document
+.getElementById(
 "msgInput"
-).value;
+)
+.value;
+
+}
 
 box.remove();
 
 if(callback){
 
-callback(
-value
-);
+callback(value);
 
 }
+
+};
+
+
+document
+.getElementById(
+"msgCancel"
+)
+.onclick=()=>{
+
+box.remove();
 
 };
 
@@ -1031,7 +1081,7 @@ if(
 !max_score
 ){
 
-msg(
+Msg(
 "Fill all fields"
 );
 
@@ -1154,7 +1204,6 @@ document
 }
 
 
-
 // ======================
 // EDIT TEST
 // ======================
@@ -1165,29 +1214,20 @@ name,
 max
 ){
 
-const test_name=
-msg(
+Msg(
 "Edit test name",
-name
-);
 
-if(
-!test_name
-){
-return;
-}
+(test_name)=>{
 
-const max_score=
-msg(
+if(!test_name)return;
+
+
+Msg(
 "Edit max score",
-max
-);
 
-if(
-!max_score
-){
-return;
-}
+async(max_score)=>{
+
+if(!max_score)return;
 
 
 await school(
@@ -1204,6 +1244,20 @@ max_score
 
 loadMarks();
 
+},
+
+true,
+max
+
+);
+
+},
+
+true,
+name
+
+);
+
 }
 
 // ======================
@@ -1212,13 +1266,12 @@ loadMarks();
 
 async function editOverallTest(){
 
-const value=
-msg(
-"Set overall test maximum"
-);
+Msg(
+"Set overall test maximum",
+
+async(value)=>{
 
 if(!value)return;
-
 
 const settings=
 await school(
@@ -1230,7 +1283,6 @@ academic_year_id:selectedYear,
 term_id:selectedTerm
 }
 );
-
 
 await school(
 "saveGradingSettings",
@@ -1252,9 +1304,13 @@ settings.overall_exam_max||100
 
 loadMarks();
 
-}
+},
 
+true
 
+);
+
+  }
 
 // ======================
 // EDIT OVERALL EXAM
@@ -1262,13 +1318,12 @@ loadMarks();
 
 async function editOverallExam(){
 
-const value=
-msg(
-"Set overall exam maximum"
-);
+Msg(
+"Set overall exam maximum",
+
+async(value)=>{
 
 if(!value)return;
-
 
 const settings=
 await school(
@@ -1280,7 +1335,6 @@ academic_year_id:selectedYear,
 term_id:selectedTerm
 }
 );
-
 
 await school(
 "saveGradingSettings",
@@ -1302,7 +1356,14 @@ overall_exam_max:value
 
 loadMarks();
 
-  }
+},
+
+true
+
+);
+
+}
+
 let deleteTimer=null;
 
 
@@ -1347,17 +1408,10 @@ id,
 name
 ){
 
-const yes=
-msg(
+Msg(
+`Are you sure you want to delete "${name}" ?`,
 
-`Are you sure you want to delete "${name}" ?`
-
-);
-
-if(!yes){
-return;
-}
-
+async()=>{
 
 await school(
 "deleteTest",
@@ -1367,8 +1421,11 @@ test_id:id
 "POST"
 );
 
-
 loadMarks();
+
+}
+
+);
 
   }
 
