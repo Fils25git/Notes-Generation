@@ -1,28 +1,24 @@
 exports.handler = async (event) => {
 
-console.log("Function started");
-
-try {
+try{
 
 return {
 
-statusCode: 200,
+statusCode:200,
 
-headers: {
+headers:{
 "Content-Type":"application/json"
 },
 
-body: JSON.stringify({
+body:JSON.stringify({
 success:true,
-message:"addStudent is running"
+message:"Function is alive"
 })
 
 };
 
 }
 catch(error){
-
-console.log("ERROR:", error);
 
 return {
 
@@ -34,7 +30,8 @@ headers:{
 
 body:JSON.stringify({
 success:false,
-error:error.message
+error:error.toString(),
+stack:error.stack
 })
 
 };
