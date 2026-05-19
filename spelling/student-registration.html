@@ -86,22 +86,23 @@ Add Student
 </div>
 
 
+
 <script>
 
 async function saveStudent(){
 
-let full_name=
+const full_name =
 document.getElementById(
 "studentName"
-).value;
+).value.trim();
 
-let class_name=
+const class_name =
 document.getElementById(
 "className"
-).value;
+).value.trim();
 
 
-if(full_name.trim()==""){
+if(!full_name){
 
 showMessage(
 "Enter student name"
@@ -114,35 +115,30 @@ return;
 
 try{
 
-const response=
+const response =
 await fetch(
 "/.netlify/functions/spellingAddStudent",
 {
 method:"POST",
 
 headers:{
-"Content-Type":
-"application/json"
+"Content-Type":"application/json"
 },
 
-body:JSON.stringify({
-
-full_name,
-class_name
-
+body: JSON.stringify({
+full_name: full_name,
+class_name: class_name
 })
 
 }
 );
 
-
-const data=
+const data =
 await response.json();
 
 console.log(data);
 
-
-if(response.ok){
+if(data.success){
 
 showMessage(
 "Student added successfully"
@@ -156,15 +152,11 @@ document.getElementById(
 "className"
 ).value="";
 
-}
-
-else{
+}else{
 
 showMessage(
 data.message ||
-data.error ||
-"Failed"
-
+data.error
 );
 
 }
@@ -173,10 +165,7 @@ data.error ||
 
 catch(error){
 
-console.log(
-"ERROR:",
-error
-);
+console.log(error);
 
 showMessage(
 error.message
@@ -191,12 +180,12 @@ function showMessage(text){
 
 document.getElementById(
 "message"
-).innerText=
+).innerText =
 text;
 
 }
 
-</script>
 
+  </script>
 </body>
 </html>
