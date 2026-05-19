@@ -33,7 +33,7 @@ try{
 
 const response=
 await fetch(
-"/.netlify/functions/getStudents"
+"/.netlify/functions/spelling-getStudents"
 );
 
 const data=
