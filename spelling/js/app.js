@@ -292,7 +292,7 @@ try{
 
 await fetch(
 
-"/.netlify/functions/saveResult",
+"/.netlify/functions/spelling-saveResult",
 
 {
 
