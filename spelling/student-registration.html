@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>Register Students</title>
+
+<style>
+
+body{
+
+font-family:Arial;
+padding:20px;
+background:#f2f2f2;
+
+}
+
+.container{
+
+background:white;
+padding:20px;
+max-width:600px;
+margin:auto;
+border-radius:10px;
+
+}
+
+input{
+
+width:100%;
+padding:12px;
+margin:10px 0;
+
+}
+
+button{
+
+padding:12px;
+cursor:pointer;
+
+}
+
+#message{
+
+margin-top:20px;
+font-weight:bold;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>
+Register Students
+</h1>
+
+<input
+type="text"
+id="studentName"
+placeholder="Student Name">
+
+<input
+type="text"
+id="className"
+placeholder="Class">
+
+<button onclick="saveStudent()">
+
+Add Student
+
+</button>
+
+<div id="message">
+
+</div>
+
+</div>
+
+
+<script>
+
+async function saveStudent(){
+
+let full_name=
+
+document.getElementById(
+"studentName"
+).value;
+
+let class_name=
+
+document.getElementById(
+"className"
+).value;
+
+
+if(
+
+full_name.trim()==""
+
+){
+
+showMessage(
+"Enter student name"
+);
+
+return;
+
+}
+
+
+try{
+
+const response=
+
+await fetch(
+
+"/.netlify/functions/addStudent",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json"
+
+},
+
+body:
+JSON.stringify({
+
+full_name,
+class_name
+
+})
+
+}
+
+);
+
+
+const data=
+await response.json();
+
+
+if(data.success){
+
+showMessage(
+"Student added successfully"
+);
+
+document.getElementById(
+"studentName"
+).value="";
+
+document.getElementById(
+"className"
+).value="";
+
+}
+
+else{
+
+showMessage(
+data.message
+);
+
+}
+
+}
+
+catch(error){
+
+showMessage(
+"Error occurred"
+);
+
+console.log(
+error
+);
+
+}
+
+}
+
+
+function showMessage(text){
+
+document.getElementById(
+"message"
+).innerText=
+text;
+
+}
+
+</script>
+
+</body>
+</html>
