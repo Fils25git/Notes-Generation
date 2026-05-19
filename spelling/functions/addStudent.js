@@ -1,20 +1,44 @@
-exports.handler=async()=>{
+exports.handler = async (event) => {
 
-return{
+console.log("Function started");
 
-statusCode:200,
+try {
+
+return {
+
+statusCode: 200,
+
+headers: {
+"Content-Type":"application/json"
+},
+
+body: JSON.stringify({
+success:true,
+message:"addStudent is running"
+})
+
+};
+
+}
+catch(error){
+
+console.log("ERROR:", error);
+
+return {
+
+statusCode:500,
 
 headers:{
 "Content-Type":"application/json"
 },
 
 body:JSON.stringify({
-
-success:true,
-message:"Function works"
-
+success:false,
+error:error.message
 })
 
 };
+
+}
 
 };
