@@ -1,17 +1,19 @@
-const sql=require("./spellingDb");
+const sql=require("./db");
 
 exports.handler=async(event)=>{
 
 try{
 
-const data=
-JSON.parse(event.body);
+const body =
+event.body
+? JSON.parse(event.body)
+: {};
 
-const full_name=
-data.full_name?.trim();
+const full_name =
+body.full_name?.trim();
 
-const class_name=
-data.class_name?.trim() || "";
+const class_name =
+body.class_name?.trim() || "";
 
 
 if(!full_name){
@@ -36,7 +38,7 @@ message:"Student name required"
 }
 
 
-const existing=
+const existing =
 await sql`
 
 SELECT id
@@ -70,7 +72,7 @@ message:"Student already exists"
 }
 
 
-const student=
+const student =
 await sql`
 
 INSERT INTO students(
