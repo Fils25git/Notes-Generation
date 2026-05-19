@@ -91,23 +91,17 @@ Add Student
 async function saveStudent(){
 
 let full_name=
-
 document.getElementById(
 "studentName"
 ).value;
 
 let class_name=
-
 document.getElementById(
 "className"
 ).value;
 
 
-if(
-
-full_name.trim()==""
-
-){
+if(full_name.trim()==""){
 
 showMessage(
 "Enter student name"
@@ -121,24 +115,17 @@ return;
 try{
 
 const response=
-
 await fetch(
-
 "/.netlify/functions/addStudent",
-
 {
-
 method:"POST",
 
 headers:{
-
 "Content-Type":
 "application/json"
-
 },
 
-body:
-JSON.stringify({
+body:JSON.stringify({
 
 full_name,
 class_name
@@ -146,15 +133,16 @@ class_name
 })
 
 }
-
 );
 
 
 const data=
 await response.json();
 
+console.log(data);
 
-if(data.success){
+
+if(response.ok){
 
 showMessage(
 "Student added successfully"
@@ -173,7 +161,10 @@ document.getElementById(
 else{
 
 showMessage(
-data.message
+data.message ||
+data.error ||
+"Failed"
+
 );
 
 }
@@ -182,12 +173,13 @@ data.message
 
 catch(error){
 
-showMessage(
-"Error occurred"
+console.log(
+"ERROR:",
+error
 );
 
-console.log(
-error
+showMessage(
+error.message
 );
 
 }
