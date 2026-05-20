@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1">
+
+<title>Student Draw Assignment</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
+}
+
+.header{
+background:#7c3aed;
+color:white;
+padding:15px;
+text-align:center;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:15px;
+}
+
+select,input{
+
+width:100%;
+padding:12px;
+margin:10px 0;
+
+}
+
+button{
+
+padding:12px;
+width:100%;
+border:none;
+border-radius:6px;
+background:#16a34a;
+color:white;
+cursor:pointer;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h2>Assign Student Draw</h2>
+
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<label>Student</label>
+
+<select id="student">
+
+<option value="">
+Select Student
+</option>
+
+</select>
+
+
+<label>Draw Number</label>
+
+<input
+type="number"
+id="drawNumber"
+placeholder="Example: 5"
+min="1">
+
+
+<label>Draw Order</label>
+
+<input
+type="number"
+id="drawOrder"
+placeholder="1,2,3..."
+min="1">
+
+
+<button onclick="saveDraw()">
+
+Assign Draw
+
+</button>
+
+</div>
+
+</div>
+
+<script src="js/draw.js"></script>
+
+</body>
+
+</html>
