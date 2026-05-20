@@ -7,88 +7,60 @@
 <meta name="viewport"
 content="width=device-width,initial-scale=1">
 
-<title>Manage Students</title>
+<title>Students</title>
 
 <style>
 
 body{
-font-family:Arial,sans-serif;
+font-family:Arial;
 background:#f2f2f2;
-padding:20px;
 margin:0;
+}
+
+.header{
+background:#16a34a;
+color:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
 .container{
 max-width:1000px;
 margin:auto;
-background:white;
 padding:20px;
-border-radius:12px;
-box-shadow:0 0 10px rgba(0,0,0,.1);
-}
-
-.header{
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-
-}
-
-h1{
-
-margin:0;
-
 }
 
 button{
-
-padding:10px 15px;
+padding:10px;
 border:none;
-border-radius:5px;
+border-radius:6px;
 cursor:pointer;
-
+color:white;
 }
 
-.addBtn{
-
-background:#4CAF50;
-color:white;
-
-}
-
-.editBtn{
-
-background:#2196F3;
-color:white;
-
-}
-
-.deleteBtn{
-
-background:#f44336;
-color:white;
-
+.add{
+background:#22c55e;
 }
 
 table{
-
 width:100%;
+background:white;
 border-collapse:collapse;
-
+border-radius:10px;
+overflow:hidden;
 }
 
 th,td{
-
-padding:15px;
+padding:12px;
 border-bottom:1px solid #ddd;
-text-align:left;
-
 }
 
-.modal{
+.edit{background:#3b82f6;}
+.delete{background:#ef4444;}
 
+.modal{
 display:none;
 position:fixed;
 top:0;
@@ -96,40 +68,24 @@ left:0;
 width:100%;
 height:100%;
 background:rgba(0,0,0,.5);
-
 }
 
-.modal-content{
-
+.modal-box{
 background:white;
 width:400px;
-padding:20px;
 margin:100px auto;
+padding:20px;
 border-radius:10px;
-
 }
 
 input,select{
-
 width:100%;
 padding:10px;
-margin:10px 0;
-
+margin:8px 0;
 }
 
-.saveBtn{
-
-background:green;
-color:white;
-
-}
-
-.cancelBtn{
-
-background:gray;
-color:white;
-
-}
+.save{background:#16a34a;}
+.close{background:gray;}
 
 </style>
 
@@ -137,17 +93,12 @@ color:white;
 
 <body>
 
-<div class="container">
-
 <div class="header">
 
-<h1>
-Registered Students
-</h1>
+<h2>Students</h2>
 
-<button
-class="addBtn"
-onclick="openAddModal()">
+<button class="add"
+onclick="openModal()">
 
 + Add Student
 
@@ -155,6 +106,8 @@ onclick="openAddModal()">
 
 </div>
 
+
+<div class="container">
 
 <table>
 
@@ -171,8 +124,7 @@ onclick="openAddModal()">
 
 </thead>
 
-<tbody
-id="studentTable">
+<tbody id="list">
 
 </tbody>
 
@@ -182,82 +134,42 @@ id="studentTable">
 
 
 
-<div
-class="modal"
-id="studentModal">
+<!-- MODAL -->
 
-<div
-class="modal-content">
+<div class="modal" id="modal">
 
-<h2
-id="modalTitle">
+<div class="modal-box">
 
-Add Student
+<h3 id="title">Add Student</h3>
 
-</h2>
+<input type="hidden" id="id">
 
+<input type="text"
+id="name"
+placeholder="Full Name">
 
-<input
-type="hidden"
-id="studentId">
+<select id="gender">
 
-
-<label>
-
-Student Full Name
-
-</label>
-
-<input
-type="text"
-id="studentName">
-
-
-<label>
-
-Gender
-
-</label>
-
-<select
-id="gender">
-
-<option>
-Male
-</option>
-
-<option>
-Female
-</option>
+<option>Male</option>
+<option>Female</option>
 
 </select>
 
+<input type="text"
+id="class"
+placeholder="Class">
 
-<label>
-
-Class
-
-</label>
-
-<input
-type="text"
-id="className">
-
-
-<button
-class="saveBtn"
+<button class="save"
 onclick="saveStudent()">
 
 Save
 
 </button>
 
-
-<button
-class="cancelBtn"
+<button class="close"
 onclick="closeModal()">
 
-Cancel
+Close
 
 </button>
 
@@ -266,348 +178,8 @@ Cancel
 </div>
 
 
-
-<script>
-
-let editing=false;
-
-
-function openAddModal(){
-
-editing=false;
-
-document
-.getElementById(
-"modalTitle"
-)
-.innerText=
-"Add Student";
-
-clearFields();
-
-showModal();
-
-}
-
-
-
-function editStudent(
-id,
-name,
-gender,
-className
-){
-
-editing=true;
-
-document
-.getElementById(
-"modalTitle"
-)
-.innerText=
-"Edit Student";
-
-
-document
-.getElementById(
-"studentId"
-)
-.value=id;
-
-
-document
-.getElementById(
-"studentName"
-)
-.value=name;
-
-
-document
-.getElementById(
-"gender"
-)
-.value=gender;
-
-
-document
-.getElementById(
-"className"
-)
-.value=className;
-
-
-showModal();
-
-}
-
-
-
-function showModal(){
-
-document
-.getElementById(
-"studentModal"
-)
-.style.display=
-"block";
-
-}
-
-
-
-function closeModal(){
-
-document
-.getElementById(
-"studentModal"
-)
-.style.display=
-"none";
-
-}
-
-
-
-function clearFields(){
-
-document
-.getElementById(
-"studentId"
-)
-.value="";
-
-
-document
-.getElementById(
-"studentName"
-)
-.value="";
-
-
-document
-.getElementById(
-"gender"
-)
-.value="Male";
-
-
-document
-.getElementById(
-"className"
-)
-.value="";
-
-}
-  async function loadStudents(){
-
-const response=
-await fetch(
-"/.netlify/functions/spellingGetStudents"
-);
-
-const data=
-await response.json();
-
-let html="";
-
-data.students.forEach(student=>{
-
-html+=`
-
-<tr>
-
-<td>
-${student.full_name}
-</td>
-
-<td>
-${student.gender}
-</td>
-
-<td>
-${student.class_name}
-</td>
-
-<td>
-
-<button
-class="editBtn"
-onclick="editStudent(
-
-${student.id},
-
-'${student.full_name}',
-
-'${student.gender}',
-
-'${student.class_name}'
-
-)">
-
-Edit
-
-</button>
-
-
-<button
-class="deleteBtn"
-onclick="deleteStudent(
-
-${student.id}
-
-)">
-
-Delete
-
-</button>
-
-</td>
-
-</tr>
-
-`;
-
-});
-
-document
-.getElementById(
-"studentTable"
-)
-.innerHTML=
-html;
-
-}
-
-
-
-async function saveStudent(){
-
-const data={
-
-id:
-
-document
-.getElementById(
-"studentId"
-)
-.value,
-
-full_name:
-
-document
-.getElementById(
-"studentName"
-)
-.value,
-
-gender:
-
-document
-.getElementById(
-"gender"
-)
-.value,
-
-class_name:
-
-document
-.getElementById(
-"className"
-)
-.value
-
-};
-
-
-let url=
-editing
-
-?
-
-"/.netlify/functions/spellingUpdateStudent"
-
-:
-
-"/.netlify/functions/spellingAddStudent";
-
-
-await fetch(
-
-url,
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":
-"application/json"
-
-},
-
-body:
-JSON.stringify(data)
-
-}
-
-);
-
-
-closeModal();
-
-loadStudents();
-
-}
-
-
-
-async function deleteStudent(id){
-
-let confirmDelete=
-confirm(
-"Delete student?"
-);
-
-if(!confirmDelete)
-return;
-
-
-await fetch(
-
-"/.netlify/functions/spellingDeleteStudent",
-
-{
-
-method:"POST",
-
-headers:{
-
-"Content-Type":
-"application/json"
-
-},
-
-body:
-JSON.stringify({
-
-id
-
-})
-
-}
-
-);
-
-
-loadStudents();
-
-}
-
-
-loadStudents();
-
-</script>
+<script src="js/students.js"></script>
 
 </body>
-  </html>
+
+</html>
