@@ -35,22 +35,38 @@ loadGroup();
 
 async function loadGroup(){
 
-let student=students[currentStudent];
+let student = students[currentStudent];
 
-const res=
-await fetch(
+if(!student){
+alert("No student loaded");
+return;
+}
+
+const res = await fetch(
 "/.netlify/functions/getWordGroups"
 );
 
-const data=
-await res.json();
+const data = await res.json();
 
-let group=
-data.groups.find(
-g=>g.group_number==student.group_number
+let group = data.groups.find(
+g => g.group_number == student.group_number
 );
 
-groupWords=group.words;
+// 🔴 SAFETY CHECK
+if(!group || !group.words || group.words.length === 0){
+
+alert("Group not found or empty for student: " + student.full_name);
+
+console.log("Student:", student);
+console.log("Groups:", data.groups);
+
+return;
+
+}
+
+groupWords = group.words;
+
+console.log("Loaded words:", groupWords);
 
 showWord();
 
@@ -85,25 +101,41 @@ function startWord(){
 
 clearInterval(timer);
 
-let word=
-groupWords[currentWordIndex];
+// 🔴 CHECK
+if(!groupWords || groupWords.length === 0){
 
-document.getElementById("word")
-.innerText=word;
+alert("Words not loaded yet");
 
-timeLeft=calculateTime(word);
+return;
 
-document.getElementById("timer")
-.innerText=timeLeft;
+}
 
-timer=setInterval(()=>{
+let word = groupWords[currentWordIndex];
+
+// 🔴 CHECK AGAIN
+if(!word){
+
+alert("Word is undefined at index " + currentWordIndex);
+
+console.log(groupWords);
+
+return;
+
+}
+
+document.getElementById("word").innerText = word;
+
+timeLeft = calculateTime(word);
+
+document.getElementById("timer").innerText = timeLeft;
+
+timer = setInterval(()=>{
 
 timeLeft--;
 
-document.getElementById("timer")
-.innerText=timeLeft;
+document.getElementById("timer").innerText = timeLeft;
 
-if(timeLeft<=0){
+if(timeLeft <= 0){
 
 clearInterval(timer);
 
