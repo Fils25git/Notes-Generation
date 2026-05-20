@@ -7,6 +7,26 @@ try{
 const body=
 JSON.parse(event.body);
 
+const group=
+await sql`
+
+SELECT id
+
+FROM word_groups
+
+WHERE group_number=
+${body.group_number}
+
+`;
+
+if(group.length===0){
+
+throw new Error(
+"Group not found"
+);
+
+}
+
 await sql`
 
 INSERT INTO student_draws(
@@ -20,7 +40,7 @@ draw_order
 VALUES(
 
 ${body.student_id},
-${body.group_id},
+${group[0].id},
 ${body.draw_order}
 
 )
