@@ -1,44 +1,104 @@
 async function loadStudents(){
 
-try{
-
-const response=
+const res=
 await fetch(
-"/.netlify/functions/spellingGetStudents"
+"/.netlify/functions/getDrawStudents"
 );
 
 const data=
-await response.json();
+await res.json();
 
-let html=
-`<option value="">Select Student</option>`;
+let html="";
 
 data.students.forEach(student=>{
 
 html+=`
 
-<option value="${student.id}">
+<tr>
 
-${student.full_name}
+<td>${student.full_name}</td>
 
-</option>
+<td>${student.gender}</td>
+
+<td>
+
+${student.group_number ||
+
+'<span class="notset">Not Set</span>'}
+
+</td>
+
+<td>
+
+${student.draw_order ||
+
+'<span class="notset">Not Set</span>'}
+
+</td>
+
+<td>
+
+<button
+class="edit"
+onclick="openModal(
+${student.id},
+'${student.group_number || ""}',
+'${student.draw_order || ""}'
+)">
+
+Edit
+
+</button>
+
+</td>
+
+</tr>
 
 `;
 
 });
 
 document.getElementById(
-"student"
-).innerHTML=
-html;
+"studentList"
+).innerHTML=html;
 
 }
 
-catch(error){
 
-console.log(error);
+
+function openModal(
+
+id,
+group,
+order
+
+){
+
+document.getElementById(
+"studentId"
+).value=id;
+
+document.getElementById(
+"drawNumber"
+).value=group;
+
+document.getElementById(
+"drawOrder"
+).value=order;
+
+document.getElementById(
+"modal"
+).style.display="block";
 
 }
+
+
+
+function closeModal(){
+
+document.getElementById(
+"modal"
+).style.display="none";
 
 }
 
@@ -46,40 +106,25 @@ console.log(error);
 
 async function saveDraw(){
 
-let studentId=
-document.getElementById(
-"student"
-).value;
+let data={
 
-let groupNumber=
+student_id:
+document.getElementById(
+"studentId"
+).value,
+
+group_number:
 document.getElementById(
 "drawNumber"
-).value;
+).value,
 
-let drawOrder=
+draw_order:
 document.getElementById(
 "drawOrder"
-).value;
+).value
 
+};
 
-if(
-
-!studentId ||
-!groupNumber ||
-!drawOrder
-
-){
-
-alert(
-"Fill all fields"
-);
-
-return;
-
-}
-
-
-const response=
 await fetch(
 
 "/.netlify/functions/assignDraw",
@@ -96,42 +141,17 @@ headers:{
 },
 
 body:
-JSON.stringify({
-
-student_id:
-studentId,
-
-group_number:
-groupNumber,
-
-draw_order:
-drawOrder
-
-})
+JSON.stringify(data)
 
 }
 
 );
 
-const data=
-await response.json();
+closeModal();
 
-if(data.success){
-
-alert(
-"Draw assigned"
-);
+loadStudents();
 
 }
 
-else{
-
-alert(
-data.error
-);
-
-}
-
-}
 
 loadStudents();
