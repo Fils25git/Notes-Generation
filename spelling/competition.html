@@ -1,209 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width,initial-scale=1">
 
-<title>Spelling Competition</title>
+<meta charset="UTF-8">
+<title>Competition</title>
 
 <style>
 
 body{
-font-family:Arial,sans-serif;
+font-family:Arial;
 background:#f2f2f2;
-padding:20px;
+margin:0;
+}
+
+.header{
+background:#2563eb;
+color:white;
+padding:15px;
+text-align:center;
 }
 
 .container{
-background:white;
-padding:20px;
-border-radius:10px;
-max-width:800px;
+max-width:900px;
 margin:auto;
-box-shadow:0 0 10px rgba(0,0,0,.1);
-}
-
-h1{
-text-align:center;
+padding:20px;
 }
 
 .card{
-
-padding:15px;
-margin:10px 0;
-border-radius:8px;
-background:#f5f5f5;
-
+background:white;
+padding:20px;
+border-radius:10px;
+text-align:center;
 }
 
 #timer{
-
-font-size:45px;
-font-weight:bold;
+font-size:50px;
 color:red;
-text-align:center;
-
+margin:10px;
 }
 
 button{
-
-padding:12px;
+padding:10px;
 margin:5px;
-cursor:pointer;
 border:none;
-border-radius:5px;
-font-size:16px;
-
-}
-
-.start{
-background:green;
+border-radius:6px;
+cursor:pointer;
 color:white;
 }
 
-.correct{
-background:blue;
-color:white;
-}
+.start{background:green;}
+.correct{background:#16a34a;}
+.wrong{background:#dc2626;}
+.skip{background:#f59e0b;}
 
-.wrong{
-background:red;
-color:white;
-}
-
-.pause{
-background:orange;
-color:white;
-}
-.register{
-
-background:purple;
-color:white;
-
-  }
 </style>
 
 </head>
 
 <body>
 
+<div class="header">
+
+<h2>Spelling Competition</h2>
+
+</div>
+
+
 <div class="container">
 
-<h1>Spelling Competition</h1>
-
 <div class="card">
 
-<h2>
+<h3>Student: <span id="studentName"></span></h3>
 
-Student:
-<span id="studentName">
-Loading...
-</span>
+<h3>Round: <span id="round">1</span></h3>
 
-</h2>
+<h2 id="word">Ready</h2>
 
-<h3>
-
-Round:
-<span id="round">
-1
-</span>
-
-</h3>
-
-<h3>
-
-Word:
-<span id="wordDisplay">
-Ready
-</span>
-
-</h3>
-
-</div>
+<div id="timer">0</div>
 
 
-<div id="timer">
-0
-</div>
+<button class="start" onclick="startWord()">Start</button>
+<button class="correct" onclick="correct()">Correct</button>
+<button class="wrong" onclick="wrong()">Wrong</button>
+<button class="skip" onclick="skip()">Next Word</button>
 
-
-<div align="center">
-
-<button
-class="start"
-onclick="startWord()">
-
-Start
-
-</button>
-
-
-<button
-class="correct"
-onclick="correctAnswer()">
-
-✓ Correct
-
-</button>
-
-
-<button
-class="wrong"
-onclick="wrongAnswer()">
-
-✗ Wrong
-
-</button>
-  <button
-onclick="skipWord()">
-
-Next Word
-
-  </button>
-
-
-<button
-class="pause"
-onclick="pauseTimer()">
-
-Pause
-
-</button>
-
-
-<button
-class="register"
-onclick="window.location.href='student-registration.html'">
-
-Register Students
-
-</button>
-
-  </div>
-
-
-<div class="card">
-
-<h3>
-
-Score:
-
-<span id="score">
-0
-</span>/9
-
-</h3>
+<h3>Score: <span id="score">0</span></h3>
 
 </div>
 
 </div>
 
 
-<script src="js/app.js"></script>
+<script src="js/competition.js"></script>
 
 </body>
 
-  </html>
+</html>
