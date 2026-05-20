@@ -1,39 +1,28 @@
 let students=[];
 
-let studentIndex=0;
-let currentWord=0;
+let currentStudent=0;
 
-let score=0;
+let currentRound=1;
+
+let currentWordInRound=0;
+
+let currentWords=[];
 
 let timer=null;
+
 let timeLeft=0;
 
-
-const words=[
-
-"Library",
-"Book",
-"Knowledge",
-
-"Environment",
-"Beautiful",
-"Computer",
-
-"Education",
-"Dictionary",
-"Friendship"
-
-];
+let totalScore=0;
 
 
 
-async function loadStudents(){
+async function loadCompetition(){
 
 try{
 
 const response=
 await fetch(
-"/.netlify/functions/spellingGetStudents"
+"/.netlify/functions/getStudentCompetition"
 );
 
 const data=
@@ -42,17 +31,9 @@ await response.json();
 students=
 data.students;
 
-if(students.length===0){
-
-alert(
-"No students found"
-);
-
-return;
-
-}
-
 showStudent();
+
+loadWords();
 
 }
 
@@ -65,41 +46,84 @@ console.log(error);
 }
 
 
+
+async function loadWords(){
+
+let student=
+students[currentStudent];
+
+try{
+
+const response=
+await fetch(
+"/.netlify/functions/getWordGroups"
+);
+
+const data=
+await response.json();
+
+let group=
+data.groups.find(
+
+g=>
+
+g.group_number===
+student.group_number
+
+);
+
+currentWords=
+group.words;
+
+showWord();
+
+}
+
+catch(error){
+
+console.log(error);
+
+}
+
+}
+
+
+
 function showStudent(){
 
 document.getElementById(
 "studentName"
 ).innerText=
-students[studentIndex]
+students[currentStudent]
 .full_name;
 
 
 document.getElementById(
-"score"
-).innerText=
-score;
-
-
-updateRound();
-
-}
-
-
-
-function updateRound(){
-
-let round=
-Math.floor(
-currentWord/3
-)+1;
-
-document.getElementById(
 "round"
 ).innerText=
-round;
+currentRound;
 
 }
 
+
+
+function showWord(){
+
+let index=
+
+((currentRound-1)*3)
+
++
+
+currentWordInRound;
+
+
+document.getElementById(
+"wordDisplay"
+).innerText=
+"Ready";
+
+}
 
 
 function calculateTime(word){
@@ -107,29 +131,16 @@ function calculateTime(word){
 let length=
 word.length;
 
-if(length<=4){
-
+if(length<=4)
 return 8;
 
-}
-
-else if(length<=7){
-
+if(length<=7)
 return 12;
 
-}
-
-else if(length<=10){
-
+if(length<=10)
 return 15;
 
-}
-
-else{
-
 return 20;
-
-}
 
 }
 
@@ -141,18 +152,17 @@ clearInterval(
 timer
 );
 
-if(
-currentWord>=9
-){
+let index=
 
-finishStudent();
+((currentRound-1)*3)
 
-return;
++
 
-}
+currentWordInRound;
+
 
 let word=
-words[currentWord];
+currentWords[index];
 
 document.getElementById(
 "wordDisplay"
@@ -187,11 +197,9 @@ timeLeft<=0
 ){
 
 clearInterval(
-timer
-);
+timer);
 
-saveResult(
-word,
+saveAnswer(
 0,
 "time up"
 );
@@ -206,11 +214,36 @@ nextWord();
 
 
 
-function pauseTimer(){
+function calculateMark(
 
-clearInterval(
-timer
-);
+allowed,
+used
+
+){
+
+let percentage=
+used/allowed;
+
+
+if(
+percentage<=0.5
+){
+
+return 1;
+
+}
+
+
+if(
+percentage<=0.75
+){
+
+return .75;
+
+}
+
+
+return .5;
 
 }
 
@@ -222,20 +255,43 @@ clearInterval(
 timer
 );
 
-score++;
+let index=
+
+((currentRound-1)*3)
+
++
+
+currentWordInRound;
+
+
+let word=
+currentWords[index];
+
+let allowed=
+calculateTime(word);
+
+let used=
+allowed-timeLeft;
+
+let mark=
+
+calculateMark(
+allowed,
+used
+);
+
+totalScore+=mark;
+
 
 document.getElementById(
 "score"
 ).innerText=
-score;
+totalScore;
 
 
-await saveResult(
-
-words[currentWord],
-1,
+await saveAnswer(
+mark,
 "correct"
-
 );
 
 nextWord();
@@ -250,13 +306,9 @@ clearInterval(
 timer
 );
 
-
-await saveResult(
-
-words[currentWord],
+await saveAnswer(
 0,
 "wrong"
-
 );
 
 nextWord();
@@ -265,30 +317,42 @@ nextWord();
 
 
 
-function nextWord(){
+async function skipWord(){
 
-currentWord++;
+clearInterval(
+timer
+);
 
-updateRound();
+await saveAnswer(
+0,
+"skipped"
+);
 
-document.getElementById(
-"wordDisplay"
-).innerText=
-"Ready";
+nextWord();
 
 }
 
 
 
-async function saveResult(
+async function saveAnswer(
 
-word,
-scoreValue,
+score,
 status
 
 ){
 
-try{
+let index=
+
+((currentRound-1)*3)
+
++
+
+currentWordInRound;
+
+
+let word=
+currentWords[index];
+
 
 await fetch(
 
@@ -309,23 +373,24 @@ body:
 JSON.stringify({
 
 studentId:
-students[studentIndex]
+students[currentStudent]
 .id,
 
-competitionId:1,
+groupNumber:
+students[currentStudent]
+.group_number,
 
 round:
-Math.floor(
-currentWord/3
-)+1,
+currentRound,
 
 word:
 word,
 
-answer:"",
-
 score:
-scoreValue,
+score,
+
+status:
+status,
 
 timeAllowed:
 calculateTime(word),
@@ -333,10 +398,7 @@ calculateTime(word),
 timeUsed:
 calculateTime(word)
 -
-timeLeft,
-
-status:
-status
+timeLeft
 
 })
 
@@ -346,54 +408,55 @@ status
 
 }
 
-catch(error){
-
-console.log(
-error
-);
-
-}
-
-}
 
 
+function nextWord(){
 
-function finishStudent(){
-
-alert(
-
-students[
-studentIndex
-]
-.full_name+
-
-" scored "+
-
-score+
-
-"/9"
-
-);
-
-
-studentIndex++;
-
-currentWord=0;
-
-score=0;
+currentWordInRound++;
 
 
 if(
+currentWordInRound>=3
+){
 
-studentIndex>=
+nextStudent();
+
+return;
+
+}
+
+
+showWord();
+
+}
+
+
+
+function nextStudent(){
+
+currentStudent++;
+
+currentWordInRound=0;
+
+
+if(
+currentStudent>=
 students.length
+){
 
+currentStudent=0;
+
+currentRound++;
+
+}
+
+
+if(
+currentRound>3
 ){
 
 alert(
-
 "Competition Finished"
-
 );
 
 return;
@@ -403,7 +466,10 @@ return;
 
 showStudent();
 
+loadWords();
+
 }
 
 
-loadStudents();
+
+loadCompetition();
