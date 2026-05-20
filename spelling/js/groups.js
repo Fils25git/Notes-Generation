@@ -75,15 +75,39 @@ loadGroups();
 
 async function loadGroups(){
 
-const res=
-await fetch(
+const res = await fetch(
 "/.netlify/functions/getWordGroups"
 );
 
-const data=
-await res.json();
+const data = await res.json();
 
-console.log(data);
+let container = document.getElementById("groups");
+
+container.innerHTML = ""; // clear old view
+
+data.groups.forEach(group => {
+
+const div = document.createElement("div");
+
+div.className = "card";
+
+div.innerHTML = `
+
+<h3>Group ${group.group_number}</h3>
+
+<div class="groupBox">
+
+${group.words
+.map(w => `<span class="word">${w}</span>`)
+.join("")}
+
+</div>
+
+`;
+
+container.appendChild(div);
+
+});
 
 }
 
