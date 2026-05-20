@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
@@ -21,39 +21,92 @@ margin:0;
 background:#7c3aed;
 color:white;
 padding:15px;
-text-align:center;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
 .container{
-max-width:700px;
+max-width:1000px;
 margin:auto;
 padding:20px;
 }
 
-.card{
+table{
+width:100%;
 background:white;
-padding:20px;
+border-collapse:collapse;
 border-radius:10px;
-margin-bottom:15px;
+overflow:hidden;
 }
 
-select,input{
+th,td{
+padding:14px;
+border-bottom:1px solid #ddd;
+text-align:center;
+}
+
+button{
+padding:8px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+color:white;
+}
+
+.edit{
+background:#2563eb;
+}
+
+.modal{
+
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.5);
+
+}
+
+.modalBox{
+
+background:white;
+width:400px;
+margin:100px auto;
+padding:20px;
+border-radius:10px;
+
+}
+
+input{
 
 width:100%;
-padding:12px;
+padding:10px;
 margin:10px 0;
 
 }
 
-button{
+.save{
 
-padding:12px;
-width:100%;
-border:none;
-border-radius:6px;
 background:#16a34a;
-color:white;
-cursor:pointer;
+width:100%;
+
+}
+
+.close{
+
+background:#ef4444;
+width:100%;
+margin-top:10px;
+
+}
+
+.notset{
+
+color:red;
+font-style:italic;
 
 }
 
@@ -65,46 +118,79 @@ cursor:pointer;
 
 <div class="header">
 
-<h2>Assign Student Draw</h2>
+<h2>Participants Draw Assignment</h2>
 
 </div>
 
+
 <div class="container">
 
-<div class="card">
+<table>
 
-<label>Student</label>
+<thead>
 
-<select id="student">
+<tr>
 
-<option value="">
-Select Student
-</option>
+<th>Name</th>
+<th>Gender</th>
+<th>Draw Number</th>
+<th>Order Number</th>
+<th>Action</th>
 
-</select>
+</tr>
 
+</thead>
+
+<tbody id="studentList">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<!-- Modal -->
+
+<div class="modal"
+id="modal">
+
+<div class="modalBox">
+
+<h3>Edit Draw</h3>
+
+<input
+type="hidden"
+id="studentId">
 
 <label>Draw Number</label>
 
 <input
 type="number"
-id="drawNumber"
-placeholder="Example: 5"
-min="1">
+id="drawNumber">
 
 
-<label>Draw Order</label>
+<label>Order Number</label>
 
 <input
 type="number"
-id="drawOrder"
-placeholder="1,2,3..."
-min="1">
+id="drawOrder">
 
 
-<button onclick="saveDraw()">
+<button
+class="save"
+onclick="saveDraw()">
 
-Assign Draw
+Save
+
+</button>
+
+
+<button
+class="close"
+onclick="closeModal()">
+
+Close
 
 </button>
 
@@ -112,8 +198,9 @@ Assign Draw
 
 </div>
 
+
 <script src="js/draw.js"></script>
 
 </body>
 
-</html>
+  </html>
