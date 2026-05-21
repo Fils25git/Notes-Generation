@@ -14,7 +14,7 @@ let timer=null;
 let timeLeft=0;
 
 let groupWords=[];
-started=false;
+let started=false;
 
 let learnerFinished=false;
 
@@ -90,7 +90,7 @@ document.querySelector(".correct").disabled=
 document.querySelector(".wrong").disabled=
 !learnerFinished;
 
-document.querySelector(".notspelt").disabled=
+document.querySelector(".skip").disabled=
 !learnerFinished;
 
 document.querySelector(".stop").disabled=
@@ -309,6 +309,7 @@ document.getElementById(
 "timer"
 ).innerText=
 timeLeft;
+  saveState();
 
 
 timer=
