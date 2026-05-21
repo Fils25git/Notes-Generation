@@ -154,7 +154,6 @@ await res.json();
 students=
 data.students || [];
 
-
 if(students.length===0){
 
 alert(
@@ -165,7 +164,17 @@ return;
 
 }
 
+/* load saved competition state */
 await loadSavedState();
+
+/* safety check */
+if(
+currentStudent>=students.length
+){
+
+currentStudent=0;
+
+}
 
 showStudent();
 
@@ -181,6 +190,147 @@ console.log(error);
 }
 
 }
+
+
+
+async function loadSavedState(){
+
+try{
+
+const res=
+await fetch(
+"/.netlify/functions/getCompetitionState"
+);
+
+const data=
+await res.json();
+
+if(data.state){
+
+currentStudent=
+data.state.currentstudent || 0;
+
+currentWordIndex=
+data.state.currentwordindex || 0;
+
+round=
+data.state.round || 1;
+
+roundScore=
+data.state.score || 0;
+
+timeLeft=
+data.state.timeleft || 0;
+
+}
+
+}
+catch(error){
+
+console.log(error);
+
+}
+
+}
+
+
+
+function showStudent(){
+
+if(
+!students[currentStudent]
+){
+
+return;
+
+}
+
+let studentId=
+students[currentStudent]
+.id;
+
+
+document.getElementById(
+"studentName"
+).innerText=
+
+students[currentStudent]
+.full_name;
+
+
+document.getElementById(
+"round"
+).innerText=
+
+round+"/3";
+
+
+document.getElementById(
+"roundScore"
+).innerText=
+
+roundScore;
+
+
+document.getElementById(
+"totalScore"
+).innerText=
+
+totalScores[
+studentId
+] || 0;
+
+}
+
+
+
+async function loadGroup(){
+
+if(
+!students[currentStudent]
+){
+
+return;
+
+}
+
+let student=
+students[currentStudent];
+
+const res=
+await fetch(
+"/.netlify/functions/getWordGroups"
+);
+
+const data=
+await res.json();
+
+let group=
+data.groups.find(
+
+g=>
+
+g.group_number==
+student.group_number
+
+);
+
+if(!group){
+
+alert(
+"Group not found"
+);
+
+return;
+
+}
+
+groupWords=
+group.words || [];
+
+showWord();
+
+  }
 
 
 
