@@ -26,7 +26,7 @@ document.getElementById(
 document.getElementById(
 "wordNumber"
 ).innerText=
-(data.state.currentwordindex||0)+1;
+(data.state.currentWordindex||0)+1;
 
 
 }
