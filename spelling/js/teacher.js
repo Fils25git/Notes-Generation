@@ -90,7 +90,7 @@ document.querySelector(".correct").disabled=
 document.querySelector(".wrong").disabled=
 !learnerFinished;
 
-document.querySelector(".skip").disabled=
+document.querySelector(".notspelt").disabled=
 !learnerFinished;
 
 document.querySelector(".stop").disabled=
@@ -514,6 +514,17 @@ clearInterval(timer);
 playSound(
 wrongSound
 );
+
+saveState();
+
+nextWord();
+
+}
+function skip(){
+
+clearInterval(timer);
+
+playSound(wrongSound);
 
 saveState();
 
