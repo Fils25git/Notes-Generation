@@ -17,39 +17,87 @@ return;
 }
 
 
-let round=
-data.state.round || 1;
-
-let currentWord=
-data.state.currentwordindex || 0;
-
-
 document.getElementById(
 "round"
 ).innerText=
-round+"/3";
+(data.state.round||1)+"/3";
 
 
 document.getElementById(
 "wordNumber"
 ).innerText=
-currentWord+1;
+(data.state.currentwordindex||0)+1;
 
 
 }
 catch(error){
 
-console.log(
-error
+console.log(error);
+
+}
+
+}
+
+
+
+async function startParticipant(){
+
+await fetch(
+
+"/.netlify/functions/saveCompetitionState",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify({
+
+competition_started:true
+
+})
+
+}
+
 );
 
 }
 
+
+
+async function doneParticipant(){
+
+await fetch(
+
+"/.netlify/functions/saveCompetitionState",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify({
+
+participant_done:true
+
+})
+
 }
 
+);
 
+}
 
-// refresh every second
 
 setInterval(
 
