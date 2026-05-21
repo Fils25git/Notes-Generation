@@ -1,8 +1,6 @@
-const sql=
-require("./spellingDb");
+const sql=require("./spellingDb");
 
-exports.handler=
-async(event)=>{
+exports.handler=async(event)=>{
 
 try{
 
@@ -19,19 +17,46 @@ UPDATE competition_state
 SET
 
 currentstudent=
+COALESCE(
 ${body.currentStudent},
+currentstudent
+),
 
 currentwordindex=
+COALESCE(
 ${body.currentWordIndex},
+currentwordindex
+),
 
 round=
+COALESCE(
 ${body.round},
+round
+),
 
 score=
+COALESCE(
 ${body.score},
+score
+),
 
 timeleft=
-${body.timeLeft}
+COALESCE(
+${body.timeLeft},
+timeleft
+),
+
+competition_started=
+COALESCE(
+${body.competition_started},
+competition_started
+),
+
+participant_done=
+COALESCE(
+${body.participant_done},
+participant_done
+)
 
 WHERE id=1
 
