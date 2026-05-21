@@ -5,32 +5,33 @@ exports.handler=async(event)=>{
 try{
 
 const body=
-JSON.parse(event.body);
+JSON.parse(
+event.body
+);
 
+if(
+!body.words ||
+body.words.length!==9
+){
+
+throw new Error(
+"Exactly 9 words required"
+);
+
+}
+
+
+// DB generates number automatically
 const group=
 await sql`
 
-INSERT INTO word_groups(
-
-group_number
-
-)
-
-VALUES(
-
-${body.group_number}
-
-)
-
+INSERT INTO word_groups
+DEFAULT VALUES
 RETURNING *
 
 `;
 
-for(
-
-const word of body.words
-
-){
+for(const word of body.words){
 
 await sql`
 
@@ -58,7 +59,8 @@ statusCode:200,
 
 body:JSON.stringify({
 
-success:true
+success:true,
+group:group[0]
 
 })
 
