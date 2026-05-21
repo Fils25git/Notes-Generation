@@ -46,6 +46,7 @@ padding:20px;
 .top{
 
 display:grid;
+
 grid-template-columns:
 repeat(4,1fr);
 
@@ -136,8 +137,36 @@ cursor:pointer;
 
 color:white;
 
+transition:.3s;
+
 }
 
+
+button:hover{
+
+transform:scale(1.03);
+
+}
+
+
+/* Disabled buttons */
+
+button:disabled{
+
+background:#9ca3af !important;
+
+color:#f3f4f6;
+
+cursor:not-allowed;
+
+opacity:.7;
+
+transform:none;
+
+}
+
+
+/* button colors */
 
 .start{
 background:#16a34a;
@@ -163,7 +192,7 @@ background:#7c2d12;
 background:#3b82f6;
 }
 
-.skip{
+.skipstudent{
 background:#9333ea;
 }
 
@@ -190,6 +219,7 @@ Teacher Control Panel
 
 </div>
 
+
 <div class="container">
 
 <div class="top">
@@ -213,6 +243,7 @@ Loading...
 </div>
 
 
+
 <div class="card">
 
 <div class="label">
@@ -231,10 +262,14 @@ id="round">
 
 </div>
 
+
+
 <div class="card">
 
 <div class="label">
+
 Round Score
+
 </div>
 
 <div
@@ -248,10 +283,13 @@ id="roundScore">
 </div>
 
 
+
 <div class="card">
 
 <div class="label">
+
 Total Score
+
 </div>
 
 <div
@@ -263,6 +301,7 @@ id="totalScore">
 </div>
 
 </div>
+
 
 
 <div class="card">
@@ -346,7 +385,7 @@ onclick="wrong()">
 
 
 <button
-class="skip"
+class="notspelt"
 onclick="skip()">
 
 NOT SPELT
@@ -364,7 +403,7 @@ NEXT WORD
 
 
 <button
-class="skip"
+class="skipstudent"
 onclick="nextStudent()">
 
 SKIP STUDENT
@@ -401,7 +440,6 @@ RESET COMPETITION
 </div>
 
 </div>
-
 
 <script src="js/teacher.js"></script>
 
