@@ -720,7 +720,10 @@ currentStudent,
 currentWordIndex,
 round,
 score:roundScore,
-timeLeft
+timeLeft,
+
+competition_started:false,
+participant_done:false
 
 })
 
@@ -728,7 +731,7 @@ timeLeft
 
 );
 
-}
+  }
 
 
 
@@ -762,6 +765,75 @@ data.state.score || 0;
 timeLeft=
 data.state.timeleft || 0;
 
+
+/* PARTICIPANT SCREEN SIGNALS */
+
+if(
+data.state.competition_started
+){
+
+await fetch(
+
+"/.netlify/functions/saveCompetitionState",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify({
+
+competition_started:false
+
+})
+
+}
+
+);
+
+startWord();
+
+}
+
+
+
+if(
+data.state.participant_done
+){
+
+await fetch(
+
+"/.netlify/functions/saveCompetitionState",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify({
+
+participant_done:false
+
+})
+
+}
+
+);
+
+pauseTimer();
+
+}
+
 }
 
 }
@@ -771,7 +843,14 @@ console.log(error);
 
 }
 
-}
+  }
+setInterval(
+
+loadSavedState,
+
+1000
+
+);
 
 
 loadCompetition();
