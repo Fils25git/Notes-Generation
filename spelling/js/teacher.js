@@ -14,7 +14,7 @@ let timer=null;
 let timeLeft=0;
 
 let groupWords=[];
-let spellingStarted=false;
+started=false;
 
 let learnerFinished=false;
 
@@ -329,12 +329,12 @@ timeoutSound
 
 learnerFinished=true;
 
-spellingStarted=false;
+started=false;
 
 usedTime=
 calculateTime(word);
 
-toggleButtons();
+updateButtons();
 
 return;
 
@@ -352,38 +352,6 @@ await saveState();
 },1000);
 
 }
-
-function toggleButtons(){
-
-document.querySelector(
-".correct"
-).disabled=
-
-!learnerFinished;
-
-
-document.querySelector(
-".wrong"
-).disabled=
-
-!learnerFinished;
-
-
-document.querySelector(
-".skip"
-).disabled=
-
-!learnerFinished;
-
-
-document.querySelector(
-".stop"
-).disabled=
-
-!spellingStarted;
-
-}
-
 
 function pauseTimer(){
 
@@ -451,11 +419,7 @@ currentWordIndex
 
 
 let used=
-
-calculateTime(word)
--
-timeLeft;
-
+usedTime;
 
 let scoreValue=
 
@@ -548,8 +512,13 @@ nextWord();
 
 function nextWord(){
 
-currentWordIndex++;
+learnerFinished=false;
 
+started=false;
+
+updateButtons();
+
+currentWordIndex++;
 
 if(
 currentWordIndex>=3
@@ -882,8 +851,7 @@ loadSavedState,
 
 window.onload=()=>{
 
-toggleButtons();
-
+updateButtons();
 };
 
 loadCompetition();
