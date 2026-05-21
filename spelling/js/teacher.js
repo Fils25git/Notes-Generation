@@ -759,10 +759,7 @@ currentStudent,
 currentWordIndex,
 round,
 score:roundScore,
-timeLeft,
-
-competition_started:false,
-participant_done:false
+timeLeft
 
 })
 
@@ -793,7 +790,7 @@ currentStudent=
 data.state.currentstudent || 0;
 
 currentWordIndex=
-data.state.currentwordindex || 0;
+data.state.currentWordindex || 0;
 
 round=
 data.state.round || 1;
