@@ -85,56 +85,17 @@ sound.play();
 
 function toggleButtons(){
 
-const correctBtn=
-document.querySelector(".correct");
-
-const wrongBtn=
-document.querySelector(".wrong");
-
-const notSpeltBtn=
-document.querySelector(".notspelt");
-
-const stopBtn=
-document.querySelector(".stop");
-
-const nextBtn=
-document.querySelector(".next");
-
-
-if(correctBtn){
-
-correctBtn.disabled=
+document.querySelector(".correct").disabled=
 !learnerFinished;
 
-}
-
-if(wrongBtn){
-
-wrongBtn.disabled=
+document.querySelector(".wrong").disabled=
 !learnerFinished;
 
-}
-
-if(notSpeltBtn){
-
-notSpeltBtn.disabled=
+document.querySelector(".skip").disabled=
 !learnerFinished;
 
-}
-
-if(nextBtn){
-
-nextBtn.disabled=
-!learnerFinished;
-
-}
-
-if(stopBtn){
-
-stopBtn.disabled=
+document.querySelector(".stop").disabled=
 !spellingStarted;
-
-}
 
 }
 
@@ -154,6 +115,7 @@ await res.json();
 students=
 data.students || [];
 
+
 if(students.length===0){
 
 alert(
@@ -164,17 +126,7 @@ return;
 
 }
 
-/* load saved competition state */
 await loadSavedState();
-
-/* safety check */
-if(
-currentStudent>=students.length
-){
-
-currentStudent=0;
-
-}
 
 showStudent();
 
@@ -193,106 +145,7 @@ console.log(error);
 
 
 
-async function loadSavedState(){
-
-try{
-
-const res=
-await fetch(
-"/.netlify/functions/getCompetitionState"
-);
-
-const data=
-await res.json();
-
-if(data.state){
-
-currentStudent=
-data.state.currentstudent || 0;
-
-currentWordIndex=
-data.state.currentwordindex || 0;
-
-round=
-data.state.round || 1;
-
-roundScore=
-data.state.score || 0;
-
-timeLeft=
-data.state.timeleft || 0;
-
-}
-
-}
-catch(error){
-
-console.log(error);
-
-}
-
-}
-
-
-
-function showStudent(){
-
-if(
-!students[currentStudent]
-){
-
-return;
-
-}
-
-let studentId=
-students[currentStudent]
-.id;
-
-
-document.getElementById(
-"studentName"
-).innerText=
-
-students[currentStudent]
-.full_name;
-
-
-document.getElementById(
-"round"
-).innerText=
-
-round+"/3";
-
-
-document.getElementById(
-"roundScore"
-).innerText=
-
-roundScore;
-
-
-document.getElementById(
-"totalScore"
-).innerText=
-
-totalScores[
-studentId
-] || 0;
-
-}
-
-
-
 async function loadGroup(){
-
-if(
-!students[currentStudent]
-){
-
-return;
-
-}
 
 let student=
 students[currentStudent];
@@ -309,11 +162,11 @@ let group=
 data.groups.find(
 
 g=>
-
 g.group_number==
 student.group_number
 
 );
+
 
 if(!group){
 
@@ -325,13 +178,50 @@ return;
 
 }
 
+
 groupWords=
-group.words || [];
+group.words;
 
 showWord();
 
-  }
+}
 
+
+
+function showStudent(){
+
+let studentId=
+students[currentStudent]
+.id;
+
+
+document.getElementById(
+"studentName"
+).innerText=
+students[currentStudent]
+.full_name;
+
+
+document.getElementById(
+"round"
+).innerText=
+round+"/3";
+
+
+document.getElementById(
+"roundScore"
+).innerText=
+roundScore;
+
+
+document.getElementById(
+"totalScore"
+).innerText=
+totalScores[
+studentId
+] || 0;
+
+}
 
 
 
@@ -822,11 +712,6 @@ participant_done:false
 );
 
 }
-window.onload=()=>{
-
-toggleButtons();
-
-};
 
 
 loadCompetition();
