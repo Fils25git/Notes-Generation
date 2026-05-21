@@ -336,6 +336,8 @@ usedTime=
 calculateTime(word);
 
 updateButtons();
+  
+wrong();
 
 return;
 
@@ -635,6 +637,16 @@ return;
 
 }
 
+
+learnerFinished=false;
+
+started=false;
+
+timeLeft=0;
+
+usedTime=0;
+
+updateButtons();
 
 showStudent();
 
