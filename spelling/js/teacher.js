@@ -14,9 +14,10 @@ let timer=null;
 let timeLeft=0;
 
 let groupWords=[];
+let spellingStarted=false;
 
 let learnerFinished=false;
-let spellingStarted=false;
+
 let usedTime=0;
 
 
@@ -81,9 +82,7 @@ s.currentTime=0;
 sound.play();
 
 }
-
-
-function toggleButtons(){
+function updateButtons(){
 
 document.querySelector(".correct").disabled=
 !learnerFinished;
@@ -91,13 +90,14 @@ document.querySelector(".correct").disabled=
 document.querySelector(".wrong").disabled=
 !learnerFinished;
 
-document.querySelector(".skip").disabled=
+document.querySelector(".notspelt").disabled=
 !learnerFinished;
 
 document.querySelector(".stop").disabled=
-!spellingStarted;
+!started;
 
-}
+                  }
+
 
 
 async function loadCompetition(){
@@ -126,13 +126,13 @@ return;
 
 }
 
+
 await loadSavedState();
 
 showStudent();
 
 await loadGroup();
-
-toggleButtons();
+  updateButtons();
 
 }
 catch(error){
@@ -275,17 +275,16 @@ return 20;
 
 }
 
-
-
 function startWord(){
 
 clearInterval(timer);
 
-spellingStarted=true;
+started=true;
 
 learnerFinished=false;
 
-toggleButtons();
+updateButtons();
+
 
 let word=
 
@@ -322,14 +321,7 @@ if(timeLeft<=0){
 
 timeLeft=0;
 
-document.getElementById(
-"timer"
-).innerText=
-0;
-
-clearInterval(
-timer
-);
+clearInterval(timer);
 
 playSound(
 timeoutSound
@@ -355,47 +347,42 @@ document.getElementById(
 timeLeft;
 
 
-if(
-
-timeLeft===
-
-Math.floor(
-calculateTime(word)/2
-)
-
-){
-
-playSound(
-halfwaySound
-);
-
-}
-
-else if(
-timeLeft<=3
-){
-
-playSound(
-warningSound
-);
-
-}
-
-else{
-
-playSound(
-tickSound
-);
-
-}
-
-
 await saveState();
 
 },1000);
 
 }
 
+function toggleButtons(){
+
+document.querySelector(
+".correct"
+).disabled=
+
+!learnerFinished;
+
+
+document.querySelector(
+".wrong"
+).disabled=
+
+!learnerFinished;
+
+
+document.querySelector(
+".skip"
+).disabled=
+
+!learnerFinished;
+
+
+document.querySelector(
+".stop"
+).disabled=
+
+!spellingStarted;
+
+}
 
 
 function pauseTimer(){
@@ -404,10 +391,9 @@ clearInterval(
 timer
 );
 
-spellingStarted=false;
+started=false;
 
 learnerFinished=true;
-
 
 let word=
 
@@ -416,17 +402,15 @@ groupWords[
 currentWordIndex
 ];
 
-
 usedTime=
 
 calculateTime(word)
 -
 timeLeft;
 
+updateButtons();
 
-toggleButtons();
-
-}
+            }
 
 
 
@@ -466,17 +450,24 @@ currentWordIndex
 ];
 
 
+let used=
+
+calculateTime(word)
+-
+timeLeft;
+
+
 let scoreValue=
 
 calcScore(
 word,
-usedTime
+used
 );
 
 
 if(
 
-usedTime<=
+used<=
 calculateTime(word)/2
 
 ){
@@ -545,27 +536,17 @@ nextWord();
 
 function wrong(){
 
-clearInterval(
-timer
-);
-
 playSound(
 wrongSound
 );
 
 nextWord();
 
-}
+  }
 
 
 
 function nextWord(){
-
-learnerFinished=false;
-
-spellingStarted=false;
-
-toggleButtons();
 
 currentWordIndex++;
 
@@ -620,6 +601,8 @@ currentStudent>=students.length
 currentStudent=0;
 
 
+// end competition
+
 if(round===3){
 
 playSound(
@@ -643,6 +626,8 @@ return;
 
 }
 
+
+// round complete
 
 playSound(
 allRoundFinishSound
@@ -671,6 +656,69 @@ showStudent();
 loadGroup();
 
 saveState();
+
+}
+
+
+
+function resetParticipant(){
+
+currentWordIndex=0;
+
+roundScore=0;
+
+showStudent();
+
+showWord();
+
+saveState();
+
+}
+
+
+
+function resetRound(){
+
+currentStudent=0;
+
+currentWordIndex=0;
+
+roundScore=0;
+
+showStudent();
+
+showWord();
+
+saveState();
+
+}
+
+
+
+async function resetCompetition(){
+
+if(
+
+!confirm(
+"Reset competition?"
+)
+
+){
+
+return;
+
+}
+
+
+localStorage.clear();
+
+
+await fetch(
+
+"/.netlify/functions/resetCompetition"
+);
+
+location.reload();
 
 }
 
@@ -711,7 +759,131 @@ participant_done:false
 
 );
 
+  }
+
+
+
+async function loadSavedState(){
+
+try{
+
+const res=
+await fetch(
+"/.netlify/functions/getCompetitionState"
+);
+
+const data=
+await res.json();
+
+
+if(data.state){
+
+currentStudent=
+data.state.currentstudent || 0;
+
+currentWordIndex=
+data.state.currentwordindex || 0;
+
+round=
+data.state.round || 1;
+
+roundScore=
+data.state.score || 0;
+
+timeLeft=
+data.state.timeleft || 0;
+
+
+/* PARTICIPANT SCREEN SIGNALS */
+
+if(
+data.state.competition_started
+){
+
+await fetch(
+
+"/.netlify/functions/saveCompetitionState",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify({
+
+competition_started:false
+
+})
+
 }
 
+);
+
+startWord();
+
+}
+
+
+
+if(
+data.state.participant_done
+){
+
+await fetch(
+
+"/.netlify/functions/saveCompetitionState",
+
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify({
+
+participant_done:false
+
+})
+
+}
+
+);
+
+pauseTimer();
+
+}
+
+}
+
+}
+catch(error){
+
+console.log(error);
+
+}
+
+  }
+setInterval(
+
+loadSavedState,
+
+1000
+
+);
+
+window.onload=()=>{
+
+toggleButtons();
+
+};
 
 loadCompetition();
