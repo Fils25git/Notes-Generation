@@ -1,18 +1,13 @@
-let groupBoxes=0;
+async function addGroupBox(){
 
-
-
-function addGroupBox(){
-
-groupBoxes++;
-
-const div=document.createElement("div");
+const div=
+document.createElement("div");
 
 div.className="card";
 
 div.innerHTML=`
 
-<h3>Group ${groupBoxes}</h3>
+<h3>New Group</h3>
 
 <input placeholder="Word 1">
 <input placeholder="Word 2">
@@ -24,8 +19,9 @@ div.innerHTML=`
 <input placeholder="Word 8">
 <input placeholder="Word 9">
 
-<button class="save"
-onclick="saveGroup(this,${groupBoxes})">
+<button
+class="save"
+onclick="saveGroup(this)">
 
 Save Group
 
@@ -33,41 +29,123 @@ Save Group
 
 `;
 
-document.getElementById("groups")
-.appendChild(div);
+document
+.getElementById(
+"groups"
+)
+.prepend(div);
 
 }
 
 
 
-async function saveGroup(btn,number){
+async function saveGroup(btn){
 
-const card=btn.parentElement;
+try{
 
-const inputs=card.querySelectorAll("input");
+const card=
+btn.parentElement;
+
+const inputs=
+card.querySelectorAll(
+"input"
+);
 
 let words=[];
 
-inputs.forEach(i=>words.push(i.value));
+inputs.forEach(i=>{
 
+if(
+i.value.trim()!==""
+){
 
-await fetch(
-"/.netlify/functions/createWordGroup",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-group_number:number,
-words:words
-})
-}
+words.push(
+i.value.trim()
 );
 
-alert("Group Saved!");
+}
+
+});
+
+
+if(words.length!==9){
+
+alert(
+"Please enter all 9 words"
+);
+
+return;
+
+}
+
+
+const response=
+await fetch(
+
+"/.netlify/functions/createWordGroup",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json"
+
+},
+
+body:
+JSON.stringify({
+
+words:words
+
+})
+
+}
+
+);
+
+
+const data=
+await response.json();
+
+
+if(data.success){
+
+alert(
+
+"Group "+
+
+data.group.group_number+
+
+" created"
+
+);
 
 loadGroups();
+
+}
+
+else{
+
+alert(
+data.error
+);
+
+}
+
+}
+
+catch(error){
+
+console.log(error);
+
+alert(
+"Error creating group"
+);
+
+}
 
 }
 
@@ -75,40 +153,78 @@ loadGroups();
 
 async function loadGroups(){
 
-const res = await fetch(
+try{
+
+const res=
+await fetch(
+
 "/.netlify/functions/getWordGroups"
+
 );
 
-const data = await res.json();
+const data=
+await res.json();
 
-let container = document.getElementById("groups");
+let container=
+document.getElementById(
+"groups"
+);
 
-container.innerHTML = ""; // clear old view
+container.innerHTML="";
 
-data.groups.forEach(group => {
 
-const div = document.createElement("div");
+data.groups.forEach(group=>{
 
-div.className = "card";
+const div=
+document.createElement("div");
 
-div.innerHTML = `
+div.className=
+"card";
 
-<h3>Group ${group.group_number}</h3>
+div.innerHTML=`
+
+<h3>
+
+Group
+${group.group_number}
+
+</h3>
 
 <div class="groupBox">
 
 ${group.words
-.map(w => `<span class="word">${w}</span>`)
+.map(
+
+w=>
+
+`<span class="word">
+
+${w}
+
+</span>`
+
+)
 .join("")}
 
 </div>
 
 `;
 
-container.appendChild(div);
+container.appendChild(
+div
+);
 
 });
 
 }
+
+catch(error){
+
+console.log(error);
+
+}
+
+}
+
 
 loadGroups();
