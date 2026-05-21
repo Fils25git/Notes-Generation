@@ -15,6 +15,10 @@ let timeLeft=0;
 
 let groupWords=[];
 
+let learnerFinished=false;
+let spellingStarted=false;
+let usedTime=0;
+
 
 /* SOUNDS */
 
@@ -79,6 +83,22 @@ sound.play();
 }
 
 
+function toggleButtons(){
+
+document.querySelector(".correct").disabled=
+!learnerFinished;
+
+document.querySelector(".wrong").disabled=
+!learnerFinished;
+
+document.querySelector(".skip").disabled=
+!learnerFinished;
+
+document.querySelector(".stop").disabled=
+!spellingStarted;
+
+}
+
 
 async function loadCompetition(){
 
@@ -106,12 +126,13 @@ return;
 
 }
 
-
 await loadSavedState();
 
 showStudent();
 
 await loadGroup();
+
+toggleButtons();
 
 }
 catch(error){
@@ -260,6 +281,12 @@ function startWord(){
 
 clearInterval(timer);
 
+spellingStarted=true;
+
+learnerFinished=false;
+
+toggleButtons();
+
 let word=
 
 groupWords[
@@ -288,11 +315,8 @@ timeLeft;
 timer=
 setInterval(async()=>{
 
-
 timeLeft--;
 
-
-// stop negative values
 
 if(timeLeft<=0){
 
@@ -311,7 +335,14 @@ playSound(
 timeoutSound
 );
 
-wrong();
+learnerFinished=true;
+
+spellingStarted=false;
+
+usedTime=
+calculateTime(word);
+
+toggleButtons();
 
 return;
 
@@ -323,8 +354,6 @@ document.getElementById(
 ).innerText=
 timeLeft;
 
-
-// halfway sound
 
 if(
 
@@ -341,9 +370,6 @@ halfwaySound
 );
 
 }
-
-
-// last 3 sec
 
 else if(
 timeLeft<=3
@@ -377,6 +403,28 @@ function pauseTimer(){
 clearInterval(
 timer
 );
+
+spellingStarted=false;
+
+learnerFinished=true;
+
+
+let word=
+
+groupWords[
+(round-1)*3+
+currentWordIndex
+];
+
+
+usedTime=
+
+calculateTime(word)
+-
+timeLeft;
+
+
+toggleButtons();
 
 }
 
@@ -418,24 +466,17 @@ currentWordIndex
 ];
 
 
-let used=
-
-calculateTime(word)
--
-timeLeft;
-
-
 let scoreValue=
 
 calcScore(
 word,
-used
+usedTime
 );
 
 
 if(
 
-used<=
+usedTime<=
 calculateTime(word)/2
 
 ){
@@ -520,6 +561,12 @@ nextWord();
 
 function nextWord(){
 
+learnerFinished=false;
+
+spellingStarted=false;
+
+toggleButtons();
+
 currentWordIndex++;
 
 
@@ -573,8 +620,6 @@ currentStudent>=students.length
 currentStudent=0;
 
 
-// end competition
-
 if(round===3){
 
 playSound(
@@ -598,8 +643,6 @@ return;
 
 }
 
-
-// round complete
 
 playSound(
 allRoundFinishSound
@@ -628,69 +671,6 @@ showStudent();
 loadGroup();
 
 saveState();
-
-}
-
-
-
-function resetParticipant(){
-
-currentWordIndex=0;
-
-roundScore=0;
-
-showStudent();
-
-showWord();
-
-saveState();
-
-}
-
-
-
-function resetRound(){
-
-currentStudent=0;
-
-currentWordIndex=0;
-
-roundScore=0;
-
-showStudent();
-
-showWord();
-
-saveState();
-
-}
-
-
-
-async function resetCompetition(){
-
-if(
-
-!confirm(
-"Reset competition?"
-)
-
-){
-
-return;
-
-}
-
-
-localStorage.clear();
-
-
-await fetch(
-
-"/.netlify/functions/resetCompetition"
-);
-
-location.reload();
 
 }
 
@@ -731,126 +711,7 @@ participant_done:false
 
 );
 
-  }
-
-
-
-async function loadSavedState(){
-
-try{
-
-const res=
-await fetch(
-"/.netlify/functions/getCompetitionState"
-);
-
-const data=
-await res.json();
-
-
-if(data.state){
-
-currentStudent=
-data.state.currentstudent || 0;
-
-currentWordIndex=
-data.state.currentwordindex || 0;
-
-round=
-data.state.round || 1;
-
-roundScore=
-data.state.score || 0;
-
-timeLeft=
-data.state.timeleft || 0;
-
-
-/* PARTICIPANT SCREEN SIGNALS */
-
-if(
-data.state.competition_started
-){
-
-await fetch(
-
-"/.netlify/functions/saveCompetitionState",
-
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":
-"application/json"
-},
-
-body:
-JSON.stringify({
-
-competition_started:false
-
-})
-
 }
-
-);
-
-startWord();
-
-}
-
-
-
-if(
-data.state.participant_done
-){
-
-await fetch(
-
-"/.netlify/functions/saveCompetitionState",
-
-{
-
-method:"POST",
-
-headers:{
-"Content-Type":
-"application/json"
-},
-
-body:
-JSON.stringify({
-
-participant_done:false
-
-})
-
-}
-
-);
-
-pauseTimer();
-
-}
-
-}
-
-}
-catch(error){
-
-console.log(error);
-
-}
-
-  }
-setInterval(
-
-loadSavedState,
-
-1000
-
-);
 
 
 loadCompetition();
