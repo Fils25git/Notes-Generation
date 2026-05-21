@@ -322,12 +322,13 @@ if(timeLeft<=0){
 
 timeLeft=0;
 
+document.getElementById(
+"timer"
+).innerText=
+0;
+
 clearInterval(timer);
-
-playSound(
-timeoutSound
-);
-
+  
 learnerFinished=true;
 
 started=false;
@@ -586,6 +587,8 @@ currentStudent>=students.length
 ){
 
 currentStudent=0;
+
+round++;
 
 
 // end competition
