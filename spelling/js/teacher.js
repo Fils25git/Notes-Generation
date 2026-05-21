@@ -85,17 +85,56 @@ sound.play();
 
 function toggleButtons(){
 
-document.querySelector(".correct").disabled=
+const correctBtn=
+document.querySelector(".correct");
+
+const wrongBtn=
+document.querySelector(".wrong");
+
+const notSpeltBtn=
+document.querySelector(".notspelt");
+
+const stopBtn=
+document.querySelector(".stop");
+
+const nextBtn=
+document.querySelector(".next");
+
+
+if(correctBtn){
+
+correctBtn.disabled=
 !learnerFinished;
 
-document.querySelector(".wrong").disabled=
+}
+
+if(wrongBtn){
+
+wrongBtn.disabled=
 !learnerFinished;
 
-document.querySelector(".skip").disabled=
+}
+
+if(notSpeltBtn){
+
+notSpeltBtn.disabled=
 !learnerFinished;
 
-document.querySelector(".stop").disabled=
+}
+
+if(nextBtn){
+
+nextBtn.disabled=
+!learnerFinished;
+
+}
+
+if(stopBtn){
+
+stopBtn.disabled=
 !spellingStarted;
+
+}
 
 }
 
@@ -712,6 +751,11 @@ participant_done:false
 );
 
 }
+window.onload=()=>{
+
+toggleButtons();
+
+};
 
 
 loadCompetition();
