@@ -593,7 +593,7 @@ round++;
 
 // end competition
 
-if(round===3){
+if(round>3){
 
 playSound(
 competitionFinishSound
