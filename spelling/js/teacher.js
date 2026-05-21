@@ -36,6 +36,9 @@ new Audio("sounds/applause.mp3");
 const goodSound=
 new Audio("sounds/good.mp3");
 
+const wrongSound=
+new Audio("sounds/wrong.mp3");
+
 const roundFinishSound=
 new Audio("sounds/round-finish.mp3");
 
@@ -54,6 +57,7 @@ warningSound,
 timeoutSound,
 applauseSound,
 goodSound,
+wrongSound,
 roundFinishSound,
 allRoundFinishSound,
 competitionFinishSound
@@ -89,7 +93,7 @@ const data=
 await res.json();
 
 students=
-data.students||[];
+data.students || [];
 
 
 if(students.length===0){
@@ -101,6 +105,7 @@ alert(
 return;
 
 }
+
 
 await loadSavedState();
 
@@ -136,7 +141,6 @@ let group=
 data.groups.find(
 
 g=>
-
 g.group_number==
 student.group_number
 
@@ -173,7 +177,6 @@ students[currentStudent]
 document.getElementById(
 "studentName"
 ).innerText=
-
 students[currentStudent]
 .full_name;
 
@@ -193,7 +196,6 @@ roundScore;
 document.getElementById(
 "totalScore"
 ).innerText=
-
 totalScores[
 studentId
 ] || 0;
@@ -217,6 +219,18 @@ document.getElementById(
 groupWords[index]
 ||
 "Finished";
+
+
+if(groupWords[index]){
+
+document.getElementById(
+"timer"
+).innerText=
+calculateTime(
+groupWords[index]
+);
+
+}
 
 }
 
@@ -242,7 +256,7 @@ return 20;
 
 
 
-async function startWord(){
+function startWord(){
 
 clearInterval(timer);
 
@@ -274,7 +288,34 @@ timeLeft;
 timer=
 setInterval(async()=>{
 
+
 timeLeft--;
+
+
+// stop negative values
+
+if(timeLeft<=0){
+
+timeLeft=0;
+
+document.getElementById(
+"timer"
+).innerText=
+0;
+
+clearInterval(
+timer
+);
+
+playSound(
+timeoutSound
+);
+
+wrong();
+
+return;
+
+}
 
 
 document.getElementById(
@@ -283,14 +324,7 @@ document.getElementById(
 timeLeft;
 
 
-// tick
-
-playSound(
-tickSound
-);
-
-
-// halfway warning
+// halfway sound
 
 if(
 
@@ -309,11 +343,10 @@ halfwaySound
 }
 
 
-// final warning
+// last 3 sec
 
-if(
-timeLeft<=3 &&
-timeLeft>0
+else if(
+timeLeft<=3
 ){
 
 playSound(
@@ -322,23 +355,16 @@ warningSound
 
 }
 
-
-await saveState();
-
-
-if(timeLeft<=0){
-
-clearInterval(
-timer
-);
+else{
 
 playSound(
-timeoutSound
+tickSound
 );
 
-wrong();
-
 }
+
+
+await saveState();
 
 },1000);
 
@@ -377,7 +403,7 @@ return .5;
 
 
 
-async function correct(){
+function correct(){
 
 clearInterval(
 timer
@@ -428,21 +454,19 @@ goodSound
 }
 
 
-// round score
+roundScore+=
+scoreValue;
 
-roundScore+=scoreValue;
-
-
-// total score
 
 let studentId=
-
 students[currentStudent]
 .id;
 
 
 if(
-!totalScores[studentId]
+!totalScores[
+studentId
+]
 ){
 
 totalScores[
@@ -454,7 +478,8 @@ studentId
 
 totalScores[
 studentId
-]+=scoreValue;
+]+=
+scoreValue;
 
 
 document.getElementById(
@@ -466,7 +491,6 @@ roundScore;
 document.getElementById(
 "totalScore"
 ).innerText=
-
 totalScores[
 studentId
 ];
@@ -482,6 +506,10 @@ function wrong(){
 
 clearInterval(
 timer
+);
+
+playSound(
+wrongSound
 );
 
 nextWord();
@@ -503,7 +531,6 @@ playSound(
 roundFinishSound
 );
 
-
 alert(
 
 students[
@@ -514,7 +541,6 @@ currentStudent
 " finished round"
 
 );
-
 
 nextStudent();
 
@@ -537,44 +563,23 @@ currentStudent++;
 
 currentWordIndex=0;
 
-
-// reset current round score only
-
 roundScore=0;
 
 
 if(
-currentStudent>=
-students.length
+currentStudent>=students.length
 ){
 
 currentStudent=0;
 
-round++;
 
+// end competition
 
-playSound(
-allRoundFinishSound
-);
-
-
-alert(
-
-"Round "+
-
-(round-1)+
-
-" completed"
-
-);
-
-
-if(round>3){
+if(round===3){
 
 playSound(
 competitionFinishSound
 );
-
 
 localStorage.setItem(
 
@@ -586,13 +591,34 @@ totalScores
 
 );
 
-
 window.location=
 "leaderboard.html";
 
 return;
 
 }
+
+
+// round complete
+
+playSound(
+allRoundFinishSound
+);
+
+localStorage.setItem(
+"roundFinished",
+"true"
+);
+
+localStorage.setItem(
+"currentRound",
+round
+);
+
+window.location=
+"leaderboard.html";
+
+return;
 
 }
 
@@ -656,9 +682,7 @@ return;
 }
 
 
-localStorage.removeItem(
-"finalScores"
-);
+localStorage.clear();
 
 
 await fetch(
@@ -714,9 +738,7 @@ try{
 
 const res=
 await fetch(
-
 "/.netlify/functions/getCompetitionState"
-
 );
 
 const data=
@@ -726,19 +748,19 @@ await res.json();
 if(data.state){
 
 currentStudent=
-data.state.currentstudent;
+data.state.currentstudent || 0;
 
 currentWordIndex=
-data.state.currentwordindex;
+data.state.currentwordindex || 0;
 
 round=
-data.state.round;
+data.state.round || 1;
 
 roundScore=
-data.state.score;
+data.state.score || 0;
 
 timeLeft=
-data.state.timeleft;
+data.state.timeleft || 0;
 
 }
 
