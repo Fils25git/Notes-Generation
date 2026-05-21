@@ -66,6 +66,13 @@ color:white;
 <h2>Leaderboard</h2>
 
 </div>
+  <button
+id="nextRoundBtn"
+onclick="nextRound()">
+
+Start Next Round
+
+  </button>
 
 
 <div class="container">
@@ -96,6 +103,32 @@ color:white;
 
 
 <script src="js/leaderboard.js"></script>
+  <script>
+    function nextRound(){
+
+let round=
+parseInt(
+
+localStorage.getItem(
+"currentRound"
+) || 1
+
+);
+
+
+round++;
+
+localStorage.setItem(
+"currentRound",
+round
+);
+
+
+window.location=
+"teacher.html";
+
+}
+  </script>
 
 </body>
 
