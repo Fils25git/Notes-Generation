@@ -451,8 +451,9 @@ goodSound
 }
 
 
-roundScore+=
-scoreValue;
+roundScore=
+Number(roundScore)+
+Number(scoreValue);
 
 
 let studentId=
@@ -468,15 +469,18 @@ studentId
 
 totalScores[
 studentId
-]=0;
+]=0.0;
 
 }
 
 
 totalScores[
 studentId
-]+=
-scoreValue;
+]=
+Number(
+totalScores[studentId]
+)+
+Number(scoreValue);
 
 
 document.getElementById(
@@ -493,6 +497,7 @@ studentId
 ];
 
 
+saveState();
 nextWord();
 
 }
@@ -501,13 +506,17 @@ nextWord();
 
 function wrong(){
 
+clearInterval(timer);
+
 playSound(
 wrongSound
 );
 
+saveState();
+
 nextWord();
 
-  }
+}
 
 
 
@@ -549,7 +558,13 @@ return;
 
 showWord();
 
+timeLeft=0;
+
+usedTime=0;
+
 saveState();
+
+updateButtons();
 
 }
 
