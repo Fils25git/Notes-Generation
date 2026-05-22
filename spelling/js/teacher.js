@@ -238,7 +238,6 @@ let index=
 (round-1)*3+
 currentWordIndex;
 
-
 document.getElementById(
 "word"
 ).innerText=
@@ -246,7 +245,6 @@ document.getElementById(
 groupWords[index]
 ||
 "Finished";
-
 
 if(groupWords[index]){
 
@@ -271,7 +269,7 @@ document.getElementById(
 
 }
 
-}
+  }
 
 
 
@@ -562,7 +560,11 @@ studentId
 
 
 await saveState();
-await nextWord();
+setTimeout(()=>{
+
+nextWord();
+
+},3000);
 
 }
 
@@ -591,15 +593,17 @@ playSound(wrongSound);
 
 await saveState();
 
-await nextWord();
+setTimeout(()=>{
+
+nextWord();
+
+},3000);
 
 }
 
 
 
 async function nextWord(){
-
-stopAllSounds();
 
 clearInterval(timer);
 
@@ -647,15 +651,13 @@ updateButtons();
 }
 
 
-
-function nextStudent(){
+async function nextStudent(){
 
 currentStudent++;
 
 currentWordIndex=0;
 
 roundScore=0;
-
 
 if(
 currentStudent>=students.length
@@ -715,7 +717,6 @@ return;
 
 }
 
-
 learnerFinished=false;
 
 started=false;
@@ -724,13 +725,15 @@ timeLeft=0;
 
 usedTime=0;
 
+groupWords=[];
+
 updateButtons();
 
 showStudent();
 
-loadGroup();
+await loadGroup();
 
-saveState();
+await saveState();
 
 }
 
