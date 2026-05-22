@@ -547,7 +547,7 @@ studentId
 
 
 await saveState();
-nextWord();
+await nextWord();
 
 }
 
@@ -564,7 +564,7 @@ wrongSound
 
 await saveState();
 
-nextWord();
+await nextWord();
 
 }
 async function skip(){
@@ -575,13 +575,13 @@ playSound(wrongSound);
 
 await saveState();
 
-nextWord();
+await nextWord();
 
 }
 
 
 
-function nextWord(){
+async function nextWord(){
 
 learnerFinished=false;
 
@@ -623,7 +623,7 @@ timeLeft=0;
 
 usedTime=0;
 
-saveState();
+await saveState();
 
 updateButtons();
 
