@@ -557,6 +557,47 @@ document.getElementById(
 totalScores[
 studentId
 ];
+  await fetch(
+"/.netlify/functions/spellingSaveResult",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+student_id:
+students[currentStudent].id,
+
+round_number:
+round,
+
+word:
+word,
+
+score:
+scoreValue,
+
+time_used:
+used,
+
+time_allowed:
+calculateTime(word),
+
+learner_answer:
+word,
+
+status:
+"correct"
+
+})
+
+}
+
+);
 
 
 await saveState();
