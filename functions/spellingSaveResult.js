@@ -26,19 +26,20 @@ status
 
 VALUES(
 
-${data.studentId},
-${data.competitionId},
-${data.round},
+${data.student_id},
+${data.competition_id || null},
+${data.round_number},
 ${data.word},
-${data.answer},
+${data.learner_answer},
 ${data.score},
-${data.timeAllowed},
-${data.timeUsed},
+${data.time_allowed},
+${data.time_used},
 ${data.status}
 
 )
 
 RETURNING *
+
 `;
 
 return{
