@@ -708,6 +708,12 @@ currentStudent=0;
 
 round++;
 
+document.getElementById(
+"round"
+).innerText=
+round+"/3";
+
+await saveState();
 
 // end competition
 
@@ -726,7 +732,7 @@ totalScores
 )
 
 );
-
+showStudent();
 window.location=
 "leaderboard.html";
 
@@ -904,16 +910,29 @@ usedTime=
 data.state.usedtime || 0;
 
 currentStudent=
-data.state.currentstudent || 0;
+parseInt(
+data.state.currentstudent
+) || 0;
 
 currentWordIndex=
-data.state.currentwordindex || 0;
+parseInt(
+data.state.currentwordindex
+) || 0;
 
 round=
-data.state.round || 1;
+parseInt(
+data.state.round
+) || 1;
 
 roundScore=
-data.state.score || 0;
+Number(
+data.state.score
+) || 0;
+
+document.getElementById(
+"round"
+).innerText=
+round+"/3";
 
 if(!started){
 
