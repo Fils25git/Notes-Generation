@@ -25,7 +25,7 @@ document.getElementById(
 ).innerText=
 
 "YOUNG SPELLERS Contest Ranking after Round "
-+ round;
++ round-1;
 
 }
 else{
