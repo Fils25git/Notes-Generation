@@ -390,6 +390,7 @@ timeLeft;
 await saveState();
 
 },1000);
+}
 
 
 function pauseTimer(){
@@ -550,12 +551,12 @@ playSound(
 wrongSound
 );
 
-saveState();
+async saveState();
 
 nextWord();
 
 }
-function skip(){
+async function skip(){
 
 clearInterval(timer);
 
@@ -817,7 +818,23 @@ await fetch(
 
 const data=
 await res.json();
+  
+if(data.state){
 
+currentStudent=
+data.state.currentStudent || 0;
+
+currentWordIndex=
+data.state.currentWordIndex || 0;
+
+round=
+data.state.round || 1;
+
+roundScore=
+data.state.score || 0;
+
+timeLeft=
+data.state.timeLeft || 0;
 
 if(
 data.state.competition_started
