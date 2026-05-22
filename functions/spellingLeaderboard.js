@@ -10,8 +10,12 @@ await sql`
 SELECT
 
 s.full_name,
+s.class_name,
 
-SUM(w.score)
+COALESCE(
+SUM(w.score),
+0
+)
 AS total_score
 
 FROM students s
@@ -23,7 +27,8 @@ w.student_id
 
 GROUP BY
 s.id,
-s.full_name
+s.full_name,
+s.class_name
 
 ORDER BY
 total_score DESC
