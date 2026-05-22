@@ -68,6 +68,17 @@ allRoundFinishSound,
 competitionFinishSound
 
 ];
+function stopAllSounds(){
+
+allSounds.forEach(sound=>{
+
+sound.pause();
+
+sound.currentTime=0;
+
+});
+
+}
 
 function playSound(sound){
 
@@ -398,6 +409,7 @@ await saveState();
 
 
 function pauseTimer(){
+  stopAllSounds();
 
 clearInterval(
 timer
@@ -448,6 +460,7 @@ return .5;
 
 
 async function correct(){
+  stopAllSounds();
 
 clearInterval(
 timer
@@ -554,7 +567,8 @@ await nextWord();
 
 
 async function wrong(){
-
+  
+stopAllSounds();
 clearInterval(timer);
   started=false;
 
@@ -582,6 +596,10 @@ await nextWord();
 
 
 async function nextWord(){
+
+stopAllSounds();
+
+clearInterval(timer);
 
 learnerFinished=false;
 
