@@ -556,6 +556,7 @@ nextWord();
 async function wrong(){
 
 clearInterval(timer);
+  started=false;
 
 playSound(
 wrongSound
@@ -843,8 +844,12 @@ data.state.round || 1;
 roundScore=
 data.state.score || 0;
 
+if(!started){
+
 timeLeft=
 data.state.timeLeft || 0;
+
+}
 
 if(
 data.state.competition_started
