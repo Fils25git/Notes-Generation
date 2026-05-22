@@ -90,7 +90,7 @@ document.querySelector(".correct").disabled=
 document.querySelector(".wrong").disabled=
 !learnerFinished;
 
-document.querySelector(".notspelt").disabled=
+document.querySelector(".skip").disabled=
 !learnerFinished;
 
 document.querySelector(".stop").disabled=
@@ -520,17 +520,6 @@ saveState();
 nextWord();
 
 }
-function skip(){
-
-clearInterval(timer);
-
-playSound(wrongSound);
-
-saveState();
-
-nextWord();
-
-}
 
 
 
@@ -759,7 +748,10 @@ currentStudent,
 currentWordIndex,
 round,
 score:roundScore,
-timeLeft
+timeLeft,
+
+competition_started:false,
+participant_done:false
 
 })
 
@@ -790,7 +782,7 @@ currentStudent=
 data.state.currentstudent || 0;
 
 currentWordIndex=
-data.state.currentWordindex || 0;
+data.state.currentwordindex || 0;
 
 round=
 data.state.round || 1;
