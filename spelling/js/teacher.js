@@ -69,19 +69,14 @@ competitionFinishSound
 
 ];
 
-
 function playSound(sound){
 
-allSounds.forEach(s=>{
-
-s.pause();
-s.currentTime=0;
-
-});
+sound.currentTime=0;
 
 sound.play();
 
 }
+
 function updateButtons(){
 
 document.querySelector(".correct").disabled=
@@ -251,6 +246,12 @@ calculateTime(
 groupWords[index]
 );
 
+}else{
+
+document.getElementById(
+"timer"
+).innerText=0;
+
 }
 
 }
@@ -312,10 +313,47 @@ timeLeft;
   saveState();
 
 
+
 timer=
 setInterval(async()=>{
 
 timeLeft--;
+
+
+/* tick every second */
+
+tickSound.currentTime=0;
+tickSound.play();
+
+
+/* halfway */
+
+if(
+timeLeft===
+Math.floor(calculateTime(word)/2)
+){
+
+playSound(halfwaySound);
+
+}
+
+
+/* warning */
+
+if(timeLeft===5){
+
+playSound(warningSound);
+
+}
+
+
+/* timeout */
+
+if(timeLeft===3){
+
+playSound(timeoutSound);
+
+}
 
 
 if(timeLeft<=0){
@@ -324,11 +362,10 @@ timeLeft=0;
 
 document.getElementById(
 "timer"
-).innerText=
-0;
+).innerText=0;
 
 clearInterval(timer);
-  
+
 learnerFinished=true;
 
 started=false;
@@ -337,7 +374,7 @@ usedTime=
 calculateTime(word);
 
 updateButtons();
-  
+
 wrong();
 
 return;
@@ -350,12 +387,10 @@ document.getElementById(
 ).innerText=
 timeLeft;
 
-
 await saveState();
 
 },1000);
 
-}
 
 function pauseTimer(){
 
@@ -407,7 +442,7 @@ return .5;
 
 
 
-function correct(){
+async function correct(){
 
 clearInterval(
 timer
@@ -500,14 +535,14 @@ studentId
 ];
 
 
-saveState();
+await saveState();
 nextWord();
 
 }
 
 
 
-function wrong(){
+async function wrong(){
 
 clearInterval(timer);
 
@@ -526,7 +561,7 @@ clearInterval(timer);
 
 playSound(wrongSound);
 
-saveState();
+await saveState();
 
 nextWord();
 
@@ -759,10 +794,7 @@ currentStudent,
 currentWordIndex,
 round,
 score:roundScore,
-timeLeft,
-
-competition_started:false,
-participant_done:false
+timeLeft
 
 })
 
@@ -787,29 +819,12 @@ const data=
 await res.json();
 
 
-if(data.state){
-
-currentStudent=
-data.state.currentstudent || 0;
-
-currentWordIndex=
-data.state.currentwordindex || 0;
-
-round=
-data.state.round || 1;
-
-roundScore=
-data.state.score || 0;
-
-timeLeft=
-data.state.timeleft || 0;
-
-
-/* PARTICIPANT SCREEN SIGNALS */
-
 if(
 data.state.competition_started
+&& !started
 ){
+
+startWord();
 
 await fetch(
 
@@ -835,10 +850,7 @@ competition_started:false
 
 );
 
-startWord();
-
 }
-
 
 
 if(
