@@ -295,13 +295,6 @@ return;
 
 clearInterval(timer);
 
-started=true;
-
-learnerFinished=false;
-
-updateButtons();
-
-
 let word=
 
 groupWords[
@@ -315,6 +308,11 @@ if(!word){
 return;
 
 }
+  started=true;
+
+learnerFinished=false;
+
+updateButtons();
 
 
 timeLeft=
@@ -862,7 +860,7 @@ data.state.round || 1;
 roundScore=
 data.state.score || 0;
 
-if(!started){
+if(data.state && !started){
 
 timeLeft=
 data.state.timeLeft || 0;
