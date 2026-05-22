@@ -117,8 +117,23 @@ document.getElementById(
 
 
 load();
-setInterval(()=>{
 
-load();
+/* auto refresh every second */
+
+setInterval(async()=>{
+
+try{
+
+await load();
+
+}
+catch(error){
+
+console.log(
+"Refresh error:",
+error
+);
+
+}
 
 },1000);
