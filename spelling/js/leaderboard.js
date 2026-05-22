@@ -2,7 +2,15 @@ async function load(){
 
 const res=
 await fetch(
-"/.netlify/functions/spellingLeaderboard"
+
+"/.netlify/functions/spellingLeaderboard?time="+Date.now(),
+
+{
+
+cache:"no-store"
+
+}
+
 );
 
 const data=
