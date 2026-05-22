@@ -409,7 +409,7 @@ timeLeft;
 
 
 function pauseTimer(){
-  stopAllSounds();
+  
 
 clearInterval(
 timer
@@ -645,6 +645,7 @@ nextWord();
 
 
 async function nextWord(){
+  stopAllSounds();
 
 clearInterval(timer);
 
