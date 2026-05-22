@@ -278,6 +278,10 @@ return 20;
 
 function startWord(){
 
+if(started){
+return;
+}
+
 clearInterval(timer);
 
 started=true;
@@ -491,8 +495,12 @@ goodSound
 
 
 roundScore=
+Number(
+(
 Number(roundScore)+
-Number(scoreValue);
+Number(scoreValue)
+).toFixed(2)
+);
 
 
 let studentId=
@@ -517,9 +525,11 @@ totalScores[
 studentId
 ]=
 Number(
-totalScores[studentId]
-)+
-Number(scoreValue);
+(
+Number(totalScores[studentId])+
+Number(scoreValue)
+).toFixed(2)
+);
 
 
 document.getElementById(
@@ -551,7 +561,7 @@ playSound(
 wrongSound
 );
 
-async saveState();
+await saveState();
 
 nextWord();
 
