@@ -1,4 +1,4 @@
-const sql=require("./SpellingDb");
+const sql=require("./spellingDb");
 
 exports.handler=async(event)=>{
 
