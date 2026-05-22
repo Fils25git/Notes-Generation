@@ -250,12 +250,10 @@ groupWords[index]
 
 if(groupWords[index]){
 
-document.getElementById(
-"timer"
-).innerText=
-calculateTime(
-groupWords[index]
-);
+if(!started){
+document.getElementById("timer").innerText =
+calculateTime(groupWords[index]);
+  }
 
 }else{
 
@@ -815,15 +813,15 @@ headers:{
 
 },
 
-body:
-JSON.stringify({
-
+body: JSON.stringify({
 currentStudent,
 currentWordIndex,
 round,
-score:roundScore,
-timeLeft
-
+score: roundScore,
+timeLeft,
+started,
+learnerFinished,
+usedTime
 })
 
 }
@@ -847,6 +845,9 @@ const data=
 await res.json();
   
 if(data.state){
+  started = data.state.started || false;
+learnerFinished = data.state.learnerFinished || false;
+usedTime = data.state.usedTime || 0;
 
 currentStudent=
 data.state.currentStudent || 0;
@@ -943,13 +944,11 @@ console.log(error);
 }
 
   }
-setInterval(
-
-loadSavedState,
-
-1000
-
-);
+setInterval(() => {
+if(!started){
+loadSavedState();
+}
+}, 1000);
 
 window.onload=()=>{
 
