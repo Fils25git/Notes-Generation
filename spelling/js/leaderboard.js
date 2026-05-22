@@ -117,3 +117,8 @@ document.getElementById(
 
 
 load();
+setInterval(()=>{
+
+load();
+
+},1000);
