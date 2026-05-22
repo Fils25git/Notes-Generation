@@ -251,11 +251,19 @@ groupWords[index]
 if(groupWords[index]){
 
 if(!started){
-document.getElementById("timer").innerText =
-calculateTime(groupWords[index]);
-  }
 
-}else{
+timeLeft=
+calculateTime(groupWords[index]);
+
+document.getElementById(
+"timer"
+).innerText=
+timeLeft;
+
+}
+
+}
+else{
 
 document.getElementById(
 "timer"
@@ -362,7 +370,7 @@ playSound(warningSound);
 
 if(timeLeft===3){
 
-playSound(timeoutSound);
+playSound(warningSound);
 
 }
 
@@ -397,8 +405,6 @@ document.getElementById(
 "timer"
 ).innerText=
 timeLeft;
-
-await saveState();
 
 },1000);
 }
@@ -629,9 +635,6 @@ nextStudent();
 return;
 
 }
-
-
-timeLeft=0;
 
 usedTime=0;
 
@@ -952,22 +955,11 @@ console.log(error);
 }
 
   }
-setInterval(() => {
+// Load only once when page opens
+window.onload=async()=>{
 
-if(
-!started &&
-!learnerFinished
-){
-
-loadSavedState();
-
-}
-
-},1000);
-
-window.onload=()=>{
+await loadCompetition();
 
 updateButtons();
-};
 
-loadCompetition();
+};
