@@ -3,11 +3,20 @@ async function load(){
 const res=
 await fetch(
 
-"/.netlify/functions/spellingLeaderboard?time="+Date.now(),
+"/.netlify/functions/spellingLeaderboard?refresh="+Date.now(),
 
 {
 
-cache:"no-store"
+method:"GET",
+
+cache:"no-store",
+
+headers:{
+
+"Cache-Control":
+"no-cache"
+
+}
 
 }
 
@@ -32,7 +41,7 @@ document.getElementById(
 "title"
 ).innerText=
 
-"YOUNG SPELLERS Contest Ranking after Round "
+"YOUNG SPELLERS Contest Ranking at "
 + round-1;
 
 }
@@ -124,11 +133,17 @@ document.getElementById(
 }
 
 
-load();
+let refreshing=false;
 
-/* auto refresh every second */
+async function autoRefresh(){
 
-setInterval(async()=>{
+if(refreshing){
+
+return;
+
+}
+
+refreshing=true;
 
 try{
 
@@ -137,11 +152,20 @@ await load();
 }
 catch(error){
 
-console.log(
-"Refresh error:",
-error
-);
+console.log(error);
 
 }
 
-},1000);
+refreshing=false;
+
+}
+
+load();
+
+setInterval(
+
+autoRefresh,
+
+1000
+
+);
