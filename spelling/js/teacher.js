@@ -631,11 +631,11 @@ return;
 }
 
 
-showWord();
-
 timeLeft=0;
 
 usedTime=0;
+
+showWord();
 
 await saveState();
 
@@ -814,14 +814,16 @@ headers:{
 },
 
 body: JSON.stringify({
-currentStudent,
-currentWordIndex,
-round,
-score: roundScore,
-timeLeft,
-started,
-learnerFinished,
-usedTime
+currentstudent:currentStudent,
+currentwordindex:currentWordIndex,
+round:round,
+score:roundScore,
+timeleft:timeLeft,
+started:started,
+learnerfinished:learnerFinished,
+usedtime:usedTime,
+competition_started:false,
+participant_done:false
 })
 
 }
@@ -845,15 +847,20 @@ const data=
 await res.json();
   
 if(data.state){
-  started = data.state.started || false;
-learnerFinished = data.state.learnerFinished || false;
-usedTime = data.state.usedTime || 0;
+started=
+data.state.started || false;
+
+learnerFinished=
+data.state.learnerfinished || false;
+
+usedTime=
+data.state.usedtime || 0;
 
 currentStudent=
-data.state.currentStudent || 0;
+data.state.currentstudent || 0;
 
 currentWordIndex=
-data.state.currentWordIndex || 0;
+data.state.currentwordindex || 0;
 
 round=
 data.state.round || 1;
@@ -861,10 +868,11 @@ data.state.round || 1;
 roundScore=
 data.state.score || 0;
 
-if(data.state && !started){
+if(!started){
 
 timeLeft=
-data.state.timeLeft || 0;
+data.state.timeleft || 0;
+
 
 }
 
@@ -945,10 +953,17 @@ console.log(error);
 
   }
 setInterval(() => {
-if(!started){
+
+if(
+!started &&
+!learnerFinished
+){
+
 loadSavedState();
+
 }
-}, 1000);
+
+},1000);
 
 window.onload=()=>{
 
