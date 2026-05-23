@@ -1,22 +1,17 @@
-const pool=require("./spellingDb");
+const sql=require("./spellingDb");
 
 exports.handler=async()=>{
 
 try{
 
 const result=
-await pool.query(
-
+await sql(
 `
 SELECT *
-
 FROM competitions
-
 WHERE status='active'
-
 LIMIT 1
 `
-
 );
 
 return{
@@ -26,7 +21,7 @@ statusCode:200,
 body:JSON.stringify({
 
 competition:
-result.rows[0] || null
+result[0] || null
 
 })
 
