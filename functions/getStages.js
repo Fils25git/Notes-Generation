@@ -3,6 +3,7 @@ const sql = require("./spellingDb");
 exports.handler = async (event) => {
   try {
 
+    
     const competition_id = parseInt(
       event.queryStringParameters?.competition_id
     );
