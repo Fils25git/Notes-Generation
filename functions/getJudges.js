@@ -10,9 +10,17 @@ await sql`
 SELECT
 
 id,
-username
+full_name,
+username,
+role
 
-FROM judges
+FROM users
+
+WHERE
+
+role='judge'
+
+OR role='teacher'
 
 ORDER BY id
 
