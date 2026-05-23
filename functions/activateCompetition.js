@@ -1,69 +1,65 @@
-const pool=require("./spellingDb");
+const pool = require("./spellingDb");
 
-exports.handler=async(event)=>{
+exports.handler = async (event) => {
 
-try{
+try {
 
-const body=
-JSON.parse(event.body);
+const body = JSON.parse(event.body);
 
-const competitionId=
-body.competition_id;
+const competitionId = body.competition_id;
 
+if (!competitionId) {
 
-/* deactivate all */
-
-await pool.query(
-
-`
-UPDATE competitions
-SET status='inactive'
-`
-
-);
-
-
-/* activate selected */
-
-await pool.query(
-
-`
-UPDATE competitions
-
-SET status='active'
-
-WHERE id=$1
-`,
-
-[competitionId]
-
-);
-
-return{
-
-statusCode:200,
-
-body:JSON.stringify({
-
-message:"Competition activated"
-
+return {
+statusCode: 400,
+body: JSON.stringify({
+message: "competition_id is required"
 })
-
 };
 
 }
-catch(error){
 
-return{
+/* STEP 1: deactivate only active competitions */
+await pool.query(`
+UPDATE competitions
+SET status = 'inactive'
+WHERE status = 'active'
+`);
 
-statusCode:500,
+/* STEP 2: activate selected competition */
+const result = await pool.query(`
+UPDATE competitions
+SET status = 'active'
+WHERE id = $1
+RETURNING *
+`, [competitionId]);
 
-body:JSON.stringify({
+if (result.rowCount === 0) {
 
-message:error.message
-
+return {
+statusCode: 404,
+body: JSON.stringify({
+message: "Competition not found"
 })
+};
 
+}
+
+return {
+statusCode: 200,
+body: JSON.stringify({
+message: "Competition activated",
+competition: result.rows[0]
+})
+};
+
+} catch (error) {
+
+return {
+statusCode: 500,
+body: JSON.stringify({
+message: error.message
+})
 };
 
 }
