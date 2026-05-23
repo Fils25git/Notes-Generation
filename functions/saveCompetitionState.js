@@ -5,90 +5,46 @@ exports.handler=async(event)=>{
 try{
 
 const body=
-JSON.parse(
-event.body
+JSON.parse(event.body);
+
+await sql(
+`
+UPDATE competition_state
+SET
+current_student_index=$1,
+current_round=$2,
+current_word_index=$3,
+time_left=$4,
+started=$5,
+score=$6,
+participant_done=$7,
+stage_number=$8
+WHERE competition_id=$9
+`,
+[
+body.currentStudent,
+body.round,
+body.currentWordIndex,
+body.timeLeft,
+body.started,
+body.score,
+body.participant_done,
+body.stage_number,
+body.competition_id
+]
 );
 
-
-await sql`
-
-UPDATE competition_state
-
-SET
-
-currentstudent=
-COALESCE(
-${body.currentStudent},
-currentstudent
-),
-
-currentwordindex=
-COALESCE(
-${body.currentWordIndex},
-currentwordindex
-),
-
-round=
-COALESCE(
-${body.round},
-round
-),
-
-score=
-COALESCE(
-${body.score},
-score
-),
-
-timeleft=
-COALESCE(
-${body.timeLeft},
-timeleft
-),
-
-competition_started=
-COALESCE(
-${body.competition_started},
-competition_started
-),
-
-participant_done=
-COALESCE(
-${body.participant_done},
-participant_done
-)
-
-WHERE id=1
-
-`;
-
-
 return{
-
 statusCode:200,
-
-body:JSON.stringify({
-
-success:true
-
-})
-
+body:JSON.stringify({message:"saved"})
 };
 
 }
 catch(error){
 
 return{
-
 statusCode:500,
-
-body:JSON.stringify({
-
-success:false,
-error:error.message
-
-})
-
+body:JSON.stringify({message:error.message})
 };
 
 }
