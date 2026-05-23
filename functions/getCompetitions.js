@@ -1,47 +1,30 @@
-const pool=require("./spellingDb");
+const pool = require("./spellingDb");
 
-exports.handler=async()=>{
+exports.handler = async () => {
 
-try{
+try {
 
-const result=
-await pool.query(
-
-`
-SELECT *
-FROM competitions
-
-ORDER BY id DESC
-`
-
+const result = await pool.query(
+"SELECT * FROM competitions"
 );
 
-return{
-
-statusCode:200,
-
-body:JSON.stringify({
-
-competitions:
-result.rows
-
+return {
+statusCode: 200,
+body: JSON.stringify({
+competitions: result.rows,
+count: result.rowCount
 })
-
 };
 
-}
-catch(error){
+} catch (error) {
 
-return{
+console.log("DB ERROR:", error);
 
-statusCode:500,
-
-body:JSON.stringify({
-
-message:error.message
-
+return {
+statusCode: 500,
+body: JSON.stringify({
+error: error.message
 })
-
 };
 
 }
