@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>System Settings</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f3f4f6;
+margin:0;
+}
+
+.header{
+background:#1e3a8a;
+color:white;
+padding:20px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:15px;
+}
+
+button{
+padding:12px;
+border:none;
+border-radius:8px;
+background:#2563eb;
+color:white;
+cursor:pointer;
+}
+
+select,input{
+width:100%;
+padding:10px;
+margin-top:5px;
+}
+
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.6);
+display:none;
+align-items:center;
+justify-content:center;
+}
+
+.modal-content{
+background:white;
+padding:20px;
+width:500px;
+border-radius:10px;
+}
+
+.row{
+margin-bottom:10px;
+}
+
+.home{
+background:#16a34a;
+margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+System Settings
+</div>
+
+<div class="container">
+
+<!-- ACTIVE COMPETITION -->
+<div class="card">
+<h3>Active Competition</h3>
+<div id="competitionName">Loading...</div>
+</div>
+
+<!-- JUDGES SELECTION -->
+<div class="card">
+<h3>Select Judges</h3>
+<select id="judges" multiple></select>
+<button onclick="saveJudges()">Save Judges</button>
+</div>
+
+<!-- STAGE SETTINGS -->
+<div class="card">
+<h3>Stage Configuration</h3>
+
+<label>Choose Number of Stages</label>
+<select id="stageCount"></select>
+
+<button onclick="openStageModal()">
+Create / Edit Stages
+</button>
+</div>
+
+<!-- STAGE RULES -->
+<div class="card">
+<h3>Selected Stage Rules</h3>
+
+<label>Rounds per Participant</label>
+<select id="rounds"></select>
+
+<label>Words per Round</label>
+<select id="words"></select>
+
+<button onclick="saveStageRules()">
+Save Stage Rules
+</button>
+</div>
+
+<button class="home" onclick="goHome()">
+⬅ Back Home
+</button>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="stageModal">
+
+<div class="modal-content">
+
+<h3 id="modalTitle">
+Welcome to Settings
+</h3>
+
+<div class="row">
+<label>Number of Stages</label>
+<select id="modalStages"></select>
+</div>
+
+<div class="row">
+<label>Stage Names</label>
+<input id="stageNameInput" placeholder="Stage 1">
+</div>
+
+<div class="row">
+<label>Participants per Stage</label>
+<input id="participantsInput" type="number">
+</div>
+
+<div class="row">
+<label>Qualification Rule</label>
+<select id="qualifyRule">
+<option value="top">Top performers</option>
+<option value="low">Low performers</option>
+<option value="random">Random</option>
+</select>
+</div>
+
+<button onclick="saveStages()">
+Save Stages
+</button>
+
+</div>
+
+</div>
+
+<script>
+  let competition = null;
+let judges = [];
+let selectedJudges = [];
+
+let stages = [];
+let selectedStageIndex = 0;
+
+/* =========================
+   LOAD INITIAL DATA
+========================= */
+
+async function initSettings(){
+
+await loadCompetition();
+await loadJudges();
+await loadStages();
+
+setupStageDropdowns();
+setupRoundWordDropdowns();
+
+}
+
+/* =========================
+   LOAD ACTIVE COMPETITION
+========================= */
+
+async function loadCompetition(){
+
+const res = await fetch("/.netlify/functions/getActiveCompetition");
+const data = await res.json();
+
+competition = data.competition;
+
+document.getElementById("competitionName").innerText =
+competition?.competition_name || "No active competition";
+
+}
+
+/* =========================
+   LOAD JUDGES LIST
+========================= */
+
+async function loadJudges(){
+
+const res = await fetch("/.netlify/functions/getJudges");
+const data = await res.json();
+
+judges = data.judges || [];
+
+const select = document.getElementById("judges");
+select.innerHTML = "";
+
+judges.forEach(j => {
+
+const opt = document.createElement("option");
+opt.value = j.id;
+opt.innerText = j.username;
+
+select.appendChild(opt);
+
+});
+
+}
+
+/* =========================
+   SAVE SELECTED JUDGES
+========================= */
+
+async function saveJudges(){
+
+const select = document.getElementById("judges");
+
+selectedJudges = Array.from(select.selectedOptions)
+.map(opt => opt.value);
+
+await fetch("/.netlify/functions/saveCompetitionJudges",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+competition_id: competition.id,
+judges: selectedJudges
+})
+});
+
+alert("Judges saved");
+}
+
+/* =========================
+   STAGE DROPDOWN SETUP
+========================= */
+
+function setupStageDropdowns(){
+
+const stageCount = document.getElementById("stageCount");
+const modalStages = document.getElementById("modalStages");
+
+stageCount.innerHTML = "";
+modalStages.innerHTML = "";
+
+for(let i=1;i<=10;i++){
+
+const opt1 = document.createElement("option");
+opt1.value = i;
+opt1.innerText = i;
+
+const opt2 = opt1.cloneNode(true);
+
+stageCount.appendChild(opt1);
+modalStages.appendChild(opt2);
+
+}
+
+}
+
+/* =========================
+   OPEN STAGE MODAL
+========================= */
+
+function openStageModal(){
+
+document.getElementById("stageModal").style.display = "flex";
+
+document.getElementById("modalTitle").innerText =
+`Welcome to ${competition.competition_name} Settings`;
+
+}
+
+/* =========================
+   SAVE STAGES
+========================= */
+
+async function saveStages(){
+
+const count = parseInt(document.getElementById("modalStages").value);
+const participants = document.getElementById("participantsInput").value;
+const rule = document.getElementById("qualifyRule").value;
+
+const stageName = document.getElementById("stageNameInput").value || "";
+
+stages = [];
+
+for(let i=1;i<=count;i++){
+
+stages.push({
+competition_id: competition.id,
+stage_number: i,
+stage_name: stageName || `Stage ${i}`,
+participant_count: participants,
+qualification_rule: rule,
+status: "inactive"
+});
+
+}
+
+await fetch("/.netlify/functions/saveCompetitionStages",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({ stages })
+});
+
+document.getElementById("stageModal").style.display = "none";
+
+alert("Stages saved");
+
+await loadStages();
+
+}
+
+/* =========================
+   LOAD STAGES
+========================= */
+
+async function loadStages(){
+
+const res = await fetch(
+"/.netlify/functions/getStages?competition_id=" + competition.id
+);
+
+const data = await res.json();
+
+stages = data.stages || [];
+
+renderStageSelector();
+
+}
+
+/* =========================
+   STAGE SELECTOR UI
+========================= */
+
+function renderStageSelector(){
+
+const stageSelect = document.getElementById("stageCount");
+
+stageSelect.onchange = (e) => {
+
+selectedStageIndex = parseInt(e.target.value) - 1;
+
+loadStageRules(selectedStageIndex);
+
+};
+
+}
+
+/* =========================
+   LOAD SELECTED STAGE RULES
+========================= */
+
+function loadStageRules(index){
+
+const stage = stages[index];
+
+if(!stage) return;
+
+document.getElementById("rounds").value =
+stage.total_rounds || 3;
+
+document.getElementById("words").value =
+stage.words_per_round || 3;
+
+}
+
+/* =========================
+   SAVE STAGE RULES
+========================= */
+
+async function saveStageRules(){
+
+const stageNumber = parseInt(document.getElementById("stageCount").value);
+
+const rounds = document.getElementById("rounds").value;
+const words = document.getElementById("words").value;
+
+await fetch("/.netlify/functions/updateStageRules",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({
+competition_id: competition.id,
+stage_number: stageNumber,
+total_rounds: rounds,
+words_per_round: words
+})
+});
+
+alert("Stage rules saved");
+
+}
+
+/* =========================
+   GO HOME
+========================= */
+
+function goHome(){
+window.location = "teacher-home.html";
+}
+
+/* =========================
+   START
+========================= */
+
+initSettings();
+</script>
+
+</body>
+  </html>
