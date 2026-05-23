@@ -4,19 +4,16 @@ exports.handler = async (event) => {
 
 try {
 
-const body = JSON.parse(event.body);
-
+const body = event.body ? JSON.parse(event.body) : {};
 const competition_name = body.competition_name;
 
 if (!competition_name) {
-
 return {
 statusCode: 400,
 body: JSON.stringify({
 message: "Competition name required"
 })
 };
-
 }
 
 await sql`
@@ -33,8 +30,6 @@ message: "Competition created"
 };
 
 } catch (error) {
-
-console.log(error);
 
 return {
 statusCode: 500,
