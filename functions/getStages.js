@@ -1,45 +1,35 @@
-const sql=require("./spellingDb");
+const sql = require("./spellingDb");
 
-exports.handler=async(event)=>{
+exports.handler = async (event) => {
+  try {
 
-try{
+    const competition_id = parseInt(
+      event.queryStringParameters?.competition_id
+    );
 
-const competition_id=
-event.queryStringParameters.competition_id;
+    if (!competition_id) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: "competition_id required" })
+      };
+    }
 
-if(!competition_id){
+    const stages = await sql`
+      SELECT *
+      FROM competition_stages
+      WHERE competition_id = ${competition_id}
+      ORDER BY stage_number ASC
+    `;
 
-return{
-statusCode:400,
-body:JSON.stringify({message:"competition_id required"})
-};
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ stages })
+    };
 
-}
-
-const stages=
-await sql(
-`
-SELECT *
-FROM competition_stages
-WHERE competition_id=$1
-ORDER BY stage_number ASC
-`,
-[competition_id]
-);
-
-return{
-statusCode:200,
-body:JSON.stringify({stages})
-};
-
-}
-catch(error){
-
-return{
-statusCode:500,
-body:JSON.stringify({message:error.message})
-};
-
-}
-
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: error.message })
+    };
+  }
 };
