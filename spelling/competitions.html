@@ -334,6 +334,7 @@ Create Competition
 
 <script>
 
+
 async function loadCompetitions(){
 
 const res =
@@ -344,88 +345,60 @@ await fetch(
 const data =
 await res.json();
 
+console.log("DEBUG competitions:", data);
+
+const competitions = data.competitions || [];
+
 let html = "";
 
-data.competitions.forEach(comp=>{
+competitions.forEach(comp=>{
 
 html += `
-
 <tr>
 
 <td>
-
 ${comp.id}
-
 </td>
 
 <td>
-
 ${comp.competition_name}
-
 </td>
 
 <td>
-
-<span class="${
-comp.status==="active"
-? "active"
-: "inactive"
-}">
-
+<span class="${comp.status==="active" ? "active" : "inactive"}">
 ${comp.status}
-
 </span>
+</td>
 
+<td>
+${comp.created_at ? new Date(comp.created_at).toLocaleDateString() : "-"}
 </td>
 
 <td>
 
-${new Date(
-comp.created_at
-).toLocaleDateString()}
-
-</td>
-
-<td>
-
-<button
-class="action open"
-onclick="openCompetition(${comp.id})">
-
+<button class="action open" onclick="openCompetition(${comp.id})">
 Open
-
 </button>
 
-<button
-class="action activate"
-onclick="activateCompetition(${comp.id})">
-
+<button class="action activate" onclick="activateCompetition(${comp.id})">
 Activate
-
 </button>
 
-<button
-class="action delete"
-onclick="deleteCompetition(${comp.id})">
-
+<button class="action delete" onclick="deleteCompetition(${comp.id})">
 Delete
-
 </button>
 
 </td>
 
 </tr>
-
 `;
-
 });
 
 document.getElementById(
 "competitionTable"
 ).innerHTML = html;
 
-}
-
+  }
 
 
 async function createCompetition(){
