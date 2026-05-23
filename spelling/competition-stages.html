@@ -79,10 +79,65 @@ cursor:not-allowed;
 </head>
 
 <body>
+  <div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 20px;
+background:#111827;
+color:white;
+">
+
+<button onclick="goHome()" style="
+background:#22c55e;
+padding:10px 15px;
+border:none;
+border-radius:8px;
+color:white;
+font-weight:bold;
+cursor:pointer;
+">
+🏠 Home
+</button>
+
+<div style="font-weight:bold;">
+Competition Stages
+</div>
+
+<button onclick="goBack()" style="
+background:#f59e0b;
+padding:10px 15px;
+border:none;
+border-radius:8px;
+color:white;
+font-weight:bold;
+cursor:pointer;
+">
+⬅ Back
+</button>
+
+  </div>
 
 <div class="header">
 Competition Stages
 </div>
+  <div class="stage">
+
+<h3>Create New Stage</h3>
+
+<input id="stageName" placeholder="Stage name" style="width:100%;padding:10px;margin:5px 0;">
+<input id="stageNumber" type="number" placeholder="Stage number" style="width:100%;padding:10px;margin:5px 0;">
+<input id="participants" type="number" placeholder="Participants" style="width:100%;padding:10px;margin:5px 0;">
+<input id="rounds" type="number" placeholder="Total rounds" style="width:100%;padding:10px;margin:5px 0;">
+<input id="wordsPerRound" type="number" placeholder="Words per round" style="width:100%;padding:10px;margin:5px 0;">
+<input id="topQualifiers" type="number" placeholder="Top qualifiers" style="width:100%;padding:10px;margin:5px 0;">
+<input id="judges" type="number" placeholder="Judge count" style="width:100%;padding:10px;margin:5px 0;">
+
+<button onclick="createStage()">
+CREATE STAGE
+</button>
+
+  </div>
 
 <div class="container">
 
@@ -116,6 +171,36 @@ competition.competition_name;
 loadStages();
 
 }
+  async function createStage(){
+
+const body={
+competition_id:competition.id,
+stage_name:document.getElementById("stageName").value,
+stage_number:document.getElementById("stageNumber").value,
+participant_count:document.getElementById("participants").value,
+total_rounds:document.getElementById("rounds").value,
+words_per_round:document.getElementById("wordsPerRound").value,
+top_qualifiers:document.getElementById("topQualifiers").value,
+judge_count:document.getElementById("judges").value,
+status:"inactive"
+};
+
+const res=
+await fetch("/.netlify/functions/createStage",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(body)
+});
+
+const data=await res.json();
+
+alert(data.message);
+
+loadStages();
+
+  }
 
 /* GET STAGES */
 async function loadStages(){
@@ -169,6 +254,13 @@ container.appendChild(div);
 });
 
 }
+  function goHome(){
+window.location="teacher-home.html";
+}
+
+function goBack(){
+window.location="competitions.html";
+  }
 
 /* OPEN STAGE */
 function openStage(stageId){
