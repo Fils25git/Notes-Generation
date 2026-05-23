@@ -1,67 +1,46 @@
-const pool=require("./spellingDb");
+const sql = require("./spellingDb");
 
-exports.handler=async(event)=>{
+exports.handler = async (event) => {
 
-try{
+try {
 
-const body=
-JSON.parse(event.body);
+const body = JSON.parse(event.body);
 
-const competition_name=
-body.competition_name;
+const competition_name = body.competition_name;
 
-if(!competition_name){
+if (!competition_name) {
 
-return{
-statusCode:400,
-body:JSON.stringify({
-message:"Competition name required"
+return {
+statusCode: 400,
+body: JSON.stringify({
+message: "Competition name required"
 })
 };
 
 }
 
-await pool.query(
-
-`
+await sql`
 INSERT INTO competitions
-(competition_name,status)
+(competition_name, status)
+VALUES (${competition_name}, 'inactive')
+`;
 
-VALUES($1,$2)
-`,
-
-[
-competition_name,
-"inactive"
-]
-
-);
-
-return{
-
-statusCode:200,
-
-body:JSON.stringify({
-
-message:"Competition created"
-
+return {
+statusCode: 200,
+body: JSON.stringify({
+message: "Competition created"
 })
-
 };
 
-}
-catch(error){
+} catch (error) {
 
-return{
+console.log(error);
 
-statusCode:500,
-
-body:JSON.stringify({
-
-message:error.message
-
+return {
+statusCode: 500,
+body: JSON.stringify({
+message: error.message
 })
-
 };
 
 }
