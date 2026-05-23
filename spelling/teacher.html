@@ -8,13 +8,14 @@
 <meta name="viewport"
 content="width=device-width,initial-scale=1">
 
-<title>Teacher Control</title>
+<title>Teacher Control Panel</title>
 
 <style>
 
 *{
 
 box-sizing:border-box;
+
 font-family:Arial,sans-serif;
 
 }
@@ -22,20 +23,35 @@ font-family:Arial,sans-serif;
 body{
 
 margin:0;
+
 background:#e5e7eb;
 
 }
 
+
+/* HEADER */
+
 .header{
 
 background:#2563eb;
+
 color:white;
-padding:15px;
+
+padding:18px;
+
 text-align:center;
-font-size:28px;
+
+font-size:30px;
+
 font-weight:bold;
 
+box-shadow:
+0 2px 8px rgba(0,0,0,.2);
+
 }
+
+
+/* MAIN */
 
 .container{
 
@@ -43,12 +59,15 @@ padding:20px;
 
 }
 
+
+/* TOP CARDS */
+
 .top{
 
 display:grid;
 
 grid-template-columns:
-repeat(4,1fr);
+repeat(auto-fit,minmax(220px,1fr));
 
 gap:15px;
 
@@ -62,7 +81,7 @@ background:white;
 
 padding:20px;
 
-border-radius:15px;
+border-radius:18px;
 
 text-align:center;
 
@@ -74,46 +93,111 @@ box-shadow:
 .label{
 
 font-size:18px;
-color:#555;
+
+color:#6b7280;
+
+margin-bottom:10px;
 
 }
 
 .value{
 
-font-size:32px;
+font-size:34px;
+
 font-weight:bold;
 
-margin-top:10px;
+word-break:break-word;
+
+}
+
+
+/* WORD AREA */
+
+.word-card{
+
+background:white;
+
+padding:30px;
+
+border-radius:18px;
+
+text-align:center;
+
+box-shadow:
+0 4px 10px rgba(0,0,0,.1);
+
+margin-bottom:20px;
 
 }
 
 .word{
 
-font-size:55px;
+font-size:58px;
+
 font-weight:bold;
 
 color:#2563eb;
 
-padding:30px;
+margin-top:20px;
 
-min-height:130px;
+min-height:90px;
+
+word-break:break-word;
 
 }
+
+
+/* TIMER */
 
 .timer{
 
-font-size:80px;
+font-size:90px;
+
 font-weight:bold;
-color:red;
+
+color:#dc2626;
 
 }
+
+
+/* STATUS */
+
+.status-box{
+
+background:white;
+
+padding:20px;
+
+border-radius:18px;
+
+text-align:center;
+
+box-shadow:
+0 4px 10px rgba(0,0,0,.1);
+
+margin-bottom:20px;
+
+}
+
+.status{
+
+font-size:28px;
+
+font-weight:bold;
+
+color:#16a34a;
+
+}
+
+
+/* BUTTONS */
 
 .buttons{
 
 display:grid;
 
 grid-template-columns:
-repeat(3,1fr);
+repeat(auto-fit,minmax(180px,1fr));
 
 gap:15px;
 
@@ -131,13 +215,13 @@ font-size:18px;
 
 font-weight:bold;
 
-border-radius:10px;
+border-radius:12px;
 
 cursor:pointer;
 
-color:white;
-
 transition:.3s;
+
+color:white;
 
 }
 
@@ -149,61 +233,96 @@ transform:scale(1.03);
 }
 
 
-/* Disabled buttons */
+/* DISABLED */
 
 button:disabled{
 
 background:#9ca3af !important;
 
-color:#f3f4f6;
-
 cursor:not-allowed;
-
-opacity:.7;
 
 transform:none;
 
+opacity:.7;
+
 }
 
 
-/* button colors */
+/* COLORS */
 
 .start{
+
 background:#16a34a;
+
 }
 
 .stop{
+
 background:#f59e0b;
-}
 
-.correct{
-background:#22c55e;
-}
-
-.wrong{
-background:#dc2626;
-}
-
-.notspelt{
-background:#7c2d12;
 }
 
 .next{
-background:#3b82f6;
+
+background:#2563eb;
+
 }
 
 .skipstudent{
+
 background:#9333ea;
+
 }
 
 .reset{
+
 background:#6b7280;
+
+}
+
+.danger{
+
+background:#dc2626;
+
 }
 
 .full{
 
 grid-column:
-span 3;
+span 2;
+
+}
+
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+.word{
+
+font-size:40px;
+
+}
+
+.timer{
+
+font-size:70px;
+
+}
+
+.value{
+
+font-size:28px;
+
+}
+
+button{
+
+font-size:16px;
+
+padding:16px;
+
+}
 
 }
 
@@ -222,7 +341,11 @@ Teacher Control Panel
 
 <div class="container">
 
+
+<!-- TOP INFO -->
+
 <div class="top">
+
 
 <div class="card">
 
@@ -322,11 +445,13 @@ id="timer">
 
 </div>
 
+
 </div>
 
 
+<!-- WORD -->
 
-<div class="card">
+<div class="word-card">
 
 <div class="label">
 
@@ -345,52 +470,60 @@ Ready
 </div>
 
 
+<!-- STATUS -->
+
+<div class="status-box">
+
+<div class="label">
+
+Competition Status
+
+</div>
+
+<div
+class="status"
+id="competitionStatus">
+
+Waiting To Start
+
+</div>
+
+</div>
+
+
+<!-- BUTTONS -->
 
 <div class="buttons">
+
 
 <button
 class="start"
 onclick="startWord()">
 
-START
+START WORD
 
 </button>
+
 
 
 <button
 class="stop"
 onclick="pauseTimer()">
 
-STOP
+STOP TIMER
 
 </button>
+
 
 
 <button
-class="correct"
-onclick="correct()">
+class="next"
+onclick="finalizeVotes()">
 
-✓ CORRECT
-
-</button>
-
-
-<button
-class="wrong"
-onclick="wrong()">
-
-✗ WRONG
+FINALIZE RESULT
 
 </button>
 
-
-<button
-class="notspelt"
-onclick="skip()">
-
-NOT SPELT
-
-</button>
 
 
 <button
@@ -402,13 +535,15 @@ NEXT WORD
 </button>
 
 
+
 <button
 class="skipstudent"
 onclick="nextStudent()">
 
-SKIP STUDENT
+NEXT PARTICIPANT
 
 </button>
+
 
 
 <button
@@ -420,6 +555,7 @@ RESET PARTICIPANT
 </button>
 
 
+
 <button
 class="reset"
 onclick="resetRound()">
@@ -429,15 +565,18 @@ RESET ROUND
 </button>
 
 
+
 <button
-class="reset full"
+class="danger full"
 onclick="resetCompetition()">
 
 RESET COMPETITION
 
 </button>
 
+
 </div>
+
 
 </div>
 
