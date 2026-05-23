@@ -1,24 +1,25 @@
-const pool = require("./spellingDb");
+const sql = require("./spellingDb");
 
 exports.handler = async () => {
 
 try {
 
-const result = await pool.query(
-"SELECT * FROM competitions"
-);
+const result = await sql`
+SELECT *
+FROM competitions
+ORDER BY id DESC
+`;
 
 return {
 statusCode: 200,
 body: JSON.stringify({
-competitions: result.rows,
-count: result.rowCount
+competitions: result
 })
 };
 
 } catch (error) {
 
-console.log("DB ERROR:", error);
+console.log(error);
 
 return {
 statusCode: 500,
