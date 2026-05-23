@@ -5,7 +5,7 @@ exports.handler=async()=>{
 try{
 
 const result=
-await sql(
+await sql.query(
 `
 SELECT *
 FROM competitions
