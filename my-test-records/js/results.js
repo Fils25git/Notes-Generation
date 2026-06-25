@@ -477,12 +477,12 @@ term_id:selectedTerm
 
 const overallTestMax=
 Number(
-settings.overall_test_max||100
+settings.overall_test_max||90
 );
 
 const overallExamMax=
 Number(
-settings.overall_exam_max||100
+settings.overall_exam_max||90
 );
 
 const className=
