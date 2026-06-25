@@ -457,7 +457,6 @@ term_id:selectedTerm
 }
 );
 
-
 const settings=
 await school(
 "getGradingSettings",
@@ -472,6 +471,16 @@ academic_year_id:selectedYear,
 term_id:selectedTerm
 
 }
+);
+
+console.log(
+"Selected class:",
+selectedClass
+);
+
+console.log(
+"Returned settings:",
+settings
 );
 
 
