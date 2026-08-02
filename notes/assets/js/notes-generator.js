@@ -1392,7 +1392,7 @@
     );
 
     page.drawText(
-      `Generated ${new Date().getFullYear()} • Protected learning material`,
+      `Prepared in  ${new Date().getFullYear()} by  Teacher ${data.teacherName}`,
       {
         x: 54,
         y: 58,
