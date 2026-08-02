@@ -666,11 +666,20 @@
     try {
       ensurePdfLibLoaded();
 
+      console.log(
+        "Step 1: Checking available note versions."
+      );
+
       const availableFiles =
         await findAvailableVersions(
           formData.subject,
           formData.classLevel
         );
+
+      console.log(
+        "Step 2: Available note versions:",
+        availableFiles
+      );
 
       if (
         availableFiles.length === 0
@@ -689,16 +698,35 @@
           state.selectedVersion
         );
 
+      if (!chosen) {
+        throw new Error(
+          "An available note version could not be selected."
+        );
+      }
+
+      console.log(
+        "Step 3: Selected note:",
+        chosen
+      );
+
       const sourceBytes =
         await fetchPdfBytes(
           chosen.path
         );
+
+      console.log(
+        "Step 4: Original PDF loaded."
+      );
 
       const finalBytes =
         await buildBrandedPdf(
           sourceBytes,
           formData
         );
+
+      console.log(
+        "Step 5: Branded PDF generated."
+      );
 
       state.generatedBlob =
         new Blob(
@@ -904,27 +932,104 @@
     const checks =
       await Promise.all(
         candidates.map(
-          async (
-            candidate
-          ) => {
+          async candidate => {
+            const controller =
+              new AbortController();
+
+            const timeoutId =
+              setTimeout(
+                () => {
+                  controller.abort();
+                },
+                8000
+              );
+
             try {
               const response =
                 await fetch(
                   candidate.path,
                   {
                     method:
-                      "HEAD",
+                      "GET",
 
                     cache:
-                      "no-store"
+                      "no-store",
+
+                    signal:
+                      controller.signal
                   }
                 );
 
-              return response.ok
-                ? candidate
-                : null;
-            } catch {
+              if (!response.ok) {
+                return null;
+              }
+
+              const contentType =
+                response.headers.get(
+                  "content-type"
+                ) || "";
+
+              if (
+                contentType &&
+                !contentType.includes(
+                  "application/pdf"
+                ) &&
+                !contentType.includes(
+                  "application/octet-stream"
+                )
+              ) {
+                console.warn(
+                  `The file is not a PDF: ${candidate.path}`
+                );
+
+                return null;
+              }
+
+              const bytes =
+                await response.arrayBuffer();
+
+              if (
+                bytes.byteLength < 5
+              ) {
+                return null;
+              }
+
+              const signature =
+                new TextDecoder()
+                  .decode(
+                    bytes.slice(
+                      0,
+                      5
+                    )
+                  );
+
+              if (
+                signature !== "%PDF-"
+              ) {
+                console.warn(
+                  `Invalid PDF signature: ${candidate.path}`
+                );
+
+                return null;
+              }
+
+              return candidate;
+            } catch (error) {
+              if (
+                error.name !==
+                "AbortError"
+              ) {
+                console.warn(
+                  `Could not check ${candidate.path}:`,
+                  error
+                );
+              }
+
               return null;
+            } finally {
+              clearTimeout(
+                timeoutId
+              );
             }
           }
         )
@@ -954,6 +1059,11 @@
         );
     }
 
+    if (!pool.length) {
+      pool =
+        files;
+    }
+
     const randomIndex =
       Math.floor(
         Math.random() *
@@ -968,22 +1078,84 @@
   async function fetchPdfBytes(
     path
   ) {
-    const response =
-      await fetch(
-        path,
-        {
-          cache:
-            "no-store"
-        }
+    const controller =
+      new AbortController();
+
+    const timeoutId =
+      setTimeout(
+        () => {
+          controller.abort();
+        },
+        20000
       );
 
-    if (!response.ok) {
-      throw new Error(
-        `The selected note file could not be opened: ${path}`
+    try {
+      const response =
+        await fetch(
+          path,
+          {
+            method:
+              "GET",
+
+            cache:
+              "no-store",
+
+            signal:
+              controller.signal
+          }
+        );
+
+      if (!response.ok) {
+        throw new Error(
+          `The selected note file could not be opened: ${path}`
+        );
+      }
+
+      const bytes =
+        await response.arrayBuffer();
+
+      if (
+        bytes.byteLength < 5
+      ) {
+        throw new Error(
+          `The selected note file is empty: ${path}`
+        );
+      }
+
+      const signature =
+        new TextDecoder()
+          .decode(
+            bytes.slice(
+              0,
+              5
+            )
+          );
+
+      if (
+        signature !== "%PDF-"
+      ) {
+        throw new Error(
+          `The selected note file is not a valid PDF: ${path}`
+        );
+      }
+
+      return bytes;
+    } catch (error) {
+      if (
+        error.name ===
+        "AbortError"
+      ) {
+        throw new Error(
+          "Loading the notes took too long. Check the note path and try again."
+        );
+      }
+
+      throw error;
+    } finally {
+      clearTimeout(
+        timeoutId
       );
     }
-
-    return response.arrayBuffer();
   }
 
   async function handlePaidDownload() {
@@ -1049,7 +1221,8 @@
       return;
     }
 
-    state.paymentCreating = true;
+    state.paymentCreating =
+      true;
 
     updateDownloadButton(
       "Creating Payment...",
@@ -1064,7 +1237,8 @@
         await fetch(
           `${NOTE_PAYMENT_API}?action=create`,
           {
-            method: "POST",
+            method:
+              "POST",
 
             headers: {
               "Content-Type":
@@ -1115,19 +1289,21 @@
 
         throw new Error(
           result.message ||
-          result.error ||
-          "The payment request could not be created."
+            result.error ||
+            "The payment request could not be created."
         );
       }
 
       const paymentId =
         Number(
           result.paymentId ||
-          result.payment?.id
+            result.payment?.id
         );
 
       if (
-        !Number.isInteger(paymentId) ||
+        !Number.isInteger(
+          paymentId
+        ) ||
         paymentId <= 0
       ) {
         throw new Error(
@@ -1198,7 +1374,8 @@
       return;
     }
 
-    state.paymentChecking = true;
+    state.paymentChecking =
+      true;
 
     updateDownloadButton(
       "Checking Payment...",
@@ -1212,7 +1389,8 @@
             state.notePaymentId
           )}`,
           {
-            method: "GET",
+            method:
+              "GET",
 
             headers: {
               Accept:
@@ -1239,8 +1417,8 @@
 
         throw new Error(
           result.message ||
-          result.error ||
-          "The payment status could not be checked."
+            result.error ||
+            "The payment status could not be checked."
         );
       }
 
@@ -1289,9 +1467,13 @@
 
       if (
         result.status ===
-        "downloaded" ||
-        result.downloadCount >=
-          result.downloadLimit
+          "downloaded" ||
+        Number(
+          result.downloadCount
+        ) >=
+          Number(
+            result.downloadLimit
+          )
       ) {
         state.downloadUsed =
           true;
@@ -1312,7 +1494,8 @@
       if (
         result.status ===
           "approved" &&
-        result.canDownload !== false
+        result.canDownload !==
+          false
       ) {
         showMessage(
           "Payment approved. Preparing your download.",
@@ -1320,6 +1503,7 @@
         );
 
         await authorizeAndDownload();
+
         return;
       }
 
@@ -1396,7 +1580,8 @@
         await fetch(
           `${NOTE_PAYMENT_API}?action=download`,
           {
-            method: "POST",
+            method:
+              "POST",
 
             headers: {
               "Content-Type":
@@ -1439,8 +1624,8 @@
 
         throw new Error(
           result.message ||
-          result.error ||
-          "The download could not be authorized."
+            result.error ||
+            "The download could not be authorized."
         );
       }
 
@@ -2177,10 +2362,11 @@
     elements.downloadBtn.disabled =
       disabled;
 
-    elements.downloadBtn.classList.toggle(
-      "disabled",
-      disabled
-    );
+    elements.downloadBtn
+      .classList.toggle(
+        "disabled",
+        disabled
+      );
   }
 
   function getAuthToken() {
@@ -2222,7 +2408,9 @@
       return;
     }
 
-    if (response.status === 401) {
+    if (
+      response.status === 401
+    ) {
       clearAuthenticationData();
 
       localStorage.setItem(
