@@ -189,5 +189,123 @@
       </div>
     </div>
   </div>
+
+  <!-- NOTE PAYMENT MODAL -->
+<div id="notePaymentModal" class="note-payment-modal hidden">
+  <div class="note-payment-overlay" data-close-payment-modal></div>
+
+  <div class="note-payment-box">
+    <button
+      type="button"
+      id="closeNotePaymentModal"
+      class="payment-modal-close"
+      aria-label="Close payment instructions"
+    >
+      &times;
+    </button>
+
+    <div class="payment-icon">💳</div>
+
+    <h2>Complete Your Payment</h2>
+
+    <p id="paymentIntro">
+      Thank you for initiating a payment of
+      <strong>500 RWF</strong>.
+    </p>
+
+    <div class="payment-note-details">
+      <p>
+        <strong>Notes:</strong>
+        <span id="paymentNoteTitle">-</span>
+      </p>
+
+      <p>
+        <strong>Payment ID:</strong>
+        <span id="paymentOrderId">-</span>
+      </p>
+    </div>
+
+    <div class="momo-payment-card">
+      <p class="payment-label">
+        Pay with MTN MoMo Pay
+      </p>
+
+      <div class="momo-code">
+        290400
+      </div>
+
+      <p class="or-text">OR</p>
+
+      <a
+        id="momoUssdLink"
+        class="momo-ussd-button"
+        href="tel:*182*8*1*290400*500%23"
+      >
+        TAP HERE 👇 TO PAY ON PHONE
+      </a>
+
+      <div class="ussd-code">
+        *182*8*1*290400*500#
+      </div>
+    </div>
+
+    <div class="payment-status-area">
+      <span>Payment Status:</span>
+
+      <strong
+        id="modalPaymentStatus"
+        class="payment-status pending"
+      >
+        Initiated
+      </strong>
+    </div>
+
+    <p class="already-paid-text">
+      If you have already completed the payment, tap below.
+    </p>
+
+    <button
+      type="button"
+      id="iHavePaidBtn"
+      class="i-have-paid-button"
+    >
+      I HAVE PAID
+    </button>
+
+    <p class="payment-warning">
+      Your download will be available after the administrator confirms
+      your payment.
+    </p>
+  </div>
+</div>
+
+<!-- FLOATING PAYMENT STATUS -->
+<div
+  id="paymentStatusToast"
+  class="payment-status-toast"
+  aria-live="polite"
+>
+  <div id="paymentStatusToastIcon" class="status-toast-icon">
+    ⏳
+  </div>
+
+  <div class="status-toast-content">
+    <strong id="paymentStatusToastTitle">
+      Payment Status
+    </strong>
+
+    <span id="paymentStatusToastMessage">
+      Checking your payment...
+    </span>
+  </div>
+
+  <button
+    type="button"
+    id="closePaymentStatusToast"
+    class="status-toast-close"
+  >
+    &times;
+  </button>
+</div>
 </body>
 </html>
