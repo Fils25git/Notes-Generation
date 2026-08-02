@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Professional school notes generator" />
+  <title>SchoolPingo Notes Generator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/css/notes-generator.css" />
+
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
+  <script src="./assets/js/notes-generator.js" defer></script>
+</head>
+
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="SchoolPingo Notes home">
+        <span class="brand-mark">SP</span>
+        <span>
+          <strong>SchoolPingo</strong>
+          <small>Notes Generator</small>
+        </span>
+      </a>
+
+      <button id="changeCategoryBtn" class="button button-secondary button-small" type="button">
+        Change category
+      </button>
+    </header>
+
+    <main class="main-content">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Professional learning materials</p>
+          <h1>Generate ready-to-download subject notes</h1>
+          <p class="hero-text">
+            Select the school details, class, and subject. The system will choose
+            one available version and prepare a branded PDF.
+          </p>
+        </div>
+
+        <div class="category-badge" id="selectedCategoryBadge">
+          No category selected
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="step-label">Step 1</p>
+            <h2>Enter note information</h2>
+          </div>
+          <span class="required-note">* Required fields</span>
+        </div>
+
+        <form id="notesForm" novalidate>
+          <div id="formMessage" class="message" role="alert" aria-live="polite"></div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="teacherName">Teacher name *</label>
+              <input id="teacherName" name="teacherName" type="text"
+                     placeholder="e.g. Fils Lamber" autocomplete="name" required />
+              <small>Used in the ownership footer.</small>
+            </div>
+
+            <div class="field">
+              <label for="schoolName">School name *</label>
+              <input id="schoolName" name="schoolName" type="text"
+                     placeholder="e.g. Sunrise Primary School" required />
+            </div>
+
+            <div class="field">
+              <label for="academicYear">Academic year *</label>
+              <select id="academicYear" name="academicYear" required>
+                <option value="">Select academic year</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="district">District *</label>
+              <input id="district" name="district" type="text"
+                     placeholder="e.g. Gasabo" required />
+            </div>
+
+            <div class="field">
+              <label for="sector">Sector *</label>
+              <input id="sector" name="sector" type="text"
+                     placeholder="e.g. Kimironko" required />
+            </div>
+
+            <div class="field">
+              <label for="classLevel">Class *</label>
+              <select id="classLevel" name="classLevel" required disabled>
+                <option value="">Choose a category first</option>
+              </select>
+            </div>
+
+            <div class="field field-full">
+              <label for="subject">Subject *</label>
+              <select id="subject" name="subject" required disabled>
+                <option value="">Choose a category first</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="button button-primary" id="getNotesBtn" type="submit">
+              <span class="button-text">Get Notes</span>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section id="resultPanel" class="panel result-panel hidden" aria-live="polite">
+        <div class="panel-heading">
+          <div>
+            <p class="step-label">Step 2</p>
+            <h2>Your notes are ready</h2>
+          </div>
+          <span id="versionBadge" class="version-badge"></span>
+        </div>
+
+        <div class="result-layout">
+          <div class="preview-wrapper">
+            <iframe id="pdfPreview" title="Generated notes preview"></iframe>
+          </div>
+
+          <aside class="download-card">
+            <h3>Download your notes</h3>
+            <p>
+              Give the PDF a name. The extension <strong>.pdf</strong> will be added automatically.
+            </p>
+
+            <div class="field">
+              <label for="fileName">File name *</label>
+              <input id="fileName" type="text" placeholder="English-P3-Notes" />
+            </div>
+
+            <button id="downloadBtn" class="button button-primary button-full" type="button">
+              Download Notes
+            </button>
+
+            <button id="generateAnotherBtn" class="button button-secondary button-full" type="button">
+              Generate another version
+            </button>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="categoryModal" class="modal-backdrop" role="dialog"
+       aria-modal="true" aria-labelledby="categoryModalTitle">
+    <div class="modal-card">
+      <p class="eyebrow">Choose note category</p>
+      <h2 id="categoryModalTitle">Which notes do you want to generate?</h2>
+      <p class="modal-intro">
+        Your choice controls the classes and subjects shown in the form.
+      </p>
+
+      <div class="category-options">
+        <button class="category-option" data-category="primary" type="button">
+          <span class="category-icon">P</span>
+          <span>
+            <strong>Primary Subjects Notes</strong>
+            <small>Primary 1 to Primary 6</small>
+          </span>
+          <span class="arrow">→</span>
+        </button>
+
+        <button class="category-option" data-category="ordinary" type="button">
+          <span class="category-icon">O</span>
+          <span>
+            <strong>Ordinary Level Subjects Notes</strong>
+            <small>Senior 1 to Senior 3</small>
+          </span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
