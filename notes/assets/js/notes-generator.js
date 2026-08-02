@@ -172,7 +172,61 @@
     versionBadge:
       document.getElementById(
         "versionBadge"
-      )
+      ),
+    paymentModal:
+  document.getElementById(
+    "notePaymentModal"
+  ),
+
+closePaymentModalBtn:
+  document.getElementById(
+    "closeNotePaymentModal"
+  ),
+
+iHavePaidBtn:
+  document.getElementById(
+    "iHavePaidBtn"
+  ),
+
+paymentNoteTitle:
+  document.getElementById(
+    "paymentNoteTitle"
+  ),
+
+paymentOrderId:
+  document.getElementById(
+    "paymentOrderId"
+  ),
+
+modalPaymentStatus:
+  document.getElementById(
+    "modalPaymentStatus"
+  ),
+
+paymentStatusToast:
+  document.getElementById(
+    "paymentStatusToast"
+  ),
+
+paymentStatusToastIcon:
+  document.getElementById(
+    "paymentStatusToastIcon"
+  ),
+
+paymentStatusToastTitle:
+  document.getElementById(
+    "paymentStatusToastTitle"
+  ),
+
+paymentStatusToastMessage:
+  document.getElementById(
+    "paymentStatusToastMessage"
+  ),
+
+closePaymentStatusToast:
+  document.getElementById(
+    "closePaymentStatusToast"
+  )
   };
 
   document.addEventListener(
@@ -276,7 +330,205 @@
       "beforeunload",
       cleanupPreviewUrl
     );
+
+    elements.closePaymentModalBtn
+  ?.addEventListener(
+    "click",
+    closePaymentModal
+  );
+
+elements.paymentModal
+  ?.querySelectorAll(
+    "[data-close-payment-modal]"
+  )
+  .forEach((element) => {
+    element.addEventListener(
+      "click",
+      closePaymentModal
+    );
+  });
+
+elements.iHavePaidBtn
+  ?.addEventListener(
+    "click",
+    handleIHavePaid
+  );
+
+elements.closePaymentStatusToast
+  ?.addEventListener(
+    "click",
+    hidePaymentStatusToast
+  );
   }
+
+  function openPaymentModal() {
+  if (!elements.paymentModal) {
+    return;
+  }
+
+  const data =
+    state.lastFormData;
+
+  if (data) {
+    elements.paymentNoteTitle.textContent =
+      `${getSubjectLabel(data.subject)} ${data.classLevel.toUpperCase()} Notes`;
+  }
+
+  elements.paymentOrderId.textContent =
+    state.notePaymentId || "-";
+
+  updateModalPaymentStatus(
+    state.notePaymentStatus || "initiated"
+  );
+
+  elements.paymentModal.classList.remove(
+    "hidden"
+  );
+
+  document.body.style.overflow =
+    "hidden";
+}
+
+function closePaymentModal() {
+  elements.paymentModal
+    ?.classList.add(
+      "hidden"
+    );
+
+  document.body.style.overflow =
+    "";
+
+  elements.resultPanel
+    ?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+}
+
+function handleIHavePaid() {
+  closePaymentModal();
+
+  updateDownloadButton(
+    "Check Payment Status",
+    false
+  );
+
+  showPaymentStatusToast(
+    "pending",
+    "Payment Submitted",
+    "Your payment is waiting for administrator confirmation."
+  );
+}
+
+function updateModalPaymentStatus(
+  status
+) {
+  if (!elements.modalPaymentStatus) {
+    return;
+  }
+
+  const normalizedStatus =
+    String(status || "initiated")
+      .toLowerCase();
+
+  elements.modalPaymentStatus.textContent =
+    normalizedStatus === "initiated"
+      ? "Waiting for confirmation"
+      : normalizedStatus;
+
+  elements.modalPaymentStatus.className =
+    `payment-status ${getPaymentStatusClass(
+      normalizedStatus
+    )}`;
+}
+
+function getPaymentStatusClass(
+  status
+) {
+  if (status === "approved") {
+    return "approved";
+  }
+
+  if (status === "rejected") {
+    return "rejected";
+  }
+
+  if (status === "downloaded") {
+    return "downloaded";
+  }
+
+  return "pending";
+}
+
+  let paymentStatusToastTimer = null;
+
+function showPaymentStatusToast(
+  status,
+  title,
+  message
+) {
+  if (!elements.paymentStatusToast) {
+    return;
+  }
+
+  clearTimeout(
+    paymentStatusToastTimer
+  );
+
+  const statusClass =
+    getPaymentStatusClass(status);
+
+  const icons = {
+    pending: "⏳",
+    approved: "✅",
+    rejected: "❌",
+    downloaded: "📥",
+    error: "⚠️"
+  };
+
+  elements.paymentStatusToast.className =
+    `payment-status-toast ${statusClass}`;
+
+  elements.paymentStatusToastIcon.textContent =
+    icons[statusClass] || "ℹ️";
+
+  elements.paymentStatusToastTitle.textContent =
+    title;
+
+  elements.paymentStatusToastMessage.textContent =
+    message;
+
+  void elements.paymentStatusToast.offsetWidth;
+
+  elements.paymentStatusToast.classList.add(
+    "show"
+  );
+
+  paymentStatusToastTimer =
+    setTimeout(
+      hidePaymentStatusToast,
+      7000
+    );
+}
+
+function hidePaymentStatusToast() {
+  if (!elements.paymentStatusToast) {
+    return;
+  }
+
+  elements.paymentStatusToast.classList.remove(
+    "show"
+  );
+
+  elements.paymentStatusToast.classList.add(
+    "hide"
+  );
+
+  setTimeout(() => {
+    elements.paymentStatusToast.className =
+      "payment-status-toast";
+  }, 420);
+}
 
   function populateAcademicYears() {
     if (!elements.academicYear) {
@@ -1063,326 +1315,394 @@
     await checkNotePayment();
   }
 
+
   async function createNotePayment() {
+  if (
+    state.paymentCreating ||
+    !state.lastFormData
+  ) {
+    return;
+  }
+
+  state.paymentCreating =
+    true;
+
+  updateDownloadButton(
+    "Creating Payment...",
+    true
+  );
+
+  try {
+    const data =
+      state.lastFormData;
+
+    const response =
+      await fetch(
+        `${NOTE_PAYMENT_API}?action=create`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${getAuthToken()}`
+          },
+
+          body:
+            JSON.stringify({
+              category:
+                state.category,
+
+              classLevel:
+                data.classLevel,
+
+              subject:
+                data.subject,
+
+              noteVersion:
+                state.selectedVersion,
+
+              academicYear:
+                data.academicYear,
+
+              schoolName:
+                data.schoolName,
+
+              district:
+                data.district,
+
+              sector:
+                data.sector
+            })
+        }
+      );
+
+    const result =
+      await parseApiResponse(
+        response
+      );
+
+    if (!response.ok) {
+      handlePossibleAuthFailure(
+        response
+      );
+
+      throw new Error(
+        result.message ||
+        result.error ||
+        "The payment request could not be created."
+      );
+    }
+
+    const paymentId =
+      Number(
+        result.paymentId ||
+        result.payment?.id
+      );
+
     if (
-      state.paymentCreating ||
-      !state.lastFormData
+      !Number.isInteger(
+        paymentId
+      ) ||
+      paymentId <= 0
     ) {
+      throw new Error(
+        "The server did not return a valid payment ID."
+      );
+    }
+
+    state.notePaymentId =
+      paymentId;
+
+    state.notePaymentStatus =
+      result.status ||
+      result.payment?.status ||
+      "initiated";
+
+    /*
+      An existing payment may already be approved.
+    */
+    if (
+      state.notePaymentStatus ===
+      "approved"
+    ) {
+      updateModalPaymentStatus(
+        "approved"
+      );
+
+      showPaymentStatusToast(
+        "approved",
+        "Payment Approved",
+        "Your notes are ready for one download."
+      );
+
+      updateDownloadButton(
+        "Download Notes",
+        false
+      );
+
       return;
     }
 
-    state.paymentCreating =
-      true;
-
-    updateDownloadButton(
-      "Creating Payment...",
-      true
+    /*
+      A normal newly created payment remains initiated.
+      Show the payment instructions modal.
+    */
+    updateModalPaymentStatus(
+      "initiated"
     );
 
-    try {
-      const data =
-        state.lastFormData;
+    updateDownloadButton(
+      "Check Payment Status",
+      false
+    );
 
-      const response =
-        await fetch(
-          `${NOTE_PAYMENT_API}?action=create`,
-          {
-            method:
-              "POST",
+    openPaymentModal();
+  } catch (error) {
+    console.error(
+      "Create note payment error:",
+      error
+    );
 
-            headers: {
-              "Content-Type":
-                "application/json",
+    showMessage(
+      error.message,
+      "error"
+    );
 
-              Authorization:
-                `Bearer ${getAuthToken()}`
-            },
+    showPaymentStatusToast(
+      "error",
+      "Payment Request Failed",
+      error.message ||
+        "The payment request could not be created."
+    );
 
-            body:
-              JSON.stringify({
-                category:
-                  state.category,
+    updateDownloadButton(
+      `Pay ${NOTE_PRICE} RWF & Download`,
+      false
+    );
+  } finally {
+    state.paymentCreating =
+      false;
+  }
+}
 
-                classLevel:
-                  data.classLevel,
 
-                subject:
-                  data.subject,
+async function checkNotePayment() {
+  if (
+    !state.notePaymentId ||
+    state.paymentChecking
+  ) {
+    return;
+  }
 
-                noteVersion:
-                  state.selectedVersion,
+  state.paymentChecking =
+    true;
 
-                academicYear:
-                  data.academicYear,
+  updateDownloadButton(
+    "Checking Payment...",
+    true
+  );
 
-                schoolName:
-                  data.schoolName,
+  showPaymentStatusToast(
+    "pending",
+    "Checking Payment",
+    "Please wait while we check your payment status."
+  );
 
-                district:
-                  data.district,
+  try {
+    const response =
+      await fetch(
+        `${NOTE_PAYMENT_API}?action=check&paymentId=${encodeURIComponent(
+          state.notePaymentId
+        )}`,
+        {
+          method: "GET",
 
-                sector:
-                  data.sector
-              })
-          }
-        );
+          headers: {
+            Accept:
+              "application/json",
 
-      const result =
-        await parseApiResponse(
-          response
-        );
+            Authorization:
+              `Bearer ${getAuthToken()}`
+          },
 
-      if (!response.ok) {
-        handlePossibleAuthFailure(
-          response
-        );
+          cache:
+            "no-store"
+        }
+      );
 
-        throw new Error(
-          result.message ||
-            result.error ||
-            "The payment request could not be created."
-        );
-      }
+    const result =
+      await parseApiResponse(
+        response
+      );
 
-      const paymentId =
-        Number(
-          result.paymentId ||
-            result.payment?.id
-        );
+    if (!response.ok) {
+      handlePossibleAuthFailure(
+        response
+      );
 
-      if (
-        !Number.isInteger(
-          paymentId
-        ) ||
-        paymentId <= 0
-      ) {
-        throw new Error(
-          "The server did not return a valid payment ID."
-        );
-      }
+      throw new Error(
+        result.message ||
+        result.error ||
+        "The payment status could not be checked."
+      );
+    }
 
-      state.notePaymentId =
-        paymentId;
+    state.notePaymentStatus =
+      result.status;
 
-      state.notePaymentStatus =
-        result.status ||
-        result.payment?.status ||
-        "initiated";
+    /*
+      Payment exists but admin has not confirmed it.
+    */
+    if (
+      result.status ===
+      "initiated"
+    ) {
+      updateModalPaymentStatus(
+        "initiated"
+      );
 
-      if (
-        state.notePaymentStatus ===
-        "approved"
-      ) {
-        showMessage(
-          "This payment is already approved. Tap the button again to download.",
-          "success"
-        );
-
-        updateDownloadButton(
-          "Download Notes",
-          false
-        );
-
-        return;
-      }
-
-      showMessage(
-        `Payment request created for ${NOTE_PRICE} RWF. Make the payment and wait for admin confirmation.`,
-        "success"
+      showPaymentStatusToast(
+        "pending",
+        "Payment Still Pending",
+        "Your payment is waiting for administrator confirmation."
       );
 
       updateDownloadButton(
         "Check Payment Status",
         false
       );
-    } catch (error) {
-      console.error(
-        "Create note payment error:",
-        error
+
+      return;
+    }
+
+    /*
+      Admin rejected the payment.
+    */
+    if (
+      result.status ===
+      "rejected"
+    ) {
+      updateModalPaymentStatus(
+        "rejected"
       );
 
-      showMessage(
-        error.message,
-        "error"
+      showPaymentStatusToast(
+        "rejected",
+        "Payment Rejected",
+        "Your payment was rejected. Please contact support."
       );
+
+      state.notePaymentId =
+        null;
+
+      state.notePaymentStatus =
+        null;
 
       updateDownloadButton(
         `Pay ${NOTE_PRICE} RWF & Download`,
         false
       );
-    } finally {
-      state.paymentCreating =
-        false;
-    }
-  }
 
-  async function checkNotePayment() {
-    if (
-      !state.notePaymentId ||
-      state.paymentChecking
-    ) {
       return;
     }
 
-    state.paymentChecking =
-      true;
+    /*
+      The one permitted download has already been used.
+    */
+    if (
+      result.status ===
+        "downloaded" ||
+      Number(
+        result.downloadCount
+      ) >=
+        Number(
+          result.downloadLimit
+        )
+    ) {
+      state.downloadUsed =
+        true;
 
-    updateDownloadButton(
-      "Checking Payment...",
-      true
+      updateModalPaymentStatus(
+        "downloaded"
+      );
+
+      showPaymentStatusToast(
+        "downloaded",
+        "Download Already Used",
+        "The one permitted download has already been used."
+      );
+
+      updateDownloadButton(
+        "Download Already Used",
+        true
+      );
+
+      return;
+    }
+
+    /*
+      Admin approved the payment.
+      Authorize and begin the one permitted download.
+    */
+    if (
+      result.status ===
+        "approved" &&
+      result.canDownload !==
+        false
+    ) {
+      updateModalPaymentStatus(
+        "approved"
+      );
+
+      showPaymentStatusToast(
+        "approved",
+        "Payment Approved",
+        "Your notes are ready. The download will begin shortly."
+      );
+
+      await authorizeAndDownload();
+
+      return;
+    }
+
+    throw new Error(
+      "The payment is not available for downloading."
+    );
+  } catch (error) {
+    console.error(
+      "Check note payment error:",
+      error
     );
 
-    try {
-      const response =
-        await fetch(
-          `${NOTE_PAYMENT_API}?action=check&paymentId=${encodeURIComponent(
-            state.notePaymentId
-          )}`,
-          {
-            method:
-              "GET",
+    showMessage(
+      error.message,
+      "error"
+    );
 
-            headers: {
-              Accept:
-                "application/json",
+    showPaymentStatusToast(
+      "error",
+      "Payment Check Failed",
+      error.message ||
+        "The payment status could not be checked."
+    );
 
-              Authorization:
-                `Bearer ${getAuthToken()}`
-            },
-
-            cache:
-              "no-store"
-          }
-        );
-
-      const result =
-        await parseApiResponse(
-          response
-        );
-
-      if (!response.ok) {
-        handlePossibleAuthFailure(
-          response
-        );
-
-        throw new Error(
-          result.message ||
-            result.error ||
-            "The payment status could not be checked."
-        );
-      }
-
-      state.notePaymentStatus =
-        result.status;
-
-      if (
-        result.status ===
-        "initiated"
-      ) {
-        showMessage(
-          "Your payment is still waiting for admin confirmation.",
-          "error"
-        );
-
-        updateDownloadButton(
-          "Check Payment Status",
-          false
-        );
-
-        return;
-      }
-
-      if (
-        result.status ===
-        "rejected"
-      ) {
-        showMessage(
-          "Your payment was rejected. Contact support or create a new payment request.",
-          "error"
-        );
-
-        state.notePaymentId =
-          null;
-
-        state.notePaymentStatus =
-          null;
-
-        updateDownloadButton(
-          `Pay ${NOTE_PRICE} RWF & Download`,
-          false
-        );
-
-        return;
-      }
-
-      if (
-        result.status ===
-          "downloaded" ||
-        Number(
-          result.downloadCount
-        ) >=
-          Number(
-            result.downloadLimit
-          )
-      ) {
-        state.downloadUsed =
-          true;
-
-        showMessage(
-          "The one permitted download has already been used.",
-          "error"
-        );
-
-        updateDownloadButton(
-          "Download Already Used",
-          true
-        );
-
-        return;
-      }
-
-      if (
-        result.status ===
-          "approved" &&
-        result.canDownload !==
-          false
-      ) {
-        showMessage(
-          "Payment approved. Preparing your download.",
-          "success"
-        );
-
-        await authorizeAndDownload();
-
-        return;
-      }
-
-      throw new Error(
-        "The payment is not available for downloading."
+    if (!state.downloadUsed) {
+      updateDownloadButton(
+        "Check Payment Status",
+        false
       );
-    } catch (error) {
-      console.error(
-        "Check note payment error:",
-        error
-      );
-
-      showMessage(
-        error.message,
-        "error"
-      );
-
-      if (!state.downloadUsed) {
-        updateDownloadButton(
-          "Check Payment Status",
-          false
-        );
-      }
-    } finally {
-      state.paymentChecking =
-        false;
     }
+  } finally {
+    state.paymentChecking =
+      false;
   }
+}
 
+  
+        
   async function authorizeAndDownload() {
     if (
       !state.notePaymentId ||
