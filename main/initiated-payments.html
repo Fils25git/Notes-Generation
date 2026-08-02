@@ -2,48 +2,259 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> Admin Dashboard - Payments</title>
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>Admin Dashboard - Payments</title>
 
 <style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; padding: 15px; }
-  h2 { text-align: center; margin-bottom: 15px; }
-  .table-wrapper { overflow-x: auto; background: #fff; border-radius: 12px; padding: 10px; }
-  table { width: 100%; border-collapse: collapse; min-width: 900px; }
-  th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
-  th { background: #007bff; color: #fff; }
-  tr:nth-child(even) { background: #f9f9f9; }
-  button { padding: 6px 12px; margin: 3px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
-  .approve { background: #28a745; color: #fff; }
-  .reject { background: #dc3545; color: #fff; }
-  button.disabled { background: #6c757d !important; cursor: not-allowed; }
-  #bulkActions { display: none; text-align: center; margin-bottom: 10px; }
-  #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 9999; }
-  .toast { min-width: 260px; margin-bottom: 10px; padding: 14px 18px; border-radius: 12px; color: #fff; font-weight: 600; display: flex; justify-content: space-between; animation: slideIn 0.4s ease, fadeOut 0.4s ease 9.6s forwards; }
-  .toast.success { background: #28a745; }
-  .toast.error { background: #dc3545; }
-  .toast .close { cursor: pointer; font-size: 18px; }
-  @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-  @keyframes fadeOut { to { opacity: 0; transform: translateX(120%); } }
-  @media (max-width: 600px) { button { font-size: 12px; padding: 6px 10px; } }
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f5f5f5;
+    padding: 15px;
+    margin: 0;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .payment-filters {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .filter-button {
+    background: #ffffff;
+    color: #007bff;
+    border: 1px solid #007bff;
+  }
+
+  .filter-button.active {
+    background: #007bff;
+    color: #ffffff;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+  }
+
+  th,
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  th {
+    background: #007bff;
+    color: #fff;
+  }
+
+  tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+
+  button {
+    padding: 6px 12px;
+    margin: 3px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  .approve {
+    background: #28a745;
+    color: #fff;
+  }
+
+  .reject {
+    background: #dc3545;
+    color: #fff;
+  }
+
+  button.disabled,
+  button:disabled {
+    background: #6c757d !important;
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+
+  #bulkActions {
+    display: none;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .payment-type {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .payment-type.normal {
+    background: #e7f1ff;
+    color: #0056b3;
+  }
+
+  .payment-type.weekly {
+    background: #fff3cd;
+    color: #856404;
+  }
+
+  .payment-type.note {
+    background: #d1e7dd;
+    color: #0f5132;
+  }
+
+  .empty-message {
+    padding: 30px;
+    color: #666;
+    font-weight: 600;
+  }
+
+  #toastContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+  }
+
+  .toast {
+    min-width: 260px;
+    max-width: 420px;
+    margin-bottom: 10px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    animation:
+      slideIn 0.4s ease,
+      fadeOut 0.4s ease 9.6s forwards;
+  }
+
+  .toast.success {
+    background: #28a745;
+  }
+
+  .toast.error {
+    background: #dc3545;
+  }
+
+  .toast .close {
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(120%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    to {
+      opacity: 0;
+      transform: translateX(120%);
+    }
+  }
+
+  @media (max-width: 600px) {
+    body {
+      padding: 8px;
+    }
+
+    button {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+
+    #toastContainer {
+      top: 10px;
+      right: 10px;
+      left: 10px;
+    }
+
+    .toast {
+      width: 100%;
+      min-width: 0;
+    }
+  }
 </style>
 </head>
-  <script>
-const ADMIN_EMAIL = "iraturinze02@gmail.com"; // 🔴 PUT YOUR REAL EMAIL HERE
 
-const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-const email = localStorage.getItem("user_email");
+<script>
+const ADMIN_EMAIL =
+  "iraturinze02@gmail.com";
 
-// 1️⃣ Not logged in → go to login
-if (!isLoggedIn) {
-    localStorage.setItem("redirectAfterLogin", "admin.html");
-    window.location.replace("login.html");
+const isLoggedIn =
+  localStorage.getItem("isLoggedIn") === "true";
+
+const email =
+  localStorage.getItem("user_email");
+
+const authToken =
+  localStorage.getItem("auth_token");
+
+/*
+  1. Not logged in: save this page and go to login.
+*/
+if (!isLoggedIn || !authToken) {
+  localStorage.setItem(
+    "redirectAfterLogin",
+    window.location.href
+  );
+
+  window.location.replace(
+    "login.html"
+  );
 }
 
-// 2️⃣ Logged in but NOT admin → kick out
+/*
+  2. Logged in but not admin: deny access.
+*/
 if (email !== ADMIN_EMAIL) {
-    alert("Access denied. Admin only.");
-    window.location.replace("index.html");
+  alert(
+    "Access denied. Admin only."
+  );
+
+  window.location.replace(
+    "index.html"
+  );
 }
 </script>
 
@@ -51,26 +262,82 @@ if (email !== ADMIN_EMAIL) {
 
 <h2>Admin Dashboard – Pending Payments</h2>
 
+<div class="payment-filters">
+  <button
+    type="button"
+    class="filter-button active"
+    data-filter="all"
+  >
+    All Payments
+  </button>
+
+  <button
+    type="button"
+    class="filter-button"
+    data-filter="normal"
+  >
+    Lesson Plans
+  </button>
+
+  <button
+    type="button"
+    class="filter-button"
+    data-filter="weekly"
+  >
+    Weekly Plans
+  </button>
+
+  <button
+    type="button"
+    class="filter-button"
+    data-filter="note"
+  >
+    Notes
+  </button>
+</div>
+
 <div id="bulkActions">
-  <button id="bulkApprove" class="approve">Approve Selected</button>
-  <button id="bulkReject" class="reject">Reject Selected</button>
+  <button
+    id="bulkApprove"
+    class="approve"
+    type="button"
+  >
+    Approve Selected
+  </button>
+
+  <button
+    id="bulkReject"
+    class="reject"
+    type="button"
+  >
+    Reject Selected
+  </button>
 </div>
 
 <div class="table-wrapper">
 <table id="paymentsTable">
   <thead>
     <tr>
-      <th><input type="checkbox" id="selectAll"></th>
+      <th>
+        <input
+          type="checkbox"
+          id="selectAll"
+        >
+      </th>
+
       <th>ID</th>
+      <th>Type</th>
       <th>Full Name</th>
       <th>Email</th>
       <th>Phone</th>
+      <th>Purchase</th>
       <th>Amount (RWF)</th>
       <th>Status</th>
       <th>Time</th>
       <th>Actions</th>
     </tr>
   </thead>
+
   <tbody></tbody>
 </table>
 </div>
@@ -78,145 +345,812 @@ if (email !== ADMIN_EMAIL) {
 <div id="toastContainer"></div>
 
 <script>
+const API_ENDPOINTS = {
+  normalPayments:
+    "/.netlify/functions/get-payments?status=initiated",
+
+  weeklyPayments:
+    "/.netlify/functions/wp-get-payments?status=initiated",
+
+  notePayments:
+    "/.netlify/functions/get-note-payments?status=initiated",
+
+  approve:
+    "/.netlify/functions/approve-initiated",
+
+  reject:
+    "/.netlify/functions/reject-initiated"
+};
+
+let allPayments = [];
+let activeFilter = "all";
+
 /* ============================= TOAST ============================= */
-function showToast(msg, type = "success") {
-  const t = document.createElement("div");
-  t.className = `toast ${type}`;
-  t.innerHTML = `<span>${msg}</span><span class="close">&times;</span>`;
-  document.getElementById("toastContainer").appendChild(t);
-  t.querySelector(".close").onclick = () => t.remove();
-  setTimeout(() => t.remove(), 10000);
+
+function showToast(
+  message,
+  type = "success"
+) {
+  const toast =
+    document.createElement("div");
+
+  toast.className =
+    `toast ${type}`;
+
+  const messageSpan =
+    document.createElement("span");
+
+  messageSpan.textContent =
+    message;
+
+  const closeSpan =
+    document.createElement("span");
+
+  closeSpan.className =
+    "close";
+
+  closeSpan.innerHTML =
+    "&times;";
+
+  closeSpan.onclick =
+    () => toast.remove();
+
+  toast.appendChild(
+    messageSpan
+  );
+
+  toast.appendChild(
+    closeSpan
+  );
+
+  document
+    .getElementById("toastContainer")
+    .appendChild(toast);
+
+  setTimeout(
+    () => toast.remove(),
+    10000
+  );
+}
+
+/* ============================= HELPERS ============================= */
+
+function getAuthHeaders() {
+  return {
+    "Content-Type":
+      "application/json",
+
+    Authorization:
+      `Bearer ${localStorage.getItem("auth_token")}`
+  };
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatAmount(value) {
+  const amount =
+    Number(value) || 0;
+
+  return amount.toLocaleString();
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "-";
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "-";
+  }
+
+  return date.toLocaleString();
+}
+
+function getPaymentTypeLabel(type) {
+  const labels = {
+    normal:
+      "Lesson Plan",
+
+    weekly:
+      "Weekly Plan",
+
+    note:
+      "Notes"
+  };
+
+  return labels[type] || type;
+}
+
+function getPurchaseDescription(payment) {
+  if (
+    payment.payment_type === "note"
+  ) {
+    const subject =
+      payment.subject || "Notes";
+
+    const classLevel =
+      payment.class_level || "";
+
+    const version =
+      payment.note_version
+        ? `Version ${payment.note_version}`
+        : "";
+
+    return [
+      subject,
+      classLevel,
+      version
+    ]
+      .filter(Boolean)
+      .join(" - ");
+  }
+
+  if (
+    payment.payment_type === "weekly"
+  ) {
+    return `${payment.lessons || 0} Weekly Plans`;
+  }
+
+  return `${payment.lessons || 0} Lesson Plans`;
+}
+
+function updateBulkActions() {
+  const selected =
+    document.querySelectorAll(
+      ".rowCheck:checked"
+    ).length;
+
+  document
+    .getElementById("bulkActions")
+    .style.display =
+      selected
+        ? "block"
+        : "none";
+}
+
+/* ============================= FETCH ONE PAYMENT TYPE ============================= */
+
+async function fetchPayments(
+  url,
+  paymentType
+) {
+  try {
+    const response =
+      await fetch(
+        url,
+        {
+          method: "GET",
+
+          headers: {
+            Authorization:
+              `Bearer ${localStorage.getItem("auth_token")}`
+          },
+
+          cache:
+            "no-store"
+        }
+      );
+
+    const data =
+      await response.json()
+        .catch(() => []);
+
+    if (!response.ok) {
+      return {
+        success: false,
+        payments: [],
+        error:
+          data.message ||
+          data.error ||
+          `Failed to load ${paymentType} payments`
+      };
+    }
+
+    const paymentArray =
+      Array.isArray(data)
+        ? data
+        : Array.isArray(data.payments)
+          ? data.payments
+          : [];
+
+    return {
+      success: true,
+
+      payments:
+        paymentArray.map(
+          payment => ({
+            ...payment,
+            payment_type:
+              paymentType
+          })
+        )
+    };
+  } catch (error) {
+    return {
+      success: false,
+      payments: [],
+      error:
+        error.message
+    };
+  }
 }
 
 /* ============================= LOAD PAYMENTS ============================= */
-/* ============================= LOAD PAYMENTS (TEMP DEBUG) ============================= */
+
 async function loadPayments() {
-  const tbody = document.querySelector("#paymentsTable tbody");
-  tbody.innerHTML = "";
+  const tbody =
+    document.querySelector(
+      "#paymentsTable tbody"
+    );
+
+  tbody.innerHTML = `
+    <tr>
+      <td
+        colspan="11"
+        class="empty-message"
+      >
+        Loading payments...
+      </td>
+    </tr>
+  `;
 
   try {
-    // Fetch both payment lists in parallel
-    const [res1, res2] = await Promise.all([
-      fetch("/.netlify/functions/get-payments?status=initiated"),
-      fetch("/.netlify/functions/wp-get-payments?status=initiated")
-    ]);
+    const results =
+      await Promise.all([
+        fetchPayments(
+          API_ENDPOINTS.normalPayments,
+          "normal"
+        ),
 
-    if (!res1.ok || !res2.ok) {
-      const err1 = await res1.json().catch(()=>({}));
-      const err2 = await res2.json().catch(()=>({}));
-      showToast("Failed to load payments!\n" + JSON.stringify({err1, err2}, null, 2));
-      return;
+        fetchPayments(
+          API_ENDPOINTS.weeklyPayments,
+          "weekly"
+        ),
+
+        fetchPayments(
+          API_ENDPOINTS.notePayments,
+          "note"
+        )
+      ]);
+
+    allPayments =
+      results.flatMap(
+        result =>
+          result.payments
+      );
+
+    const failedRequests =
+      results.filter(
+        result =>
+          !result.success
+      );
+
+    if (failedRequests.length) {
+      const errors =
+        failedRequests
+          .map(
+            result =>
+              result.error
+          )
+          .join(" | ");
+
+      showToast(
+        errors,
+        "error"
+      );
     }
 
-    const payments1 = await res1.json();
-    const payments2 = await res2.json();
+    allPayments.sort(
+      (a, b) =>
+        new Date(b.created_at) -
+        new Date(a.created_at)
+    );
 
-    // Merge both arrays
-    const payments = [...payments1, ...payments2];
+    renderPayments();
 
-    if (!payments.length) {
-      showToast("No initiated payments found.");
-      return;
-    }
+    document
+      .getElementById("selectAll")
+      .checked = false;
 
-    // Sort by newest first
-    payments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    updateBulkActions();
+  } catch (error) {
+    tbody.innerHTML = `
+      <tr>
+        <td
+          colspan="11"
+          class="empty-message"
+        >
+          Failed to load payments.
+        </td>
+      </tr>
+    `;
 
-    payments.forEach(p => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><input type="checkbox" class="rowCheck" data-id="${p.id}"></td>
-        <td>${p.id}</td>
-        <td>${p.full_name || "-"}</td>
-        <td>${p.email || "-"}</td>
-        <td>${p.phone}</td>
-        <td>${p.amount}</td>
-        <td>${p.status}</td>
-        <td>${new Date(p.created_at).toLocaleString()}</td>
+    showToast(
+      `Network or JavaScript error: ${error.message}`,
+      "error"
+    );
+  }
+}
+
+/* ============================= RENDER PAYMENTS ============================= */
+
+function renderPayments() {
+  const tbody =
+    document.querySelector(
+      "#paymentsTable tbody"
+    );
+
+  tbody.innerHTML = "";
+
+  const filteredPayments =
+    activeFilter === "all"
+      ? allPayments
+      : allPayments.filter(
+          payment =>
+            payment.payment_type ===
+            activeFilter
+        );
+
+  if (!filteredPayments.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td
+          colspan="11"
+          class="empty-message"
+        >
+          No initiated payments found.
+        </td>
+      </tr>
+    `;
+
+    updateBulkActions();
+
+    return;
+  }
+
+  filteredPayments.forEach(
+    payment => {
+      const row =
+        document.createElement("tr");
+
+      row.innerHTML = `
         <td>
-          <button class="approve" data-id="${p.id}">Approve</button>
-          <button class="reject" data-id="${p.id}">Reject</button>
+          <input
+            type="checkbox"
+            class="rowCheck"
+            data-id="${escapeHtml(payment.id)}"
+            data-type="${escapeHtml(payment.payment_type)}"
+          >
+        </td>
+
+        <td>
+          ${escapeHtml(payment.id)}
+        </td>
+
+        <td>
+          <span
+            class="payment-type ${escapeHtml(payment.payment_type)}"
+          >
+            ${escapeHtml(
+              getPaymentTypeLabel(
+                payment.payment_type
+              )
+            )}
+          </span>
+        </td>
+
+        <td>
+          ${escapeHtml(
+            payment.full_name ||
+            payment.name ||
+            "-"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            payment.email ||
+            "-"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            payment.phone ||
+            "-"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            getPurchaseDescription(
+              payment
+            )
+          )}
+        </td>
+
+        <td>
+          ${formatAmount(
+            payment.amount
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            payment.status ||
+            "initiated"
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            formatDate(
+              payment.created_at
+            )
+          )}
+        </td>
+
+        <td>
+          <button
+            type="button"
+            class="approve actionApprove"
+            data-id="${escapeHtml(payment.id)}"
+            data-type="${escapeHtml(payment.payment_type)}"
+          >
+            Approve
+          </button>
+
+          <button
+            type="button"
+            class="reject actionReject"
+            data-id="${escapeHtml(payment.id)}"
+            data-type="${escapeHtml(payment.payment_type)}"
+          >
+            Reject
+          </button>
         </td>
       `;
-      tbody.appendChild(tr);
-    });
 
-    attachButtons();
-    document.getElementById("selectAll").checked = false;
-    document.getElementById("bulkActions").style.display = "none";
+      tbody.appendChild(row);
+    }
+  );
 
-  } catch (err) {
-    showToast("Network or JS error:\n" + err);
-  }
+  attachButtons();
+  updateBulkActions();
 }
 
 /* ============================= SINGLE ACTIONS ============================= */
-function attachButtons() {
-  document.querySelectorAll(".approve").forEach(btn => {
-    btn.onclick = async () => {
-      btn.classList.add("disabled");
-      btn.textContent = "Approving...";
-      await fetch("/.netlify/functions/approve-initiated", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ ids: [btn.dataset.id] })
-      });
-      showToast("Payment approved");
-      loadPayments();
-    };
-  });
 
-  document.querySelectorAll(".reject").forEach(btn => {
-    btn.onclick = async () => {
-      btn.classList.add("disabled");
-      btn.textContent = "Rejecting...";
-      await fetch("/.netlify/functions/reject-initiated", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ ids: [btn.dataset.id] })
-      });
-      showToast(" initiated Payment rejected");
-      loadPayments();
-    };
-  });
+function attachButtons() {
+  document
+    .querySelectorAll(
+      ".actionApprove"
+    )
+    .forEach(button => {
+      button.onclick =
+        () => processSinglePayment(
+          button,
+          "approve"
+        );
+    });
+
+  document
+    .querySelectorAll(
+      ".actionReject"
+    )
+    .forEach(button => {
+      button.onclick =
+        () => processSinglePayment(
+          button,
+          "reject"
+        );
+    });
+}
+
+async function processSinglePayment(
+  button,
+  action
+) {
+  const id =
+    Number(
+      button.dataset.id
+    );
+
+  const type =
+    button.dataset.type;
+
+  const originalText =
+    button.textContent;
+
+  button.disabled = true;
+  button.classList.add("disabled");
+
+  button.textContent =
+    action === "approve"
+      ? "Approving..."
+      : "Rejecting...";
+
+  const endpoint =
+    action === "approve"
+      ? API_ENDPOINTS.approve
+      : API_ENDPOINTS.reject;
+
+  try {
+    const response =
+      await fetch(
+        endpoint,
+        {
+          method: "POST",
+
+          headers:
+            getAuthHeaders(),
+
+          body:
+            JSON.stringify({
+              payments: [
+                {
+                  id,
+                  type
+                }
+              ]
+            })
+        }
+      );
+
+    const result =
+      await response.json()
+        .catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(
+        result.message ||
+        result.error ||
+        `Payment could not be ${action}d`
+      );
+    }
+
+    showToast(
+      `Payment ${action}d successfully.`
+    );
+
+    await loadPayments();
+  } catch (error) {
+    button.disabled = false;
+    button.classList.remove("disabled");
+    button.textContent =
+      originalText;
+
+    showToast(
+      error.message,
+      "error"
+    );
+  }
 }
 
 /* ============================= BULK SELECTION ============================= */
-document.getElementById("selectAll").addEventListener("change", e => {
-  document.querySelectorAll(".rowCheck").forEach(cb => cb.checked = e.target.checked);
-  document.getElementById("bulkActions").style.display =
-    document.querySelectorAll(".rowCheck:checked").length ? "block" : "none";
-});
 
-document.addEventListener("change", e => {
-  if (e.target.classList.contains("rowCheck")) {
-    document.getElementById("bulkActions").style.display =
-      document.querySelectorAll(".rowCheck:checked").length ? "block" : "none";
+document
+  .getElementById("selectAll")
+  .addEventListener(
+    "change",
+    event => {
+      document
+        .querySelectorAll(
+          ".rowCheck"
+        )
+        .forEach(
+          checkbox => {
+            checkbox.checked =
+              event.target.checked;
+          }
+        );
+
+      updateBulkActions();
+    }
+  );
+
+document.addEventListener(
+  "change",
+  event => {
+    if (
+      event.target.classList
+        .contains("rowCheck")
+    ) {
+      updateBulkActions();
+
+      const allCheckboxes =
+        document.querySelectorAll(
+          ".rowCheck"
+        );
+
+      const selectedCheckboxes =
+        document.querySelectorAll(
+          ".rowCheck:checked"
+        );
+
+      document
+        .getElementById("selectAll")
+        .checked =
+          allCheckboxes.length > 0 &&
+          allCheckboxes.length ===
+            selectedCheckboxes.length;
+    }
   }
-});
+);
 
 /* ============================= BULK ACTIONS ============================= */
-async function bulkAction(action) {
-  const ids = [...document.querySelectorAll(".rowCheck:checked")].map(cb => cb.dataset.id);
-  if (!ids.length) return;
-  const endpoint = action === "approve" ? "/.netlify/functions/approve-payment" : "/.netlify/functions/reject-initiated";
 
-  await fetch(endpoint, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ ids })
-  });
+async function bulkAction(
+  action
+) {
+  const selectedPayments =
+    [
+      ...document.querySelectorAll(
+        ".rowCheck:checked"
+      )
+    ].map(
+      checkbox => ({
+        id:
+          Number(
+            checkbox.dataset.id
+          ),
 
-  showToast(`Selected payments ${action}d`);
-  loadPayments();
+        type:
+          checkbox.dataset.type
+      })
+    );
+
+  if (!selectedPayments.length) {
+    showToast(
+      "Select at least one payment.",
+      "error"
+    );
+
+    return;
+  }
+
+  const actionButton =
+    action === "approve"
+      ? document.getElementById(
+          "bulkApprove"
+        )
+      : document.getElementById(
+          "bulkReject"
+        );
+
+  const originalText =
+    actionButton.textContent;
+
+  actionButton.disabled = true;
+  actionButton.classList.add("disabled");
+
+  actionButton.textContent =
+    action === "approve"
+      ? "Approving..."
+      : "Rejecting...";
+
+  const endpoint =
+    action === "approve"
+      ? API_ENDPOINTS.approve
+      : API_ENDPOINTS.reject;
+
+  try {
+    const response =
+      await fetch(
+        endpoint,
+        {
+          method: "POST",
+
+          headers:
+            getAuthHeaders(),
+
+          body:
+            JSON.stringify({
+              payments:
+                selectedPayments
+            })
+        }
+      );
+
+    const result =
+      await response.json()
+        .catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(
+        result.message ||
+        result.error ||
+        `Selected payments could not be ${action}d`
+      );
+    }
+
+    showToast(
+      `Selected payments ${action}d successfully.`
+    );
+
+    await loadPayments();
+  } catch (error) {
+    showToast(
+      error.message,
+      "error"
+    );
+  } finally {
+    actionButton.disabled = false;
+    actionButton.classList.remove("disabled");
+    actionButton.textContent =
+      originalText;
+  }
 }
 
-document.getElementById("bulkApprove").onclick = () => bulkAction("approve");
-document.getElementById("bulkReject").onclick = () => bulkAction("reject");
+document
+  .getElementById("bulkApprove")
+  .onclick =
+    () => bulkAction(
+      "approve"
+    );
+
+document
+  .getElementById("bulkReject")
+  .onclick =
+    () => bulkAction(
+      "reject"
+    );
+
+/* ============================= FILTERS ============================= */
+
+document
+  .querySelectorAll(
+    ".filter-button"
+  )
+  .forEach(button => {
+    button.onclick =
+      () => {
+        activeFilter =
+          button.dataset.filter;
+
+        document
+          .querySelectorAll(
+            ".filter-button"
+          )
+          .forEach(
+            filterButton => {
+              filterButton
+                .classList.remove(
+                  "active"
+                );
+            }
+          );
+
+        button.classList.add(
+          "active"
+        );
+
+        document
+          .getElementById("selectAll")
+          .checked = false;
+
+        renderPayments();
+      };
+  });
 
 /* ============================= INIT ============================= */
+
 loadPayments();
 </script>
 
 </body>
-</html>
+  </html>
