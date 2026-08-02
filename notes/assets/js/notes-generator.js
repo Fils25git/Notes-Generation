@@ -36,17 +36,9 @@
 
   const MAX_VERSIONS = 5;
 
-  /*
-    Change this path only if your Netlify function uses
-    a different function name or location.
-  */
   const PROFILE_API =
     "/.netlify/functions/get-user-profile";
 
-  /*
-    Change this path only if your login page is located
-    somewhere else.
-  */
   const LOGIN_PAGE =
     "../login.html";
 
@@ -61,9 +53,10 @@
   };
 
   const elements = {
-    modal: document.getElementById(
-      "categoryModal"
-    ),
+    modal:
+      document.getElementById(
+        "categoryModal"
+      ),
 
     categoryOptions:
       document.querySelectorAll(
@@ -188,18 +181,20 @@
         error
       );
 
+      localStorage.setItem(
+        "redirectAfterLogin",
+        window.location.href
+      );
+
       showMessage(
         error.message ||
           "You must log in before generating notes.",
         "error"
       );
 
-      /*
-        Give the error message a short moment to appear
-        before redirecting to the login page.
-      */
       setTimeout(() => {
-        window.location.href = LOGIN_PAGE;
+        window.location.href =
+          LOGIN_PAGE;
       }, 1200);
     }
   }
@@ -313,32 +308,33 @@
     state.profileLoading = true;
 
     try {
-      const savedUser =
-        getSavedUser();
+      const isLoggedIn =
+        localStorage.getItem(
+          "isLoggedIn"
+        ) === "true";
 
       const token =
         localStorage.getItem(
-          "token"
+          "auth_token"
         );
 
-      /*
-        The user must have both saved account information
-        and an authentication token.
-      */
-      if (!savedUser || !token) {
+      const userId =
+        localStorage.getItem(
+          "userId"
+        );
+
+      const email =
+        localStorage.getItem(
+          "user_email"
+        );
+
+      if (!isLoggedIn || !token) {
         clearAuthenticationData();
 
         throw new Error(
           "You must log in before generating notes."
         );
       }
-
-      const userId =
-        savedUser.id ||
-        savedUser.user_id;
-
-      const email =
-        savedUser.email;
 
       if (!userId && !email) {
         clearAuthenticationData();
@@ -357,20 +353,24 @@
               email
             )}`;
 
-      const response = await fetch(
-        `${PROFILE_API}?${query}`,
-        {
-          method: "GET",
-          headers: {
-            Accept:
-              "application/json",
+      const response =
+        await fetch(
+          `${PROFILE_API}?${query}`,
+          {
+            method: "GET",
 
-            Authorization:
-              `Bearer ${token}`
-          },
-          cache: "no-store"
-        }
-      );
+            headers: {
+              Accept:
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`
+            },
+
+            cache:
+              "no-store"
+          }
+        );
 
       let data;
 
@@ -414,12 +414,11 @@
 
         email:
           data.email ||
-          savedUser.email ||
+          email ||
           "",
 
         phone:
           data.phone ||
-          savedUser.phone ||
           "",
 
         balance:
@@ -428,29 +427,26 @@
 
       showLoggedInUser();
     } finally {
-      state.profileLoading = false;
-    }
-  }
-
-  function getSavedUser() {
-    try {
-      return JSON.parse(
-        localStorage.getItem(
-          "user"
-        ) || "null"
-      );
-    } catch {
-      return null;
+      state.profileLoading =
+        false;
     }
   }
 
   function clearAuthenticationData() {
     localStorage.removeItem(
-      "user"
+      "isLoggedIn"
     );
 
     localStorage.removeItem(
-      "token"
+      "auth_token"
+    );
+
+    localStorage.removeItem(
+      "user_email"
+    );
+
+    localStorage.removeItem(
+      "userId"
     );
   }
 
@@ -600,6 +596,11 @@
     if (
       !state.loggedInUser
     ) {
+      localStorage.setItem(
+        "redirectAfterLogin",
+        window.location.href
+      );
+
       showMessage(
         "Your login session could not be verified. Please log in again.",
         "error"
