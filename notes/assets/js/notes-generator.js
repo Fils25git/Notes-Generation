@@ -35,9 +35,13 @@
   };
 
   const MAX_VERSIONS = 5;
+  const NOTE_PRICE = 500;
 
   const PROFILE_API =
     "/.netlify/functions/get-user-profile";
+
+  const NOTE_PAYMENT_API =
+    "/.netlify/functions/note-payment";
 
   const LOGIN_PAGE =
     "../login.html";
@@ -49,7 +53,14 @@
     selectedVersion: null,
     lastFormData: null,
     loggedInUser: null,
-    profileLoading: false
+    profileLoading: false,
+
+    notePaymentId: null,
+    notePaymentStatus: null,
+    paymentChecking: false,
+    paymentCreating: false,
+    downloadAuthorizing: false,
+    downloadUsed: false
   };
 
   const elements = {
@@ -228,7 +239,7 @@
     elements.downloadBtn
       ?.addEventListener(
         "click",
-        downloadGeneratedNotes
+        handlePaidDownload
       );
 
     elements.generateAnotherBtn
@@ -393,6 +404,7 @@
 
         throw new Error(
           data.error ||
+            data.message ||
             "Your account profile could not be loaded."
         );
       }
@@ -549,6 +561,7 @@
     }
 
     closeCategoryModal();
+    resetNotePaymentState();
     clearMessage();
   }
 
@@ -702,13 +715,20 @@
       state.lastFormData =
         formData;
 
+      resetNotePaymentState();
+
       showResult(
         formData,
         chosen.version
       );
 
+      updateDownloadButton(
+        `Pay ${NOTE_PRICE} RWF & Download`,
+        false
+      );
+
       showMessage(
-        "Notes generated successfully.",
+        `Notes generated successfully. Pay ${NOTE_PRICE} RWF to unlock one download.`,
         "success"
       );
     } catch (error) {
@@ -964,6 +984,512 @@
     }
 
     return response.arrayBuffer();
+  }
+
+  async function handlePaidDownload() {
+    if (
+      !state.generatedBlob ||
+      !state.lastFormData ||
+      !state.selectedVersion
+    ) {
+      showMessage(
+        "Generate the notes before downloading.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (!state.loggedInUser) {
+      localStorage.setItem(
+        "redirectAfterLogin",
+        window.location.href
+      );
+
+      showMessage(
+        "You must log in before purchasing notes.",
+        "error"
+      );
+
+      setTimeout(() => {
+        window.location.href =
+          LOGIN_PAGE;
+      }, 1200);
+
+      return;
+    }
+
+    if (state.downloadUsed) {
+      showMessage(
+        "The one permitted download has already been used.",
+        "error"
+      );
+
+      updateDownloadButton(
+        "Download Already Used",
+        true
+      );
+
+      return;
+    }
+
+    if (!state.notePaymentId) {
+      await createNotePayment();
+      return;
+    }
+
+    await checkNotePayment();
+  }
+
+  async function createNotePayment() {
+    if (
+      state.paymentCreating ||
+      !state.lastFormData
+    ) {
+      return;
+    }
+
+    state.paymentCreating = true;
+
+    updateDownloadButton(
+      "Creating Payment...",
+      true
+    );
+
+    try {
+      const data =
+        state.lastFormData;
+
+      const response =
+        await fetch(
+          `${NOTE_PAYMENT_API}?action=create`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${getAuthToken()}`
+            },
+
+            body:
+              JSON.stringify({
+                category:
+                  state.category,
+
+                classLevel:
+                  data.classLevel,
+
+                subject:
+                  data.subject,
+
+                noteVersion:
+                  state.selectedVersion,
+
+                academicYear:
+                  data.academicYear,
+
+                schoolName:
+                  data.schoolName,
+
+                district:
+                  data.district,
+
+                sector:
+                  data.sector
+              })
+          }
+        );
+
+      const result =
+        await parseApiResponse(
+          response
+        );
+
+      if (!response.ok) {
+        handlePossibleAuthFailure(
+          response
+        );
+
+        throw new Error(
+          result.message ||
+          result.error ||
+          "The payment request could not be created."
+        );
+      }
+
+      const paymentId =
+        Number(
+          result.paymentId ||
+          result.payment?.id
+        );
+
+      if (
+        !Number.isInteger(paymentId) ||
+        paymentId <= 0
+      ) {
+        throw new Error(
+          "The server did not return a valid payment ID."
+        );
+      }
+
+      state.notePaymentId =
+        paymentId;
+
+      state.notePaymentStatus =
+        result.status ||
+        result.payment?.status ||
+        "initiated";
+
+      if (
+        state.notePaymentStatus ===
+        "approved"
+      ) {
+        showMessage(
+          "This payment is already approved. Tap the button again to download.",
+          "success"
+        );
+
+        updateDownloadButton(
+          "Download Notes",
+          false
+        );
+
+        return;
+      }
+
+      showMessage(
+        `Payment request created for ${NOTE_PRICE} RWF. Make the payment and wait for admin confirmation.`,
+        "success"
+      );
+
+      updateDownloadButton(
+        "Check Payment Status",
+        false
+      );
+    } catch (error) {
+      console.error(
+        "Create note payment error:",
+        error
+      );
+
+      showMessage(
+        error.message,
+        "error"
+      );
+
+      updateDownloadButton(
+        `Pay ${NOTE_PRICE} RWF & Download`,
+        false
+      );
+    } finally {
+      state.paymentCreating =
+        false;
+    }
+  }
+
+  async function checkNotePayment() {
+    if (
+      !state.notePaymentId ||
+      state.paymentChecking
+    ) {
+      return;
+    }
+
+    state.paymentChecking = true;
+
+    updateDownloadButton(
+      "Checking Payment...",
+      true
+    );
+
+    try {
+      const response =
+        await fetch(
+          `${NOTE_PAYMENT_API}?action=check&paymentId=${encodeURIComponent(
+            state.notePaymentId
+          )}`,
+          {
+            method: "GET",
+
+            headers: {
+              Accept:
+                "application/json",
+
+              Authorization:
+                `Bearer ${getAuthToken()}`
+            },
+
+            cache:
+              "no-store"
+          }
+        );
+
+      const result =
+        await parseApiResponse(
+          response
+        );
+
+      if (!response.ok) {
+        handlePossibleAuthFailure(
+          response
+        );
+
+        throw new Error(
+          result.message ||
+          result.error ||
+          "The payment status could not be checked."
+        );
+      }
+
+      state.notePaymentStatus =
+        result.status;
+
+      if (
+        result.status ===
+        "initiated"
+      ) {
+        showMessage(
+          "Your payment is still waiting for admin confirmation.",
+          "error"
+        );
+
+        updateDownloadButton(
+          "Check Payment Status",
+          false
+        );
+
+        return;
+      }
+
+      if (
+        result.status ===
+        "rejected"
+      ) {
+        showMessage(
+          "Your payment was rejected. Contact support or create a new payment request.",
+          "error"
+        );
+
+        state.notePaymentId =
+          null;
+
+        state.notePaymentStatus =
+          null;
+
+        updateDownloadButton(
+          `Pay ${NOTE_PRICE} RWF & Download`,
+          false
+        );
+
+        return;
+      }
+
+      if (
+        result.status ===
+        "downloaded" ||
+        result.downloadCount >=
+          result.downloadLimit
+      ) {
+        state.downloadUsed =
+          true;
+
+        showMessage(
+          "The one permitted download has already been used.",
+          "error"
+        );
+
+        updateDownloadButton(
+          "Download Already Used",
+          true
+        );
+
+        return;
+      }
+
+      if (
+        result.status ===
+          "approved" &&
+        result.canDownload !== false
+      ) {
+        showMessage(
+          "Payment approved. Preparing your download.",
+          "success"
+        );
+
+        await authorizeAndDownload();
+        return;
+      }
+
+      throw new Error(
+        "The payment is not available for downloading."
+      );
+    } catch (error) {
+      console.error(
+        "Check note payment error:",
+        error
+      );
+
+      showMessage(
+        error.message,
+        "error"
+      );
+
+      if (!state.downloadUsed) {
+        updateDownloadButton(
+          "Check Payment Status",
+          false
+        );
+      }
+    } finally {
+      state.paymentChecking =
+        false;
+    }
+  }
+
+  async function authorizeAndDownload() {
+    if (
+      !state.notePaymentId ||
+      state.downloadAuthorizing ||
+      state.downloadUsed
+    ) {
+      return;
+    }
+
+    const safeName =
+      sanitizeFileName(
+        elements.fileName
+          ?.value || ""
+      );
+
+    if (!safeName) {
+      elements.fileName
+        ?.classList.add(
+          "invalid"
+        );
+
+      showMessage(
+        "Please enter a valid file name.",
+        "error"
+      );
+
+      updateDownloadButton(
+        "Download Notes",
+        false
+      );
+
+      return;
+    }
+
+    state.downloadAuthorizing =
+      true;
+
+    updateDownloadButton(
+      "Authorizing Download...",
+      true
+    );
+
+    try {
+      const response =
+        await fetch(
+          `${NOTE_PAYMENT_API}?action=download`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${getAuthToken()}`
+            },
+
+            body:
+              JSON.stringify({
+                paymentId:
+                  state.notePaymentId
+              })
+          }
+        );
+
+      const result =
+        await parseApiResponse(
+          response
+        );
+
+      if (!response.ok) {
+        handlePossibleAuthFailure(
+          response
+        );
+
+        if (
+          result.status ===
+          "downloaded"
+        ) {
+          state.downloadUsed =
+            true;
+
+          updateDownloadButton(
+            "Download Already Used",
+            true
+          );
+        }
+
+        throw new Error(
+          result.message ||
+          result.error ||
+          "The download could not be authorized."
+        );
+      }
+
+      if (!result.authorized) {
+        throw new Error(
+          "The server did not authorize this download."
+        );
+      }
+
+      downloadGeneratedNotes(
+        safeName
+      );
+
+      state.downloadUsed =
+        true;
+
+      state.notePaymentStatus =
+        "downloaded";
+
+      updateDownloadButton(
+        "Download Used",
+        true
+      );
+
+      showMessage(
+        "Your notes were downloaded successfully. This purchase allowed one download.",
+        "success"
+      );
+    } catch (error) {
+      console.error(
+        "Authorize note download error:",
+        error
+      );
+
+      showMessage(
+        error.message,
+        "error"
+      );
+
+      if (!state.downloadUsed) {
+        updateDownloadButton(
+          "Check Payment Status",
+          false
+        );
+      }
+    } finally {
+      state.downloadAuthorizing =
+        false;
+    }
   }
 
   async function buildBrandedPdf(
@@ -1392,7 +1918,7 @@
     );
 
     page.drawText(
-      `Prepared in  ${new Date().getFullYear()} by  Teacher ${data.teacherName}`,
+      `Prepared in ${new Date().getFullYear()} by Teacher ${data.teacherName}`,
       {
         x: 54,
         y: 58,
@@ -1548,7 +2074,9 @@
       });
   }
 
-  function downloadGeneratedNotes() {
+  function downloadGeneratedNotes(
+    preparedFileName = ""
+  ) {
     if (
       !state.generatedBlob
     ) {
@@ -1561,6 +2089,7 @@
     }
 
     const safeName =
+      preparedFileName ||
       sanitizeFileName(
         elements.fileName
           ?.value || ""
@@ -1612,6 +2141,95 @@
       },
       1000
     );
+  }
+
+  function resetNotePaymentState() {
+    state.notePaymentId =
+      null;
+
+    state.notePaymentStatus =
+      null;
+
+    state.paymentChecking =
+      false;
+
+    state.paymentCreating =
+      false;
+
+    state.downloadAuthorizing =
+      false;
+
+    state.downloadUsed =
+      false;
+  }
+
+  function updateDownloadButton(
+    text,
+    disabled
+  ) {
+    if (!elements.downloadBtn) {
+      return;
+    }
+
+    elements.downloadBtn.textContent =
+      text;
+
+    elements.downloadBtn.disabled =
+      disabled;
+
+    elements.downloadBtn.classList.toggle(
+      "disabled",
+      disabled
+    );
+  }
+
+  function getAuthToken() {
+    const token =
+      localStorage.getItem(
+        "auth_token"
+      );
+
+    if (!token) {
+      throw new Error(
+        "Your login session is missing. Please log in again."
+      );
+    }
+
+    return token;
+  }
+
+  async function parseApiResponse(
+    response
+  ) {
+    try {
+      return await response.json();
+    } catch {
+      return {
+        success: false,
+        message:
+          "The server returned an invalid response."
+      };
+    }
+  }
+
+  function handlePossibleAuthFailure(
+    response
+  ) {
+    if (
+      response.status !== 401 &&
+      response.status !== 403
+    ) {
+      return;
+    }
+
+    if (response.status === 401) {
+      clearAuthenticationData();
+
+      localStorage.setItem(
+        "redirectAfterLogin",
+        window.location.href
+      );
+    }
   }
 
   function sanitizeFileName(
