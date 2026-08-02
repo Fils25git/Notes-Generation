@@ -1221,7 +1221,7 @@
     });
 
     page.drawText(
-      "SCHOOLPINGO LEARNING MATERIALS",
+      `${data.academicYear}, ${data.classLevel.toUpperCase()}`,
       {
         x: 54,
         y:
@@ -1265,7 +1265,7 @@
     );
 
     page.drawText(
-      `${data.classLevel.toUpperCase()} • Academic Year ${data.academicYear}`,
+      `${data.classLevel.toUpperCase()}, Academic Year ${data.academicYear}`,
       {
         x: 54,
         y:
