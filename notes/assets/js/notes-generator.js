@@ -924,7 +924,7 @@
             version,
 
             path:
-              `./notes/${subject}/${classLevel}_v${version}.pdf`
+              `/notes/${subject}/${classLevel}_v${version}.pdf`
           };
         }
       );
