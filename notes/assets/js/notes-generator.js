@@ -905,140 +905,52 @@
     return valid;
   }
 
-  async function findAvailableVersions(
-    subject,
-    classLevel
-  ) {
-    const candidates =
-      Array.from(
-        {
-          length:
-            MAX_VERSIONS
-        },
+        async function findAvailableVersions(
+  subject,
+  classLevel
+) {
+  const candidates = Array.from(
+    { length: MAX_VERSIONS },
+    (_, index) => {
+      const version = index + 1;
 
-        (_, index) => {
-          const version =
-            index + 1;
+      return {
+        version,
+        path:
+          `./notes/${subject}/${classLevel}_v${version}.pdf`
+      };
+    }
+  );
 
-          return {
-            version,
-
-            path:
-              `/notes/${subject}/${classLevel}_v${version}.pdf`
-          };
-        }
-      );
-
-    const checks =
-      await Promise.all(
-        candidates.map(
-          async candidate => {
-            const controller =
-              new AbortController();
-
-            const timeoutId =
-              setTimeout(
-                () => {
-                  controller.abort();
-                },
-                8000
-              );
-
-            try {
-              const response =
-                await fetch(
-                  candidate.path,
-                  {
-                    method:
-                      "GET",
-
-                    cache:
-                      "no-store",
-
-                    signal:
-                      controller.signal
-                  }
-                );
-
-              if (!response.ok) {
-                return null;
-              }
-
-              const contentType =
-                response.headers.get(
-                  "content-type"
-                ) || "";
-
-              if (
-                contentType &&
-                !contentType.includes(
-                  "application/pdf"
-                ) &&
-                !contentType.includes(
-                  "application/octet-stream"
-                )
-              ) {
-                console.warn(
-                  `The file is not a PDF: ${candidate.path}`
-                );
-
-                return null;
-              }
-
-              const bytes =
-                await response.arrayBuffer();
-
-              if (
-                bytes.byteLength < 5
-              ) {
-                return null;
-              }
-
-              const signature =
-                new TextDecoder()
-                  .decode(
-                    bytes.slice(
-                      0,
-                      5
-                    )
-                  );
-
-              if (
-                signature !== "%PDF-"
-              ) {
-                console.warn(
-                  `Invalid PDF signature: ${candidate.path}`
-                );
-
-                return null;
-              }
-
-              return candidate;
-            } catch (error) {
-              if (
-                error.name !==
-                "AbortError"
-              ) {
-                console.warn(
-                  `Could not check ${candidate.path}:`,
-                  error
-                );
-              }
-
-              return null;
-            } finally {
-              clearTimeout(
-                timeoutId
-              );
+  const checks = await Promise.all(
+    candidates.map(
+      async candidate => {
+        try {
+          const response = await fetch(
+            candidate.path,
+            {
+              method: "HEAD",
+              cache: "no-store"
             }
-          }
-        )
-      );
+          );
 
-    return checks.filter(
-      Boolean
-    );
-  }
+          return response.ok
+            ? candidate
+            : null;
+        } catch (error) {
+          console.warn(
+            `Could not check ${candidate.path}:`,
+            error
+          );
+
+          return null;
+        }
+      }
+    )
+  );
+
+  return checks.filter(Boolean);
+}          
 
   function chooseRandomVersion(
     files,
@@ -1076,88 +988,26 @@
   }
 
   async function fetchPdfBytes(
-    path
-  ) {
-    const controller =
-      new AbortController();
-
-    const timeoutId =
-      setTimeout(
-        () => {
-          controller.abort();
-        },
-        20000
-      );
-
-    try {
-      const response =
-        await fetch(
-          path,
-          {
-            method:
-              "GET",
-
-            cache:
-              "no-store",
-
-            signal:
-              controller.signal
-          }
-        );
-
-      if (!response.ok) {
-        throw new Error(
-          `The selected note file could not be opened: ${path}`
-        );
+  path
+) {
+  const response =
+    await fetch(
+      path,
+      {
+        cache:
+          "no-store"
       }
+    );
 
-      const bytes =
-        await response.arrayBuffer();
-
-      if (
-        bytes.byteLength < 5
-      ) {
-        throw new Error(
-          `The selected note file is empty: ${path}`
-        );
-      }
-
-      const signature =
-        new TextDecoder()
-          .decode(
-            bytes.slice(
-              0,
-              5
-            )
-          );
-
-      if (
-        signature !== "%PDF-"
-      ) {
-        throw new Error(
-          `The selected note file is not a valid PDF: ${path}`
-        );
-      }
-
-      return bytes;
-    } catch (error) {
-      if (
-        error.name ===
-        "AbortError"
-      ) {
-        throw new Error(
-          "Loading the notes took too long. Check the note path and try again."
-        );
-      }
-
-      throw error;
-    } finally {
-      clearTimeout(
-        timeoutId
-      );
-    }
+  if (!response.ok) {
+    throw new Error(
+      `The selected note file could not be opened: ${path}`
+    );
   }
 
+  return response.arrayBuffer();
+  }
+  
   async function handlePaidDownload() {
     if (
       !state.generatedBlob ||
