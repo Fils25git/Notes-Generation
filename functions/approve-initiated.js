@@ -7,13 +7,16 @@ const resend = new Resend(
 
 export async function handler(event) {
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({
+    return jsonResponse(
+      405,
+      {
         success: false,
         message: "Method not allowed"
-      })
-    };
+      },
+      {
+        Allow: "POST"
+      }
+    );
   }
 
   let body;
@@ -23,28 +26,125 @@ export async function handler(event) {
       event.body || "{}"
     );
   } catch {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        success: false,
-        message: "Invalid request body"
-      })
-    };
+    return jsonResponse(400, {
+      success: false,
+      message: "Invalid request body"
+    });
   }
 
-  const ids = body.ids || [];
+  /*
+    New frontend format:
+
+    {
+      payments: [
+        { id: 1, type: "normal" },
+        { id: 2, type: "weekly" },
+        { id: 3, type: "note" }
+      ]
+    }
+
+    Old frontend format:
+
+    {
+      ids: [1, 2, 3]
+    }
+  */
+
+  const suppliedPayments =
+    Array.isArray(body.payments)
+      ? body.payments
+      : [];
+
+  const oldIds =
+    Array.isArray(body.ids)
+      ? body.ids
+          .map((id) =>
+            Number.parseInt(id, 10)
+          )
+          .filter(
+            (id) =>
+              Number.isInteger(id) &&
+              id > 0
+          )
+      : [];
+
+  const normalIds =
+    uniquePositiveIntegers(
+      suppliedPayments
+        .filter(
+          (payment) =>
+            payment?.type === "normal"
+        )
+        .map(
+          (payment) =>
+            payment.id
+        )
+    );
+
+  const weeklyIds =
+    uniquePositiveIntegers(
+      suppliedPayments
+        .filter(
+          (payment) =>
+            payment?.type === "weekly"
+        )
+        .map(
+          (payment) =>
+            payment.id
+        )
+    );
+
+  const noteIds =
+    uniquePositiveIntegers(
+      suppliedPayments
+        .filter(
+          (payment) =>
+            payment?.type === "note"
+        )
+        .map(
+          (payment) =>
+            payment.id
+        )
+    );
+
+  /*
+    Backward compatibility:
+
+    If the request contains only body.ids, the same IDs
+    are checked in the old normal and weekly tables.
+
+    They are not automatically checked in note_payments
+    because IDs can overlap between tables.
+  */
+  if (
+    suppliedPayments.length === 0 &&
+    oldIds.length > 0
+  ) {
+    normalIds.push(
+      ...oldIds.filter(
+        (id) =>
+          !normalIds.includes(id)
+      )
+    );
+
+    weeklyIds.push(
+      ...oldIds.filter(
+        (id) =>
+          !weeklyIds.includes(id)
+      )
+    );
+  }
 
   if (
-    !Array.isArray(ids) ||
-    !ids.length
+    normalIds.length === 0 &&
+    weeklyIds.length === 0 &&
+    noteIds.length === 0
   ) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        success: false,
-        message: "No IDs provided"
-      })
-    };
+    return jsonResponse(400, {
+      success: false,
+      message:
+        "No valid payments were provided"
+    });
   }
 
   const client = new Client({
@@ -58,59 +158,70 @@ export async function handler(event) {
 
   try {
     await client.connect();
-
     await client.query("BEGIN");
 
     /*
       Fetch normal lesson-plan payments.
     */
     const resPayments =
-      await client.query(
-        `
-          SELECT
-            *,
-            'normal' AS type
-          FROM payments
-          WHERE id = ANY($1::int[])
-            AND status = 'initiated'
-          FOR UPDATE
-        `,
-        [ids]
-      );
+      normalIds.length > 0
+        ? await client.query(
+            `
+              SELECT
+                *,
+                'normal' AS type
+              FROM payments
+              WHERE id = ANY($1::int[])
+                AND status = 'initiated'
+              FOR UPDATE
+            `,
+            [normalIds]
+          )
+        : {
+            rows: []
+          };
 
     /*
       Fetch weekly-plan payments.
     */
     const resWeekly =
-      await client.query(
-        `
-          SELECT
-            *,
-            'weekly' AS type
-          FROM weekly_plan_payments
-          WHERE id = ANY($1::int[])
-            AND status = 'initiated'
-          FOR UPDATE
-        `,
-        [ids]
-      );
+      weeklyIds.length > 0
+        ? await client.query(
+            `
+              SELECT
+                *,
+                'weekly' AS type
+              FROM weekly_plan_payments
+              WHERE id = ANY($1::int[])
+                AND status = 'initiated'
+              FOR UPDATE
+            `,
+            [weeklyIds]
+          )
+        : {
+            rows: []
+          };
 
     /*
       Fetch note payments.
     */
     const resNotes =
-      await client.query(
-        `
-          SELECT
-            *,
-            'note' AS type
-          FROM note_payments
-          WHERE id = ANY($1::int[])
-            AND status = 'initiated'
-          FOR UPDATE
-        `,
-        [ids]
-      );
+      noteIds.length > 0
+        ? await client.query(
+            `
+              SELECT
+                *,
+                'note' AS type
+              FROM note_payments
+              WHERE id = ANY($1::int[])
+                AND status = 'initiated'
+              FOR UPDATE
+            `,
+            [noteIds]
+          )
+        : {
+            rows: []
+          };
 
     const allPayments = [
       ...resPayments.rows,
@@ -123,15 +234,14 @@ export async function handler(event) {
         "ROLLBACK"
       );
 
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          success: false,
-          message:
-            "No initiated payments found for the selected IDs"
-        })
-      };
+      return jsonResponse(400, {
+        success: false,
+        message:
+          "No initiated payments were found for the selected records"
+      });
     }
+
+    const emailsToSend = [];
 
     for (
       const payment of allPayments
@@ -143,29 +253,46 @@ export async function handler(event) {
         ) || 0;
 
       /*
+        =====================================================
         NOTE PURCHASE
+        =====================================================
 
         A note payment does not add lesson credits.
-        Approval unlocks the purchased PDF.
+        Approval unlocks one download.
       */
       if (
         payment.type === "note"
       ) {
-        await client.query(
-          `
-            UPDATE note_payments
-            SET
-              status = 'approved',
-              approved_at = NOW(),
-              download_count = 0,
-              download_limit = 1
-            WHERE id = $1
-              AND status = 'initiated'
-          `,
-          [payment.id]
-        );
+        const updateResult =
+          await client.query(
+            `
+              UPDATE note_payments
+              SET
+                status = 'approved',
+                approved_at = NOW(),
+                download_count = 0,
+                download_limit = 1
+              WHERE id = $1
+                AND status = 'initiated'
+              RETURNING
+                id,
+                user_id,
+                subject,
+                class_level,
+                academic_year,
+                amount,
+                created_at
+            `,
+            [payment.id]
+          );
 
-        const userRes =
+        if (
+          updateResult.rows.length === 0
+        ) {
+          continue;
+        }
+
+        const userResult =
           await client.query(
             `
               SELECT
@@ -173,92 +300,26 @@ export async function handler(event) {
                 email
               FROM users
               WHERE id = $1
+              LIMIT 1
             `,
             [payment.user_id]
           );
 
         const user =
-          userRes.rows[0];
+          userResult.rows[0];
 
         if (user?.email) {
-          await resend.emails.send({
-            from:
-              "Fila Assistant <fila@fleduacademy.com>",
-
-            to:
-              user.email,
-
+          emailsToSend.push({
+            type: "note",
+            to: user.email,
             subject:
               "Notes Payment Approved - Fila Assistant",
-
-            html: `
-              <div style="font-family:Arial,sans-serif;padding:20px;">
-                <h2 style="color:#2196f3;">
-                  Hello ${escapeHtml(user.name)} 👋
-                </h2>
-
-                <p>
-                  Your payment for the following notes has been approved:
-                </p>
-
-                <ul>
-                  <li>
-                    Subject:
-                    <strong>
-                      ${escapeHtml(payment.subject)}
-                    </strong>
-                  </li>
-
-                  <li>
-                    Class:
-                    <strong>
-                      ${escapeHtml(payment.class_level)}
-                    </strong>
-                  </li>
-
-                  <li>
-                    Academic year:
-                    <strong>
-                      ${escapeHtml(
-                        payment.academic_year || "Not specified"
-                      )}
-                    </strong>
-                  </li>
-
-                  <li>
-                    Amount paid:
-                    <strong>
-                      RWF ${amountInt.toLocaleString()}
-                    </strong>
-                  </li>
-
-                  <li>
-                    Downloads allowed:
-                    <strong>1</strong>
-                  </li>
-                </ul>
-
-                <p>
-                  You can now return to the notes page and download
-                  your generated PDF once.
-                </p>
-
-                <a
-                  href="https://fleduacademy.com/notes.html"
-                  style="
-                    display:inline-block;
-                    margin-top:15px;
-                    padding:10px 15px;
-                    background:#2196f3;
-                    color:white;
-                    text-decoration:none;
-                    border-radius:5px;
-                  "
-                >
-                  Download Notes
-                </a>
-              </div>
-            `
+            html:
+              buildNotePaymentEmail({
+                user,
+                payment,
+                amountInt
+              })
           });
         }
 
@@ -266,13 +327,24 @@ export async function handler(event) {
       }
 
       /*
+        =====================================================
         LESSON-PLAN AND WEEKLY-PLAN PAYMENTS
+        =====================================================
       */
+
       const lessonsInt =
         Number.parseInt(
           payment.lessons,
           10
         ) || 0;
+
+      if (
+        lessonsInt <= 0
+      ) {
+        throw new Error(
+          `Invalid lesson amount for ${payment.type} payment ID ${payment.id}`
+        );
+      }
 
       if (
         payment.type === "weekly"
@@ -281,7 +353,10 @@ export async function handler(event) {
           `
             UPDATE users
             SET weekly_plan =
-              COALESCE(weekly_plan, 0) + $1
+              COALESCE(
+                weekly_plan,
+                0
+              ) + $1
             WHERE id = $2
           `,
           [
@@ -294,7 +369,10 @@ export async function handler(event) {
           `
             UPDATE users
             SET balance =
-              COALESCE(balance, 0) + $1
+              COALESCE(
+                balance,
+                0
+              ) + $1
             WHERE id = $2
           `,
           [
@@ -317,6 +395,7 @@ export async function handler(event) {
               SELECT referred_by
               FROM users
               WHERE id = $1
+              LIMIT 1
             `,
             [payment.user_id]
           );
@@ -343,7 +422,10 @@ export async function handler(event) {
                   UPDATE users
                   SET
                     weekly_plan =
-                      COALESCE(weekly_plan, 0) + $1,
+                      COALESCE(
+                        weekly_plan,
+                        0
+                      ) + $1,
 
                     total_weekly_referral_bonus =
                       COALESCE(
@@ -377,7 +459,10 @@ export async function handler(event) {
                   UPDATE users
                   SET
                     balance =
-                      COALESCE(balance, 0) + $1,
+                      COALESCE(
+                        balance,
+                        0
+                      ) + $1,
 
                     total_referral_bonus =
                       COALESCE(
@@ -410,7 +495,7 @@ export async function handler(event) {
         }
       }
 
-      const userRes =
+      const userResult =
         await client.query(
           `
             SELECT
@@ -418,91 +503,33 @@ export async function handler(event) {
               email
             FROM users
             WHERE id = $1
+            LIMIT 1
           `,
           [payment.user_id]
         );
 
       const user =
-        userRes.rows[0];
+        userResult.rows[0];
 
       if (user?.email) {
         const planType =
-          payment.type ===
-          "weekly"
+          payment.type === "weekly"
             ? "Weekly Plans"
             : "Lesson Plans";
 
-        await resend.emails.send({
-          from:
-            "Fila Assistant <fila@fleduacademy.com>",
-
-          to:
-            user.email,
-
+        emailsToSend.push({
+          type: payment.type,
+          to: user.email,
           subject:
             "Payment Approved - Fila Assistant 🎉",
-
-          html: `
-            <div style="font-family:Arial,sans-serif;padding:20px;">
-              <h2 style="color:#2196f3;">
-                Hello ${escapeHtml(user.name)} 👋
-              </h2>
-
-              <p>
-                Thank you for purchasing
-                <strong>${planType}</strong>
-                on
-                <strong>Fila Assistant</strong>.
-              </p>
-
-              <p>
-                <strong>Payment details:</strong>
-              </p>
-
-              <ul>
-                <li>
-                  Plan type:
-                  ${planType}
-                </li>
-
-                <li>
-                  ${planType} added:
-                  ${lessonsInt}
-                </li>
-
-                <li>
-                  Amount paid:
-                  RWF ${amountInt.toLocaleString()}
-                </li>
-
-                <li>
-                  Date:
-                  ${new Date(
-                    payment.created_at
-                  ).toLocaleString()}
-                </li>
-              </ul>
-
-              <p>
-                You can now access your purchase from your dashboard.
-              </p>
-
-              <a
-                href="https://fleduacademy.com/index.html"
-                style="
-                  display:inline-block;
-                  margin-top:15px;
-                  padding:10px 15px;
-                  background:#2196f3;
-                  color:white;
-                  text-decoration:none;
-                  border-radius:5px;
-                "
-              >
-                Go to Dashboard
-              </a>
-            </div>
-          `
+          html:
+            buildPlanPaymentEmail({
+              user,
+              payment,
+              planType,
+              lessonsInt,
+              amountInt
+            })
         });
       }
     }
@@ -511,7 +538,7 @@ export async function handler(event) {
       Approve normal lesson-plan payments.
     */
     if (
-      resPayments.rows.length
+      resPayments.rows.length > 0
     ) {
       await client.query(
         `
@@ -535,7 +562,7 @@ export async function handler(event) {
       Approve weekly-plan payments.
     */
     if (
-      resWeekly.rows.length
+      resWeekly.rows.length > 0
     ) {
       await client.query(
         `
@@ -556,32 +583,42 @@ export async function handler(event) {
     }
 
     /*
-      Note payments were already updated inside
-      the processing loop.
+      Note payments were updated individually
+      inside the processing loop.
     */
 
     await client.query("COMMIT");
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        success: true,
+    /*
+      Send emails after committing the database transaction.
 
-        message:
-          "Initiated payments approved successfully.",
+      If Resend fails, the payment remains approved instead
+      of rolling back a successful payment.
+    */
+    const emailResults =
+      await sendApprovalEmails(
+        emailsToSend
+      );
 
-        approved: {
-          normal:
-            resPayments.rows.length,
+    return jsonResponse(200, {
+      success: true,
 
-          weekly:
-            resWeekly.rows.length,
+      message:
+        "Initiated payments approved successfully.",
 
-          notes:
-            resNotes.rows.length
-        }
-      })
-    };
+      approved: {
+        normal:
+          resPayments.rows.length,
+
+        weekly:
+          resWeekly.rows.length,
+
+        notes:
+          resNotes.rows.length
+      },
+
+      emails: emailResults
+    });
   } catch (error) {
     try {
       await client.query(
@@ -596,23 +633,320 @@ export async function handler(event) {
       error
     );
 
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        success: false,
-        message: "Server error"
-      })
-    };
+    return jsonResponse(500, {
+      success: false,
+      message:
+        error.message ||
+        "Server error"
+    });
   } finally {
-    await client.end();
+    try {
+      await client.end();
+    } catch (error) {
+      console.error(
+        "Database closing error:",
+        error
+      );
+    }
   }
+}
+
+/* =========================================================
+   EMAIL DELIVERY
+========================================================= */
+
+async function sendApprovalEmails(
+  emails
+) {
+  let sent = 0;
+  let failed = 0;
+
+  for (const email of emails) {
+    try {
+      await resend.emails.send({
+        from:
+          "Fila Assistant <fila@fleduacademy.com>",
+
+        to:
+          email.to,
+
+        subject:
+          email.subject,
+
+        html:
+          email.html
+      });
+
+      sent += 1;
+    } catch (error) {
+      failed += 1;
+
+      console.error(
+        `Approval email failed for ${email.to}:`,
+        error
+      );
+    }
+  }
+
+  return {
+    queued:
+      emails.length,
+
+    sent,
+
+    failed
+  };
+}
+
+/* =========================================================
+   NOTE PAYMENT EMAIL
+========================================================= */
+
+function buildNotePaymentEmail({
+  user,
+  payment,
+  amountInt
+}) {
+  return `
+    <div style="font-family:Arial,sans-serif;padding:20px;">
+      <h2 style="color:#2196f3;">
+        Hello ${escapeHtml(user.name)} 👋
+      </h2>
+
+      <p>
+        Your payment for the following notes has been approved:
+      </p>
+
+      <ul>
+        <li>
+          Subject:
+          <strong>
+            ${escapeHtml(payment.subject)}
+          </strong>
+        </li>
+
+        <li>
+          Class:
+          <strong>
+            ${escapeHtml(
+              String(
+                payment.class_level || ""
+              ).toUpperCase()
+            )}
+          </strong>
+        </li>
+
+        <li>
+          Academic year:
+          <strong>
+            ${escapeHtml(
+              payment.academic_year ||
+              "Not specified"
+            )}
+          </strong>
+        </li>
+
+        <li>
+          Amount paid:
+          <strong>
+            RWF ${amountInt.toLocaleString()}
+          </strong>
+        </li>
+
+        <li>
+          Downloads allowed:
+          <strong>1</strong>
+        </li>
+      </ul>
+
+      <p>
+        You can now return to the notes page and download
+        your generated PDF once.
+      </p>
+
+      <a
+        href="https://fleduacademy.com/notes.html"
+        style="
+          display:inline-block;
+          margin-top:15px;
+          padding:10px 15px;
+          background:#2196f3;
+          color:white;
+          text-decoration:none;
+          border-radius:5px;
+        "
+      >
+        Download Notes
+      </a>
+
+      <p style="margin-top:20px;font-size:12px;color:#555;">
+        If you did not make this purchase, contact support immediately.
+      </p>
+    </div>
+  `;
+}
+
+/* =========================================================
+   LESSON/WEEKLY PAYMENT EMAIL
+========================================================= */
+
+function buildPlanPaymentEmail({
+  user,
+  payment,
+  planType,
+  lessonsInt,
+  amountInt
+}) {
+  return `
+    <div style="font-family:Arial,sans-serif;padding:20px;">
+      <h2 style="color:#2196f3;">
+        Hello ${escapeHtml(user.name)} 👋
+      </h2>
+
+      <p>
+        Thank you for purchasing
+        <strong>
+          ${escapeHtml(planType)}
+        </strong>
+        on
+        <strong>Fila Assistant</strong>.
+      </p>
+
+      <p>
+        <strong>Payment details:</strong>
+      </p>
+
+      <ul>
+        <li>
+          Plan type:
+          ${escapeHtml(planType)}
+        </li>
+
+        <li>
+          ${escapeHtml(planType)} added:
+          ${lessonsInt}
+        </li>
+
+        <li>
+          Amount paid:
+          RWF ${amountInt.toLocaleString()}
+        </li>
+
+        <li>
+          Date:
+          ${escapeHtml(
+            formatDate(
+              payment.created_at
+            )
+          )}
+        </li>
+      </ul>
+
+      <p>
+        You can now access your purchase from your dashboard.
+      </p>
+
+      <a
+        href="https://fleduacademy.com/index.html"
+        style="
+          display:inline-block;
+          margin-top:15px;
+          padding:10px 15px;
+          background:#2196f3;
+          color:white;
+          text-decoration:none;
+          border-radius:5px;
+        "
+      >
+        Go to Dashboard
+      </a>
+
+      <p style="margin-top:20px;font-size:12px;color:#555;">
+        If you did not make this purchase, contact support immediately.
+      </p>
+    </div>
+  `;
+}
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function uniquePositiveIntegers(
+  values
+) {
+  return [
+    ...new Set(
+      values
+        .map(
+          (value) =>
+            Number.parseInt(
+              value,
+              10
+            )
+        )
+        .filter(
+          (value) =>
+            Number.isInteger(value) &&
+            value > 0
+        )
+    )
+  ];
+}
+
+function jsonResponse(
+  statusCode,
+  data,
+  extraHeaders = {}
+) {
+  return {
+    statusCode,
+
+    headers: {
+      "Content-Type":
+        "application/json",
+
+      "Cache-Control":
+        "no-store",
+
+      ...extraHeaders
+    },
+
+    body:
+      JSON.stringify(data)
+  };
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "Not specified";
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "Not specified";
+  }
+
+  return date.toLocaleString(
+    "en-RW",
+    {
+      timeZone:
+        "Africa/Kigali"
+    }
+  );
 }
 
 function escapeHtml(value) {
   return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+        }
