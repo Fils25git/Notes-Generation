@@ -338,13 +338,13 @@ footer {
   </a>
         </div>
 <!-- HOW IT WORKS VIDEO -->
-<section class="video-section">
+<!--<section class="video-section">
     <h2>🎥 How Fila Assistant Works</h2>
     <p style="font-size:14px; color:#6b7280; margin-bottom:10px;">
         Watch a quick demo to understand how to generate notes and lesson plans.
     </p>
     <button class="small-video-btn" onclick="openVideo()">▶ Watch Video</button>
-</section>
+</section>-->
     <div class="grid">
 
     <div class="card" id="lessonPlanCard">
@@ -365,6 +365,12 @@ footer {
             <p>For Nursery Teachers</p>
         </div>
 
+        <div class="card" data-page="notes/index.html">
+        <i class="fas fa-book-open"></i>
+        <h3>Generate Notes</h3>
+        <p>Access & Download full lesson notes</p>
+        </div>
+        
     <div class="card" data-page="balance.html">
         <i class="fas fa-wallet"></i>
         <h3>My Balance</h3>
@@ -383,27 +389,20 @@ footer {
         <h3>Buy Weekly Plans</h3>
         <h5><em>Non-expiring(Ntagihe ntarengwa zigira)</em></h5>
     </div>
-    <div class="card" data-page="app.html">
-        <i class="fas fa-book-open"></i>
-        <h3>Fetch Notes</h3>
-        <p>Access lesson notes</p>
-    </div>
-    <div class="card" onclick="window.location.href='https://fleduportal.netlify.app/userselection.html'">
+    
+    <!--<div class="card" onclick="window.location.href='https://fleduportal.netlify.app/userselection.html'">
         <i class="fas fa-download"></i>
         <h3>Get Downloadable Resources</h3>
-    </div>
+    </div>-->
     
-        <div class="card" data-page="ref.html">
+        <!--<div class="card" data-page="ref.html">
         <i class="fas fa-share-square"></i>
-        <h3>Invite Your colleagues & Earn Bonuses!</h3>
-         <p>Share your referral link and get rewards when friends sign up!</p>
-
-        </div>
-            <div class="card" data-page="mutation/index.html">
+        <h3>Invite Your colleagues & Earn Bonuses!</h3> <p>Share your referral link and get rewards when friends sign up!</p></div>
+            <!--<div class="card" data-page="mutation/index.html">
         <i class="fas fa-right-left text-4xl text-indigo-600"></i>
         <h3>Shaka uwo mugurana</h3>
         <p>Explore teachers who work where you want and they work where you should easily perfom responsibilities.</p>
-            </div>
+            </div>-->
     <div class="card" onclick="window.open('https://whatsapp.com/channel/0029Vb6e8Qb5q08cN4KxQZ0P', '_blank')">
     <i class="fab fa-whatsapp"></i>
     <h3>Join Our WhatsApp Channel</h3>
@@ -556,7 +555,7 @@ function triggerShake() {
 setInterval(triggerShake, 800);
     </script>
     <script src="/js/presence.js"></script>
-<div id="videoModal" class="video-modal">
+<!--<div id="videoModal" class="video-modal">
     <span class="close-video" onclick="closeVideo()">&times;</span>
     <iframe id="videoFrame"
        src="https://www.youtube.com/embed/XJyuI-HIBRM"
@@ -564,7 +563,7 @@ setInterval(triggerShake, 800);
         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen>
     </iframe>
-</div>
+</div>-->
     <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
