@@ -937,10 +937,10 @@ function hidePaymentStatusToast() {
         availableFiles.length === 0
       ) {
         throw new Error(
-          `No PDF was found for ${getSubjectLabel(
+          `No notes was found for ${getSubjectLabel(
             formData.subject
           )} ${formData.classLevel.toUpperCase()}. ` +
-          `Add files such as notes/${formData.subject}/${formData.classLevel}_v1.pdf.`
+          `Please come back later.`
         );
       }
 
