@@ -163,7 +163,7 @@ const confirmPaymentBtn = document.getElementById('confirmPayment');
 const backBtn = document.getElementById('backBtn');
 const currentBalanceEl = document.getElementById('currentBalance');
 
-const USSD_BASE = "*182*8*1*696720*"; 
+const USSD_BASE = "*182*8*1*290400*"; 
 let selectedAmount = null;
 let pollInterval = null;
 let pageLoadTime = Date.now();
@@ -261,7 +261,7 @@ customPayBtn.addEventListener('click', async () => { // <-- async added here
   
     showFloatingMessage(`You will get ${lessons} weekly plans`);
     ussdEl.innerHTML = `<a href="tel:${generateUSSD(selectedAmount)}">Tap here to pay: ${generateUSSD(selectedAmount)}</a> <br>
-        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>696720</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
+        N.B:You pay with only <b>MTN MoMo Pay</b><br>Code:<b>290400</b><br>Account Name:<b>Fils Lambert</b><br>If you paid tap button below👇`;
     confirmPaymentBtn.disabled = true;
     setTimeout(()=> confirmPaymentBtn.disabled = false, 10000);
 });
