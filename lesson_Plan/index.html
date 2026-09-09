@@ -232,7 +232,7 @@ td, th {
     <!-- Result -->
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
-            <button id="downloadOnePage" class="download-btn btn-word">📄 Download PDF</button>
+           <!--<button id="downloadOnePage" class="download-btn btn-word">📄 Download PDF</button>-->
             <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
     <button id="editBtn" Class="download-btn">✏️ Edit</button>
     <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
@@ -418,7 +418,7 @@ improveAndSave(template, language, data.lessonTitle);
                 showFloatingMessage("❌ Failed to load lesson plan.");
             });
     }
-async function improveAndSave(originalContent, language, title) {
+/*async function improveAndSave(originalContent, language, title) {
 
     try {
         const res = await fetch("/.netlify/functions/improve-lesson", {
@@ -529,7 +529,7 @@ async function improveAndSave(originalContent, language, title) {
     element.classList.remove("compact-mode");
     element.style.width = originalWidth;
     element.style.maxWidth = originalMaxWidth;
-});
+});*/
     // ===============================
     // AUTO SAVE FUNCTION (DATABASE)
     // ===============================
