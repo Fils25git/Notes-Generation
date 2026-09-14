@@ -376,45 +376,99 @@ onclick="openAcademicModal()">
     // =========================
     // LOAD DASHBOARD STATS
     // =========================
-    async function loadDashboardStats() {
+    
+        async function loadDashboardStats() {
 
-        try {
+    try {
 
-            const res = await fetch(
-                `/.netlify/functions/get-DashboardStats?teacher_id=${teacher?.id || ""}`
-            );
+        const teacherId =
+            Number(localStorage.getItem("userId"));
 
-            const data = await res.json();
+        if (!teacherId) {
+            window.location.href = "../login.html";
+            return;
+        }
 
-            if (!res.ok) {
-                console.log(data.error);
-                return;
-            }
 
-            const cards = document.querySelectorAll(".stats-card h1");
+        const res = await fetch(
+            `/.netlify/functions/get-DashboardStats?teacher_id=${teacherId}`
+        );
 
-            cards[0].innerText = data.students || 0;
-            cards[1].innerText = data.classes || 0;
-            cards[2].innerText = data.subjects || 0;
-            cards[3].innerText = data.tests || 0;
 
-            // TOP INFO
-            document.querySelector(".teacher-info p").innerText =
-                `Academic Year: ${data.academic_year} | ${data.term}`;
+        const data = await res.json();
 
-            // TEACHER NAME
-            const teacherName = document.querySelector(".profile-box strong");
 
-            if (data.teacher?.full_name) {
-                teacherName.innerText = data.teacher.full_name;
-            }
+        if (!res.ok) {
 
-        } catch (err) {
+            console.log(data.error);
 
-            console.log("Dashboard Error:", err);
+            return;
 
         }
+
+
+        const cards =
+            document.querySelectorAll(
+                ".stats-card h1"
+            );
+
+
+        cards[0].innerText =
+            data.students || 0;
+
+        cards[1].innerText =
+            data.classes || 0;
+
+        cards[2].innerText =
+            data.subjects || 0;
+
+        cards[3].innerText =
+            data.tests || 0;
+
+
+        // =========================
+        // ACADEMIC CONTEXT
+        // =========================
+
+        document
+            .querySelector(".teacher-info p")
+            .innerText =
+                `Academic Year: ${
+                    data.academic_year || "--"
+                } | ${
+                    data.term || "--"
+                }`;
+
+
+        // =========================
+        // TEACHER NAME
+        // =========================
+
+        const teacherName =
+            document.querySelector(
+                ".profile-box strong"
+            );
+
+
+        if (data.teacher?.name) {
+
+            teacherName.innerText =
+                data.teacher.name;
+
+        }
+
     }
+
+    catch (err) {
+
+        console.log(
+            "Dashboard Error:",
+            err
+        );
+
+    }
+
+            }
 
     // =========================
     // MODAL
