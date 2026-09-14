@@ -232,11 +232,23 @@ td, th {
     <!-- Result -->
     <div id="resultContainer" class="result-container">
         <div class="download-buttons">
-           <!--<button id="downloadOnePage" class="download-btn btn-word">📄 Download PDF</button>-->
-            <button class="download-btn btn-pdf" onclick="window.print()">📑 Save as PDF/Print</button>
-    <button id="editBtn" Class="download-btn">✏️ Edit</button>
-    <button id="saveBtn" class="download-btn" disabled>💾 Save</button>
-            
+
+    <button id="downloadOnePage" class="download-btn btn-word">
+        📄 Download 1-Page PDF
+    </button>
+
+    <button class="download-btn btn-pdf" onclick="window.print()">
+        📑 Save as PDF/Print
+    </button>
+
+    <button id="editBtn" class="download-btn">
+        ✏️ Edit
+    </button>
+
+    <button id="saveBtn" class="download-btn" disabled>
+        💾 Save
+    </button>
+
         </div>
         <div id="lessonPlanContent" class="lesson-plan"></div>
         
@@ -459,77 +471,196 @@ async function improveAndSave(originalContent, language, title) {
         await autoSavePlan(originalContent, language, title);
     }
   }
-    document.getElementById("downloadOnePage").addEventListener("click", async () => {
+
+// =====================================================
+// DOWNLOAD LESSON PLAN AS EXACTLY ONE A4 PAGE
+// =====================================================
+
+document.getElementById("downloadOnePage").addEventListener("click", async () => {
 
     const element = document.getElementById("lessonPlanContent");
+    const button = document.getElementById("downloadOnePage");
 
     if (!element.innerHTML.trim()) {
-        alert("No lesson plan to download!");
+        showFloatingMessage("❌ No lesson plan to download.");
         return;
     }
 
-    // ===============================
-    // ✅ SAVE ORIGINAL STYLES
-    // ===============================
+    // Prevent multiple clicks
+    button.disabled = true;
+    button.textContent = "Preparing PDF...";
+
+    // Save original styles
     const originalWidth = element.style.width;
     const originalMaxWidth = element.style.maxWidth;
+    const originalFontSize = element.style.fontSize;
+    const originalLineHeight = element.style.lineHeight;
+    const originalTransform = element.style.transform;
+    const originalTransformOrigin = element.style.transformOrigin;
 
-    // ===============================
-    // ✅ APPLY FIXES (BEFORE CAPTURE)
-    // ===============================
-    element.classList.add("compact-mode");
+    try {
 
-    // Force desktop layout (VERY IMPORTANT for mobile)
-    element.style.width = "800px";
-    element.style.maxWidth = "800px";
+        // ---------------------------------------------
+        // A4 dimensions
+        // ---------------------------------------------
+        const A4_WIDTH = 794;   // approximately 210mm at 96 DPI
+        const A4_HEIGHT = 1123; // approximately 297mm at 96 DPI
 
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF("p", "mm", "a4");
+        const margin = 25;
 
-    const canvas = await html2canvas(element, {
-        scale: 1,
-        useCORS: true
-    });
+        const availableWidth = A4_WIDTH - (margin * 2);
+        const availableHeight = A4_HEIGHT - (margin * 2);
 
-    const imgData = canvas.toDataURL("image/jpeg", 1.0);
+        // ---------------------------------------------
+        // Make the content use a fixed A4-like width
+        // ---------------------------------------------
+        element.style.width = availableWidth + "px";
+        element.style.maxWidth = availableWidth + "px";
 
-    const imgWidth = 190;   // A4 width minus margins
-    const x = 10;           // left margin
-    const pageHeight = 297;
+        element.style.boxSizing = "border-box";
 
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // Start with normal readable size
+        element.style.fontSize = "13px";
+        element.style.lineHeight = "1.35";
 
-    let position = 0;
+        element.style.transform = "none";
+        element.style.transformOrigin = "top left";
 
-    // ===============================
-    // ✅ MULTI-PAGE (CORRECT SLICING)
-    // ===============================
-    while (position < imgHeight) {
+        // Allow browser to recalculate dimensions
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // ---------------------------------------------
+        // Measure actual content height
+        // ---------------------------------------------
+        let contentHeight = element.scrollHeight;
+
+        // ---------------------------------------------
+        // If it is too tall, calculate required scale
+        // ---------------------------------------------
+        let scale = 1;
+
+        if (contentHeight > availableHeight) {
+            scale = availableHeight / contentHeight;
+        }
+
+        // Do not allow an unreadably tiny document
+        const minimumScale = 0.72;
+
+        if (scale < minimumScale) {
+            scale = minimumScale;
+        }
+
+        element.style.transform = `scale(${scale})`;
+
+        // ---------------------------------------------
+        // Wait for final rendering
+        // ---------------------------------------------
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        // ---------------------------------------------
+        // Capture lesson plan
+        // ---------------------------------------------
+        const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            logging: false
+        });
+
+        // ---------------------------------------------
+        // Create A4 PDF
+        // ---------------------------------------------
+        const { jsPDF } = window.jspdf;
+
+        const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "mm",
+            format: "a4"
+        });
+
+        const pageWidth = 210;
+        const pageHeight = 297;
+
+        const pdfMargin = 8;
+
+        const imgWidth = pageWidth - (pdfMargin * 2);
+
+        const imgHeight =
+            (canvas.height * imgWidth) / canvas.width;
+
+        // ---------------------------------------------
+        // Make sure image never exceeds A4 page
+        // ---------------------------------------------
+        let finalWidth = imgWidth;
+        let finalHeight = imgHeight;
+
+        if (finalHeight > pageHeight - (pdfMargin * 2)) {
+
+            finalHeight = pageHeight - (pdfMargin * 2);
+
+            finalWidth =
+                (canvas.width * finalHeight) / canvas.height;
+        }
+
+        // Center horizontally
+        const x = (pageWidth - finalWidth) / 2;
+
+        // Center vertically
+        const y = (pageHeight - finalHeight) / 2;
+
+        // ---------------------------------------------
+        // Add image
+        // ---------------------------------------------
         pdf.addImage(
-            imgData,
+            canvas.toDataURL("image/jpeg", 0.95),
             "JPEG",
             x,
-            -position,
-            imgWidth,
-            imgHeight
+            y,
+            finalWidth,
+            finalHeight
         );
 
-        position += pageHeight;
+        // ---------------------------------------------
+        // File name
+        // ---------------------------------------------
+        const lessonTitle =
+            document.getElementById("lessonTitle").value.trim();
 
-        if (position < imgHeight) {
-            pdf.addPage();
-        }
+        const safeTitle =
+            lessonTitle
+                ? lessonTitle.replace(/[\\/:*?"<>|]/g, "_")
+                : "LessonPlan";
+
+        pdf.save(`${safeTitle}_1-Page.pdf`);
+
+        showFloatingMessage("✅ 1-page PDF created successfully.");
+
+    } catch (error) {
+
+        console.error("PDF ERROR:", error);
+
+        showFloatingMessage(
+            "❌ Failed to create the 1-page PDF."
+        );
+
+    } finally {
+
+        // ---------------------------------------------
+        // RESTORE ORIGINAL LESSON PLAN
+        // ---------------------------------------------
+        element.style.width = originalWidth;
+        element.style.maxWidth = originalMaxWidth;
+        element.style.fontSize = originalFontSize;
+        element.style.lineHeight = originalLineHeight;
+        element.style.transform = originalTransform;
+        element.style.transformOrigin = originalTransformOrigin;
+
+        button.disabled = false;
+        button.textContent = "📄 Download 1-Page PDF";
     }
 
-    pdf.save(`${document.getElementById("lessonTitle").value || "LessonPlan"}.pdf`);
-
-    // ===============================
-    // ✅ RESTORE ORIGINAL STYLES
-    // ===============================
-    element.classList.remove("compact-mode");
-    element.style.width = originalWidth;
-    element.style.maxWidth = originalMaxWidth;
 });
+    
     // ===============================
     // AUTO SAVE FUNCTION (DATABASE)
     // ===============================
