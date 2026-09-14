@@ -1,146 +1,151 @@
-const db=require("./db");
+const db = require("./db");
 
-exports.handler=async(event)=>{
+exports.handler = async (event) => {
+  try {
+    const action = event.queryStringParameters?.action;
 
-try{
+    // --------------------------------
+    // GET CURRENT ACADEMIC YEAR + TERM
+    // --------------------------------
+    if (action === "getCurrent") {
 
-const action=
-event.queryStringParameters?.action;
+      const year = await db.query(`
+        SELECT *
+        FROM academic_years
+        WHERE is_current = true
+        ORDER BY id DESC
+        LIMIT 1
+      `);
 
+      // Your current terms table does not have is_current.
+      // For now, use the latest/highest term number.
+      const term = await db.query(`
+        SELECT *
+        FROM terms
+        ORDER BY term_number DESC
+        LIMIT 1
+      `);
 
-// GET CURRENT
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          year: year.rows[0] || null,
+          term: term.rows[0] || null
+        })
+      };
+    }
 
-if(action==="getCurrent"){
+    // --------------------------------
+    // GET ALL ACADEMIC YEARS
+    // --------------------------------
+    if (action === "getYears") {
 
-const year=
-await db.query(
-`
-SELECT *
-FROM academic_years
-WHERE is_current=true
-LIMIT 1
-`
-);
+      const result = await db.query(`
+        SELECT *
+        FROM academic_years
+        ORDER BY id DESC
+      `);
 
-const term=
-await db.query(
-`
-SELECT *
-FROM terms
-WHERE is_current=true
-LIMIT 1
-`
-);
+      return {
+        statusCode: 200,
+        body: JSON.stringify(result.rows)
+      };
+    }
 
-return{
+    // --------------------------------
+    // GET ALL TERMS
+    // --------------------------------
+    if (action === "getTerms") {
 
-statusCode:200,
+      const result = await db.query(`
+        SELECT *
+        FROM terms
+        ORDER BY term_number
+      `);
 
-body:JSON.stringify({
+      return {
+        statusCode: 200,
+        body: JSON.stringify(result.rows)
+      };
+    }
 
-year:
-year.rows[0],
+    // --------------------------------
+    // ADD ACADEMIC YEAR
+    // --------------------------------
+    if (action === "addYear") {
 
-term:
-term.rows[0]
+      const { year_name } = JSON.parse(event.body || "{}");
 
-})
+      if (!year_name) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({
+            success: false,
+            message: "Academic year is required"
+          })
+        };
+      }
 
-};
+      const result = await db.query(`
+        INSERT INTO academic_years (
+          year_name,
+          is_current
+        )
+        VALUES ($1, false)
+        RETURNING *
+      `, [year_name]);
 
-}
+      return {
+        statusCode: 200,
+        body: JSON.stringify(result.rows[0])
+      };
+    }
 
+    // --------------------------------
+    // SET ACTIVE ACADEMIC YEAR
+    // --------------------------------
+    if (action === "setActive") {
 
-// GET TERMS
+      const { id } = JSON.parse(event.body || "{}");
 
-if(action==="getTerms"){
+      await db.query(`
+        UPDATE academic_years
+        SET is_current = false
+      `);
 
-const result=
-await db.query(
-`
-SELECT *
-FROM terms
-ORDER BY id
-`
-);
+      await db.query(`
+        UPDATE academic_years
+        SET is_current = true
+        WHERE id = $1
+      `, [id]);
 
-return{
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          success: true,
+          message: "Academic year updated"
+        })
+      };
+    }
 
-statusCode:200,
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        success: false,
+        message: "Invalid action"
+      })
+    };
 
-body:JSON.stringify(
-result.rows
-)
+  } catch (error) {
 
-};
+    console.error("Academic Error:", error);
 
-}
-
-
-// SET ACTIVE TERM
-
-if(action==="setTerm"){
-
-const {id}=
-JSON.parse(event.body);
-
-await db.query(
-`
-UPDATE terms
-SET is_current=false
-`
-);
-
-await db.query(
-`
-UPDATE terms
-SET is_current=true
-WHERE id=$1
-`,
-[id]
-);
-
-return{
-
-statusCode:200,
-
-body:JSON.stringify({
-
-message:"Updated"
-
-})
-
-};
-
-}
-
-
-return{
-
-statusCode:400,
-
-body:JSON.stringify({
-
-message:"Invalid action"
-
-})
-
-};
-
-}catch(error){
-
-return{
-
-statusCode:500,
-
-body:JSON.stringify({
-
-error:error.message
-
-})
-
-};
-
-}
-
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        success: false,
+        error: error.message
+      })
+    };
+  }
 };
