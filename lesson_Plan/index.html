@@ -101,6 +101,76 @@ td, th {
 .compact-mode h3 {
     margin: 4px 0 !important;
 }
+
+        /* ================================
+   NEW FEATURE WELCOME POPUP
+================================ */
+
+.feature-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.feature-popup {
+    background: #fff;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 18px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    animation: popupAppear 0.35s ease;
+}
+
+.feature-popup-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.feature-popup h2 {
+    margin: 5px 0 12px;
+    color: #2980b9;
+    font-size: 23px;
+}
+
+.feature-popup p {
+    color: #444;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 22px;
+}
+
+.feature-popup button {
+    border: none;
+    background: #2980b9;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.feature-popup button:hover {
+    opacity: 0.9;
+}
+
+@keyframes popupAppear {
+    from {
+        transform: scale(0.85);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
     </style>
 </head>
 <body>
@@ -274,6 +344,32 @@ td, th {
     if (!token || !userEmail) {
         window.location.href = "../login.html";
     }
+    // ==========================================
+// SHOW 1-PAGE PDF FEATURE MESSAGE ONCE
+// ==========================================
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const popup = document.getElementById("featurePopupOverlay");
+    const closeBtn = document.getElementById("closeFeaturePopup");
+
+    const popupKey = "one_page_pdf_feature_seen";
+
+    // Show only if this user has not seen it before
+    if (!localStorage.getItem(popupKey)) {
+        popup.style.display = "flex";
+    }
+
+    closeBtn.addEventListener("click", () => {
+
+        popup.style.display = "none";
+
+        // Remember that the message was seen
+        localStorage.setItem(popupKey, "true");
+
+    });
+
+});
 
     // ===============================
     // FLOATING MESSAGE
@@ -718,6 +814,29 @@ document.getElementById("downloadOnePage").addEventListener("click", async () =>
 }
 </script>
     <script src="../js/presence.js"></script>
+<!-- NEW FEATURE POPUP -->
+<div id="featurePopupOverlay" class="feature-popup-overlay">
 
+    <div class="feature-popup">
+
+        <div class="feature-popup-icon">🎉</div>
+
+        <h2>New Feature!</h2>
+
+        <p>
+            You can now download your lesson plan as a
+            <strong>1-page PDF</strong>.
+            <br><br>
+            The lesson plan will be adjusted to fit one A4 page
+            while keeping it clear and readable.
+        </p>
+
+        <button id="closeFeaturePopup">
+            Got it 👍
+        </button>
+
+    </div>
+
+</div>
 </body>
                             </html>
