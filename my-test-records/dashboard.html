@@ -137,12 +137,11 @@
 <script>
 
     // CHECK LOGIN
-    const teacher = JSON.parse(localStorage.getItem("teacher"));
+    const teacherId = Number(localStorage.getItem("userId"));
 
-    if (!teacher) {
-        window.location.href = "login.html";
+if (!teacherId) {
+    window.location.href = "../login.html";
     }
-
 </script>
 
 <div class="dashboard-wrapper">
