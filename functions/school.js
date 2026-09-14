@@ -1,753 +1,887 @@
-const db=require("./db");
+const db = require("./db");
 
-exports.handler=async(event)=>{
+exports.handler = async (event) => {
 
-try{
+    try {
 
-const action=
-event.queryStringParameters?.action;
+        const action =
+            event.queryStringParameters?.action;
 
+        // =====================================================
+        // GET TEACHER ID
+        // =====================================================
 
-// =========================
-// GET SUBJECTS
-// =========================
+        let teacher_id;
 
-if(action==="getSubjects"){
+        if (event.httpMethod === "GET") {
 
-const result=
-await db.query(`
-SELECT *
-FROM subjects
-ORDER BY id
-`);
+            teacher_id =
+                Number(event.queryStringParameters?.teacher_id);
 
-return{
-statusCode:200,
-body:JSON.stringify(result.rows)
-};
+        } else {
 
-}
+            const body =
+                JSON.parse(event.body || "{}");
 
+            teacher_id =
+                Number(body.teacher_id);
+        }
 
-// =========================
-// GET CLASSES
-// =========================
+        // Teacher ID is required for every marks operation
+        if (!teacher_id) {
 
-if(action==="getClasses"){
+            return {
+                statusCode: 401,
+                body: JSON.stringify({
+                    success: false,
+                    message: "Teacher ID is required"
+                })
+            };
 
-const result=
-await db.query(`
-SELECT *
-FROM classes
-ORDER BY id
-`);
+        }
 
-return{
-statusCode:200,
-body:JSON.stringify(result.rows)
-};
 
-}
+        // =====================================================
+        // GET SUBJECTS
+        // =====================================================
 
+        if (action === "getSubjects") {
 
-// =========================
-// ADD TEST
-// =========================
+            const result = await db.query(`
+                SELECT *
+                FROM subjects
+                WHERE teacher_id = $1
+                ORDER BY id
+            `, [teacher_id]);
 
-if(action==="addTest"){
+            return {
+                statusCode: 200,
+                body: JSON.stringify(result.rows)
+            };
+        }
 
-const body=
-JSON.parse(event.body);
 
-const{
-subject_id,
-class_id,
-academic_year_id,
-term_id,
-test_name,
-max_score,
-is_exam
-}=body;
+        // =====================================================
+        // GET CLASSES
+        // =====================================================
 
+        if (action === "getClasses") {
 
-const result=
-await db.query(
+            const result = await db.query(`
+                SELECT *
+                FROM classes
+                WHERE teacher_id = $1
+                ORDER BY id
+            `, [teacher_id]);
 
-`
-INSERT INTO subject_tests(
+            return {
+                statusCode: 200,
+                body: JSON.stringify(result.rows)
+            };
+        }
 
-subject_id,
-class_id,
-academic_year_id,
-term_id,
-test_name,
-max_score,
-is_exam
 
-)
+        // =====================================================
+        // ADD TEST
+        // =====================================================
 
-VALUES(
-$1,$2,$3,$4,$5,$6,$7
-)
+        if (action === "addTest") {
 
-RETURNING *
-`,
-[
-subject_id,
-class_id,
-academic_year_id,
-term_id,
-test_name,
-Number(max_score),
-is_exam||false
-]
+            const body =
+                JSON.parse(event.body || "{}");
 
-);
+            const {
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id,
+                test_name,
+                max_score,
+                is_exam
+            } = body;
 
-return{
 
-statusCode:200,
+            // Make sure the subject belongs to this teacher
+            const subjectCheck = await db.query(`
+                SELECT id
+                FROM subjects
+                WHERE id = $1
+                AND teacher_id = $2
+            `, [subject_id, teacher_id]);
 
-body:JSON.stringify(
-result.rows[0]
-)
 
-};
+            if (!subjectCheck.rows.length) {
 
-}
+                return {
+                    statusCode: 403,
+                    body: JSON.stringify({
+                        success: false,
+                        message: "You do not have access to this subject"
+                    })
+                };
 
+            }
 
-// =========================
-// UPDATE TEST
-// =========================
 
-if(action==="updateTest"){
+            // Make sure the class belongs to this teacher
+            const classCheck = await db.query(`
+                SELECT id
+                FROM classes
+                WHERE id = $1
+                AND teacher_id = $2
+            `, [class_id, teacher_id]);
 
-const body=
-JSON.parse(event.body);
 
-const{
-id,
-test_name,
-max_score
-}=body;
+            if (!classCheck.rows.length) {
 
+                return {
+                    statusCode: 403,
+                    body: JSON.stringify({
+                        success: false,
+                        message: "You do not have access to this class"
+                    })
+                };
 
-await db.query(
+            }
 
-`
-UPDATE subject_tests
 
-SET
-test_name=$1,
-max_score=$2
+            const result = await db.query(`
 
-WHERE id=$3
-`,
-[
-test_name,
-Number(max_score),
-id
-]
+                INSERT INTO subject_tests(
 
-);
+                    teacher_id,
+                    subject_id,
+                    class_id,
+                    academic_year_id,
+                    term_id,
+                    test_name,
+                    max_score,
+                    is_exam
 
+                )
 
-await db.query(
+                VALUES(
+                    $1,$2,$3,$4,$5,$6,$7,$8
+                )
 
-`
-UPDATE marks
-SET max_score=$1
-WHERE test_id=$2
-`,
-[
-Number(max_score),
-id
-]
+                RETURNING *
 
-);
+            `, [
 
+                teacher_id,
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id,
+                test_name,
+                Number(max_score),
+                is_exam || false
 
-return{
+            ]);
 
-statusCode:200,
 
-body:JSON.stringify({
+            return {
+                statusCode: 200,
+                body: JSON.stringify(result.rows[0])
+            };
 
-message:"updated"
+        }
 
-})
 
-};
+        // =====================================================
+        // UPDATE TEST
+        // =====================================================
 
-}
+        if (action === "updateTest") {
 
- // ===================================
-// DELETE TEST
-// ===================================
+            const body =
+                JSON.parse(event.body || "{}");
 
-if(action==="deleteTest"){
+            const {
+                id,
+                test_name,
+                max_score
+            } = body;
 
-const {
-test_id
-}=
-JSON.parse(event.body);
 
+            // Only update this teacher's test
+            const result = await db.query(`
 
-// delete marks linked to test
+                UPDATE subject_tests
 
-await db.query(
+                SET
+                    test_name = $1,
+                    max_score = $2
 
-`
-DELETE FROM marks
-WHERE test_id=$1
-`,
-[
-test_id
-]
+                WHERE id = $3
+                AND teacher_id = $4
 
-);
+                RETURNING id
 
+            `, [
+                test_name,
+                Number(max_score),
+                id,
+                teacher_id
+            ]);
 
-// delete test
 
-await db.query(
+            if (!result.rows.length) {
 
-`
-DELETE FROM subject_tests
-WHERE id=$1
-`,
-[
-test_id
-]
+                return {
+                    statusCode: 403,
+                    body: JSON.stringify({
+                        success: false,
+                        message: "Test not found or access denied"
+                    })
+                };
 
-);
+            }
 
-return{
 
-statusCode:200,
+            // Update max score only for marks belonging
+            // to this teacher's test
+            await db.query(`
 
-body:JSON.stringify({
+                UPDATE marks
 
-message:"Deleted"
+                SET max_score = $1
 
-})
+                WHERE test_id = $2
+                AND teacher_id = $3
 
-};
+            `, [
+                Number(max_score),
+                id,
+                teacher_id
+            ]);
 
-} 
 
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    message: "updated"
+                })
+            };
 
-// =========================
-// GET MARKS
-// =========================
+        }
 
-if(action==="getMarks"){
 
-const{
-class_id,
-subject_id,
-academic_year_id,
-term_id
-}
-=
-event.queryStringParameters;
+        // =====================================================
+        // DELETE TEST
+        // =====================================================
 
+        if (action === "deleteTest") {
 
-const learners=
-await db.query(
+            const {
+                test_id
+            } = JSON.parse(event.body || "{}");
 
-`
-SELECT *
 
-FROM learners
+            // Because marks.test_id has ON DELETE CASCADE,
+            // deleting the test will automatically delete
+            // its marks.
+            const result = await db.query(`
 
-WHERE class_id=$1
-AND academic_year_id=$2
+                DELETE FROM subject_tests
 
-ORDER BY full_name
-`,
-[
-class_id,
-academic_year_id
-]
+                WHERE id = $1
+                AND teacher_id = $2
 
-);
+                RETURNING id
 
+            `, [
+                test_id,
+                teacher_id
+            ]);
 
-const tests=
-await db.query(
 
-`
-SELECT *
+            if (!result.rows.length) {
 
-FROM subject_tests
+                return {
+                    statusCode: 403,
+                    body: JSON.stringify({
+                        success: false,
+                        message: "Test not found or access denied"
+                    })
+                };
 
-WHERE subject_id=$1
-AND class_id=$2
-AND academic_year_id=$3
-AND term_id=$4
+            }
 
-ORDER BY id
-`,
-[
-subject_id,
-class_id,
-academic_year_id,
-term_id
-]
 
-);
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    message: "Deleted"
+                })
+            };
 
+        }
 
-const marks=
-await db.query(
 
-`
-SELECT *
+        // =====================================================
+        // GET MARKS
+        // =====================================================
 
-FROM marks
+        if (action === "getMarks") {
 
-WHERE class_id=$1
-AND subject_id=$2
-AND academic_year_id=$3
-AND term_id=$4
-`,
-[
-class_id,
-subject_id,
-academic_year_id,
-term_id
-]
+            const {
+                class_id,
+                subject_id,
+                academic_year_id,
+                term_id
+            } = event.queryStringParameters;
 
-);
 
+            // ---------------------------------------------
+            // GET LEARNERS
+            // ---------------------------------------------
 
-const marksMap={};
+            const learners = await db.query(`
 
-marks.rows.forEach(m=>{
+                SELECT *
 
-marksMap[
-`${m.learner_id}_${m.test_id}`
-]
-=
-m;
+                FROM learners
 
-});
+                WHERE class_id = $1
+                AND academic_year_id = $2
+                AND teacher_id = $3
 
+                ORDER BY full_name
 
-const finalData=
+            `, [
+                class_id,
+                academic_year_id,
+                teacher_id
+            ]);
 
-learners.rows.map(
 
-learner=>{
+            // ---------------------------------------------
+            // GET TESTS
+            // ---------------------------------------------
 
-const learnerMarks=
+            const tests = await db.query(`
 
-tests.rows.map(
+                SELECT *
 
-test=>{
+                FROM subject_tests
 
-const found=
+                WHERE subject_id = $1
+                AND class_id = $2
+                AND academic_year_id = $3
+                AND term_id = $4
+                AND teacher_id = $5
 
-marksMap[
-`${learner.id}_${test.id}`
-];
+                ORDER BY id
 
-return{
+            `, [
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id,
+                teacher_id
+            ]);
 
-test_id:test.id,
 
-assessment_type:
-test.test_name,
+            // ---------------------------------------------
+            // GET MARKS
+            // ---------------------------------------------
 
-score:
-found?.score||"",
+            const marks = await db.query(`
 
-max_score:
-test.max_score,
+                SELECT *
 
-is_exam:
-test.is_exam
+                FROM marks
 
-};
+                WHERE class_id = $1
+                AND subject_id = $2
+                AND academic_year_id = $3
+                AND term_id = $4
+                AND teacher_id = $5
 
-}
+            `, [
+                class_id,
+                subject_id,
+                academic_year_id,
+                term_id,
+                teacher_id
+            ]);
 
-);
 
+            const marksMap = {};
 
-return{
 
-id:learner.id,
+            marks.rows.forEach(m => {
 
-full_name:
-learner.full_name,
+                marksMap[
+                    `${m.learner_id}_${m.test_id}`
+                ] = m;
 
-marks:
-learnerMarks
+            });
 
-};
 
-}
+            const finalData =
 
-);
+                learners.rows.map(learner => {
 
+                    const learnerMarks =
 
-return{
+                        tests.rows.map(test => {
 
-statusCode:200,
+                            const found =
 
-body:JSON.stringify(
-finalData
-)
+                                marksMap[
+                                    `${learner.id}_${test.id}`
+                                ];
 
-};
 
-}
+                            return {
 
-// ===================================
-// GET GRADING SETTINGS
-// ===================================
+                                test_id: test.id,
 
-if(action==="getGradingSettings"){
+                                assessment_type:
+                                    test.test_name,
 
-const{
+                                score:
+                                    found
+                                        ? found.score
+                                        : "",
 
-subject_id,
-class_id,
-academic_year_id,
-term_id
+                                max_score:
+                                    test.max_score,
 
-}
-=
-event.queryStringParameters;
+                                is_exam:
+                                    test.is_exam
 
+                            };
 
-const result=
-await db.query(
+                        });
 
-`
-SELECT *
 
-FROM grading_settings
+                    return {
 
-WHERE
-subject_id=$1
-AND class_id=$2
-AND academic_year_id=$3
-AND term_id=$4
-`,
-[
-subject_id,
-class_id,
-academic_year_id,
-term_id
-]
+                        id: learner.id,
 
-);
+                        full_name:
+                            learner.full_name,
 
+                        marks:
+                            learnerMarks
 
-if(result.rows.length){
+                    };
 
-return{
+                });
 
-statusCode:200,
-body:JSON.stringify(
-result.rows[0]
-)
 
-};
+            return {
 
-}
+                statusCode: 200,
 
+                body:
+                    JSON.stringify(finalData)
 
-return{
+            };
 
-statusCode:200,
+        }
 
-body:JSON.stringify({
 
-overall_test_max:100,
-overall_exam_max:100
+        // =====================================================
+        // GET GRADING SETTINGS
+        // =====================================================
 
-})
+        if (action === "getGradingSettings") {
 
-};
+            const {
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id
+            } = event.queryStringParameters;
 
-}
 
+            const result = await db.query(`
 
+                SELECT *
 
-// ===================================
-// SAVE GRADING SETTINGS
-// ===================================
+                FROM grading_settings
 
-if(action==="saveGradingSettings"){
+                WHERE subject_id = $1
+                AND class_id = $2
+                AND academic_year_id = $3
+                AND term_id = $4
+                AND teacher_id = $5
 
-const body=
-JSON.parse(
-event.body
-);
+            `, [
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id,
+                teacher_id
+            ]);
 
-const{
 
-subject_id,
-class_id,
-academic_year_id,
-term_id,
+            if (result.rows.length) {
 
-overall_test_max,
-overall_exam_max
+                return {
 
-}
-=
-body;
+                    statusCode: 200,
 
+                    body:
+                        JSON.stringify(result.rows[0])
 
-const existing=
-await db.query(
+                };
 
-`
-SELECT id
+            }
 
-FROM grading_settings
 
-WHERE
-subject_id=$1
-AND class_id=$2
-AND academic_year_id=$3
-AND term_id=$4
-`,
-[
-subject_id,
-class_id,
-academic_year_id,
-term_id
-]
+            return {
 
-);
+                statusCode: 200,
 
+                body: JSON.stringify({
 
-if(existing.rows.length){
+                    overall_test_max: 100,
 
-await db.query(
+                    overall_exam_max: 100
 
-`
-UPDATE grading_settings
+                })
 
-SET
+            };
 
-overall_test_max=$1,
-overall_exam_max=$2
+        }
 
-WHERE id=$3
-`,
-[
-overall_test_max,
-overall_exam_max,
-existing.rows[0].id
-]
 
-);
+        // =====================================================
+        // SAVE GRADING SETTINGS
+        // =====================================================
 
-}else{
+        if (action === "saveGradingSettings") {
 
-await db.query(
+            const body =
+                JSON.parse(event.body || "{}");
 
-`
-INSERT INTO grading_settings(
 
-subject_id,
-class_id,
-academic_year_id,
-term_id,
+            const {
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id,
+                overall_test_max,
+                overall_exam_max
+            } = body;
 
-overall_test_max,
-overall_exam_max
 
-)
+            const existing = await db.query(`
 
-VALUES(
-$1,$2,$3,$4,$5,$6
-)
-`,
-[
-subject_id,
-class_id,
-academic_year_id,
-term_id,
+                SELECT id
 
-overall_test_max,
-overall_exam_max
-]
+                FROM grading_settings
 
-);
+                WHERE subject_id = $1
+                AND class_id = $2
+                AND academic_year_id = $3
+                AND term_id = $4
+                AND teacher_id = $5
 
-}
+            `, [
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id,
+                teacher_id
+            ]);
 
 
-return{
+            if (existing.rows.length) {
 
-statusCode:200,
+                await db.query(`
 
-body:JSON.stringify({
+                    UPDATE grading_settings
 
-message:"Saved"
+                    SET
+                        overall_test_max = $1,
+                        overall_exam_max = $2
 
-})
+                    WHERE id = $3
+                    AND teacher_id = $4
 
-};
+                `, [
+                    overall_test_max,
+                    overall_exam_max,
+                    existing.rows[0].id,
+                    teacher_id
+                ]);
 
-}
+            } else {
 
-// =========================
-// SAVE MARK
-// =========================
+                await db.query(`
 
-if(action==="saveMark"){
+                    INSERT INTO grading_settings(
 
-const body=
-JSON.parse(event.body);
+                        teacher_id,
+                        subject_id,
+                        class_id,
+                        academic_year_id,
+                        term_id,
+                        overall_test_max,
+                        overall_exam_max
 
-const{
+                    )
 
-learner_id,
-subject_id,
-class_id,
-academic_year_id,
-term_id,
-teacher_id,
-test_id,
-score,
-max_score
+                    VALUES(
+                        $1,$2,$3,$4,$5,$6,$7
+                    )
 
-}=body;
+                `, [
+                    teacher_id,
+                    subject_id,
+                    class_id,
+                    academic_year_id,
+                    term_id,
+                    overall_test_max,
+                    overall_exam_max
+                ]);
 
+            }
 
-const existing=
-await db.query(
 
-`
-SELECT id
+            return {
 
-FROM marks
+                statusCode: 200,
 
-WHERE learner_id=$1
-AND test_id=$2
-`,
-[
-learner_id,
-test_id
-]
+                body: JSON.stringify({
 
-);
+                    message: "Saved"
 
+                })
 
-if(existing.rows.length){
+            };
 
-await db.query(
+        }
 
-`
-UPDATE marks
-SET score=$1
-WHERE id=$2
-`,
-[
-score,
-existing.rows[0].id
-]
 
-);
+        // =====================================================
+        // SAVE MARK
+        // =====================================================
 
-}
-else{
+        if (action === "saveMark") {
 
-await db.query(
+            const body =
+                JSON.parse(event.body || "{}");
 
-`
-INSERT INTO marks(
 
-learner_id,
-subject_id,
-class_id,
-academic_year_id,
-term_id,
-teacher_id,
-test_id,
-score,
-max_score
+            const {
+                learner_id,
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id,
+                test_id,
+                score,
+                max_score
+            } = body;
 
-)
 
-VALUES(
-$1,$2,$3,$4,$5,$6,$7,$8,$9
-)
-`,
-[
-learner_id,
-subject_id,
-class_id,
-academic_year_id,
-term_id,
-teacher_id,
-test_id,
-score,
-max_score
-]
+            // IMPORTANT:
+            // We do NOT trust teacher_id from the frontend.
+            // We use teacher_id obtained above.
 
-);
 
-}
+            // Make sure learner belongs to this teacher
+            const learnerCheck = await db.query(`
 
+                SELECT id
 
-return{
+                FROM learners
 
-statusCode:200,
+                WHERE id = $1
+                AND teacher_id = $2
 
-body:JSON.stringify({
+            `, [
+                learner_id,
+                teacher_id
+            ]);
 
-message:"saved"
 
-})
+            if (!learnerCheck.rows.length) {
 
-};
+                return {
 
-}
+                    statusCode: 403,
 
+                    body: JSON.stringify({
 
-// =========================
+                        success: false,
 
-return{
+                        message:
+                            "You do not have access to this learner"
 
-statusCode:400,
+                    })
 
-body:JSON.stringify({
+                };
 
-message:"Invalid action"
+            }
 
-})
 
-};
+            // Make sure test belongs to this teacher
+            const testCheck = await db.query(`
 
-}
+                SELECT id
 
-catch(error){
+                FROM subject_tests
 
-console.log(error);
+                WHERE id = $1
+                AND teacher_id = $2
 
-return{
+            `, [
+                test_id,
+                teacher_id
+            ]);
 
-statusCode:500,
 
-body:JSON.stringify({
+            if (!testCheck.rows.length) {
 
-error:error.message
+                return {
 
-})
+                    statusCode: 403,
 
-};
+                    body: JSON.stringify({
 
-}
+                        success: false,
+
+                        message:
+                            "You do not have access to this test"
+
+                    })
+
+                };
+
+            }
+
+
+            const existing = await db.query(`
+
+                SELECT id
+
+                FROM marks
+
+                WHERE learner_id = $1
+                AND test_id = $2
+                AND teacher_id = $3
+
+            `, [
+                learner_id,
+                test_id,
+                teacher_id
+            ]);
+
+
+            if (existing.rows.length) {
+
+                await db.query(`
+
+                    UPDATE marks
+
+                    SET
+                        score = $1,
+                        max_score = $2
+
+                    WHERE id = $3
+                    AND teacher_id = $4
+
+                `, [
+                    score,
+                    max_score,
+                    existing.rows[0].id,
+                    teacher_id
+                ]);
+
+            } else {
+
+                await db.query(`
+
+                    INSERT INTO marks(
+
+                        teacher_id,
+                        learner_id,
+                        subject_id,
+                        class_id,
+                        academic_year_id,
+                        term_id,
+                        test_id,
+                        score,
+                        max_score
+
+                    )
+
+                    VALUES(
+                        $1,$2,$3,$4,$5,$6,$7,$8,$9
+                    )
+
+                `, [
+                    teacher_id,
+                    learner_id,
+                    subject_id,
+                    class_id,
+                    academic_year_id,
+                    term_id,
+                    test_id,
+                    score,
+                    max_score
+                ]);
+
+            }
+
+
+            return {
+
+                statusCode: 200,
+
+                body: JSON.stringify({
+
+                    message: "saved"
+
+                })
+
+            };
+
+        }
+
+
+        // =====================================================
+        // INVALID ACTION
+        // =====================================================
+
+        return {
+
+            statusCode: 400,
+
+            body: JSON.stringify({
+
+                message: "Invalid action"
+
+            })
+
+        };
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+        return {
+
+            statusCode: 500,
+
+            body: JSON.stringify({
+
+                error: error.message
+
+            })
+
+        };
+
+    }
 
 };
