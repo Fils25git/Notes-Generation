@@ -1,9 +1,9 @@
-const teacher=
-JSON.parse(
-localStorage.getItem("teacher")
-|| "{}"
-);
+const teacherId =
+Number(localStorage.getItem("userId"));
 
+if (!teacherId) {
+    window.location.href = "../login.html";
+}
 let selectedSubject=
 localStorage.getItem(
 "selectedSubject"
@@ -26,70 +26,94 @@ let selectedYear=null;
 // API
 // ======================
 
+
 async function school(
-action,
-body={},
-method="GET"
-){
+    action,
+    body = {},
+    method = "GET"
+) {
 
-try{
+    try {
 
-let url=
-`/.netlify/functions/school?action=${action}`;
+        const teacherId =
+            Number(localStorage.getItem("userId"));
 
-const options={
-
-method,
-
-headers:{
-"Content-Type":"application/json"
-}
-
-};
+        if (!teacherId) {
+            window.location.href = "../login.html";
+            return [];
+        }
 
 
-if(method==="GET"){
+        let url =
+            `/.netlify/functions/school?action=${action}`;
 
-const params=
-new URLSearchParams(
-body
-).toString();
+        const options = {
 
-if(params){
+            method,
 
-url+="&"+params;
+            headers: {
+                "Content-Type": "application/json"
+            }
 
-}
-
-}
-else{
-
-options.body=
-JSON.stringify(
-body
-);
-
-}
+        };
 
 
-const response=
-await fetch(
-url,
-options
-);
+        if (method === "GET") {
 
-return await response.json();
+            const params =
+                new URLSearchParams({
+                    ...body,
+                    teacher_id: teacherId
+                }).toString();
 
-}
-catch(error){
+            if (params) {
+                url += "&" + params;
+            }
 
-debug(
-error.message
-);
+        } else {
 
-return[];
+            options.body =
+                JSON.stringify({
 
-}
+                    ...body,
+
+                    teacher_id: teacherId
+
+                });
+
+        }
+
+
+        const response =
+            await fetch(url, options);
+
+
+        if (!response.ok) {
+
+            const error =
+                await response.json().catch(() => ({}));
+
+            debug(
+                error.message ||
+                "Request failed"
+            );
+
+            return [];
+
+        }
+
+
+        return await response.json();
+
+    }
+
+    catch (error) {
+
+        debug(error.message);
+
+        return [];
+
+    }
 
 }
 
@@ -994,9 +1018,6 @@ selectedYear,
 
 term_id:
 selectedTerm,
-
-teacher_id:
-teacher.id,
 
 test_id,
 
