@@ -1,6 +1,6 @@
-const db = require("./db");
+import db from "./db.js";
 
-exports.handler = async () => {
+export const handler = async (event) => {
   try {
     const result = await db.query(
       "SELECT * FROM classes ORDER BY id ASC"
