@@ -1,48 +1,35 @@
-import pkg from "pg";
-const { Client } = pkg;
+import db from "./db.js";
 
 export async function handler(event) {
-
-    const client = new Client({
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
-    });
-
     try {
-        await client.connect();
-
         const params = event.queryStringParameters || {};
 
         const {
-    class_name,
-    subject,
-    school
-} = params;
+            class_name,
+            subject,
+            school
+        } = params;
 
-const cleanSchool =
-    school &&
-    school !== "undefined" &&
-    school !== "null" &&
-    school.trim() !== ""
-        ? school.trim()
-        : null;
-
-const cleanClass = class_name?.trim();
-const cleanSubject = subject?.trim();
-
-// ✅ SAFETY CHECK (IMPORTANT)
-if (!cleanSchool) {
-    await client.end();
-    return {
-        statusCode: 400,
-        body: JSON.stringify({
-            message: "School is required"
-        })
-    };
-}
+        const cleanSchool =
+            school &&
+            school !== "undefined" &&
+            school !== "null" &&
+            school.trim() !== ""
+                ? school.trim()
+                : null;
 
         const cleanClass = class_name?.trim();
         const cleanSubject = subject?.trim();
+
+        // ✅ SAFETY CHECK
+        if (!cleanSchool) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({
+                    message: "School is required"
+                })
+            };
+        }
 
         const subjectMap = {
             "ENGLISH": "english",
@@ -64,8 +51,6 @@ if (!cleanSchool) {
             subjectMap[cleanSubject?.toUpperCase()];
 
         if (!column) {
-            await client.end();
-
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -155,10 +140,7 @@ if (!cleanSchool) {
             cleanSchool
         ];
 
-        const result =
-            await client.query(query, values);
-
-        await client.end();
+        const result = await db.query(query, values);
 
         return {
             statusCode: 200,
@@ -166,10 +148,7 @@ if (!cleanSchool) {
         };
 
     } catch (err) {
-
-        try {
-            await client.end();
-        } catch (e) {}
+        console.error("getMarks error:", err);
 
         return {
             statusCode: 500,
