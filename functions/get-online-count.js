@@ -1,6 +1,6 @@
-const { Client } = require("pg");
+import { Client } from "pg";
 
-exports.handler = async () => {
+export const handler = async () => {
 
   const client = new Client({
     connectionString: process.env.NEON_DATABASE_URL,
