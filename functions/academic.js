@@ -1,6 +1,6 @@
-const db = require("./db");
+import db from "./db.js";
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     const action = event.queryStringParameters?.action;
 
