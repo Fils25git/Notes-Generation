@@ -336,40 +336,100 @@ onclick="openAcademicModal()">
 </div>
 
 <!-- MODAL -->
+<!-- ACADEMIC SYSTEM MODAL -->
 <div class="modal" id="academicModal">
 
     <div class="modal-content">
 
-        <h2>Academic Year Management</h2>
+        <h2>
+            <i class="fa-solid fa-calendar-days"></i>
+            Academic System
+        </h2>
 
-        <!-- ADD YEAR -->
+        <p style="color:#666; margin-bottom:20px;">
+            Select the academic year and term you want to work with.
+        </p>
+
+        <!-- ACADEMIC YEAR -->
         <div class="input-group">
 
-            <label>New Academic Year</label>
+            <label>Academic Year</label>
 
-            <input
-            id="yearName"
-            placeholder="e.g. 2025-2026">
+            <select id="academicYearSelect"
+                    style="
+                        width:100%;
+                        padding:12px;
+                        border-radius:8px;
+                        border:1px solid #ddd;
+                        outline:none;
+                    ">
+            </select>
 
         </div>
 
-        <button class="btn btn-primary" onclick="addYear()">
-            Add Year
+        <!-- TERM -->
+        <div class="input-group">
+
+            <label>Term</label>
+
+            <select id="termSelect"
+                    style="
+                        width:100%;
+                        padding:12px;
+                        border-radius:8px;
+                        border:1px solid #ddd;
+                        outline:none;
+                    ">
+            </select>
+
+        </div>
+
+        <button
+            class="btn btn-primary"
+            onclick="activateAcademicSystem()"
+            style="width:100%;">
+
+            <i class="fa-solid fa-check"></i>
+            Activate Selection
+
         </button>
+
+        <div
+            id="academicMessage"
+            style="
+                margin-top:15px;
+                padding:10px;
+                border-radius:8px;
+                display:none;
+            ">
+        </div>
 
         <hr style="margin:20px 0;">
 
-        <!-- YEARS -->
-        <div id="yearList"></div>
+        <!-- CURRENT STATUS -->
+        <div
+            id="academicStatus"
+            style="
+                background:#f5f7fa;
+                padding:15px;
+                border-radius:10px;
+            ">
 
-        <button class="close-btn" onclick="closeAcademicModal()">
+            Loading current academic system...
+
+        </div>
+
+        <button
+            class="close-btn"
+            onclick="closeAcademicModal()">
+
             Close
+
         </button>
 
     </div>
 
 </div>
-
 <script>
 
     // =========================
@@ -472,101 +532,354 @@ onclick="openAcademicModal()">
     // =========================
     // MODAL
     // =========================
+       // =========================
+    // ACADEMIC MODAL
+    // =========================
+
     function openAcademicModal() {
 
         document
-        .getElementById("academicModal")
-        .classList.add("active");
+            .getElementById("academicModal")
+            .classList.add("active");
+
+        loadAcademicSystem();
     }
+
 
     function closeAcademicModal() {
 
         document
-        .getElementById("academicModal")
-        .classList.remove("active");
+            .getElementById("academicModal")
+            .classList.remove("active");
     }
 
+
     // =========================
-    // LOAD YEARS
+    // MESSAGE
     // =========================
-    async function loadYears() {
-    try {
-        const res = await fetch(
-            "/.netlify/functions/academic?action=getYears"
-        );
 
-        const text = await res.text();
+    function showMessage(message, type = "success") {
 
-        console.log("Academic Years Status:", res.status);
-        console.log("Academic Years Response:", text);
+        const box =
+            document.getElementById("academicMessage");
 
-        if (!res.ok) {
-            throw new Error(text || `HTTP ${res.status}`);
+        box.innerText = message;
+
+        box.style.display = "block";
+
+        if (type === "error") {
+            box.style.background = "#fee2e2";
+            box.style.color = "#991b1b";
+        } else {
+            box.style.background = "#dcfce7";
+            box.style.color = "#166534";
         }
 
-        const years = JSON.parse(text);
-
-        console.log("Academic Years:", years);
-
-        // Continue with your existing display code here
-
-    } catch (error) {
-        console.error("Academic Years Error:", error);
-
-        show(
-            "Failed to load academic years: " + error.message,
-            "error"
-        );
+        setTimeout(() => {
+            box.style.display = "none";
+        }, 4000);
     }
-}
+
+
     // =========================
-    // ADD YEAR
+    // LOAD ACADEMIC YEARS
     // =========================
-    async function addYear() {
+
+    async function loadAcademicYears() {
+
+        const select =
+            document.getElementById("academicYearSelect");
+
+        select.innerHTML =
+            `<option value="">Loading...</option>`;
 
         try {
 
-            const year_name =
-                document.getElementById("yearName").value.trim();
+            const res = await fetch(
+                "/.netlify/functions/academic?action=getYears"
+            );
 
-            if (!year_name) {
-                alert("Please enter academic year");
+            const years = await res.json();
+
+            if (!res.ok) {
+                throw new Error(
+                    years.error || "Failed to load academic years"
+                );
+            }
+
+            select.innerHTML = "";
+
+            if (!years.length) {
+
+                select.innerHTML =
+                    `<option value="">No academic years available</option>`;
+
                 return;
             }
 
+            years.forEach(year => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = year.id;
+
+                option.textContent =
+                    year.year_name +
+                    (year.is_current ? " (Active)" : "");
+
+                select.appendChild(option);
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Academic Years Error:",
+                error
+            );
+
+            select.innerHTML =
+                `<option value="">Failed to load</option>`;
+
+            showMessage(
+                "Failed to load academic years: " +
+                error.message,
+                "error"
+            );
+        }
+    }
+
+
+    // =========================
+    // LOAD TERMS
+    // =========================
+
+    async function loadTerms(yearId) {
+
+        const select =
+            document.getElementById("termSelect");
+
+        select.innerHTML =
+            `<option value="">Loading...</option>`;
+
+        if (!yearId) {
+
+            select.innerHTML =
+                `<option value="">Select academic year first</option>`;
+
+            return;
+        }
+
+        try {
+
             const res = await fetch(
-                "/.netlify/functions/academic?action=addYear",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type":"application/json"
-                    },
-                    body: JSON.stringify({ year_name })
-                }
+                `/.netlify/functions/academic?action=getTerms&academic_year_id=${yearId}`
+            );
+
+            const terms = await res.json();
+
+            if (!res.ok) {
+                throw new Error(
+                    terms.error || "Failed to load terms"
+                );
+            }
+
+            select.innerHTML = "";
+
+            if (!terms.length) {
+
+                select.innerHTML =
+                    `<option value="">No terms available</option>`;
+
+                return;
+            }
+
+            terms.forEach(term => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = term.id;
+
+                option.textContent =
+                    term.term_name +
+                    (term.is_current ? " (Active)" : "");
+
+                select.appendChild(option);
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Terms Error:",
+                error
+            );
+
+            select.innerHTML =
+                `<option value="">Failed to load</option>`;
+
+            showMessage(
+                "Failed to load terms: " +
+                error.message,
+                "error"
+            );
+        }
+    }
+
+
+    // =========================
+    // LOAD CURRENT SYSTEM
+    // =========================
+
+    async function loadCurrentAcademicSystem() {
+
+        try {
+
+            const res = await fetch(
+                "/.netlify/functions/academic?action=getCurrent"
             );
 
             const data = await res.json();
 
             if (!res.ok) {
-                alert(data.error || "Failed to add year");
-                return;
+                throw new Error(
+                    data.error || "Failed to load current system"
+                );
             }
 
-            document.getElementById("yearName").value = "";
+            const status =
+                document.getElementById("academicStatus");
 
-            loadYears();
+            const year =
+                data.year?.year_name || "No academic year";
 
-        } catch (err) {
+            const term =
+                data.term?.term_name || "No term";
 
-            console.log("Add Year Error:", err);
+            status.innerHTML = `
+                <strong>Current Academic System</strong>
 
+                <div style="margin-top:8px;">
+                    <i class="fa-solid fa-calendar"></i>
+                    ${year}
+                </div>
+
+                <div style="margin-top:6px;">
+                    <i class="fa-solid fa-book"></i>
+                    ${term}
+                </div>
+            `;
+
+            return data;
+
+        } catch (error) {
+
+            console.error(
+                "Current Academic System Error:",
+                error
+            );
+
+            document.getElementById(
+                "academicStatus"
+            ).innerText =
+                "Unable to load current academic system.";
+
+            return null;
         }
     }
 
+
     // =========================
-    // SET ACTIVE YEAR
+    // LOAD EVERYTHING
     // =========================
-    async function setYear(id) {
+
+    async function loadAcademicSystem() {
+
+        const current =
+            await loadCurrentAcademicSystem();
+
+        await loadAcademicYears();
+
+        const yearSelect =
+            document.getElementById(
+                "academicYearSelect"
+            );
+
+        const termSelect =
+            document.getElementById(
+                "termSelect"
+            );
+
+        if (current?.year) {
+
+            yearSelect.value =
+                current.year.id;
+
+            await loadTerms(
+                current.year.id
+            );
+
+            if (current.term) {
+
+                termSelect.value =
+                    current.term.id;
+
+            }
+
+        }
+
+    }
+
+
+    // =========================
+    // YEAR CHANGE
+    // =========================
+
+    document
+        .getElementById("academicYearSelect")
+        .addEventListener(
+            "change",
+            async function () {
+
+                await loadTerms(
+                    this.value
+                );
+
+            }
+        );
+
+
+    // =========================
+    // ACTIVATE YEAR + TERM
+    // =========================
+
+    async function activateAcademicSystem() {
+
+        const yearId =
+            Number(
+                document.getElementById(
+                    "academicYearSelect"
+                ).value
+            );
+
+        const termId =
+            Number(
+                document.getElementById(
+                    "termSelect"
+                ).value
+            );
+
+        if (!yearId || !termId) {
+
+            showMessage(
+                "Please select an academic year and term.",
+                "error"
+            );
+
+            return;
+        }
 
         try {
 
@@ -574,36 +887,60 @@ onclick="openAcademicModal()">
                 "/.netlify/functions/academic?action=setActive",
                 {
                     method: "POST",
+
                     headers: {
-                        "Content-Type":"application/json"
+                        "Content-Type":
+                            "application/json"
                     },
-                    body: JSON.stringify({ id })
+
+                    body: JSON.stringify({
+                        academic_year_id: yearId,
+                        term_id: termId
+                    })
                 }
             );
 
-            const data = await res.json();
+            const data =
+                await res.json();
 
             if (!res.ok) {
-                alert(data.error || "Failed to update year");
-                return;
+
+                throw new Error(
+                    data.error ||
+                    data.message ||
+                    "Failed to activate academic system"
+                );
+
             }
 
-            loadYears();
-            loadDashboardStats();
+            showMessage(
+                "Academic year and term activated successfully."
+            );
 
-        } catch (err) {
+            await loadCurrentAcademicSystem();
 
-            console.log("Set Year Error:", err);
+            await loadDashboardStats();
 
+        } catch (error) {
+
+            console.error(
+                "Activate Academic System Error:",
+                error
+            );
+
+            showMessage(
+                error.message,
+                "error"
+            );
         }
     }
+
 
     // =========================
     // INIT
     // =========================
-    loadDashboardStats();
-    loadYears();
 
+    loadDashboardStats();
 </script>
 
 </body>
