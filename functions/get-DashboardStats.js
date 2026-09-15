@@ -1,6 +1,6 @@
-const db = require("./db");
+import db from "./db.js";
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   try {
     const { teacher_id } = event.queryStringParameters || {};
 
@@ -99,10 +99,6 @@ exports.handler = async (event) => {
     // --------------------------------
     // CURRENT TERM
     // --------------------------------
-    // Your terms table is shared and does NOT
-    // contain academic_year_id.
-    //
-    // For now, use the latest term.
 
     const termRes = await db.query(
       `
@@ -130,7 +126,6 @@ exports.handler = async (event) => {
         tests: Number(tests.rows[0].count),
 
         academic_year: currentYear?.year_name || "No Year Set",
-
         term: currentTerm?.term_name || "No Term Set",
 
         teacher: {
