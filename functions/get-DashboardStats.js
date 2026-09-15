@@ -1,3 +1,4 @@
+
 import { pool } from "./db.js";
 
 export const handler = async (event) => {
@@ -99,7 +100,7 @@ export const handler = async (event) => {
             SELECT *
             FROM academic_years
             WHERE is_current = true
-            ORDER BY id DESC
+            ORDER BY start_date DESC, id DESC
             LIMIT 1
             `
         );
@@ -111,9 +112,12 @@ export const handler = async (event) => {
         // --------------------------------
         const termRes = await pool.query(
             `
-            SELECT *
-            FROM terms
-            ORDER BY term_number DESC
+            SELECT t.*
+            FROM terms t
+            INNER JOIN academic_years ay
+                ON t.academic_year_id = ay.id
+            WHERE ay.is_current = true
+              AND t.is_current = true
             LIMIT 1
             `
         );
@@ -133,9 +137,11 @@ export const handler = async (event) => {
                 subjects: Number(subjects.rows[0].count),
                 tests: Number(tests.rows[0].count),
 
-                academic_year: currentYear?.year_name || "No Year Set",
+                academic_year:
+                    currentYear?.year_name || "No Year Set",
 
-                term: currentTerm?.term_name || "No Term Set",
+                term:
+                    currentTerm?.term_name || "No Term Set",
 
                 teacher: {
                     id: teacher.id,
@@ -159,3 +165,4 @@ export const handler = async (event) => {
         };
     }
 };
+
