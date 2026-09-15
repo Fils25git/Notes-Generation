@@ -490,59 +490,35 @@ onclick="openAcademicModal()">
     // LOAD YEARS
     // =========================
     async function loadYears() {
+    try {
+        const res = await fetch(
+            "/.netlify/functions/academic?action=getYears"
+        );
 
-        try {
+        const text = await res.text();
 
-            const res = await fetch(
-                "/.netlify/functions/academic?action=getYears"
-            );
+        console.log("Academic Years Status:", res.status);
+        console.log("Academic Years Response:", text);
 
-            const data = await res.json();
-
-            const list = document.getElementById("yearList");
-
-            list.innerHTML = "";
-
-            // SAFETY CHECK
-            if (!Array.isArray(data)) {
-
-                list.innerHTML =
-                    "<p>Failed to load academic years.</p>";
-
-                console.log(data);
-
-                return;
-            }
-
-            data.forEach(year => {
-
-                list.innerHTML += `
-                    <div class="year-item">
-
-                        <span>
-                            ${year.year_name}
-                            ${year.is_current ? "🔥 Current" : ""}
-                        </span>
-
-                        <button
-                        class="btn-success"
-                        onclick="setYear(${year.id})">
-
-                            Set Active
-
-                        </button>
-
-                    </div>
-                `;
-            });
-
-        } catch (err) {
-
-            console.log("Year Load Error:", err);
-
+        if (!res.ok) {
+            throw new Error(text || `HTTP ${res.status}`);
         }
-    }
 
+        const years = JSON.parse(text);
+
+        console.log("Academic Years:", years);
+
+        // Continue with your existing display code here
+
+    } catch (error) {
+        console.error("Academic Years Error:", error);
+
+        show(
+            "Failed to load academic years: " + error.message,
+            "error"
+        );
+    }
+}
     // =========================
     // ADD YEAR
     // =========================
