@@ -1,6 +1,6 @@
-const { Client } = require("pg");
+import db from "./db.js";
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
     if (event.httpMethod !== "POST") {
         return {
             statusCode: 405,
