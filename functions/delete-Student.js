@@ -1,24 +1,6 @@
-const { Pool }=
-require(
-"pg"
-);
+import db from "./db.js";
 
-const db=
-new Pool({
-
-connectionString:
-process.env.DATABASE_URL,
-
-ssl:{
-rejectUnauthorized:false
-}
-
-});
-
-
-exports.handler=
-async(event)=>{
-
+export const handler = async (event) => {
 try{
 
 const{
