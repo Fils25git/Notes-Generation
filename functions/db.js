@@ -1,10 +1,11 @@
 import { Pool } from "pg";
 
-const db = new Pool({
+const pool = new Pool({
     connectionString: process.env.NEON_DATABASE_URL,
     ssl: {
         rejectUnauthorized: false
     }
 });
 
-export default db;
+export { pool };
+export default pool;
