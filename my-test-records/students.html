@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
 <title>Manage Students</title>
 
@@ -10,427 +16,2049 @@
 <link rel="stylesheet" href="css/dashboard.css">
 <link rel="stylesheet" href="css/responsive.css">
 
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+>
+
+<style>
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.action-cell {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.action-btn {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.edit-btn {
+    background: #28a745;
+    color: white;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.action-btn:hover {
+    opacity: 0.85;
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+.student-search {
+    margin-bottom: 20px;
+}
+
+.student-search input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   CLASS BUTTONS
+========================= */
+
+.class-selector {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.class-btn {
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #eee;
+    font-size: 14px;
+}
+
+.class-btn.active {
+    background: #007bff;
+    color: white;
+}
+
+.class-btn:hover {
+    opacity: 0.85;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 9999;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 450px;
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-sizing: border-box;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.modal-description {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+
+/* =========================
+   MODAL BUTTONS
+========================= */
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-buttons button {
+    flex: 1;
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+.page-message {
+    display: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.page-message.show {
+    display: block;
+}
+
+.page-message.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.page-message.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.page-message.info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty-state {
+    text-align: center;
+    padding: 35px 15px;
+    color: #777;
+}
+
+.empty-state i {
+    font-size: 35px;
+    margin-bottom: 10px;
+}
+
+
+/* =========================
+   DELETE WARNING
+========================= */
+
+.delete-warning {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.delete-warning i {
+    font-size: 40px;
+    color: #dc3545;
+    margin-bottom: 15px;
+}
+
+.delete-warning p {
+    color: #555;
+}
+
+</style>
+
 </head>
+
 
 <body>
 
 <div class="dashboard-wrapper">
 
-<!-- SIDEBAR -->
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
 <aside class="sidebar">
-<div class="sidebar-logo">
-<h2>Marks System</h2>
-</div>
 
-<div class="sidebar-menu">
-<a href="dashboard.html" class="sidebar-link">
-<i class="fa-solid fa-house"></i> Dashboard
-</a>
+    <div class="sidebar-logo">
 
-<a href="students.html" class="sidebar-link active">
-<i class="fa-solid fa-users"></i> Manage Students
-</a>
+        <h2>Marks System</h2>
 
-<a href="marks.html" class="sidebar-link">
-<i class="fa-solid fa-pen"></i> Record Marks
-</a>
+    </div>
 
-<a href="results.html" class="sidebar-link">
-<i class="fa-solid fa-chart-column"></i> Results
-</a>
 
-<a href="login.html" class="sidebar-link">
-<i class="fa-solid fa-right-from-bracket"></i> Logout
-</a>
+    <div class="sidebar-menu">
 
-</div>
+        <a
+            href="dashboard.html"
+            class="sidebar-link"
+        >
+            <i class="fa-solid fa-house"></i>
+            Dashboard
+        </a>
+
+
+        <a
+            href="students.html"
+            class="sidebar-link active"
+        >
+            <i class="fa-solid fa-users"></i>
+            Manage Students
+        </a>
+
+
+        <a
+            href="marks.html"
+            class="sidebar-link"
+        >
+            <i class="fa-solid fa-pen"></i>
+            Record Marks
+        </a>
+
+
+        <a
+            href="results.html"
+            class="sidebar-link"
+        >
+            <i class="fa-solid fa-chart-column"></i>
+            Results
+        </a>
+
+
+        <a
+            href="login.html"
+            class="sidebar-link"
+            onclick="logout()"
+        >
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </a>
+
+    </div>
+
 </aside>
 
-<!-- MAIN -->
+
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
+
 <main class="main-content">
 
-<div class="topbar">
 
-<div class="teacher-info">
-<h2>Manage Students</h2>
-<p>All data loaded from database</p>
-</div>
+    <!-- TOPBAR -->
 
-<button class="btn btn-primary" onclick="openModal()">
-<i class="fa-solid fa-plus"></i> Add Student
-</button>
+    <div class="topbar">
 
-</div>
+        <div class="teacher-info">
 
-<!-- CLASSES FROM DB -->
-<div id="classContainer" class="class-selector"></div>
+            <h2>Manage Students</h2>
 
-<!-- CARD -->
-<div class="card">
+            <p>
+                Manage your students and classes
+            </p>
 
-<h2>Students List</h2>
+        </div>
 
-<div class="student-search">
-<input type="text" id="searchInput" placeholder="Search student...">
-</div>
 
-<div class="table-container">
+        <button
+            class="btn btn-primary"
+            onclick="openAddModal()"
+        >
 
-<table>
+            <i class="fa-solid fa-plus"></i>
 
-<thead>
-<tr>
-<th>#</th>
-<th>Name</th>
-<th>Gender</th>
-<th>Actions</th>
-</tr>
-</thead>
+            Add Student
 
-<tbody id="studentsTable"></tbody>
+        </button>
 
-</table>
+    </div>
 
-</div>
 
-</div>
+    <!-- MESSAGE -->
+
+    <div
+        id="pageMessage"
+        class="page-message"
+    ></div>
+
+
+    <!-- =================================================
+         CLASS SELECTOR
+    ================================================== -->
+
+    <div
+        id="classContainer"
+        class="class-selector"
+    >
+
+        <div class="empty-state">
+
+            <i class="fa-solid fa-spinner fa-spin"></i>
+
+            <p>Loading classes...</p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         STUDENTS CARD
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            Students List
+        </h2>
+
+
+        <div class="student-search">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search student..."
+                oninput="filterStudents()"
+            >
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+
+                        <th>Name</th>
+
+                        <th>Gender</th>
+
+                        <th>Actions</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="studentsTable">
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            style="text-align:center;padding:30px;"
+                        >
+
+                            Loading students...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </main>
 
 </div>
 
-<!-- MODAL -->
-<div class="modal" id="studentModal">
 
-<div class="modal-content">
 
-<h2>Add Student</h2>
+<!-- =====================================================
+     ADD STUDENT MODAL
+===================================================== -->
 
-<form id="addStudentForm">
+<div
+    class="modal"
+    id="addStudentModal"
+>
 
-<div class="input-group">
-<label>Name</label>
-<input id="name" required>
+    <div class="modal-content">
+
+        <h2>
+            <i class="fa-solid fa-user-plus"></i>
+            Add Student
+        </h2>
+
+
+        <p class="modal-description">
+            Add a new student to your class.
+        </p>
+
+
+        <form id="addStudentForm">
+
+
+            <div class="input-group">
+
+                <label for="addName">
+                    Student Name
+                </label>
+
+                <input
+                    type="text"
+                    id="addName"
+                    placeholder="Enter student name"
+                    required
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="addGender">
+                    Gender
+                </label>
+
+                <select id="addGender" required>
+
+                    <option value="Male">
+                        Male
+                    </option>
+
+                    <option value="Female">
+                        Female
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="addClass">
+                    Class
+                </label>
+
+                <select
+                    id="addClass"
+                    required
+                ></select>
+
+            </div>
+
+
+            <div class="modal-buttons">
+
+                <button
+                    type="button"
+                    class="btn btn-danger"
+                    onclick="closeAddModal()"
+                >
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="addStudentButton"
+                >
+
+                    <i class="fa-solid fa-save"></i>
+
+                    Save Student
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
 </div>
 
-<div class="input-group">
-<label>Gender</label>
-<select id="gender">
-<option>Male</option>
-<option>Female</option>
-</select>
+
+
+<!-- =====================================================
+     EDIT STUDENT MODAL
+===================================================== -->
+
+<div
+    class="modal"
+    id="editStudentModal"
+>
+
+    <div class="modal-content">
+
+        <h2>
+            <i class="fa-solid fa-user-pen"></i>
+            Edit Student
+        </h2>
+
+
+        <p class="modal-description">
+            Update the student's information.
+        </p>
+
+
+        <form id="editStudentForm">
+
+            <input
+                type="hidden"
+                id="editId"
+            >
+
+
+            <div class="input-group">
+
+                <label for="editName">
+                    Student Name
+                </label>
+
+                <input
+                    type="text"
+                    id="editName"
+                    required
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="editGender">
+                    Gender
+                </label>
+
+                <select
+                    id="editGender"
+                    required
+                >
+
+                    <option value="Male">
+                        Male
+                    </option>
+
+                    <option value="Female">
+                        Female
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="editClass">
+                    Class
+                </label>
+
+                <select
+                    id="editClass"
+                    required
+                ></select>
+
+            </div>
+
+
+            <div class="modal-buttons">
+
+                <button
+                    type="button"
+                    class="btn btn-danger"
+                    onclick="closeEditModal()"
+                >
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="editStudentButton"
+                >
+
+                    <i class="fa-solid fa-save"></i>
+
+                    Save Changes
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
 </div>
 
 
-<div class="input-group">
-<label>Class</label>
-<select id="classSelect"></select>
+
+<!-- =====================================================
+     DELETE STUDENT MODAL
+===================================================== -->
+
+<div
+    class="modal"
+    id="deleteStudentModal"
+>
+
+    <div class="modal-content">
+
+        <div class="delete-warning">
+
+            <i class="fa-solid fa-triangle-exclamation"></i>
+
+            <h2>
+                Delete Student?
+            </h2>
+
+            <p>
+                Are you sure you want to delete
+                <strong id="deleteStudentName"></strong>?
+            </p>
+
+            <p>
+                This action cannot be undone.
+            </p>
+
+        </div>
+
+
+        <input
+            type="hidden"
+            id="deleteId"
+        >
+
+
+        <div class="modal-buttons">
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                onclick="closeDeleteModal()"
+            >
+
+                Cancel
+
+            </button>
+
+
+            <button
+                type="button"
+                class="btn btn-danger"
+                id="deleteStudentButton"
+                onclick="confirmDeleteStudent()"
+            >
+
+                <i class="fa-solid fa-trash"></i>
+
+                Delete
+
+            </button>
+
+        </div>
+
+    </div>
+
 </div>
 
-<div style="display:flex;gap:10px;margin-top:20px;">
-<button type="button" class="btn btn-danger" onclick="closeModal()">Cancel</button>
-<button class="btn btn-primary">Save</button>
-</div>
 
-</form>
-
-</div>
-
-</div>
 
 <script>
 
+/* =====================================================
+   GLOBAL VARIABLES
+===================================================== */
+
+let teacherId = null;
+
 let selectedClass = null;
 
-/* =========================
-LOAD CLASSES FROM DB
-========================= */
-async function loadClasses(){
+let allClasses = [];
 
-const res = await fetch("/.netlify/functions/get-Classes");
-const data = await res.json();
-
-const classContainer = document.getElementById("classContainer");
-const classSelect = document.getElementById("classSelect");
-
-classContainer.innerHTML = "";
-classSelect.innerHTML = "";
-
-data.forEach((c, index) => {
-
-classContainer.innerHTML += `
-<button class="class-btn ${index===0?'active':''}" 
-onclick="selectClass(${c.id})">
-${c.class_name}
-</button>
-`;
-
-classSelect.innerHTML += `
-<option value="${c.id}">${c.class_name}</option>
-`;
-
-});
-
-selectedClass = data[0]?.id;
-loadStudents();
-
-}
-
-/* =========================
-SELECT CLASS
-========================= */
-function selectClass(id){
-
-selectedClass = id;
-loadStudents();
-
-document.querySelectorAll(".class-btn")
-.forEach(btn => btn.classList.remove("active"));
-
-event.target.classList.add("active");
-
-}
-
-/* =========================
-LOAD STUDENTS FROM DB
-========================= */
-async function loadStudents(){
-
-const res = await fetch(`/.netlify/functions/get-Students?class_id=${selectedClass}`);
-const data = await res.json();
-
-const table = document.getElementById("studentsTable");
-table.innerHTML = "";
-
-data.forEach((s,i)=>{
-
-table.innerHTML += `
-<tr>
-<td>${i+1}</td>
-<td>${s.full_name}</td>
-<td>${s.gender}</td>
-<td class="action-cell">
-
-<button
-class="action-btn edit-btn"
-onclick="
-editStudent(
-${s.id},
-'${s.full_name}',
-'${s.gender}',
-${s.class_id}
-)
-"
->
-
-<i class="fa-solid fa-pen"></i>
-
-</button>
-
-<button
-class="action-btn delete-btn"
-onclick="
-deleteStudent(
-${s.id}
-)
-"
->
-
-<i class="fa-solid fa-trash"></i>
-
-</button>
-
-</td>
-</tr>
-`;
-
-});
-
-}
-    /* =========================
-EDIT STUDENT
-========================= */
-
-async function editStudent(
-id,
-name,
-gender,
-class_id
-){
-
-const full_name=
-prompt(
-"Edit student name",
-name
-);
-
-if(!full_name)return;
-
-const body={
-
-id,
-full_name,
-gender,
-class_id
-
-};
-
-await fetch(
-"/.netlify/functions/update-Student",
-{
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify(body)
-
-}
-);
-
-loadStudents();
-
-}
+let allStudents = [];
 
 
 
-/* =========================
-DELETE STUDENT
-========================= */
+/* =====================================================
+   GET LOGGED-IN TEACHER
+===================================================== */
 
-async function deleteStudent(id){
+function getTeacherId() {
 
-const yes=
-confirm(
-"Delete this student?"
-);
+    const id = Number(
+        localStorage.getItem("userId")
+    );
 
-if(!yes)return;
+    if (!id) {
 
-await fetch(
-"/.netlify/functions/delete-Student",
-{
-method:"POST",
+        window.location.href = "../login.html";
 
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-id
-})
-
-}
-);
-
-loadStudents();
+        return null;
 
     }
 
-/* =========================
-ADD STUDENT (DB)
-========================= */
-document.getElementById("addStudentForm")
-.addEventListener("submit", async (e) => {
+    return id;
 
-    e.preventDefault();
+}
 
-    const classValue = document.getElementById("classSelect").value;
 
-    if (!classValue) {
-        alert("Please select class");
-        return;
-    }
 
-    const body = {
-        full_name: document.getElementById("name").value,
-        gender: document.getElementById("gender").value,
-        class_id: classValue
-    };
+/* =====================================================
+   MESSAGE SYSTEM
+===================================================== */
+
+let messageTimer = null;
+
+function showMessage(
+    message,
+    type = "info"
+) {
+
+    const box =
+        document.getElementById("pageMessage");
+
+    clearTimeout(messageTimer);
+
+    box.textContent = message;
+
+    box.className =
+        `page-message show ${type}`;
+
+    messageTimer = setTimeout(() => {
+
+        box.className = "page-message";
+
+    }, 4000);
+
+}
+
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        value ?? "";
+
+    return div.innerHTML;
+
+}
+
+
+
+/* =====================================================
+   LOAD CLASSES
+===================================================== */
+
+async function loadClasses() {
+
+    const container =
+        document.getElementById("classContainer");
 
     try {
 
-        const res = await fetch("/.netlify/functions/add-Student", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <p>Loading classes...</p>
+            </div>
+        `;
+
+
+        const res = await fetch(
+            `/.netlify/functions/student?action=getClasses&teacher_id=${teacherId}`
+        );
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                "Failed to load classes"
+            );
+
+        }
+
 
         const data = await res.json();
 
-        if (!res.ok) {
-            alert("Error: " + data.error);
-            return;
+
+        allClasses =
+            Array.isArray(data)
+                ? data
+                : (data.classes || []);
+
+
+        populateClassSelects();
+
+
+        if (allClasses.length > 0) {
+
+            selectedClass =
+                Number(allClasses[0].id);
+
+            renderClasses();
+
+            await loadStudents();
+
+        } else {
+
+            selectedClass = null;
+
+            renderClasses();
+
+            document.getElementById(
+                "studentsTable"
+            ).innerHTML = `
+                <tr>
+                    <td colspan="4">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-users-slash"></i>
+                            <p>No classes found.</p>
+                            <p>
+                                Please create a class first.
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
         }
 
-        alert("Student added successfully!");
-
-        closeModal();
-        loadStudents();
-
     } catch (error) {
-        alert("Network error");
-        console.log(error);
+
+        console.error(
+            "Load Classes Error:",
+            error
+        );
+
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <p>Unable to load classes.</p>
+            </div>
+        `;
+
+
+        showMessage(
+            "Unable to load your classes.",
+            "error"
+        );
+
     }
 
+}
+
+
+
+/* =====================================================
+   RENDER CLASS BUTTONS
+===================================================== */
+
+function renderClasses() {
+
+    const container =
+        document.getElementById("classContainer");
+
+    container.innerHTML = "";
+
+
+    if (!allClasses.length) {
+
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fa-solid fa-school"></i>
+                <p>No classes available.</p>
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    allClasses.forEach((c) => {
+
+        const button =
+            document.createElement("button");
+
+
+        button.type = "button";
+
+        button.className =
+            "class-btn";
+
+
+        if (
+            Number(c.id) ===
+            Number(selectedClass)
+        ) {
+
+            button.classList.add("active");
+
+        }
+
+
+        button.textContent =
+            c.class_name;
+
+
+        button.addEventListener(
+            "click",
+            () => selectClass(c.id)
+        );
+
+
+        container.appendChild(button);
+
+    });
+
+}
+
+
+
+/* =====================================================
+   POPULATE CLASS SELECTS
+===================================================== */
+
+function populateClassSelects() {
+
+    const addSelect =
+        document.getElementById("addClass");
+
+    const editSelect =
+        document.getElementById("editClass");
+
+
+    addSelect.innerHTML = "";
+
+    editSelect.innerHTML = "";
+
+
+    allClasses.forEach((c) => {
+
+        const option1 =
+            document.createElement("option");
+
+        option1.value = c.id;
+
+        option1.textContent =
+            c.class_name;
+
+
+        addSelect.appendChild(option1);
+
+
+        const option2 =
+            document.createElement("option");
+
+        option2.value = c.id;
+
+        option2.textContent =
+            c.class_name;
+
+
+        editSelect.appendChild(option2);
+
+    });
+
+
+    if (selectedClass) {
+
+        addSelect.value =
+            selectedClass;
+
+    }
+
+}
+
+
+
+/* =====================================================
+   SELECT CLASS
+===================================================== */
+
+async function selectClass(id) {
+
+    selectedClass =
+        Number(id);
+
+
+    renderClasses();
+
+
+    document.getElementById(
+        "searchInput"
+    ).value = "";
+
+
+    await loadStudents();
+
+}
+
+
+
+/* =====================================================
+   LOAD STUDENTS
+===================================================== */
+
+async function loadStudents() {
+
+    const table =
+        document.getElementById(
+            "studentsTable"
+        );
+
+
+    if (!selectedClass) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-users"></i>
+                        <p>Select a class.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    try {
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="4"
+                    style="text-align:center;padding:30px;"
+                >
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Loading students...
+                </td>
+            </tr>
+        `;
+
+
+        const res = await fetch(
+            `/.netlify/functions/student?action=getStudents&teacher_id=${teacherId}&class_id=${selectedClass}`
+        );
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                "Failed to load students"
+            );
+
+        }
+
+
+        const data =
+            await res.json();
+
+
+        allStudents =
+            Array.isArray(data)
+                ? data
+                : (data.students || []);
+
+
+        renderStudents();
+
+    } catch (error) {
+
+        console.error(
+            "Load Students Error:",
+            error
+        );
+
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <p>
+                            Unable to load students.
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+
+        showMessage(
+            "Unable to load students.",
+            "error"
+        );
+
+    }
+
+}
+
+
+
+/* =====================================================
+   RENDER STUDENTS
+===================================================== */
+
+function renderStudents(
+    students = allStudents
+) {
+
+    const table =
+        document.getElementById(
+            "studentsTable"
+        );
+
+
+    table.innerHTML = "";
+
+
+    if (!students.length) {
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="4">
+                    <div class="empty-state">
+
+                        <i class="fa-solid fa-user-slash"></i>
+
+                        <p>
+                            No students found in this class.
+                        </p>
+
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    students.forEach(
+        (student, index) => {
+
+            const row =
+                document.createElement("tr");
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${index + 1}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        student.full_name
+                    )}
+                </td>
+
+                <td>
+                    ${escapeHTML(
+                        student.gender
+                    )}
+                </td>
+
+                <td class="action-cell">
+
+                    <button
+                        type="button"
+                        class="action-btn edit-btn"
+                        title="Edit student"
+                    >
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="action-btn delete-btn"
+                        title="Delete student"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+
+                </td>
+
+            `;
+
+
+            row.querySelector(
+                ".edit-btn"
+            ).addEventListener(
+                "click",
+                () => openEditModal(student)
+            );
+
+
+            row.querySelector(
+                ".delete-btn"
+            ).addEventListener(
+                "click",
+                () => openDeleteModal(student)
+            );
+
+
+            table.appendChild(row);
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   SEARCH STUDENTS
+===================================================== */
+
+function filterStudents() {
+
+    const search =
+        document.getElementById(
+            "searchInput"
+        ).value
+        .trim()
+        .toLowerCase();
+
+
+    if (!search) {
+
+        renderStudents();
+
+        return;
+
+    }
+
+
+    const filtered =
+        allStudents.filter(
+            student =>
+                String(
+                    student.full_name || ""
+                )
+                .toLowerCase()
+                .includes(search)
+        );
+
+
+    renderStudents(filtered);
+
+}
+
+
+
+/* =====================================================
+   ADD STUDENT MODAL
+===================================================== */
+
+function openAddModal() {
+
+    if (!allClasses.length) {
+
+        showMessage(
+            "Please create a class before adding students.",
+            "info"
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "addStudentForm"
+    ).reset();
+
+
+    document.getElementById(
+        "addClass"
+    ).value =
+        selectedClass || allClasses[0].id;
+
+
+    document.getElementById(
+        "addStudentModal"
+    ).classList.add("active");
+
+
+    setTimeout(() => {
+
+        document.getElementById(
+            "addName"
+        ).focus();
+
+    }, 100);
+
+}
+
+
+
+function closeAddModal() {
+
+    document.getElementById(
+        "addStudentModal"
+    ).classList.remove("active");
+
+}
+
+
+
+/* =====================================================
+   ADD STUDENT
+===================================================== */
+
+document
+.getElementById("addStudentForm")
+.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+
+        const button =
+            document.getElementById(
+                "addStudentButton"
+            );
+
+
+        const fullName =
+            document.getElementById(
+                "addName"
+            ).value.trim();
+
+
+        const gender =
+            document.getElementById(
+                "addGender"
+            ).value;
+
+
+        const classId =
+            Number(
+                document.getElementById(
+                    "addClass"
+                ).value
+            );
+
+
+        if (!fullName) {
+
+            showMessage(
+                "Please enter the student's name.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!classId) {
+
+            showMessage(
+                "Please select a class.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        button.disabled = true;
+
+        button.innerHTML = `
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            Saving...
+        `;
+
+
+        try {
+
+            const res =
+                await fetch(
+                    "/.netlify/functions/student?action=addStudent",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            teacher_id:
+                                teacherId,
+
+                            full_name:
+                                fullName,
+
+                            gender:
+                                gender,
+
+                            class_id:
+                                classId
+
+                        })
+                    }
+                );
+
+
+            const data =
+                await res.json();
+
+
+            if (!res.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Unable to add student"
+                );
+
+            }
+
+
+            closeAddModal();
+
+
+            showMessage(
+                "Student added successfully.",
+                "success"
+            );
+
+
+            selectedClass =
+                classId;
+
+
+            renderClasses();
+
+
+            await loadStudents();
+
+
+        } catch (error) {
+
+            console.error(
+                "Add Student Error:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to add student.",
+                "error"
+            );
+
+        } finally {
+
+            button.disabled = false;
+
+            button.innerHTML = `
+                <i class="fa-solid fa-save"></i>
+                Save Student
+            `;
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   EDIT STUDENT MODAL
+===================================================== */
+
+function openEditModal(student) {
+
+    document.getElementById(
+        "editId"
+    ).value =
+        student.id;
+
+
+    document.getElementById(
+        "editName"
+    ).value =
+        student.full_name || "";
+
+
+    document.getElementById(
+        "editGender"
+    ).value =
+        student.gender || "Male";
+
+
+    document.getElementById(
+        "editClass"
+    ).value =
+        student.class_id;
+
+
+    document.getElementById(
+        "editStudentModal"
+    ).classList.add("active");
+
+
+    setTimeout(() => {
+
+        document.getElementById(
+            "editName"
+        ).focus();
+
+    }, 100);
+
+}
+
+
+
+function closeEditModal() {
+
+    document.getElementById(
+        "editStudentModal"
+    ).classList.remove("active");
+
+}
+
+
+
+/* =====================================================
+   EDIT STUDENT
+===================================================== */
+
+document
+.getElementById("editStudentForm")
+.addEventListener(
+    "submit",
+    async (event) => {
+
+        event.preventDefault();
+
+
+        const button =
+            document.getElementById(
+                "editStudentButton"
+            );
+
+
+        const id =
+            Number(
+                document.getElementById(
+                    "editId"
+                ).value
+            );
+
+
+        const fullName =
+            document.getElementById(
+                "editName"
+            ).value.trim();
+
+
+        const gender =
+            document.getElementById(
+                "editGender"
+            ).value;
+
+
+        const classId =
+            Number(
+                document.getElementById(
+                    "editClass"
+                ).value
+            );
+
+
+        if (!id) {
+
+            showMessage(
+                "Invalid student.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!fullName) {
+
+            showMessage(
+                "Please enter the student's name.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!classId) {
+
+            showMessage(
+                "Please select a class.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        button.disabled = true;
+
+        button.innerHTML = `
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            Saving...
+        `;
+
+
+        try {
+
+            const res =
+                await fetch(
+                    "/.netlify/functions/student?action=updateStudent",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            id:
+                                id,
+
+                            teacher_id:
+                                teacherId,
+
+                            full_name:
+                                fullName,
+
+                            gender:
+                                gender,
+
+                            class_id:
+                                classId
+
+                        })
+                    }
+                );
+
+
+            const data =
+                await res.json();
+
+
+            if (!res.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    "Unable to update student"
+                );
+
+            }
+
+
+            closeEditModal();
+
+
+            showMessage(
+                "Student updated successfully.",
+                "success"
+            );
+
+
+            selectedClass =
+                classId;
+
+
+            renderClasses();
+
+
+            await loadStudents();
+
+
+        } catch (error) {
+
+            console.error(
+                "Update Student Error:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to update student.",
+                "error"
+            );
+
+        } finally {
+
+            button.disabled = false;
+
+            button.innerHTML = `
+                <i class="fa-solid fa-save"></i>
+                Save Changes
+            `;
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   DELETE STUDENT MODAL
+===================================================== */
+
+function openDeleteModal(student) {
+
+    document.getElementById(
+        "deleteId"
+    ).value =
+        student.id;
+
+
+    document.getElementById(
+        "deleteStudentName"
+    ).textContent =
+        student.full_name;
+
+
+    document.getElementById(
+        "deleteStudentModal"
+    ).classList.add("active");
+
+}
+
+
+
+function closeDeleteModal() {
+
+    document.getElementById(
+        "deleteStudentModal"
+    ).classList.remove("active");
+
+}
+
+
+
+/* =====================================================
+   DELETE STUDENT
+===================================================== */
+
+async function confirmDeleteStudent() {
+
+    const id =
+        Number(
+            document.getElementById(
+                "deleteId"
+            ).value
+        );
+
+
+    if (!id) {
+
+        showMessage(
+            "Invalid student.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "deleteStudentButton"
+        );
+
+
+    button.disabled = true;
+
+    button.innerHTML = `
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        Deleting...
+    `;
+
+
+    try {
+
+        const res =
+            await fetch(
+                "/.netlify/functions/student?action=deleteStudent",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        id:
+                            id,
+
+                        teacher_id:
+                            teacherId
+
+                    })
+                }
+            );
+
+
+        const data =
+            await res.json();
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                data.message ||
+                data.error ||
+                "Unable to delete student"
+            );
+
+        }
+
+
+        closeDeleteModal();
+
+
+        showMessage(
+            "Student deleted successfully.",
+            "success"
+        );
+
+
+        await loadStudents();
+
+
+    } catch (error) {
+
+        console.error(
+            "Delete Student Error:",
+            error
+        );
+
+
+        showMessage(
+            error.message ||
+            "Unable to delete student.",
+            "error"
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        button.innerHTML = `
+            <i class="fa-solid fa-trash"></i>
+            Delete
+        `;
+
+    }
+
+}
+
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+function logout() {
+
+    localStorage.removeItem("isLoggedIn");
+
+    localStorage.removeItem("auth_token");
+
+    localStorage.removeItem("user_email");
+
+    localStorage.removeItem("userId");
+
+}
+
+
+
+/* =====================================================
+   CLOSE MODALS WHEN CLICKING OUTSIDE
+===================================================== */
+
+document
+.querySelectorAll(".modal")
+.forEach(modal => {
+
+    modal.addEventListener(
+        "click",
+        (event) => {
+
+            if (
+                event.target === modal
+            ) {
+
+                modal.classList.remove(
+                    "active"
+                );
+
+            }
+
+        }
+    );
+
 });
-/* =========================
-MODAL
-========================= */
-function openModal(){
-document.getElementById("studentModal").classList.add("active");
-}
 
-function closeModal(){
-document.getElementById("studentModal").classList.remove("active");
-}
 
-/* =========================
-INIT
-========================= */
-loadClasses();
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+teacherId =
+    getTeacherId();
+
+
+if (teacherId) {
+
+    loadClasses();
+
+}
 
 </script>
 
 </body>
-    <style>
-        .action-cell{
 
-display:flex;
-gap:6px;
-justify-content:center;
-
-}
-
-.action-btn{
-
-width:35px;
-height:35px;
-
-border:none;
-border-radius:8px;
-
-cursor:pointer;
-
-font-size:14px;
-
-}
-
-.edit-btn{
-
-background:#28a745;
-color:white;
-
-}
-
-.delete-btn{
-
-background:#dc3545;
-color:white;
-
-}
-    </style>
     </html>
