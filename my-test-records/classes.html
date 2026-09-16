@@ -10,7 +10,7 @@
     content="width=device-width, initial-scale=1.0"
 >
 
-<title>Manage Classes</title>
+<title>Manage Classes & Subjects</title>
 
 <link rel="stylesheet" href="css/global.css">
 <link rel="stylesheet" href="css/dashboard.css">
@@ -79,21 +79,21 @@
 
 
 /* =====================================================
-   CLASS GRID
+   ASSIGNMENT GRID
 ===================================================== */
 
 .class-grid {
     display: grid;
     grid-template-columns: repeat(
         auto-fill,
-        minmax(240px, 1fr)
+        minmax(260px, 1fr)
     );
     gap: 18px;
 }
 
 
 /* =====================================================
-   CLASS CARD
+   ASSIGNMENT CARD
 ===================================================== */
 
 .class-card {
@@ -112,13 +112,13 @@
 .class-card-header {
     display: flex;
     align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
+    gap: 12px;
 }
 
 .class-icon {
     width: 45px;
     height: 45px;
+    min-width: 45px;
     border-radius: 10px;
     background: #eaf3ff;
     color: #007bff;
@@ -128,22 +128,40 @@
     font-size: 20px;
 }
 
+.class-card-title {
+    flex: 1;
+}
+
 .class-card h3 {
-    margin: 0;
+    margin: 0 0 5px;
     font-size: 18px;
     word-break: break-word;
 }
 
-.class-card-info {
+.subject-name {
+    color: #007bff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.academic-year {
     margin-top: 18px;
     padding-top: 15px;
     border-top: 1px solid #eee;
+    color: #666;
+    font-size: 14px;
+}
+
+.academic-year i {
+    color: #007bff;
+    margin-right: 7px;
 }
 
 .student-count {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-top: 10px;
     color: #666;
     font-size: 14px;
 }
@@ -266,7 +284,7 @@
 
 .modal-content {
     width: 100%;
-    max-width: 430px;
+    max-width: 450px;
     background: white;
     border-radius: 14px;
     padding: 25px;
@@ -299,7 +317,7 @@
 
 
 /* =====================================================
-   INPUT
+   INPUT GROUP
 ===================================================== */
 
 .input-group {
@@ -313,6 +331,7 @@
     font-size: 14px;
 }
 
+.input-group select,
 .input-group input {
     width: 100%;
     box-sizing: border-box;
@@ -321,10 +340,19 @@
     border-radius: 8px;
     font-size: 15px;
     outline: none;
+    background: white;
 }
 
+.input-group select:focus,
 .input-group input:focus {
     border-color: #007bff;
+}
+
+.input-help {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #888;
 }
 
 
@@ -447,7 +475,7 @@
             class="sidebar-link active"
         >
             <i class="fa-solid fa-school"></i>
-            Manage Classes
+            Classes & Subjects
         </a>
 
 
@@ -490,16 +518,14 @@
 <main class="main-content">
 
 
-    <!-- PAGE HEADER -->
-
     <div class="page-header">
 
         <div class="page-header-text">
 
-            <h2>Manage Classes</h2>
+            <h2>Classes & Subjects</h2>
 
             <p>
-                Create and manage the classes you teach.
+                Set the classes and subjects you teach.
             </p>
 
         </div>
@@ -513,7 +539,7 @@
 
             <i class="fa-solid fa-plus"></i>
 
-            Add Class
+            Add Teaching Class
 
         </button>
 
@@ -529,7 +555,7 @@
 
 
     <!-- =================================================
-         CLASSES CARD
+         ASSIGNMENTS
     ================================================== -->
 
     <div class="card">
@@ -541,7 +567,7 @@
             <input
                 type="text"
                 id="searchInput"
-                placeholder="Search classes..."
+                placeholder="Search class or subject..."
                 oninput="filterClasses()"
             >
 
@@ -557,7 +583,7 @@
 
                 <i class="fa-solid fa-spinner fa-spin"></i>
 
-                <h3>Loading classes...</h3>
+                <h3>Loading...</h3>
 
                 <p>
                     Please wait.
@@ -576,7 +602,7 @@
 
 
 <!-- =====================================================
-     ADD CLASS MODAL
+     ADD TEACHING CLASS MODAL
 ===================================================== -->
 
 <div
@@ -590,31 +616,105 @@
 
             <i class="fa-solid fa-school"></i>
 
-            <h2>Add Class</h2>
+            <h2>Add Teaching Class</h2>
 
         </div>
 
 
         <p class="modal-description">
-            Create a class for your teaching workspace.
+            Select the class, subject and academic year
+            you teach.
         </p>
 
 
         <form id="addClassForm">
 
+
+            <!-- ACADEMIC YEAR -->
+
             <div class="input-group">
 
-                <label for="addClassName">
-                    Class Name
+                <label for="addAcademicYear">
+
+                    Academic Year
+
                 </label>
 
-                <input
-                    type="text"
-                    id="addClassName"
-                    placeholder="Example: P5, P6, S1"
-                    maxlength="100"
+
+                <select
+                    id="addAcademicYear"
                     required
                 >
+
+                    <option value="">
+                        Select academic year
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- CLASS -->
+
+            <div class="input-group">
+
+                <label for="addClassId">
+
+                    Class
+
+                </label>
+
+
+                <select
+                    id="addClassId"
+                    required
+                >
+
+                    <option value="">
+                        Select class
+                    </option>
+
+                </select>
+
+
+                <span class="input-help">
+
+                    Select one of your classes.
+
+                </span>
+
+            </div>
+
+
+            <!-- SUBJECT -->
+
+            <div class="input-group">
+
+                <label for="addSubjectId">
+
+                    Subject
+
+                </label>
+
+
+                <select
+                    id="addSubjectId"
+                    required
+                >
+
+                    <option value="">
+                        Select subject
+                    </option>
+
+                </select>
+
+
+                <span class="input-help">
+
+                    Select the subject you teach in this class.
+
+                </span>
 
             </div>
 
@@ -626,7 +726,9 @@
                     class="btn btn-danger"
                     onclick="closeAddClassModal()"
                 >
+
                     Cancel
+
                 </button>
 
 
@@ -638,7 +740,7 @@
 
                     <i class="fa-solid fa-save"></i>
 
-                    Save Class
+                    Save Assignment
 
                 </button>
 
@@ -653,7 +755,7 @@
 
 
 <!-- =====================================================
-     EDIT CLASS MODAL
+     EDIT TEACHING CLASS MODAL
 ===================================================== -->
 
 <div
@@ -667,36 +769,98 @@
 
             <i class="fa-solid fa-pen-to-square"></i>
 
-            <h2>Edit Class</h2>
+            <h2>Edit Teaching Class</h2>
 
         </div>
 
 
         <p class="modal-description">
-            Update the class name.
+
+            Update the class, subject or academic year.
+
         </p>
 
 
         <form id="editClassForm">
 
+
             <input
                 type="hidden"
-                id="editClassId"
+                id="editAssignmentId"
             >
 
 
+            <!-- ACADEMIC YEAR -->
+
             <div class="input-group">
 
-                <label for="editClassName">
-                    Class Name
+                <label for="editAcademicYear">
+
+                    Academic Year
+
                 </label>
 
-                <input
-                    type="text"
-                    id="editClassName"
-                    maxlength="100"
+
+                <select
+                    id="editAcademicYear"
                     required
                 >
+
+                    <option value="">
+                        Select academic year
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- CLASS -->
+
+            <div class="input-group">
+
+                <label for="editClassId">
+
+                    Class
+
+                </label>
+
+
+                <select
+                    id="editClassId"
+                    required
+                >
+
+                    <option value="">
+                        Select class
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- SUBJECT -->
+
+            <div class="input-group">
+
+                <label for="editSubjectId">
+
+                    Subject
+
+                </label>
+
+
+                <select
+                    id="editSubjectId"
+                    required
+                >
+
+                    <option value="">
+                        Select subject
+                    </option>
+
+                </select>
 
             </div>
 
@@ -708,7 +872,9 @@
                     class="btn btn-danger"
                     onclick="closeEditClassModal()"
                 >
+
                     Cancel
+
                 </button>
 
 
@@ -735,7 +901,7 @@
 
 
 <!-- =====================================================
-     DELETE CLASS MODAL
+     DELETE MODAL
 ===================================================== -->
 
 <div
@@ -755,19 +921,28 @@
 
 
             <h2>
-                Delete Class?
+                Remove Teaching Assignment?
             </h2>
 
 
             <p>
-                Are you sure you want to delete
-                <strong id="deleteClassName"></strong>?
+
+                Are you sure you want to remove
+
+                <strong id="deleteClassName"></strong>
+
+                —
+
+                <strong id="deleteSubjectName"></strong>?
+
             </p>
 
 
             <p>
-                Students and related records belonging
-                to this class may also be affected.
+
+                Existing marks and tests will not
+                automatically be deleted.
+
             </p>
 
         </div>
@@ -775,7 +950,7 @@
 
         <input
             type="hidden"
-            id="deleteClassId"
+            id="deleteAssignmentId"
         >
 
 
@@ -786,7 +961,9 @@
                 class="btn btn-primary"
                 onclick="closeDeleteClassModal()"
             >
+
                 Cancel
+
             </button>
 
 
@@ -799,7 +976,7 @@
 
                 <i class="fa-solid fa-trash"></i>
 
-                Delete
+                Remove
 
             </button>
 
@@ -821,24 +998,32 @@ let teacherId = null;
 
 let allClasses = [];
 
+let availableClasses = [];
+
+let availableSubjects = [];
+
+let availableAcademicYears = [];
+
 let messageTimer = null;
 
 
 
 /* =====================================================
-   GET LOGGED-IN TEACHER
+   GET TEACHER ID
 ===================================================== */
 
 function getTeacherId() {
 
-    const id = Number(
-        localStorage.getItem("userId")
-    );
+    const id =
+        Number(
+            localStorage.getItem("userId")
+        );
 
 
     if (!id) {
 
-        window.location.href = "../login.html";
+        window.location.href =
+            "../login.html";
 
         return null;
 
@@ -852,7 +1037,7 @@ function getTeacherId() {
 
 
 /* =====================================================
-   MESSAGE SYSTEM
+   MESSAGE
 ===================================================== */
 
 function showMessage(
@@ -861,13 +1046,16 @@ function showMessage(
 ) {
 
     const box =
-        document.getElementById("pageMessage");
+        document.getElementById(
+            "pageMessage"
+        );
 
 
     clearTimeout(messageTimer);
 
 
-    box.textContent = message;
+    box.textContent =
+        message;
 
 
     box.className =
@@ -895,8 +1083,10 @@ function escapeHTML(value) {
     const div =
         document.createElement("div");
 
+
     div.textContent =
         value ?? "";
+
 
     return div.innerHTML;
 
@@ -905,57 +1095,113 @@ function escapeHTML(value) {
 
 
 /* =====================================================
-   LOAD CLASSES
+   LOAD ALL DATA
 ===================================================== */
 
-async function loadClasses() {
+async function loadPageData() {
 
     const grid =
-        document.getElementById("classGrid");
+        document.getElementById(
+            "classGrid"
+        );
 
 
     grid.innerHTML = `
         <div class="empty-state">
+
             <i class="fa-solid fa-spinner fa-spin"></i>
-            <h3>Loading classes...</h3>
+
+            <h3>Loading...</h3>
+
             <p>Please wait.</p>
+
         </div>
     `;
 
 
     try {
 
-        const res =
-            await fetch(
+        const [
+            assignmentsResponse,
+            classesResponse,
+            subjectsResponse,
+            yearsResponse
+        ] = await Promise.all([
+
+            fetch(
+                `/.netlify/functions/student?action=getTeachingAssignments&teacher_id=${teacherId}`
+            ),
+
+            fetch(
                 `/.netlify/functions/student?action=getClasses&teacher_id=${teacherId}`
-            );
+            ),
+
+            fetch(
+                `/.netlify/functions/student?action=getSubjects&teacher_id=${teacherId}`
+            ),
+
+            fetch(
+                `/.netlify/functions/student?action=getAcademicYears`
+            )
+
+        ]);
 
 
-        if (!res.ok) {
+        if (
+            !assignmentsResponse.ok ||
+            !classesResponse.ok ||
+            !subjectsResponse.ok ||
+            !yearsResponse.ok
+        ) {
 
             throw new Error(
-                "Unable to load classes."
+                "Unable to load teaching information."
             );
 
         }
 
 
-        const data =
-            await res.json();
+        const [
+            assignmentsData,
+            classesData,
+            subjectsData,
+            yearsData
+        ] = await Promise.all([
+
+            assignmentsResponse.json(),
+            classesResponse.json(),
+            subjectsResponse.json(),
+            yearsResponse.json()
+
+        ]);
 
 
         allClasses =
-            Array.isArray(data)
-                ? data
-                : (data.classes || []);
+            assignmentsData.assignments || [];
+
+
+        availableClasses =
+            classesData.classes || [];
+
+
+        availableSubjects =
+            subjectsData.subjects || [];
+
+
+        availableAcademicYears =
+            yearsData.years || [];
+
+
+        populateAllSelects();
 
 
         renderClasses();
 
+
     } catch (error) {
 
         console.error(
-            "Load Classes Error:",
+            "Load Teaching Data Error:",
             error
         );
 
@@ -965,7 +1211,7 @@ async function loadClasses() {
 
                 <i class="fa-solid fa-circle-exclamation"></i>
 
-                <h3>Unable to load classes</h3>
+                <h3>Unable to load information</h3>
 
                 <p>
                     Please refresh the page and try again.
@@ -976,7 +1222,8 @@ async function loadClasses() {
 
 
         showMessage(
-            "Unable to load your classes.",
+            error.message ||
+            "Unable to load teaching information.",
             "error"
         );
 
@@ -987,21 +1234,148 @@ async function loadClasses() {
 
 
 /* =====================================================
-   RENDER CLASSES
+   POPULATE SELECTS
+===================================================== */
+
+function populateAllSelects() {
+
+    populateSelect(
+        "addAcademicYear",
+        availableAcademicYears,
+        "id",
+        "year_name",
+        "Select academic year"
+    );
+
+
+    populateSelect(
+        "editAcademicYear",
+        availableAcademicYears,
+        "id",
+        "year_name",
+        "Select academic year"
+    );
+
+
+    populateSelect(
+        "addClassId",
+        availableClasses,
+        "id",
+        "class_name",
+        "Select class"
+    );
+
+
+    populateSelect(
+        "editClassId",
+        availableClasses,
+        "id",
+        "class_name",
+        "Select class"
+    );
+
+
+    populateSelect(
+        "addSubjectId",
+        availableSubjects,
+        "id",
+        "subject_name",
+        "Select subject"
+    );
+
+
+    populateSelect(
+        "editSubjectId",
+        availableSubjects,
+        "id",
+        "subject_name",
+        "Select subject"
+    );
+
+}
+
+
+
+function populateSelect(
+    selectId,
+    items,
+    valueField,
+    textField,
+    placeholder
+) {
+
+    const select =
+        document.getElementById(
+            selectId
+        );
+
+
+    select.innerHTML = "";
+
+
+    const placeholderOption =
+        document.createElement(
+            "option"
+        );
+
+
+    placeholderOption.value =
+        "";
+
+
+    placeholderOption.textContent =
+        placeholder;
+
+
+    select.appendChild(
+        placeholderOption
+    );
+
+
+    items.forEach(item => {
+
+        const option =
+            document.createElement(
+                "option"
+            );
+
+
+        option.value =
+            item[valueField];
+
+
+        option.textContent =
+            item[textField];
+
+
+        select.appendChild(
+            option
+        );
+
+    });
+
+}
+
+
+
+/* =====================================================
+   RENDER ASSIGNMENTS
 ===================================================== */
 
 function renderClasses(
-    classes = allClasses
+    assignments = allClasses
 ) {
 
     const grid =
-        document.getElementById("classGrid");
+        document.getElementById(
+            "classGrid"
+        );
 
 
     grid.innerHTML = "";
 
 
-    if (!classes.length) {
+    if (!assignments.length) {
 
         grid.innerHTML = `
             <div
@@ -1011,11 +1385,10 @@ function renderClasses(
 
                 <i class="fa-solid fa-school"></i>
 
-                <h3>No classes yet</h3>
+                <h3>No teaching classes yet</h3>
 
                 <p>
-                    Create your first class to start
-                    adding students and recording marks.
+                    Add the classes and subjects you teach.
                 </p>
 
             </div>
@@ -1026,54 +1399,85 @@ function renderClasses(
     }
 
 
-    classes.forEach((classItem) => {
+    assignments.forEach(
+        assignment => {
 
-        const card =
-            document.createElement("div");
-
-
-        card.className =
-            "class-card";
-
-
-        const studentCount =
-            Number(
-                classItem.student_count ||
-                classItem.students_count ||
-                0
-            );
+            const card =
+                document.createElement(
+                    "div"
+                );
 
 
-        card.innerHTML = `
+            card.className =
+                "class-card";
 
-            <div class="class-card-header">
 
-                <div class="class-icon">
+            const studentCount =
+                Number(
+                    assignment.student_count || 0
+                );
 
-                    <i class="fa-solid fa-school"></i>
+
+            card.innerHTML = `
+
+                <div class="class-card-header">
+
+                    <div class="class-icon">
+
+                        <i class="fa-solid fa-school"></i>
+
+                    </div>
+
+
+                    <div class="class-card-title">
+
+                        <h3>
+                            ${escapeHTML(
+                                assignment.class_name
+                            )}
+                        </h3>
+
+
+                        <div class="subject-name">
+
+                            <i class="fa-solid fa-book"></i>
+
+                            ${escapeHTML(
+                                assignment.subject_name
+                            )}
+
+                        </div>
+
+                    </div>
 
                 </div>
 
-                <h3>
+
+                <div class="academic-year">
+
+                    <i class="fa-solid fa-calendar"></i>
+
                     ${escapeHTML(
-                        classItem.class_name
+                        assignment.year_name
                     )}
-                </h3>
 
-            </div>
+                </div>
 
-
-            <div class="class-card-info">
 
                 <div class="student-count">
 
                     <i class="fa-solid fa-users"></i>
 
                     <span>
+
                         ${studentCount}
-                        ${studentCount === 1
-                            ? "student"
-                            : "students"}
+
+                        ${
+                            studentCount === 1
+                                ? "student"
+                                : "students"
+                        }
+
                     </span>
 
                 </div>
@@ -1100,54 +1504,62 @@ function renderClasses(
 
                         <i class="fa-solid fa-trash"></i>
 
-                        Delete
+                        Remove
 
                     </button>
 
                 </div>
 
-            </div>
-
-        `;
+            `;
 
 
-        card.querySelector(
-            ".edit-class-btn"
-        ).addEventListener(
-            "click",
-            () => openEditClassModal(classItem)
-        );
+            card.querySelector(
+                ".edit-class-btn"
+            ).addEventListener(
+                "click",
+                () =>
+                    openEditClassModal(
+                        assignment
+                    )
+            );
 
 
-        card.querySelector(
-            ".delete-class-btn"
-        ).addEventListener(
-            "click",
-            () => openDeleteClassModal(classItem)
-        );
+            card.querySelector(
+                ".delete-class-btn"
+            ).addEventListener(
+                "click",
+                () =>
+                    openDeleteClassModal(
+                        assignment
+                    )
+            );
 
 
-        grid.appendChild(card);
+            grid.appendChild(
+                card
+            );
 
-    });
+        }
+    );
 
 }
 
 
 
 /* =====================================================
-   SEARCH CLASSES
+   SEARCH
 ===================================================== */
 
 function filterClasses() {
 
     const search =
-        document.getElementById(
-            "searchInput"
-        )
-        .value
-        .trim()
-        .toLowerCase();
+        document
+            .getElementById(
+                "searchInput"
+            )
+            .value
+            .trim()
+            .toLowerCase();
 
 
     if (!search) {
@@ -1161,41 +1573,78 @@ function filterClasses() {
 
     const filtered =
         allClasses.filter(
-            classItem =>
-                String(
-                    classItem.class_name || ""
-                )
-                .toLowerCase()
-                .includes(search)
+            assignment => {
+
+                const className =
+                    String(
+                        assignment.class_name || ""
+                    )
+                    .toLowerCase();
+
+
+                const subjectName =
+                    String(
+                        assignment.subject_name || ""
+                    )
+                    .toLowerCase();
+
+
+                const yearName =
+                    String(
+                        assignment.year_name || ""
+                    )
+                    .toLowerCase();
+
+
+                return (
+                    className.includes(search) ||
+                    subjectName.includes(search) ||
+                    yearName.includes(search)
+                );
+
+            }
         );
 
 
-    renderClasses(filtered);
+    renderClasses(
+        filtered
+    );
 
 }
 
 
 
 /* =====================================================
-   ADD CLASS MODAL
+   ADD MODAL
 ===================================================== */
 
 function openAddClassModal() {
 
     document
-        .getElementById("addClassForm")
+        .getElementById(
+            "addClassForm"
+        )
         .reset();
 
 
+    populateAllSelects();
+
+
     document
-        .getElementById("addClassModal")
-        .classList.add("active");
+        .getElementById(
+            "addClassModal"
+        )
+        .classList.add(
+            "active"
+        );
 
 
     setTimeout(() => {
 
         document
-            .getElementById("addClassName")
+            .getElementById(
+                "addAcademicYear"
+            )
             .focus();
 
     }, 100);
@@ -1207,22 +1656,28 @@ function openAddClassModal() {
 function closeAddClassModal() {
 
     document
-        .getElementById("addClassModal")
-        .classList.remove("active");
+        .getElementById(
+            "addClassModal"
+        )
+        .classList.remove(
+            "active"
+        );
 
 }
 
 
 
 /* =====================================================
-   ADD CLASS
+   ADD ASSIGNMENT
 ===================================================== */
 
 document
-    .getElementById("addClassForm")
+    .getElementById(
+        "addClassForm"
+    )
     .addEventListener(
         "submit",
-        async (event) => {
+        async event => {
 
             event.preventDefault();
 
@@ -1233,18 +1688,38 @@ document
                 );
 
 
-            const className =
-                document.getElementById(
-                    "addClassName"
-                )
-                .value
-                .trim();
+            const academicYearId =
+                Number(
+                    document.getElementById(
+                        "addAcademicYear"
+                    ).value
+                );
 
 
-            if (!className) {
+            const classId =
+                Number(
+                    document.getElementById(
+                        "addClassId"
+                    ).value
+                );
+
+
+            const subjectId =
+                Number(
+                    document.getElementById(
+                        "addSubjectId"
+                    ).value
+                );
+
+
+            if (
+                !academicYearId ||
+                !classId ||
+                !subjectId
+            ) {
 
                 showMessage(
-                    "Please enter a class name.",
+                    "Please select the academic year, class and subject.",
                     "error"
                 );
 
@@ -1266,7 +1741,7 @@ document
 
                 const res =
                     await fetch(
-                        "/.netlify/functions/student?action=addClass",
+                        "/.netlify/functions/student?action=addTeachingAssignment",
                         {
                             method: "POST",
 
@@ -1275,15 +1750,22 @@ document
                                     "application/json"
                             },
 
-                            body: JSON.stringify({
+                            body:
+                                JSON.stringify({
 
-                                teacher_id:
-                                    teacherId,
+                                    teacher_id:
+                                        teacherId,
 
-                                class_name:
-                                    className
+                                    class_id:
+                                        classId,
 
-                            })
+                                    subject_id:
+                                        subjectId,
+
+                                    academic_year_id:
+                                        academicYearId
+
+                                })
 
                         }
                     );
@@ -1298,7 +1780,7 @@ document
                     throw new Error(
                         data.message ||
                         data.error ||
-                        "Unable to add class."
+                        "Unable to save assignment."
                     );
 
                 }
@@ -1308,26 +1790,28 @@ document
 
 
                 showMessage(
-                    "Class added successfully.",
+                    "Teaching class added successfully.",
                     "success"
                 );
 
 
-                await loadClasses();
+                await loadPageData();
+
 
             } catch (error) {
 
                 console.error(
-                    "Add Class Error:",
+                    "Add Assignment Error:",
                     error
                 );
 
 
                 showMessage(
                     error.message ||
-                    "Unable to add class.",
+                    "Unable to save assignment.",
                     "error"
                 );
+
 
             } finally {
 
@@ -1336,7 +1820,7 @@ document
 
                 button.innerHTML = `
                     <i class="fa-solid fa-save"></i>
-                    Save Class
+                    Save Assignment
                 `;
 
             }
@@ -1347,35 +1831,47 @@ document
 
 
 /* =====================================================
-   EDIT CLASS MODAL
+   EDIT MODAL
 ===================================================== */
 
-function openEditClassModal(classItem) {
+function openEditClassModal(
+    assignment
+) {
+
+    document.getElementById(
+        "editAssignmentId"
+    ).value =
+        assignment.id;
+
+
+    populateAllSelects();
+
+
+    document.getElementById(
+        "editAcademicYear"
+    ).value =
+        assignment.academic_year_id;
+
 
     document.getElementById(
         "editClassId"
     ).value =
-        classItem.id;
+        assignment.class_id;
 
 
     document.getElementById(
-        "editClassName"
+        "editSubjectId"
     ).value =
-        classItem.class_name || "";
+        assignment.subject_id;
 
 
     document
-        .getElementById("editClassModal")
-        .classList.add("active");
-
-
-    setTimeout(() => {
-
-        document
-            .getElementById("editClassName")
-            .focus();
-
-    }, 100);
+        .getElementById(
+            "editClassModal"
+        )
+        .classList.add(
+            "active"
+        );
 
 }
 
@@ -1384,22 +1880,28 @@ function openEditClassModal(classItem) {
 function closeEditClassModal() {
 
     document
-        .getElementById("editClassModal")
-        .classList.remove("active");
+        .getElementById(
+            "editClassModal"
+        )
+        .classList.remove(
+            "active"
+        );
 
 }
 
 
 
 /* =====================================================
-   EDIT CLASS
+   EDIT ASSIGNMENT
 ===================================================== */
 
 document
-    .getElementById("editClassForm")
+    .getElementById(
+        "editClassForm"
+    )
     .addEventListener(
         "submit",
-        async (event) => {
+        async event => {
 
             event.preventDefault();
 
@@ -1413,35 +1915,44 @@ document
             const id =
                 Number(
                     document.getElementById(
+                        "editAssignmentId"
+                    ).value
+                );
+
+
+            const academicYearId =
+                Number(
+                    document.getElementById(
+                        "editAcademicYear"
+                    ).value
+                );
+
+
+            const classId =
+                Number(
+                    document.getElementById(
                         "editClassId"
                     ).value
                 );
 
 
-            const className =
-                document.getElementById(
-                    "editClassName"
-                )
-                .value
-                .trim();
-
-
-            if (!id) {
-
-                showMessage(
-                    "Invalid class.",
-                    "error"
+            const subjectId =
+                Number(
+                    document.getElementById(
+                        "editSubjectId"
+                    ).value
                 );
 
-                return;
 
-            }
-
-
-            if (!className) {
+            if (
+                !id ||
+                !academicYearId ||
+                !classId ||
+                !subjectId
+            ) {
 
                 showMessage(
-                    "Please enter a class name.",
+                    "Please complete all fields.",
                     "error"
                 );
 
@@ -1463,7 +1974,7 @@ document
 
                 const res =
                     await fetch(
-                        "/.netlify/functions/student?action=updateClass",
+                        "/.netlify/functions/student?action=updateTeachingAssignment",
                         {
                             method: "POST",
 
@@ -1472,18 +1983,25 @@ document
                                     "application/json"
                             },
 
-                            body: JSON.stringify({
+                            body:
+                                JSON.stringify({
 
-                                id:
-                                    id,
+                                    id:
+                                        id,
 
-                                teacher_id:
-                                    teacherId,
+                                    teacher_id:
+                                        teacherId,
 
-                                class_name:
-                                    className
+                                    class_id:
+                                        classId,
 
-                            })
+                                    subject_id:
+                                        subjectId,
+
+                                    academic_year_id:
+                                        academicYearId
+
+                                })
 
                         }
                     );
@@ -1498,7 +2016,7 @@ document
                     throw new Error(
                         data.message ||
                         data.error ||
-                        "Unable to update class."
+                        "Unable to update assignment."
                     );
 
                 }
@@ -1508,26 +2026,28 @@ document
 
 
                 showMessage(
-                    "Class updated successfully.",
+                    "Teaching class updated successfully.",
                     "success"
                 );
 
 
-                await loadClasses();
+                await loadPageData();
+
 
             } catch (error) {
 
                 console.error(
-                    "Update Class Error:",
+                    "Update Assignment Error:",
                     error
                 );
 
 
                 showMessage(
                     error.message ||
-                    "Unable to update class.",
+                    "Unable to update assignment.",
                     "error"
                 );
+
 
             } finally {
 
@@ -1547,26 +2067,38 @@ document
 
 
 /* =====================================================
-   DELETE CLASS MODAL
+   DELETE MODAL
 ===================================================== */
 
-function openDeleteClassModal(classItem) {
+function openDeleteClassModal(
+    assignment
+) {
 
     document.getElementById(
-        "deleteClassId"
+        "deleteAssignmentId"
     ).value =
-        classItem.id;
+        assignment.id;
 
 
     document.getElementById(
         "deleteClassName"
     ).textContent =
-        classItem.class_name;
+        assignment.class_name;
+
+
+    document.getElementById(
+        "deleteSubjectName"
+    ).textContent =
+        assignment.subject_name;
 
 
     document
-        .getElementById("deleteClassModal")
-        .classList.add("active");
+        .getElementById(
+            "deleteClassModal"
+        )
+        .classList.add(
+            "active"
+        );
 
 }
 
@@ -1575,15 +2107,19 @@ function openDeleteClassModal(classItem) {
 function closeDeleteClassModal() {
 
     document
-        .getElementById("deleteClassModal")
-        .classList.remove("active");
+        .getElementById(
+            "deleteClassModal"
+        )
+        .classList.remove(
+            "active"
+        );
 
 }
 
 
 
 /* =====================================================
-   DELETE CLASS
+   DELETE ASSIGNMENT
 ===================================================== */
 
 async function confirmDeleteClass() {
@@ -1591,7 +2127,7 @@ async function confirmDeleteClass() {
     const id =
         Number(
             document.getElementById(
-                "deleteClassId"
+                "deleteAssignmentId"
             ).value
         );
 
@@ -1599,7 +2135,7 @@ async function confirmDeleteClass() {
     if (!id) {
 
         showMessage(
-            "Invalid class.",
+            "Invalid teaching assignment.",
             "error"
         );
 
@@ -1619,7 +2155,7 @@ async function confirmDeleteClass() {
 
     button.innerHTML = `
         <i class="fa-solid fa-spinner fa-spin"></i>
-        Deleting...
+        Removing...
     `;
 
 
@@ -1627,7 +2163,7 @@ async function confirmDeleteClass() {
 
         const res =
             await fetch(
-                "/.netlify/functions/student?action=deleteClass",
+                "/.netlify/functions/student?action=deleteTeachingAssignment",
                 {
                     method: "POST",
 
@@ -1636,15 +2172,16 @@ async function confirmDeleteClass() {
                             "application/json"
                     },
 
-                    body: JSON.stringify({
+                    body:
+                        JSON.stringify({
 
-                        id:
-                            id,
+                            id:
+                                id,
 
-                        teacher_id:
-                            teacherId
+                            teacher_id:
+                                teacherId
 
-                    })
+                        })
 
                 }
             );
@@ -1659,7 +2196,7 @@ async function confirmDeleteClass() {
             throw new Error(
                 data.message ||
                 data.error ||
-                "Unable to delete class."
+                "Unable to remove assignment."
             );
 
         }
@@ -1669,26 +2206,28 @@ async function confirmDeleteClass() {
 
 
         showMessage(
-            "Class deleted successfully.",
+            "Teaching assignment removed successfully.",
             "success"
         );
 
 
-        await loadClasses();
+        await loadPageData();
+
 
     } catch (error) {
 
         console.error(
-            "Delete Class Error:",
+            "Delete Assignment Error:",
             error
         );
 
 
         showMessage(
             error.message ||
-            "Unable to delete class.",
+            "Unable to remove assignment.",
             "error"
         );
+
 
     } finally {
 
@@ -1697,7 +2236,7 @@ async function confirmDeleteClass() {
 
         button.innerHTML = `
             <i class="fa-solid fa-trash"></i>
-            Delete
+            Remove
         `;
 
     }
@@ -1712,44 +2251,57 @@ async function confirmDeleteClass() {
 
 function logout() {
 
-    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem(
+        "isLoggedIn"
+    );
 
-    localStorage.removeItem("auth_token");
+    localStorage.removeItem(
+        "auth_token"
+    );
 
-    localStorage.removeItem("user_email");
+    localStorage.removeItem(
+        "user_email"
+    );
 
-    localStorage.removeItem("userId");
+    localStorage.removeItem(
+        "userId"
+    );
 
 }
 
 
 
 /* =====================================================
-   CLOSE MODALS OUTSIDE
+   CLOSE MODALS BY CLICKING OUTSIDE
 ===================================================== */
 
 document
-    .querySelectorAll(".modal")
-    .forEach(modal => {
+    .querySelectorAll(
+        ".modal"
+    )
+    .forEach(
+        modal => {
 
-        modal.addEventListener(
-            "click",
-            event => {
+            modal.addEventListener(
+                "click",
+                event => {
 
-                if (
-                    event.target === modal
-                ) {
+                    if (
+                        event.target ===
+                        modal
+                    ) {
 
-                    modal.classList.remove(
-                        "active"
-                    );
+                        modal.classList.remove(
+                            "active"
+                        );
+
+                    }
 
                 }
+            );
 
-            }
-        );
-
-    });
+        }
+    );
 
 
 
@@ -1763,7 +2315,7 @@ teacherId =
 
 if (teacherId) {
 
-    loadClasses();
+    loadPageData();
 
 }
 
@@ -1771,4 +2323,4 @@ if (teacherId) {
 
 </body>
 
-  </html>
+    </html>
