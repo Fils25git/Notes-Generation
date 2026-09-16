@@ -5,258 +5,151 @@
 
 <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-<title>Manage Classes & Subjects</title>
+<title>Classes & Subjects</title>
 
-<link rel="stylesheet" href="css/global.css">
-<link rel="stylesheet" href="css/dashboard.css">
-<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet"
+      href="css/global.css">
 
-<link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
->
+<link rel="stylesheet"
+      href="css/dashboard.css">
+
+<link rel="stylesheet"
+      href="css/responsive.css">
+
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
 
-/* =====================================================
-   PAGE HEADER
-===================================================== */
-
 .page-header {
+
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     gap: 15px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+
 }
 
-.page-header-text h2 {
-    margin: 0 0 5px;
-}
+.page-header h1 {
 
-.page-header-text p {
     margin: 0;
-    color: #777;
-    font-size: 14px;
+
 }
 
+.primary-btn {
 
-/* =====================================================
-   SEARCH
-===================================================== */
+    border: none;
+    background: #2563eb;
+    color: white;
+    padding: 11px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+
+}
+
+.primary-btn:hover {
+
+    opacity: .9;
+
+}
 
 .search-box {
-    position: relative;
-    margin-bottom: 20px;
-}
 
-.search-box i {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #888;
+    margin-bottom: 20px;
+
 }
 
 .search-box input {
+
     width: 100%;
-    box-sizing: border-box;
-    padding: 12px 14px 12px 42px;
+    padding: 12px 14px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 15px;
-    outline: none;
+    box-sizing: border-box;
+
 }
 
-.search-box input:focus {
-    border-color: #007bff;
-}
+.assignment-grid {
 
-
-/* =====================================================
-   ASSIGNMENT GRID
-===================================================== */
-
-.class-grid {
     display: grid;
-    grid-template-columns: repeat(
-        auto-fill,
-        minmax(260px, 1fr)
-    );
+    grid-template-columns:
+        repeat(auto-fit, minmax(260px, 1fr));
+
     gap: 18px;
+
 }
 
+.assignment-card {
 
-/* =====================================================
-   ASSIGNMENT CARD
-===================================================== */
-
-.class-card {
     background: white;
-    border: 1px solid #e8e8e8;
     border-radius: 12px;
-    padding: 20px;
-    transition: 0.2s ease;
+    padding: 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+
 }
 
-.class-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+.assignment-card h3 {
+
+    margin: 0 0 8px;
+
 }
 
-.class-card-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-}
+.assignment-subject {
 
-.class-icon {
-    width: 45px;
-    height: 45px;
-    min-width: 45px;
-    border-radius: 10px;
-    background: #eaf3ff;
-    color: #007bff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-}
-
-.class-card-title {
-    flex: 1;
-}
-
-.class-card h3 {
-    margin: 0 0 5px;
-    font-size: 18px;
-    word-break: break-word;
-}
-
-.subject-name {
-    color: #007bff;
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 600;
+    margin-bottom: 8px;
+
 }
 
-.academic-year {
-    margin-top: 18px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
+.assignment-year {
+
     color: #666;
     font-size: 14px;
+
 }
 
-.academic-year i {
-    color: #007bff;
-    margin-right: 7px;
+.assignment-students {
+
+    margin-top: 12px;
+    color: #555;
+
 }
 
-.student-count {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-    color: #666;
-    font-size: 14px;
-}
+.card-actions {
 
-.student-count i {
-    color: #007bff;
-}
-
-.class-actions {
     display: flex;
     gap: 8px;
-    margin-top: 18px;
+    margin-top: 16px;
+
 }
 
-.class-action-btn {
-    flex: 1;
-    height: 38px;
+.card-actions button {
+
     border: none;
+    padding: 8px 11px;
     border-radius: 7px;
     cursor: pointer;
-    font-size: 14px;
-    transition: 0.2s;
+
 }
 
-.class-action-btn:hover {
-    opacity: 0.85;
+.edit-btn {
+
+    background: #e8f0ff;
+    color: #2563eb;
+
 }
 
-.edit-class-btn {
-    background: #28a745;
-    color: white;
-}
+.delete-btn {
 
-.delete-class-btn {
-    background: #dc3545;
-    color: white;
-}
+    background: #fee2e2;
+    color: #dc2626;
 
-
-/* =====================================================
-   EMPTY STATE
-===================================================== */
-
-.empty-state {
-    text-align: center;
-    padding: 55px 20px;
-    color: #777;
-}
-
-.empty-state i {
-    font-size: 42px;
-    margin-bottom: 15px;
-    color: #aaa;
-}
-
-.empty-state h3 {
-    margin: 5px 0 8px;
-    color: #555;
-}
-
-.empty-state p {
-    margin: 0;
-    font-size: 14px;
-}
-
-
-/* =====================================================
-   MESSAGE
-===================================================== */
-
-.page-message {
-    display: none;
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 18px;
-    font-size: 14px;
-}
-
-.page-message.show {
-    display: block;
-}
-
-.page-message.success {
-    background: #d4edda;
-    color: #155724;
-}
-
-.page-message.error {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.page-message.info {
-    background: #d1ecf1;
-    color: #0c5460;
 }
 
 
@@ -265,165 +158,160 @@
 ===================================================== */
 
 .modal {
-    display: none;
+
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.55);
-    z-index: 9999;
+
+    background:
+        rgba(0,0,0,.45);
+
+    display: none;
 
     align-items: center;
     justify-content: center;
 
     padding: 20px;
-    box-sizing: border-box;
+
+    z-index: 999;
+
 }
 
-.modal.active {
+.modal.show {
+
     display: flex;
+
 }
 
-.modal-content {
-    width: 100%;
-    max-width: 450px;
+.modal-box {
+
     background: white;
+
+    width: 100%;
+    max-width: 500px;
+
     border-radius: 14px;
-    padding: 25px;
+
+    padding: 22px;
+
     box-sizing: border-box;
-    max-height: 90vh;
-    overflow-y: auto;
+
 }
 
-.modal-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
+.modal-box h2 {
+
+    margin-top: 0;
+
 }
 
-.modal-header i {
-    color: #007bff;
-    font-size: 22px;
+.form-group {
+
+    margin-bottom: 16px;
+
 }
 
-.modal-header h2 {
-    margin: 0;
-}
+.form-group label {
 
-.modal-description {
-    color: #777;
-    font-size: 14px;
-    margin: 0 0 22px;
-}
-
-
-/* =====================================================
-   INPUT GROUP
-===================================================== */
-
-.input-group {
-    margin-bottom: 18px;
-}
-
-.input-group label {
     display: block;
-    margin-bottom: 7px;
+
+    margin-bottom: 6px;
+
     font-weight: 600;
-    font-size: 14px;
+
 }
 
-.input-group select,
-.input-group input {
+.form-group select {
+
     width: 100%;
-    box-sizing: border-box;
-    padding: 12px;
-    border: 1px solid #ccc;
+
+    padding: 11px;
+
+    border: 1px solid #ddd;
+
     border-radius: 8px;
-    font-size: 15px;
-    outline: none;
-    background: white;
+
+    box-sizing: border-box;
+
 }
 
-.input-group select:focus,
-.input-group input:focus {
-    border-color: #007bff;
-}
+.modal-actions {
 
-.input-help {
-    display: block;
-    margin-top: 6px;
-    font-size: 12px;
-    color: #888;
-}
-
-
-/* =====================================================
-   MODAL BUTTONS
-===================================================== */
-
-.modal-buttons {
     display: flex;
+
+    justify-content: flex-end;
+
     gap: 10px;
-    margin-top: 22px;
+
+    margin-top: 20px;
+
 }
 
-.modal-buttons button {
-    flex: 1;
+.secondary-btn {
+
+    border: 1px solid #ddd;
+
+    background: white;
+
+    padding: 10px 15px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
 }
 
+.danger-btn {
 
-/* =====================================================
-   DELETE WARNING
-===================================================== */
+    border: none;
 
-.delete-warning {
+    background: #dc2626;
+
+    color: white;
+
+    padding: 10px 15px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+}
+
+.message {
+
+    display: none;
+
+    padding: 12px 15px;
+
+    border-radius: 8px;
+
+    margin-bottom: 18px;
+
+}
+
+.message.show {
+
+    display: block;
+
+}
+
+.message.success {
+
+    background: #dcfce7;
+    color: #166534;
+
+}
+
+.message.error {
+
+    background: #fee2e2;
+    color: #991b1b;
+
+}
+
+.empty-state {
+
     text-align: center;
-}
-
-.delete-warning-icon {
-    width: 65px;
-    height: 65px;
-    margin: 0 auto 15px;
-    border-radius: 50%;
-    background: #fff0f0;
-    color: #dc3545;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-}
-
-.delete-warning h2 {
-    margin: 0 0 10px;
-}
-
-.delete-warning p {
-    color: #666;
-    font-size: 14px;
-}
-
-
-/* =====================================================
-   RESPONSIVE
-===================================================== */
-
-@media (max-width: 600px) {
-
-    .page-header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .page-header .btn {
-        width: 100%;
-    }
-
-    .class-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .modal-content {
-        padding: 20px;
-    }
+    padding: 50px 20px;
+    color: #777;
 
 }
 
@@ -434,8 +322,6 @@
 
 <body>
 
-<div class="dashboard-wrapper">
-
 
 <!-- =====================================================
      SIDEBAR
@@ -444,75 +330,43 @@
 <aside class="sidebar">
 
     <div class="sidebar-logo">
-
-        <h2>Marks System</h2>
-
+        <h2>Fila Assistant</h2>
     </div>
 
+    <nav>
 
-    <div class="sidebar-menu">
-
-        <a
-            href="dashboard.html"
-            class="sidebar-link"
-        >
-            <i class="fa-solid fa-house"></i>
+        <a href="dashboard.html">
+            <i class="fa-solid fa-chart-line"></i>
             Dashboard
         </a>
 
-
-        <a
-            href="students.html"
-            class="sidebar-link"
-        >
+        <a href="students.html">
             <i class="fa-solid fa-users"></i>
             Manage Students
         </a>
 
-
-        <a
-            href="classes.html"
-            class="sidebar-link active"
-        >
-            <i class="fa-solid fa-school"></i>
+        <a href="classes.html" class="active">
+            <i class="fa-solid fa-book"></i>
             Classes & Subjects
         </a>
 
-
-        <a
-            href="marks.html"
-            class="sidebar-link"
-        >
+        <a href="marks.html">
             <i class="fa-solid fa-pen"></i>
             Record Marks
         </a>
 
-
-        <a
-            href="results.html"
-            class="sidebar-link"
-        >
+        <a href="results.html">
             <i class="fa-solid fa-chart-column"></i>
             Results
         </a>
 
-
-        <a
-            href="login.html"
-            class="sidebar-link"
-            onclick="logout()"
-        >
-            <i class="fa-solid fa-right-from-bracket"></i>
-            Logout
-        </a>
-
-    </div>
+    </nav>
 
 </aside>
 
 
 <!-- =====================================================
-     MAIN CONTENT
+     MAIN
 ===================================================== -->
 
 <main class="main-content">
@@ -520,22 +374,22 @@
 
     <div class="page-header">
 
-        <div class="page-header-text">
+        <div>
 
-            <h2>Classes & Subjects</h2>
+            <h1>
+                Classes & Subjects
+            </h1>
 
             <p>
-                Set the classes and subjects you teach.
+                Select the subjects you teach in each class.
             </p>
 
         </div>
 
 
         <button
-            type="button"
-            class="btn btn-primary"
-            onclick="openAddClassModal()"
-        >
+            class="primary-btn"
+            onclick="openAddModal()">
 
             <i class="fa-solid fa-plus"></i>
 
@@ -546,421 +400,91 @@
     </div>
 
 
-    <!-- MESSAGE -->
-
     <div
-        id="pageMessage"
-        class="page-message"
-    ></div>
+        id="message"
+        class="message">
+    </div>
 
 
-    <!-- =================================================
-         ASSIGNMENTS
-    ================================================== -->
+    <div class="search-box">
 
-    <div class="card">
-
-        <div class="search-box">
-
-            <i class="fa-solid fa-magnifying-glass"></i>
-
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Search class or subject..."
-                oninput="filterClasses()"
-            >
-
-        </div>
-
-
-        <div
-            id="classGrid"
-            class="class-grid"
-        >
-
-            <div class="empty-state">
-
-                <i class="fa-solid fa-spinner fa-spin"></i>
-
-                <h3>Loading...</h3>
-
-                <p>
-                    Please wait.
-                </p>
-
-            </div>
-
-        </div>
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search class or subject..."
+            oninput="renderAssignments()">
 
     </div>
+
+
+    <div
+        id="assignmentGrid"
+        class="assignment-grid">
+    </div>
+
 
 </main>
 
-</div>
-
-
 
 <!-- =====================================================
-     ADD TEACHING CLASS MODAL
+     ADD MODAL
 ===================================================== -->
 
 <div
-    class="modal"
-    id="addClassModal"
->
+    id="addModal"
+    class="modal">
 
-    <div class="modal-content">
+    <div class="modal-box">
 
-        <div class="modal-header">
+        <h2>
+            Add Teaching Class
+        </h2>
 
-            <i class="fa-solid fa-school"></i>
 
-            <h2>Add Teaching Class</h2>
+        <div class="form-group">
+
+            <label>
+                Academic Year
+            </label>
+
+            <select
+                id="addYear">
+            </select>
 
         </div>
 
 
-        <p class="modal-description">
-            Select the class, subject and academic year
-            you teach.
-        </p>
-
-
-        <form id="addClassForm">
-
-
-            <!-- ACADEMIC YEAR -->
-
-            <div class="input-group">
-
-                <label for="addAcademicYear">
-
-                    Academic Year
-
-                </label>
-
-
-                <select
-                    id="addAcademicYear"
-                    required
-                >
-
-                    <option value="">
-                        Select academic year
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- CLASS -->
-
-            <div class="input-group">
-
-                <label for="addClassId">
-
-                    Class
-
-                </label>
-
-
-                <select
-                    id="addClassId"
-                    required
-                >
-
-                    <option value="">
-                        Select class
-                    </option>
-
-                </select>
-
-
-                <span class="input-help">
-
-                    Select one of your classes.
-
-                </span>
-
-            </div>
-
-
-            <!-- SUBJECT -->
-
-            <div class="input-group">
-
-                <label for="addSubjectId">
-
-                    Subject
-
-                </label>
-
-
-                <select
-                    id="addSubjectId"
-                    required
-                >
-
-                    <option value="">
-                        Select subject
-                    </option>
-
-                </select>
-
-
-                <span class="input-help">
-
-                    Select the subject you teach in this class.
-
-                </span>
-
-            </div>
-
-
-            <div class="modal-buttons">
-
-                <button
-                    type="button"
-                    class="btn btn-danger"
-                    onclick="closeAddClassModal()"
-                >
-
-                    Cancel
-
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                    id="addClassButton"
-                >
-
-                    <i class="fa-solid fa-save"></i>
-
-                    Save Assignment
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     EDIT TEACHING CLASS MODAL
-===================================================== -->
-
-<div
-    class="modal"
-    id="editClassModal"
->
-
-    <div class="modal-content">
-
-        <div class="modal-header">
-
-            <i class="fa-solid fa-pen-to-square"></i>
-
-            <h2>Edit Teaching Class</h2>
+        <div class="form-group">
+
+            <label>
+                Class
+            </label>
+
+            <select
+                id="addClass">
+            </select>
 
         </div>
 
 
-        <p class="modal-description">
-
-            Update the class, subject or academic year.
-
-        </p>
-
-
-        <form id="editClassForm">
-
-
-            <input
-                type="hidden"
-                id="editAssignmentId"
-            >
-
-
-            <!-- ACADEMIC YEAR -->
-
-            <div class="input-group">
-
-                <label for="editAcademicYear">
-
-                    Academic Year
-
-                </label>
-
-
-                <select
-                    id="editAcademicYear"
-                    required
-                >
-
-                    <option value="">
-                        Select academic year
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- CLASS -->
-
-            <div class="input-group">
-
-                <label for="editClassId">
-
-                    Class
-
-                </label>
-
-
-                <select
-                    id="editClassId"
-                    required
-                >
-
-                    <option value="">
-                        Select class
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <!-- SUBJECT -->
-
-            <div class="input-group">
-
-                <label for="editSubjectId">
-
-                    Subject
-
-                </label>
-
-
-                <select
-                    id="editSubjectId"
-                    required
-                >
-
-                    <option value="">
-                        Select subject
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="modal-buttons">
-
-                <button
-                    type="button"
-                    class="btn btn-danger"
-                    onclick="closeEditClassModal()"
-                >
-
-                    Cancel
-
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                    id="editClassButton"
-                >
-
-                    <i class="fa-solid fa-save"></i>
-
-                    Save Changes
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     DELETE MODAL
-===================================================== -->
-
-<div
-    class="modal"
-    id="deleteClassModal"
->
-
-    <div class="modal-content">
-
-        <div class="delete-warning">
-
-            <div class="delete-warning-icon">
-
-                <i class="fa-solid fa-trash"></i>
-
-            </div>
-
-
-            <h2>
-                Remove Teaching Assignment?
-            </h2>
-
-
-            <p>
-
-                Are you sure you want to remove
-
-                <strong id="deleteClassName"></strong>
-
-                —
-
-                <strong id="deleteSubjectName"></strong>?
-
-            </p>
-
-
-            <p>
-
-                Existing marks and tests will not
-                automatically be deleted.
-
-            </p>
+        <div class="form-group">
+
+            <label>
+                Subject
+            </label>
+
+            <select
+                id="addSubject">
+            </select>
 
         </div>
 
 
-        <input
-            type="hidden"
-            id="deleteAssignmentId"
-        >
-
-
-        <div class="modal-buttons">
+        <div class="modal-actions">
 
             <button
-                type="button"
-                class="btn btn-primary"
-                onclick="closeDeleteClassModal()"
-            >
+                class="secondary-btn"
+                onclick="closeAddModal()">
 
                 Cancel
 
@@ -968,13 +492,144 @@
 
 
             <button
-                type="button"
-                class="btn btn-danger"
-                id="deleteClassButton"
-                onclick="confirmDeleteClass()"
-            >
+                class="primary-btn"
+                onclick="saveAssignment()">
 
-                <i class="fa-solid fa-trash"></i>
+                Save
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     EDIT MODAL
+===================================================== -->
+
+<div
+    id="editModal"
+    class="modal">
+
+    <div class="modal-box">
+
+        <h2>
+            Edit Teaching Class
+        </h2>
+
+
+        <input
+            type="hidden"
+            id="editId">
+
+
+        <div class="form-group">
+
+            <label>
+                Academic Year
+            </label>
+
+            <select
+                id="editYear">
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Class
+            </label>
+
+            <select
+                id="editClass">
+            </select>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Subject
+            </label>
+
+            <select
+                id="editSubject">
+            </select>
+
+        </div>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary-btn"
+                onclick="closeEditModal()">
+
+                Cancel
+
+            </button>
+
+
+            <button
+                class="primary-btn"
+                onclick="updateAssignment()">
+
+                Update
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DELETE MODAL
+===================================================== -->
+
+<div
+    id="deleteModal"
+    class="modal">
+
+    <div class="modal-box">
+
+        <h2>
+            Remove Teaching Assignment
+        </h2>
+
+
+        <p id="deleteText">
+            Are you sure?
+        </p>
+
+
+        <input
+            type="hidden"
+            id="deleteId">
+
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary-btn"
+                onclick="closeDeleteModal()">
+
+                Cancel
+
+            </button>
+
+
+            <button
+                class="danger-btn"
+                onclick="deleteAssignment()">
 
                 Remove
 
@@ -987,53 +642,81 @@
 </div>
 
 
-
 <script>
 
-/* =====================================================
-   GLOBAL VARIABLES
-===================================================== */
-
-let teacherId = null;
-
-let allClasses = [];
-
-let availableClasses = [];
-
-let availableSubjects = [];
-
-let availableAcademicYears = [];
-
-let messageTimer = null;
-
-
 
 /* =====================================================
-   GET TEACHER ID
+   CONFIG
 ===================================================== */
 
-function getTeacherId() {
-
-    const id =
-        Number(
-            localStorage.getItem("userId")
-        );
+const API =
+    "../.netlify/functions/student";
 
 
-    if (!id) {
-
-        window.location.href =
-            "../login.html";
-
-        return null;
-
-    }
+const teacherId =
+    Number(
+        localStorage.getItem("userId")
+    );
 
 
-    return id;
+if (!teacherId) {
+
+    window.location.href =
+        "../login.html";
 
 }
 
+
+/* =====================================================
+   FRONTEND SUBJECT LIST
+===================================================== */
+
+const SUBJECTS = [
+
+    "English",
+
+    "Mathematics",
+
+    "Kinyarwanda",
+
+    "Science and Elementary Technology (SET)",
+
+    "Social and Religious Studies (SRS)",
+
+    "French",
+
+    "Creative Arts",
+
+    "Physical Education",
+
+    "ICT",
+
+    "Physics",
+
+    "Chemistry",
+
+    "Biology",
+
+    "History",
+
+    "Geography",
+
+    "Entrepreneurship",
+
+    "Computer Science"
+
+];
+
+
+/* =====================================================
+   DATA
+===================================================== */
+
+let assignments = [];
+
+let classes = [];
+
+let academicYears = [];
 
 
 /* =====================================================
@@ -1041,1129 +724,49 @@ function getTeacherId() {
 ===================================================== */
 
 function showMessage(
-    message,
-    type = "info"
+    text,
+    type = "success"
 ) {
 
-    const box =
+    const message =
         document.getElementById(
-            "pageMessage"
+            "message"
         );
 
+    message.textContent = text;
 
-    clearTimeout(messageTimer);
-
-
-    box.textContent =
-        message;
-
-
-    box.className =
-        `page-message show ${type}`;
-
-
-    messageTimer =
-        setTimeout(() => {
-
-            box.className =
-                "page-message";
-
-        }, 4000);
-
-}
-
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHTML(value) {
-
-    const div =
-        document.createElement("div");
-
-
-    div.textContent =
-        value ?? "";
-
-
-    return div.innerHTML;
-
-}
-
-
-
-/* =====================================================
-   LOAD ALL DATA
-===================================================== */
-
-async function loadPageData() {
-
-    const grid =
-        document.getElementById(
-            "classGrid"
-        );
-
-
-    grid.innerHTML = `
-        <div class="empty-state">
-
-            <i class="fa-solid fa-spinner fa-spin"></i>
-
-            <h3>Loading...</h3>
-
-            <p>Please wait.</p>
-
-        </div>
-    `;
-
-
-    try {
-
-        const [
-            assignmentsResponse,
-            classesResponse,
-            subjectsResponse,
-            yearsResponse
-        ] = await Promise.all([
-
-            fetch(
-                `/.netlify/functions/student?action=getTeachingAssignments&teacher_id=${teacherId}`
-            ),
-
-            fetch(
-                `/.netlify/functions/student?action=getClasses&teacher_id=${teacherId}`
-            ),
-
-            fetch(
-                `/.netlify/functions/student?action=getSubjects&teacher_id=${teacherId}`
-            ),
-
-            fetch(
-                `/.netlify/functions/student?action=getAcademicYears`
-            )
-
-        ]);
-
-
-        if (
-            !assignmentsResponse.ok ||
-            !classesResponse.ok ||
-            !subjectsResponse.ok ||
-            !yearsResponse.ok
-        ) {
-
-            throw new Error(
-                "Unable to load teaching information."
-            );
-
-        }
-
-
-        const [
-            assignmentsData,
-            classesData,
-            subjectsData,
-            yearsData
-        ] = await Promise.all([
-
-            assignmentsResponse.json(),
-            classesResponse.json(),
-            subjectsResponse.json(),
-            yearsResponse.json()
-
-        ]);
-
-
-        allClasses =
-            assignmentsData.assignments || [];
-
-
-        availableClasses =
-            classesData.classes || [];
-
-
-        availableSubjects =
-            subjectsData.subjects || [];
-
-
-        availableAcademicYears =
-            yearsData.years || [];
-
-
-        populateAllSelects();
-
-
-        renderClasses();
-
-
-    } catch (error) {
-
-        console.error(
-            "Load Teaching Data Error:",
-            error
-        );
-
-
-        grid.innerHTML = `
-            <div class="empty-state">
-
-                <i class="fa-solid fa-circle-exclamation"></i>
-
-                <h3>Unable to load information</h3>
-
-                <p>
-                    Please refresh the page and try again.
-                </p>
-
-            </div>
-        `;
-
-
-        showMessage(
-            error.message ||
-            "Unable to load teaching information.",
-            "error"
-        );
-
-    }
-
-}
-
-
-
-/* =====================================================
-   POPULATE SELECTS
-===================================================== */
-
-function populateAllSelects() {
-
-    populateSelect(
-        "addAcademicYear",
-        availableAcademicYears,
-        "id",
-        "year_name",
-        "Select academic year"
-    );
-
-
-    populateSelect(
-        "editAcademicYear",
-        availableAcademicYears,
-        "id",
-        "year_name",
-        "Select academic year"
-    );
-
-
-    populateSelect(
-        "addClassId",
-        availableClasses,
-        "id",
-        "class_name",
-        "Select class"
-    );
-
-
-    populateSelect(
-        "editClassId",
-        availableClasses,
-        "id",
-        "class_name",
-        "Select class"
-    );
-
-
-    populateSelect(
-        "addSubjectId",
-        availableSubjects,
-        "id",
-        "subject_name",
-        "Select subject"
-    );
-
-
-    populateSelect(
-        "editSubjectId",
-        availableSubjects,
-        "id",
-        "subject_name",
-        "Select subject"
-    );
-
-}
-
-
-
-function populateSelect(
-    selectId,
-    items,
-    valueField,
-    textField,
-    placeholder
-) {
-
-    const select =
-        document.getElementById(
-            selectId
-        );
-
-
-    select.innerHTML = "";
-
-
-    const placeholderOption =
-        document.createElement(
-            "option"
-        );
-
-
-    placeholderOption.value =
-        "";
-
-
-    placeholderOption.textContent =
-        placeholder;
-
-
-    select.appendChild(
-        placeholderOption
-    );
-
-
-    items.forEach(item => {
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-
-        option.value =
-            item[valueField];
-
-
-        option.textContent =
-            item[textField];
-
-
-        select.appendChild(
-            option
-        );
-
-    });
-
-}
-
-
-
-/* =====================================================
-   RENDER ASSIGNMENTS
-===================================================== */
-
-function renderClasses(
-    assignments = allClasses
-) {
-
-    const grid =
-        document.getElementById(
-            "classGrid"
-        );
-
-
-    grid.innerHTML = "";
-
-
-    if (!assignments.length) {
-
-        grid.innerHTML = `
-            <div
-                class="empty-state"
-                style="grid-column:1/-1;"
-            >
-
-                <i class="fa-solid fa-school"></i>
-
-                <h3>No teaching classes yet</h3>
-
-                <p>
-                    Add the classes and subjects you teach.
-                </p>
-
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    assignments.forEach(
-        assignment => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-
-            card.className =
-                "class-card";
-
-
-            const studentCount =
-                Number(
-                    assignment.student_count || 0
-                );
-
-
-            card.innerHTML = `
-
-                <div class="class-card-header">
-
-                    <div class="class-icon">
-
-                        <i class="fa-solid fa-school"></i>
-
-                    </div>
-
-
-                    <div class="class-card-title">
-
-                        <h3>
-                            ${escapeHTML(
-                                assignment.class_name
-                            )}
-                        </h3>
-
-
-                        <div class="subject-name">
-
-                            <i class="fa-solid fa-book"></i>
-
-                            ${escapeHTML(
-                                assignment.subject_name
-                            )}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="academic-year">
-
-                    <i class="fa-solid fa-calendar"></i>
-
-                    ${escapeHTML(
-                        assignment.year_name
-                    )}
-
-                </div>
-
-
-                <div class="student-count">
-
-                    <i class="fa-solid fa-users"></i>
-
-                    <span>
-
-                        ${studentCount}
-
-                        ${
-                            studentCount === 1
-                                ? "student"
-                                : "students"
-                        }
-
-                    </span>
-
-                </div>
-
-
-                <div class="class-actions">
-
-                    <button
-                        type="button"
-                        class="class-action-btn edit-class-btn"
-                    >
-
-                        <i class="fa-solid fa-pen"></i>
-
-                        Edit
-
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="class-action-btn delete-class-btn"
-                    >
-
-                        <i class="fa-solid fa-trash"></i>
-
-                        Remove
-
-                    </button>
-
-                </div>
-
-            `;
-
-
-            card.querySelector(
-                ".edit-class-btn"
-            ).addEventListener(
-                "click",
-                () =>
-                    openEditClassModal(
-                        assignment
-                    )
-            );
-
-
-            card.querySelector(
-                ".delete-class-btn"
-            ).addEventListener(
-                "click",
-                () =>
-                    openDeleteClassModal(
-                        assignment
-                    )
-            );
-
-
-            grid.appendChild(
-                card
-            );
-
-        }
-    );
-
-}
-
-
-
-/* =====================================================
-   SEARCH
-===================================================== */
-
-function filterClasses() {
-
-    const search =
-        document
-            .getElementById(
-                "searchInput"
-            )
-            .value
-            .trim()
-            .toLowerCase();
-
-
-    if (!search) {
-
-        renderClasses();
-
-        return;
-
-    }
-
-
-    const filtered =
-        allClasses.filter(
-            assignment => {
-
-                const className =
-                    String(
-                        assignment.class_name || ""
-                    )
-                    .toLowerCase();
-
-
-                const subjectName =
-                    String(
-                        assignment.subject_name || ""
-                    )
-                    .toLowerCase();
-
-
-                const yearName =
-                    String(
-                        assignment.year_name || ""
-                    )
-                    .toLowerCase();
-
-
-                return (
-                    className.includes(search) ||
-                    subjectName.includes(search) ||
-                    yearName.includes(search)
-                );
-
-            }
-        );
-
-
-    renderClasses(
-        filtered
-    );
-
-}
-
-
-
-/* =====================================================
-   ADD MODAL
-===================================================== */
-
-function openAddClassModal() {
-
-    document
-        .getElementById(
-            "addClassForm"
-        )
-        .reset();
-
-
-    populateAllSelects();
-
-
-    document
-        .getElementById(
-            "addClassModal"
-        )
-        .classList.add(
-            "active"
-        );
+    message.className =
+        "message show " + type;
 
 
     setTimeout(() => {
 
-        document
-            .getElementById(
-                "addAcademicYear"
-            )
-            .focus();
+        message.className =
+            "message";
 
-    }, 100);
+    }, 3500);
 
 }
 
 
-
-function closeAddClassModal() {
-
-    document
-        .getElementById(
-            "addClassModal"
-        )
-        .classList.remove(
-            "active"
-        );
-
-}
-
-
-
 /* =====================================================
-   ADD ASSIGNMENT
+   API
 ===================================================== */
 
-document
-    .getElementById(
-        "addClassForm"
-    )
-    .addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-
-            const button =
-                document.getElementById(
-                    "addClassButton"
-                );
-
-
-            const academicYearId =
-                Number(
-                    document.getElementById(
-                        "addAcademicYear"
-                    ).value
-                );
-
-
-            const classId =
-                Number(
-                    document.getElementById(
-                        "addClassId"
-                    ).value
-                );
-
-
-            const subjectId =
-                Number(
-                    document.getElementById(
-                        "addSubjectId"
-                    ).value
-                );
-
-
-            if (
-                !academicYearId ||
-                !classId ||
-                !subjectId
-            ) {
-
-                showMessage(
-                    "Please select the academic year, class and subject.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            button.disabled = true;
-
-
-            button.innerHTML = `
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Saving...
-            `;
-
-
-            try {
-
-                const res =
-                    await fetch(
-                        "/.netlify/functions/student?action=addTeachingAssignment",
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    teacher_id:
-                                        teacherId,
-
-                                    class_id:
-                                        classId,
-
-                                    subject_id:
-                                        subjectId,
-
-                                    academic_year_id:
-                                        academicYearId
-
-                                })
-
-                        }
-                    );
-
-
-                const data =
-                    await res.json();
-
-
-                if (!res.ok) {
-
-                    throw new Error(
-                        data.message ||
-                        data.error ||
-                        "Unable to save assignment."
-                    );
-
-                }
-
-
-                closeAddClassModal();
-
-
-                showMessage(
-                    "Teaching class added successfully.",
-                    "success"
-                );
-
-
-                await loadPageData();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Add Assignment Error:",
-                    error
-                );
-
-
-                showMessage(
-                    error.message ||
-                    "Unable to save assignment.",
-                    "error"
-                );
-
-
-            } finally {
-
-                button.disabled = false;
-
-
-                button.innerHTML = `
-                    <i class="fa-solid fa-save"></i>
-                    Save Assignment
-                `;
-
-            }
-
-        }
-    );
-
-
-
-/* =====================================================
-   EDIT MODAL
-===================================================== */
-
-function openEditClassModal(
-    assignment
+async function api(
+    action,
+    options = {}
 ) {
 
-    document.getElementById(
-        "editAssignmentId"
-    ).value =
-        assignment.id;
+    let url =
+        `${API}?action=${encodeURIComponent(action)}&teacher_id=${teacherId}`;
 
 
-    populateAllSelects();
+    if (options.method === "POST") {
 
-
-    document.getElementById(
-        "editAcademicYear"
-    ).value =
-        assignment.academic_year_id;
-
-
-    document.getElementById(
-        "editClassId"
-    ).value =
-        assignment.class_id;
-
-
-    document.getElementById(
-        "editSubjectId"
-    ).value =
-        assignment.subject_id;
-
-
-    document
-        .getElementById(
-            "editClassModal"
-        )
-        .classList.add(
-            "active"
-        );
-
-}
-
-
-
-function closeEditClassModal() {
-
-    document
-        .getElementById(
-            "editClassModal"
-        )
-        .classList.remove(
-            "active"
-        );
-
-}
-
-
-
-/* =====================================================
-   EDIT ASSIGNMENT
-===================================================== */
-
-document
-    .getElementById(
-        "editClassForm"
-    )
-    .addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-
-            const button =
-                document.getElementById(
-                    "editClassButton"
-                );
-
-
-            const id =
-                Number(
-                    document.getElementById(
-                        "editAssignmentId"
-                    ).value
-                );
-
-
-            const academicYearId =
-                Number(
-                    document.getElementById(
-                        "editAcademicYear"
-                    ).value
-                );
-
-
-            const classId =
-                Number(
-                    document.getElementById(
-                        "editClassId"
-                    ).value
-                );
-
-
-            const subjectId =
-                Number(
-                    document.getElementById(
-                        "editSubjectId"
-                    ).value
-                );
-
-
-            if (
-                !id ||
-                !academicYearId ||
-                !classId ||
-                !subjectId
-            ) {
-
-                showMessage(
-                    "Please complete all fields.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            button.disabled = true;
-
-
-            button.innerHTML = `
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Saving...
-            `;
-
-
-            try {
-
-                const res =
-                    await fetch(
-                        "/.netlify/functions/student?action=updateTeachingAssignment",
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    id:
-                                        id,
-
-                                    teacher_id:
-                                        teacherId,
-
-                                    class_id:
-                                        classId,
-
-                                    subject_id:
-                                        subjectId,
-
-                                    academic_year_id:
-                                        academicYearId
-
-                                })
-
-                        }
-                    );
-
-
-                const data =
-                    await res.json();
-
-
-                if (!res.ok) {
-
-                    throw new Error(
-                        data.message ||
-                        data.error ||
-                        "Unable to update assignment."
-                    );
-
-                }
-
-
-                closeEditClassModal();
-
-
-                showMessage(
-                    "Teaching class updated successfully.",
-                    "success"
-                );
-
-
-                await loadPageData();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Update Assignment Error:",
-                    error
-                );
-
-
-                showMessage(
-                    error.message ||
-                    "Unable to update assignment.",
-                    "error"
-                );
-
-
-            } finally {
-
-                button.disabled = false;
-
-
-                button.innerHTML = `
-                    <i class="fa-solid fa-save"></i>
-                    Save Changes
-                `;
-
-            }
-
-        }
-    );
-
-
-
-/* =====================================================
-   DELETE MODAL
-===================================================== */
-
-function openDeleteClassModal(
-    assignment
-) {
-
-    document.getElementById(
-        "deleteAssignmentId"
-    ).value =
-        assignment.id;
-
-
-    document.getElementById(
-        "deleteClassName"
-    ).textContent =
-        assignment.class_name;
-
-
-    document.getElementById(
-        "deleteSubjectName"
-    ).textContent =
-        assignment.subject_name;
-
-
-    document
-        .getElementById(
-            "deleteClassModal"
-        )
-        .classList.add(
-            "active"
-        );
-
-}
-
-
-
-function closeDeleteClassModal() {
-
-    document
-        .getElementById(
-            "deleteClassModal"
-        )
-        .classList.remove(
-            "active"
-        );
-
-}
-
-
-
-/* =====================================================
-   DELETE ASSIGNMENT
-===================================================== */
-
-async function confirmDeleteClass() {
-
-    const id =
-        Number(
-            document.getElementById(
-                "deleteAssignmentId"
-            ).value
-        );
-
-
-    if (!id) {
-
-        showMessage(
-            "Invalid teaching assignment.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    const button =
-        document.getElementById(
-            "deleteClassButton"
-        );
-
-
-    button.disabled = true;
-
-
-    button.innerHTML = `
-        <i class="fa-solid fa-spinner fa-spin"></i>
-        Removing...
-    `;
-
-
-    try {
-
-        const res =
+        const response =
             await fetch(
-                "/.netlify/functions/student?action=deleteTeachingAssignment",
+                url,
                 {
                     method: "POST",
 
@@ -2174,153 +777,953 @@ async function confirmDeleteClass() {
 
                     body:
                         JSON.stringify({
-
-                            id:
-                                id,
-
+                            ...options.body,
                             teacher_id:
                                 teacherId
-
                         })
-
                 }
             );
 
+        return await response.json();
 
-        const data =
-            await res.json();
+    }
 
 
-        if (!res.ok) {
+    const response =
+        await fetch(url);
+
+    return await response.json();
+
+}
+
+
+/* =====================================================
+   LOAD DATA
+===================================================== */
+
+async function loadData() {
+
+    try {
+
+        const [
+            assignmentResponse,
+            classResponse,
+            yearResponse
+        ] = await Promise.all([
+
+            api(
+                "getTeachingAssignments"
+            ),
+
+            api(
+                "getClasses"
+            ),
+
+            api(
+                "getAcademicYears"
+            )
+
+        ]);
+
+
+        if (
+            !assignmentResponse.success
+        ) {
 
             throw new Error(
-                data.message ||
-                data.error ||
-                "Unable to remove assignment."
+                assignmentResponse.message
             );
 
         }
 
 
-        closeDeleteClassModal();
+        if (
+            !classResponse.success
+        ) {
+
+            throw new Error(
+                classResponse.message
+            );
+
+        }
 
 
-        showMessage(
-            "Teaching assignment removed successfully.",
-            "success"
-        );
+        if (
+            !yearResponse.success
+        ) {
+
+            throw new Error(
+                yearResponse.message
+            );
+
+        }
 
 
-        await loadPageData();
+        assignments =
+            assignmentResponse.assignments || [];
+
+
+        classes =
+            classResponse.classes || [];
+
+
+        academicYears =
+            yearResponse.years || [];
+
+
+        populateAllSelects();
+
+        renderAssignments();
 
 
     } catch (error) {
 
-        console.error(
-            "Delete Assignment Error:",
-            error
-        );
-
+        console.error(error);
 
         showMessage(
             error.message ||
-            "Unable to remove assignment.",
+            "Failed to load data.",
             "error"
         );
-
-
-    } finally {
-
-        button.disabled = false;
-
-
-        button.innerHTML = `
-            <i class="fa-solid fa-trash"></i>
-            Remove
-        `;
 
     }
 
 }
 
 
-
 /* =====================================================
-   LOGOUT
+   POPULATE SELECTS
 ===================================================== */
 
-function logout() {
+function populateAllSelects() {
 
-    localStorage.removeItem(
-        "isLoggedIn"
+    populateYears(
+        document.getElementById("addYear")
     );
 
-    localStorage.removeItem(
-        "auth_token"
+    populateYears(
+        document.getElementById("editYear")
     );
 
-    localStorage.removeItem(
-        "user_email"
+
+    populateClasses(
+        document.getElementById("addClass")
     );
 
-    localStorage.removeItem(
-        "userId"
+    populateClasses(
+        document.getElementById("editClass")
+    );
+
+
+    populateSubjects(
+        document.getElementById("addSubject")
+    );
+
+    populateSubjects(
+        document.getElementById("editSubject")
     );
 
 }
 
 
-
 /* =====================================================
-   CLOSE MODALS BY CLICKING OUTSIDE
+   YEARS
 ===================================================== */
 
-document
-    .querySelectorAll(
-        ".modal"
-    )
-    .forEach(
-        modal => {
+function populateYears(select) {
 
-            modal.addEventListener(
-                "click",
-                event => {
+    select.innerHTML =
+        '<option value="">Select academic year</option>';
 
-                    if (
-                        event.target ===
-                        modal
-                    ) {
 
-                        modal.classList.remove(
-                            "active"
-                        );
+    academicYears.forEach(
+        year => {
 
-                    }
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-                }
+            option.value =
+                year.id;
+
+            option.textContent =
+                year.year_name;
+
+            select.appendChild(
+                option
             );
 
         }
     );
 
+}
 
 
 /* =====================================================
-   INITIALIZE
+   CLASSES
 ===================================================== */
 
-teacherId =
-    getTeacherId();
+function populateClasses(select) {
+
+    select.innerHTML =
+        '<option value="">Select class</option>';
 
 
-if (teacherId) {
+    classes.forEach(
+        item => {
 
-    loadPageData();
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                item.id;
+
+            option.textContent =
+                item.class_name;
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
 
 }
+
+
+/* =====================================================
+   SUBJECTS
+===================================================== */
+
+function populateSubjects(select) {
+
+    select.innerHTML =
+        '<option value="">Select subject</option>';
+
+
+    SUBJECTS.forEach(
+        subject => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                subject;
+
+            option.textContent =
+                subject;
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   RENDER ASSIGNMENTS
+===================================================== */
+
+function renderAssignments() {
+
+    const grid =
+        document.getElementById(
+            "assignmentGrid"
+        );
+
+
+    const search =
+        document.getElementById(
+            "searchInput"
+        )
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const filtered =
+        assignments.filter(
+            item => {
+
+                const text = (
+
+                    item.class_name +
+                    " " +
+                    item.subject_name +
+                    " " +
+                    item.year_name
+
+                ).toLowerCase();
+
+
+                return text.includes(
+                    search
+                );
+
+            }
+        );
+
+
+    if (!filtered.length) {
+
+        grid.innerHTML = `
+
+            <div class="empty-state">
+
+                <i
+                    class="fa-solid fa-book-open"
+                    style="font-size:40px;">
+                </i>
+
+                <h3>
+                    No teaching assignments
+                </h3>
+
+                <p>
+                    Add the subjects you teach
+                    in your classes.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    grid.innerHTML =
+        filtered.map(
+            item => `
+
+                <div
+                    class="assignment-card">
+
+                    <h3>
+                        ${escapeHtml(
+                            item.class_name
+                        )}
+                    </h3>
+
+                    <div
+                        class="assignment-subject">
+
+                        ${escapeHtml(
+                            item.subject_name
+                        )}
+
+                    </div>
+
+                    <div
+                        class="assignment-year">
+
+                        Academic Year:
+                        ${escapeHtml(
+                            item.year_name
+                        )}
+
+                    </div>
+
+                    <div
+                        class="assignment-students">
+
+                        <i class="fa-solid fa-users">
+                        </i>
+
+                        ${item.student_count || 0}
+                        students
+
+                    </div>
+
+
+                    <div
+                        class="card-actions">
+
+                        <button
+                            class="edit-btn"
+                            onclick="openEditModal(${item.id})">
+
+                            <i
+                                class="fa-solid fa-pen">
+                            </i>
+
+                            Edit
+
+                        </button>
+
+
+                        <button
+                            class="delete-btn"
+                            onclick="openDeleteModal(${item.id})">
+
+                            <i
+                                class="fa-solid fa-trash">
+                            </i>
+
+                            Remove
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `
+        ).join("");
+
+}
+
+
+/* =====================================================
+   ADD MODAL
+===================================================== */
+
+function openAddModal() {
+
+    document.getElementById(
+        "addYear"
+    ).value = "";
+
+    document.getElementById(
+        "addClass"
+    ).value = "";
+
+    document.getElementById(
+        "addSubject"
+    ).value = "";
+
+
+    /*
+       Automatically select the
+       current academic year.
+    */
+
+    const currentYear =
+        academicYears.find(
+            year =>
+                year.is_current === true
+        );
+
+
+    if (currentYear) {
+
+        document.getElementById(
+            "addYear"
+        ).value =
+            currentYear.id;
+
+    }
+
+
+    document.getElementById(
+        "addModal"
+    ).classList.add("show");
+
+}
+
+
+function closeAddModal() {
+
+    document.getElementById(
+        "addModal"
+    ).classList.remove("show");
+
+}
+
+
+/* =====================================================
+   SAVE ASSIGNMENT
+===================================================== */
+
+async function saveAssignment() {
+
+    const academicYearId =
+        Number(
+            document.getElementById(
+                "addYear"
+            ).value
+        );
+
+
+    const classId =
+        Number(
+            document.getElementById(
+                "addClass"
+            ).value
+        );
+
+
+    const subjectName =
+        document.getElementById(
+            "addSubject"
+        ).value;
+
+
+    if (!academicYearId) {
+
+        showMessage(
+            "Please select an academic year.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (!classId) {
+
+        showMessage(
+            "Please select a class.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (!subjectName) {
+
+        showMessage(
+            "Please select a subject.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const result =
+            await api(
+                "addTeachingAssignment",
+                {
+                    method: "POST",
+
+                    body: {
+                        academic_year_id:
+                            academicYearId,
+
+                        class_id:
+                            classId,
+
+                        subject_name:
+                            subjectName
+                    }
+                }
+            );
+
+
+        if (!result.success) {
+
+            throw new Error(
+                result.message
+            );
+
+        }
+
+
+        closeAddModal();
+
+        showMessage(
+            "Teaching assignment added successfully."
+        );
+
+
+        await loadData();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            error.message ||
+            "Failed to add assignment.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   EDIT MODAL
+===================================================== */
+
+function openEditModal(id) {
+
+    const item =
+        assignments.find(
+            assignment =>
+                Number(
+                    assignment.id
+                ) === Number(id)
+        );
+
+
+    if (!item) {
+
+        showMessage(
+            "Assignment not found.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "editId"
+    ).value =
+        item.id;
+
+
+    document.getElementById(
+        "editYear"
+    ).value =
+        item.academic_year_id;
+
+
+    document.getElementById(
+        "editClass"
+    ).value =
+        item.class_id;
+
+
+    document.getElementById(
+        "editSubject"
+    ).value =
+        item.subject_name;
+
+
+    document.getElementById(
+        "editModal"
+    ).classList.add("show");
+
+}
+
+
+function closeEditModal() {
+
+    document.getElementById(
+        "editModal"
+    ).classList.remove("show");
+
+}
+
+
+/* =====================================================
+   UPDATE ASSIGNMENT
+===================================================== */
+
+async function updateAssignment() {
+
+    const id =
+        Number(
+            document.getElementById(
+                "editId"
+            ).value
+        );
+
+
+    const academicYearId =
+        Number(
+            document.getElementById(
+                "editYear"
+            ).value
+        );
+
+
+    const classId =
+        Number(
+            document.getElementById(
+                "editClass"
+            ).value
+        );
+
+
+    const subjectName =
+        document.getElementById(
+            "editSubject"
+        ).value;
+
+
+    if (!id ||
+        !academicYearId ||
+        !classId ||
+        !subjectName) {
+
+        showMessage(
+            "Please complete all fields.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        const result =
+            await api(
+                "updateTeachingAssignment",
+                {
+                    method: "POST",
+
+                    body: {
+                        id,
+
+                        academic_year_id:
+                            academicYearId,
+
+                        class_id:
+                            classId,
+
+                        subject_name:
+                            subjectName
+                    }
+                }
+            );
+
+
+        if (!result.success) {
+
+            throw new Error(
+                result.message
+            );
+
+        }
+
+
+        closeEditModal();
+
+        showMessage(
+            "Teaching assignment updated successfully."
+        );
+
+
+        await loadData();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            error.message ||
+            "Failed to update assignment.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   DELETE MODAL
+===================================================== */
+
+function openDeleteModal(id) {
+
+    const item =
+        assignments.find(
+            assignment =>
+                Number(
+                    assignment.id
+                ) === Number(id)
+        );
+
+
+    if (!item) {
+
+        showMessage(
+            "Assignment not found.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "deleteId"
+    ).value =
+        item.id;
+
+
+    document.getElementById(
+        "deleteText"
+    ).textContent =
+        `Remove ${item.subject_name} from ${item.class_name}? Existing students and marks will not be deleted.`;
+
+
+    document.getElementById(
+        "deleteModal"
+    ).classList.add("show");
+
+}
+
+
+function closeDeleteModal() {
+
+    document.getElementById(
+        "deleteModal"
+    ).classList.remove("show");
+
+}
+
+
+/* =====================================================
+   DELETE ASSIGNMENT
+===================================================== */
+
+async function deleteAssignment() {
+
+    const id =
+        Number(
+            document.getElementById(
+                "deleteId"
+            ).value
+        );
+
+
+    if (!id) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const result =
+            await api(
+                "deleteTeachingAssignment",
+                {
+                    method: "POST",
+
+                    body: {
+                        id
+                    }
+                }
+            );
+
+
+        if (!result.success) {
+
+            throw new Error(
+                result.message
+            );
+
+        }
+
+
+        closeDeleteModal();
+
+        showMessage(
+            "Teaching assignment removed successfully."
+        );
+
+
+        await loadData();
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+            error.message ||
+            "Failed to remove assignment.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   CLOSE MODALS WHEN CLICKING OUTSIDE
+===================================================== */
+
+window.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target.classList.contains(
+                "modal"
+            )
+        ) {
+
+            event.target.classList.remove(
+                "show"
+            );
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   INITIAL LOAD
+===================================================== */
+
+loadData();
 
 </script>
 
 </body>
 
-    </html>
+                </html>
