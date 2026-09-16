@@ -1,286 +1,885 @@
 import { pool } from "./db.js";
 
-export const handler = async (event) => {
+
+/* =====================================================
+   COMMON RESPONSE
+===================================================== */
+
+function response(statusCode, data) {
+
+    return {
+        statusCode,
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(data)
+
+    };
+
+}
+
+
+
+/* =====================================================
+   GET BODY
+===================================================== */
+
+function getBody(event) {
 
     try {
 
-        const action =
-            event.queryStringParameters?.action;
+        return JSON.parse(
+            event.body || "{}"
+        );
 
-        // =====================================================
-        // GET TEACHER ID
-        // =====================================================
+    } catch {
 
-        let teacherId;
+        return {};
 
-        if (event.httpMethod === "GET") {
+    }
 
-            teacherId = Number(
-                event.queryStringParameters?.teacher_id
-            );
-
-        } else {
-
-            const body =
-                JSON.parse(event.body || "{}");
-
-            teacherId = Number(
-                body.teacher_id
-            );
-        }
-
-        if (!teacherId) {
-
-            return {
-                statusCode: 401,
-                body: JSON.stringify({
-                    success: false,
-                    message: "Teacher ID is required"
-                })
-            };
-
-        }
+}
 
 
-        // =====================================================
-        // CHECK TEACHER EXISTS
-        // =====================================================
 
-        const teacherRes = await pool.query(
+/* =====================================================
+   GET TEACHER ID
+===================================================== */
+
+function getTeacherId(event, body) {
+
+    const method =
+        event.httpMethod || "GET";
+
+
+    if (method === "GET") {
+
+        return Number(
+            event.queryStringParameters?.teacher_id
+        );
+
+    }
+
+
+    return Number(
+        body.teacher_id
+    );
+
+}
+
+
+
+/* =====================================================
+   CHECK TEACHER
+===================================================== */
+
+async function teacherExists(teacherId) {
+
+    if (!teacherId) {
+
+        return false;
+
+    }
+
+
+    const result =
+        await pool.query(
             `
-            SELECT id, name, role
+            SELECT id
             FROM users
             WHERE id = $1
+            LIMIT 1
             `,
             [teacherId]
         );
 
-        if (!teacherRes.rows.length) {
 
-            return {
-                statusCode: 404,
-                body: JSON.stringify({
-                    success: false,
-                    message: "Teacher not found"
-                })
-            };
+    return result.rows.length > 0;
 
-        }
+}
 
 
-        // =====================================================
-        // GET CURRENT ACADEMIC YEAR
-        // =====================================================
 
-        const yearRes = await pool.query(
+/* =====================================================
+   GET CURRENT ACADEMIC YEAR
+===================================================== */
+
+async function getCurrentAcademicYear() {
+
+    const result =
+        await pool.query(
             `
             SELECT *
             FROM academic_years
-            WHERE is_current = true
-            ORDER BY start_date DESC, id DESC
+            WHERE is_current = TRUE
+            ORDER BY
+                start_date DESC NULLS LAST,
+                id DESC
             LIMIT 1
             `
         );
 
-        const currentYear =
-            yearRes.rows[0] || null;
+
+    return result.rows[0] || null;
+
+}
 
 
-        if (!currentYear) {
 
-            return {
-                statusCode: 400,
-                body: JSON.stringify({
+/* =====================================================
+   MAIN HANDLER
+===================================================== */
+
+export const handler = async (event) => {
+
+    const method =
+        event.httpMethod || "GET";
+
+
+    const params =
+        event.queryStringParameters || {};
+
+
+    const action =
+        params.action || "";
+
+
+    const body =
+        getBody(event);
+
+
+    try {
+
+        /* =================================================
+           TEACHER
+        ================================================= */
+
+        const teacherId =
+            getTeacherId(
+                event,
+                body
+            );
+
+
+        if (!teacherId) {
+
+            return response(
+                400,
+                {
                     success: false,
-                    message:
-                        "No active academic year is available"
-                })
-            };
+                    message: "Teacher ID is required."
+                }
+            );
 
         }
 
 
-        // =====================================================
-        // GET CLASSES
-        // =====================================================
+        const exists =
+            await teacherExists(
+                teacherId
+            );
 
-        if (action === "getClasses") {
+
+        if (!exists) {
+
+            return response(
+                404,
+                {
+                    success: false,
+                    message: "Teacher not found."
+                }
+            );
+
+        }
+
+
+
+        /* =================================================
+           GET CURRENT ACADEMIC YEAR
+        ================================================= */
+
+        const academicYear =
+            await getCurrentAcademicYear();
+
+
+        if (!academicYear) {
+
+            return response(
+                400,
+                {
+                    success: false,
+                    message:
+                        "No current academic year has been set."
+                }
+            );
+
+        }
+
+
+
+        /* =================================================
+           GET CLASSES
+        ================================================= */
+
+        if (
+            action === "getClasses"
+        ) {
+
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        c.id,
+                        c.class_name,
+                        c.created_at,
+                        COUNT(l.id)::INTEGER
+                            AS student_count
+                    FROM classes c
+
+                    LEFT JOIN learners l
+                        ON l.class_id = c.id
+                        AND l.teacher_id = c.teacher_id
+
+                    WHERE c.teacher_id = $1
+
+                    GROUP BY
+                        c.id,
+                        c.class_name,
+                        c.created_at
+
+                    ORDER BY
+                        c.class_name ASC
+                    `,
+                    [teacherId]
+                );
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    classes: result.rows
+                }
+            );
+
+        }
+
+
+
+        /* =================================================
+           ADD CLASS
+        ================================================= */
+
+        if (
+            action === "addClass"
+        ) {
+
+            if (method !== "POST") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "POST method required."
+                    }
+                );
+
+            }
+
+
+            const className =
+                String(
+                    body.class_name || ""
+                )
+                .trim();
+
+
+            if (!className) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Class name is required."
+                    }
+                );
+
+            }
+
+
+            /*
+                Check duplicate class
+                for this teacher.
+            */
+
+            const duplicate =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM classes
+                    WHERE teacher_id = $1
+                      AND LOWER(TRIM(class_name))
+                          = LOWER(TRIM($2))
+                    LIMIT 1
+                    `,
+                    [
+                        teacherId,
+                        className
+                    ]
+                );
+
+
+            if (duplicate.rows.length) {
+
+                return response(
+                    409,
+                    {
+                        success: false,
+                        message:
+                            "You already have a class with this name."
+                    }
+                );
+
+            }
+
+
+            const result =
+                await pool.query(
+                    `
+                    INSERT INTO classes (
+                        teacher_id,
+                        class_name
+                    )
+
+                    VALUES ($1, $2)
+
+                    RETURNING
+                        id,
+                        class_name,
+                        created_at
+                    `,
+                    [
+                        teacherId,
+                        className
+                    ]
+                );
+
+
+            return response(
+                201,
+                {
+                    success: true,
+                    message:
+                        "Class added successfully.",
+                    class: result.rows[0]
+                }
+            );
+
+        }
+
+
+
+        /* =================================================
+           UPDATE CLASS
+        ================================================= */
+
+        if (
+            action === "updateClass"
+        ) {
+
+            if (method !== "POST") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "POST method required."
+                    }
+                );
+
+            }
+
+
+            const id =
+                Number(body.id);
+
+
+            const className =
+                String(
+                    body.class_name || ""
+                )
+                .trim();
+
+
+            if (!id) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Class ID is required."
+                    }
+                );
+
+            }
+
+
+            if (!className) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Class name is required."
+                    }
+                );
+
+            }
+
+
+            /*
+                Make sure another class
+                owned by this teacher does
+                not already use the name.
+            */
+
+            const duplicate =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM classes
+                    WHERE teacher_id = $1
+                      AND LOWER(TRIM(class_name))
+                          = LOWER(TRIM($2))
+                      AND id <> $3
+                    LIMIT 1
+                    `,
+                    [
+                        teacherId,
+                        className,
+                        id
+                    ]
+                );
+
+
+            if (duplicate.rows.length) {
+
+                return response(
+                    409,
+                    {
+                        success: false,
+                        message:
+                            "You already have another class with this name."
+                    }
+                );
+
+            }
+
+
+            const result =
+                await pool.query(
+                    `
+                    UPDATE classes
+
+                    SET class_name = $1
+
+                    WHERE id = $2
+                      AND teacher_id = $3
+
+                    RETURNING
+                        id,
+                        class_name,
+                        created_at
+                    `,
+                    [
+                        className,
+                        id,
+                        teacherId
+                    ]
+                );
+
+
+            if (!result.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Class not found."
+                    }
+                );
+
+            }
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    message:
+                        "Class updated successfully.",
+                    class: result.rows[0]
+                }
+            );
+
+        }
+
+
+
+        /* =================================================
+           DELETE CLASS
+        ================================================= */
+
+        if (
+            action === "deleteClass"
+        ) {
+
+            if (method !== "POST") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "POST method required."
+                    }
+                );
+
+            }
+
+
+            const id =
+                Number(body.id);
+
+
+            if (!id) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Class ID is required."
+                    }
+                );
+
+            }
+
+
+            /*
+                Verify ownership.
+            */
+
+            const classCheck =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM classes
+                    WHERE id = $1
+                      AND teacher_id = $2
+                    LIMIT 1
+                    `,
+                    [
+                        id,
+                        teacherId
+                    ]
+                );
+
+
+            if (!classCheck.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Class not found."
+                    }
+                );
+
+            }
+
+
+            /*
+                Delete inside a transaction.
+
+                Learners have ON DELETE CASCADE
+                for class_id.
+
+                Marks reference learners with
+                ON DELETE CASCADE.
+
+                Subject tests do NOT currently
+                have class_id ON DELETE CASCADE,
+                so remove the related tests first.
+            */
+
+            const client =
+                await pool.connect();
+
+
+            try {
+
+                await client.query(
+                    "BEGIN"
+                );
+
+
+                /*
+                    Delete marks connected
+                    to tests belonging to
+                    this class/teacher.
+                */
+
+                await client.query(
+                    `
+                    DELETE FROM marks
+                    WHERE teacher_id = $1
+                      AND class_id = $2
+                    `,
+                    [
+                        teacherId,
+                        id
+                    ]
+                );
+
+
+                /*
+                    Delete subject tests
+                    belonging to this class.
+                */
+
+                await client.query(
+                    `
+                    DELETE FROM subject_tests
+                    WHERE teacher_id = $1
+                      AND class_id = $2
+                    `,
+                    [
+                        teacherId,
+                        id
+                    ]
+                );
+
+
+                /*
+                    Delete grading settings
+                    for this class.
+                */
+
+                await client.query(
+                    `
+                    DELETE FROM grading_settings
+                    WHERE teacher_id = $1
+                      AND class_id = $2
+                    `,
+                    [
+                        teacherId,
+                        id
+                    ]
+                );
+
+
+                /*
+                    Delete the class.
+
+                    Learners belonging to it
+                    are removed automatically
+                    because class_id uses
+                    ON DELETE CASCADE.
+                */
+
+                await client.query(
+                    `
+                    DELETE FROM classes
+                    WHERE id = $1
+                      AND teacher_id = $2
+                    `,
+                    [
+                        id,
+                        teacherId
+                    ]
+                );
+
+
+                await client.query(
+                    "COMMIT"
+                );
+
+
+            } catch (error) {
+
+                await client.query(
+                    "ROLLBACK"
+                );
+
+                throw error;
+
+            } finally {
+
+                client.release();
+
+            }
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    message:
+                        "Class deleted successfully."
+                }
+            );
+
+        }
+
+
+
+        /* =================================================
+           GET STUDENTS
+        ================================================= */
+
+        if (
+            action === "getStudents"
+        ) {
+
+            const classId =
+                Number(
+                    params.class_id
+                );
+
+
+            if (!classId) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Class ID is required."
+                    }
+                );
+
+            }
+
+
+            /*
+                Make sure the class
+                belongs to this teacher.
+            */
+
+            const classCheck =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM classes
+                    WHERE id = $1
+                      AND teacher_id = $2
+                    LIMIT 1
+                    `,
+                    [
+                        classId,
+                        teacherId
+                    ]
+                );
+
+
+            if (!classCheck.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Class not found."
+                    }
+                );
+
+            }
+
 
             const result =
                 await pool.query(
                     `
                     SELECT
                         id,
-                        class_name,
-                        teacher_id,
+                        full_name,
+                        gender,
+                        class_id,
+                        academic_year_id,
                         created_at
-                    FROM classes
+
+                    FROM learners
+
                     WHERE teacher_id = $1
-                    ORDER BY id ASC
+                      AND class_id = $2
+                      AND academic_year_id = $3
+
+                    ORDER BY
+                        full_name ASC
                     `,
-                    [teacherId]
+                    [
+                        teacherId,
+                        classId,
+                        academicYear.id
+                    ]
                 );
 
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
-                    success: true,
-                    classes: result.rows
-                })
-            };
-
-        }
-
-
-        // =====================================================
-        // GET STUDENTS
-        // =====================================================
-
-        if (action === "getStudents") {
-
-            const classId =
-                Number(
-                    event.queryStringParameters?.class_id
-                );
-
-
-            // -------------------------------------------------
-            // If class was supplied, make sure it belongs
-            // to this teacher
-            // -------------------------------------------------
-
-            if (classId) {
-
-                const classRes =
-                    await pool.query(
-                        `
-                        SELECT id
-                        FROM classes
-                        WHERE id = $1
-                        AND teacher_id = $2
-                        `,
-                        [
-                            classId,
-                            teacherId
-                        ]
-                    );
-
-
-                if (!classRes.rows.length) {
-
-                    return {
-                        statusCode: 403,
-                        body: JSON.stringify({
-                            success: false,
-                            message:
-                                "You do not have access to this class"
-                        })
-                    };
-
-                }
-
-            }
-
-
-            let result;
-
-
-            // -------------------------------------------------
-            // STUDENTS OF ONE CLASS
-            // -------------------------------------------------
-
-            if (classId) {
-
-                result =
-                    await pool.query(
-                        `
-                        SELECT
-                            id,
-                            full_name,
-                            gender,
-                            class_id,
-                            academic_year_id,
-                            teacher_id,
-                            created_at
-                        FROM learners
-                        WHERE teacher_id = $1
-                        AND class_id = $2
-                        AND academic_year_id = $3
-                        ORDER BY id ASC
-                        `,
-                        [
-                            teacherId,
-                            classId,
-                            currentYear.id
-                        ]
-                    );
-
-            }
-
-
-            // -------------------------------------------------
-            // ALL STUDENTS OF TEACHER
-            // -------------------------------------------------
-
-            else {
-
-                result =
-                    await pool.query(
-                        `
-                        SELECT
-                            id,
-                            full_name,
-                            gender,
-                            class_id,
-                            academic_year_id,
-                            teacher_id,
-                            created_at
-                        FROM learners
-                        WHERE teacher_id = $1
-                        AND academic_year_id = $2
-                        ORDER BY id ASC
-                        `,
-                        [
-                            teacherId,
-                            currentYear.id
-                        ]
-                    );
-
-            }
-
-
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
+            return response(
+                200,
+                {
                     success: true,
                     students: result.rows
-                })
-            };
+                }
+            );
 
         }
 
 
-        // =====================================================
-        // ADD STUDENT
-        // =====================================================
 
-        if (action === "addStudent") {
+        /* =================================================
+           ADD STUDENT
+        ================================================= */
 
-            const body =
-                JSON.parse(event.body || "{}");
+        if (
+            action === "addStudent"
+        ) {
+
+            if (method !== "POST") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "POST method required."
+                    }
+                );
+
+            }
 
 
             const fullName =
                 String(
                     body.full_name || ""
-                ).trim();
+                )
+                .trim();
 
 
             const gender =
                 String(
                     body.gender || ""
-                ).trim();
+                )
+                .trim();
 
 
             const classId =
@@ -291,57 +890,58 @@ export const handler = async (event) => {
 
             if (!fullName) {
 
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
                         message:
-                            "Student name is required"
-                    })
-                };
+                            "Student name is required."
+                    }
+                );
 
             }
 
 
             if (!gender) {
 
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
                         message:
-                            "Gender is required"
-                    })
-                };
+                            "Gender is required."
+                    }
+                );
 
             }
 
 
             if (!classId) {
 
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
                         message:
-                            "Class is required"
-                    })
-                };
+                            "Class ID is required."
+                    }
+                );
 
             }
 
 
-            // -------------------------------------------------
-            // VERIFY CLASS BELONGS TO TEACHER
-            // -------------------------------------------------
+            /*
+                Check class ownership.
+            */
 
-            const classRes =
+            const classCheck =
                 await pool.query(
                     `
-                    SELECT id, class_name
+                    SELECT id
                     FROM classes
                     WHERE id = $1
-                    AND teacher_id = $2
+                      AND teacher_id = $2
+                    LIMIT 1
                     `,
                     [
                         classId,
@@ -350,77 +950,91 @@ export const handler = async (event) => {
                 );
 
 
-            if (!classRes.rows.length) {
+            if (!classCheck.rows.length) {
 
-                return {
-                    statusCode: 403,
-                    body: JSON.stringify({
+                return response(
+                    404,
+                    {
                         success: false,
                         message:
-                            "You cannot add a student to this class"
-                    })
-                };
+                            "Class not found."
+                    }
+                );
 
             }
 
 
-            // -------------------------------------------------
-            // INSERT STUDENT
-            // -------------------------------------------------
-
             const result =
                 await pool.query(
                     `
-                    INSERT INTO learners
-                    (
+                    INSERT INTO learners (
                         teacher_id,
                         full_name,
                         gender,
                         class_id,
                         academic_year_id
                     )
-                    VALUES
-                    (
+
+                    VALUES (
                         $1,
                         $2,
                         $3,
                         $4,
                         $5
                     )
-                    RETURNING *
+
+                    RETURNING
+                        id,
+                        full_name,
+                        gender,
+                        class_id,
+                        academic_year_id,
+                        created_at
                     `,
                     [
                         teacherId,
                         fullName,
                         gender,
                         classId,
-                        currentYear.id
+                        academicYear.id
                     ]
                 );
 
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
+            return response(
+                201,
+                {
                     success: true,
                     message:
-                        "Student added successfully",
-                    learner:
-                        result.rows[0]
-                })
-            };
+                        "Student added successfully.",
+                    student: result.rows[0]
+                }
+            );
 
         }
 
 
-        // =====================================================
-        // UPDATE STUDENT
-        // =====================================================
 
-        if (action === "updateStudent") {
+        /* =================================================
+           UPDATE STUDENT
+        ================================================= */
 
-            const body =
-                JSON.parse(event.body || "{}");
+        if (
+            action === "updateStudent"
+        ) {
+
+            if (method !== "POST") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "POST method required."
+                    }
+                );
+
+            }
 
 
             const id =
@@ -430,13 +1044,15 @@ export const handler = async (event) => {
             const fullName =
                 String(
                     body.full_name || ""
-                ).trim();
+                )
+                .trim();
 
 
             const gender =
                 String(
                     body.gender || ""
-                ).trim();
+                )
+                .trim();
 
 
             const classId =
@@ -447,71 +1063,72 @@ export const handler = async (event) => {
 
             if (!id) {
 
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
                         message:
-                            "Student ID is required"
-                    })
-                };
+                            "Student ID is required."
+                    }
+                );
 
             }
 
 
             if (!fullName) {
 
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
                         message:
-                            "Student name is required"
-                    })
-                };
+                            "Student name is required."
+                    }
+                );
 
             }
 
 
             if (!gender) {
 
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
                         message:
-                            "Gender is required"
-                    })
-                };
+                            "Gender is required."
+                    }
+                );
 
             }
 
 
             if (!classId) {
 
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
                         message:
-                            "Class is required"
-                    })
-                };
+                            "Class ID is required."
+                    }
+                );
 
             }
 
 
-            // -------------------------------------------------
-            // VERIFY NEW CLASS BELONGS TO TEACHER
-            // -------------------------------------------------
+            /*
+                Check new class ownership.
+            */
 
-            const classRes =
+            const classCheck =
                 await pool.query(
                     `
                     SELECT id
                     FROM classes
                     WHERE id = $1
-                    AND teacher_id = $2
+                      AND teacher_id = $2
+                    LIMIT 1
                     `,
                     [
                         classId,
@@ -520,36 +1137,47 @@ export const handler = async (event) => {
                 );
 
 
-            if (!classRes.rows.length) {
+            if (!classCheck.rows.length) {
 
-                return {
-                    statusCode: 403,
-                    body: JSON.stringify({
+                return response(
+                    404,
+                    {
                         success: false,
                         message:
-                            "You cannot move the student to this class"
-                    })
-                };
+                            "Class not found."
+                    }
+                );
 
             }
 
 
-            // -------------------------------------------------
-            // UPDATE ONLY TEACHER'S STUDENT
-            // -------------------------------------------------
+            /*
+                Update only the student's
+                current academic-year record
+                belonging to this teacher.
+            */
 
             const result =
                 await pool.query(
                     `
                     UPDATE learners
+
                     SET
                         full_name = $1,
                         gender = $2,
                         class_id = $3
+
                     WHERE id = $4
-                    AND teacher_id = $5
-                    AND academic_year_id = $6
-                    RETURNING *
+                      AND teacher_id = $5
+                      AND academic_year_id = $6
+
+                    RETURNING
+                        id,
+                        full_name,
+                        gender,
+                        class_id,
+                        academic_year_id,
+                        created_at
                     `,
                     [
                         fullName,
@@ -557,47 +1185,59 @@ export const handler = async (event) => {
                         classId,
                         id,
                         teacherId,
-                        currentYear.id
+                        academicYear.id
                     ]
                 );
 
 
             if (!result.rows.length) {
 
-                return {
-                    statusCode: 404,
-                    body: JSON.stringify({
+                return response(
+                    404,
+                    {
                         success: false,
                         message:
-                            "Student not found or you do not have access"
-                    })
-                };
+                            "Student not found."
+                    }
+                );
 
             }
 
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
+            return response(
+                200,
+                {
                     success: true,
                     message:
-                        "Student updated successfully",
-                    learner:
-                        result.rows[0]
-                })
-            };
+                        "Student updated successfully.",
+                    student: result.rows[0]
+                }
+            );
 
         }
 
 
-        // =====================================================
-        // DELETE STUDENT
-        // =====================================================
 
-        if (action === "deleteStudent") {
+        /* =================================================
+           DELETE STUDENT
+        ================================================= */
 
-            const body =
-                JSON.parse(event.body || "{}");
+        if (
+            action === "deleteStudent"
+        ) {
+
+            if (method !== "POST") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "POST method required."
+                    }
+                );
+
+            }
 
 
             const id =
@@ -606,29 +1246,76 @@ export const handler = async (event) => {
 
             if (!id) {
 
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
                         message:
-                            "Student ID is required"
-                    })
-                };
+                            "Student ID is required."
+                    }
+                );
 
             }
 
 
-            // -------------------------------------------------
-            // CHECK STUDENT BELONGS TO TEACHER
-            // -------------------------------------------------
+            /*
+                Verify ownership and
+                current academic year.
+            */
 
-            const learnerRes =
+            const studentCheck =
                 await pool.query(
                     `
                     SELECT id
                     FROM learners
                     WHERE id = $1
-                    AND teacher_id = $2
+                      AND teacher_id = $2
+                      AND academic_year_id = $3
+                    LIMIT 1
+                    `,
+                    [
+                        id,
+                        teacherId,
+                        academicYear.id
+                    ]
+                );
+
+
+            if (!studentCheck.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Student not found."
+                    }
+                );
+
+            }
+
+
+            const client =
+                await pool.connect();
+
+
+            try {
+
+                await client.query(
+                    "BEGIN"
+                );
+
+
+                /*
+                    Delete marks belonging
+                    to this teacher/student.
+                */
+
+                await client.query(
+                    `
+                    DELETE FROM marks
+                    WHERE learner_id = $1
+                      AND teacher_id = $2
                     `,
                     [
                         id,
@@ -637,111 +1324,90 @@ export const handler = async (event) => {
                 );
 
 
-            if (!learnerRes.rows.length) {
+                /*
+                    Delete learner.
+                */
 
-                return {
-                    statusCode: 404,
-                    body: JSON.stringify({
-                        success: false,
-                        message:
-                            "Student not found or you do not have access"
-                    })
-                };
-
-            }
-
-
-            // -------------------------------------------------
-            // REMOVE LINKED MARKS
-            // -------------------------------------------------
-
-            await pool.query(
-                `
-                DELETE FROM marks
-                WHERE learner_id = $1
-                AND teacher_id = $2
-                `,
-                [
-                    id,
-                    teacherId
-                ]
-            );
-
-
-            // -------------------------------------------------
-            // DELETE STUDENT
-            // -------------------------------------------------
-
-            const result =
-                await pool.query(
+                await client.query(
                     `
                     DELETE FROM learners
                     WHERE id = $1
-                    AND teacher_id = $2
-                    RETURNING id
+                      AND teacher_id = $2
+                      AND academic_year_id = $3
                     `,
                     [
                         id,
-                        teacherId
+                        teacherId,
+                        academicYear.id
                     ]
                 );
 
 
-            if (!result.rows.length) {
+                await client.query(
+                    "COMMIT"
+                );
 
-                return {
-                    statusCode: 404,
-                    body: JSON.stringify({
-                        success: false,
-                        message:
-                            "Student could not be deleted"
-                    })
-                };
+
+            } catch (error) {
+
+                await client.query(
+                    "ROLLBACK"
+                );
+
+                throw error;
+
+            } finally {
+
+                client.release();
 
             }
 
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
+            return response(
+                200,
+                {
                     success: true,
                     message:
-                        "Student deleted successfully"
-                })
-            };
+                        "Student deleted successfully."
+                }
+            );
 
         }
 
 
-        // =====================================================
-        // INVALID ACTION
-        // =====================================================
 
-        return {
-            statusCode: 400,
-            body: JSON.stringify({
+        /* =================================================
+           INVALID ACTION
+        ================================================= */
+
+        return response(
+            400,
+            {
                 success: false,
                 message:
-                    "Invalid student action"
-            })
-        };
+                    "Invalid action."
+            }
+        );
 
 
     } catch (error) {
 
         console.error(
-            "Student System Error:",
+            "Student Function Error:",
             error
         );
 
 
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
+        return response(
+            500,
+            {
                 success: false,
-                error: error.message
-            })
-        };
+                message:
+                    "Server error.",
+                error:
+                    error.message
+            }
+        );
 
     }
 
