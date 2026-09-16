@@ -21,7 +21,6 @@ function response(statusCode, data) {
 }
 
 
-
 /* =====================================================
    GET BODY
 ===================================================== */
@@ -41,7 +40,6 @@ function getBody(event) {
     }
 
 }
-
 
 
 /* =====================================================
@@ -68,7 +66,6 @@ function getTeacherId(event, body) {
     );
 
 }
-
 
 
 /* =====================================================
@@ -101,7 +98,6 @@ async function teacherExists(teacherId) {
 }
 
 
-
 /* =====================================================
    GET CURRENT ACADEMIC YEAR
 ===================================================== */
@@ -126,6 +122,59 @@ async function getCurrentAcademicYear() {
 
 }
 
+
+/* =====================================================
+   GET TEACHER SUBJECTS
+===================================================== */
+
+async function getSubjectsForTeacher(teacherId) {
+
+    const result =
+        await pool.query(
+            `
+            SELECT
+                id,
+                subject_name,
+                created_at
+            FROM subjects
+            WHERE teacher_id = $1
+            ORDER BY subject_name ASC
+            `,
+            [teacherId]
+        );
+
+
+    return result.rows;
+
+}
+
+
+/* =====================================================
+   GET ACADEMIC YEARS
+===================================================== */
+
+async function getAcademicYears() {
+
+    const result =
+        await pool.query(
+            `
+            SELECT
+                id,
+                year_name,
+                start_date,
+                end_date,
+                is_current
+            FROM academic_years
+            ORDER BY
+                start_date DESC NULLS LAST,
+                id DESC
+            `
+        );
+
+
+    return result.rows;
+
+}
 
 
 /* =====================================================
@@ -169,7 +218,8 @@ export const handler = async (event) => {
                 400,
                 {
                     success: false,
-                    message: "Teacher ID is required."
+                    message:
+                        "Teacher ID is required."
                 }
             );
 
@@ -188,12 +238,12 @@ export const handler = async (event) => {
                 404,
                 {
                     success: false,
-                    message: "Teacher not found."
+                    message:
+                        "Teacher not found."
                 }
             );
 
         }
-
 
 
         /* =================================================
@@ -218,7 +268,6 @@ export const handler = async (event) => {
         }
 
 
-
         /* =================================================
            GET CLASSES
         ================================================= */
@@ -234,13 +283,16 @@ export const handler = async (event) => {
                         c.id,
                         c.class_name,
                         c.created_at,
+
                         COUNT(l.id)::INTEGER
                             AS student_count
+
                     FROM classes c
 
                     LEFT JOIN learners l
                         ON l.class_id = c.id
                         AND l.teacher_id = c.teacher_id
+                        AND l.academic_year_id = $2
 
                     WHERE c.teacher_id = $1
 
@@ -252,7 +304,10 @@ export const handler = async (event) => {
                     ORDER BY
                         c.class_name ASC
                     `,
-                    [teacherId]
+                    [
+                        teacherId,
+                        academicYear.id
+                    ]
                 );
 
 
@@ -266,6 +321,802 @@ export const handler = async (event) => {
 
         }
 
+
+        /* =================================================
+           GET SUBJECTS
+        ================================================= */
+
+        if (
+            action === "getSubjects"
+        ) {
+
+            if (method !== "GET") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "GET method required."
+                    }
+                );
+
+            }
+
+
+            const subjects =
+                await getSubjectsForTeacher(
+                    teacherId
+                );
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    subjects
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           GET ACADEMIC YEARS
+        ================================================= */
+
+        if (
+            action === "getAcademicYears"
+        ) {
+
+            if (method !== "GET") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "GET method required."
+                    }
+                );
+
+            }
+
+
+            const years =
+                await getAcademicYears();
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    years
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           GET TEACHING ASSIGNMENTS
+        ================================================= */
+
+        if (
+            action === "getTeachingAssignments"
+        ) {
+
+            if (method !== "GET") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "GET method required."
+                    }
+                );
+
+            }
+
+
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        tcs.id,
+                        tcs.teacher_id,
+
+                        tcs.class_id,
+                        c.class_name,
+
+                        tcs.subject_id,
+                        s.subject_name,
+
+                        tcs.academic_year_id,
+                        ay.year_name,
+
+                        COUNT(l.id)::INTEGER
+                            AS student_count
+
+                    FROM teacher_class_subjects tcs
+
+                    INNER JOIN classes c
+                        ON c.id = tcs.class_id
+
+                    INNER JOIN subjects s
+                        ON s.id = tcs.subject_id
+
+                    INNER JOIN academic_years ay
+                        ON ay.id = tcs.academic_year_id
+
+                    LEFT JOIN learners l
+                        ON l.class_id = tcs.class_id
+                        AND l.teacher_id = tcs.teacher_id
+                        AND l.academic_year_id =
+                            tcs.academic_year_id
+
+                    WHERE tcs.teacher_id = $1
+
+                    GROUP BY
+                        tcs.id,
+                        tcs.teacher_id,
+                        tcs.class_id,
+                        c.class_name,
+                        tcs.subject_id,
+                        s.subject_name,
+                        tcs.academic_year_id,
+                        ay.year_name,
+                        ay.start_date
+
+                    ORDER BY
+                        ay.start_date DESC NULLS LAST,
+                        c.class_name ASC,
+                        s.subject_name ASC
+                    `,
+                    [teacherId]
+                );
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    assignments: result.rows
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           ADD TEACHING ASSIGNMENT
+        ================================================= */
+
+        if (
+            action === "addTeachingAssignment"
+        ) {
+
+            if (method !== "POST") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "POST method required."
+                    }
+                );
+
+            }
+
+
+            const classId =
+                Number(body.class_id);
+
+
+            const subjectId =
+                Number(body.subject_id);
+
+
+            const academicYearId =
+                Number(body.academic_year_id);
+
+
+            if (!classId) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Class is required."
+                    }
+                );
+
+            }
+
+
+            if (!subjectId) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Subject is required."
+                    }
+                );
+
+            }
+
+
+            if (!academicYearId) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Academic year is required."
+                    }
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               CHECK CLASS OWNERSHIP
+            --------------------------------------------- */
+
+            const classCheck =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM classes
+                    WHERE id = $1
+                      AND teacher_id = $2
+                    LIMIT 1
+                    `,
+                    [
+                        classId,
+                        teacherId
+                    ]
+                );
+
+
+            if (!classCheck.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Class not found."
+                    }
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               CHECK SUBJECT OWNERSHIP
+            --------------------------------------------- */
+
+            const subjectCheck =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM subjects
+                    WHERE id = $1
+                      AND teacher_id = $2
+                    LIMIT 1
+                    `,
+                    [
+                        subjectId,
+                        teacherId
+                    ]
+                );
+
+
+            if (!subjectCheck.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Subject not found."
+                    }
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               CHECK ACADEMIC YEAR
+            --------------------------------------------- */
+
+            const yearCheck =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM academic_years
+                    WHERE id = $1
+                    LIMIT 1
+                    `,
+                    [
+                        academicYearId
+                    ]
+                );
+
+
+            if (!yearCheck.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Academic year not found."
+                    }
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               CHECK DUPLICATE
+            --------------------------------------------- */
+
+            const duplicate =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM teacher_class_subjects
+
+                    WHERE teacher_id = $1
+                      AND class_id = $2
+                      AND subject_id = $3
+                      AND academic_year_id = $4
+
+                    LIMIT 1
+                    `,
+                    [
+                        teacherId,
+                        classId,
+                        subjectId,
+                        academicYearId
+                    ]
+                );
+
+
+            if (duplicate.rows.length) {
+
+                return response(
+                    409,
+                    {
+                        success: false,
+                        message:
+                            "This subject is already assigned to this class for this academic year."
+                    }
+                );
+
+            }
+
+
+            const result =
+                await pool.query(
+                    `
+                    INSERT INTO teacher_class_subjects (
+                        teacher_id,
+                        class_id,
+                        subject_id,
+                        academic_year_id
+                    )
+
+                    VALUES (
+                        $1,
+                        $2,
+                        $3,
+                        $4
+                    )
+
+                    RETURNING *
+                    `,
+                    [
+                        teacherId,
+                        classId,
+                        subjectId,
+                        academicYearId
+                    ]
+                );
+
+
+            return response(
+                201,
+                {
+                    success: true,
+                    message:
+                        "Teaching assignment added successfully.",
+                    assignment:
+                        result.rows[0]
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           UPDATE TEACHING ASSIGNMENT
+        ================================================= */
+
+        if (
+            action === "updateTeachingAssignment"
+        ) {
+
+            if (method !== "POST") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "POST method required."
+                    }
+                );
+
+            }
+
+
+            const id =
+                Number(body.id);
+
+
+            const classId =
+                Number(body.class_id);
+
+
+            const subjectId =
+                Number(body.subject_id);
+
+
+            const academicYearId =
+                Number(body.academic_year_id);
+
+
+            if (!id) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Assignment ID is required."
+                    }
+                );
+
+            }
+
+
+            if (!classId) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Class is required."
+                    }
+                );
+
+            }
+
+
+            if (!subjectId) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Subject is required."
+                    }
+                );
+
+            }
+
+
+            if (!academicYearId) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Academic year is required."
+                    }
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               CHECK CLASS
+            --------------------------------------------- */
+
+            const classCheck =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM classes
+                    WHERE id = $1
+                      AND teacher_id = $2
+                    LIMIT 1
+                    `,
+                    [
+                        classId,
+                        teacherId
+                    ]
+                );
+
+
+            if (!classCheck.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Class not found."
+                    }
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               CHECK SUBJECT
+            --------------------------------------------- */
+
+            const subjectCheck =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM subjects
+                    WHERE id = $1
+                      AND teacher_id = $2
+                    LIMIT 1
+                    `,
+                    [
+                        subjectId,
+                        teacherId
+                    ]
+                );
+
+
+            if (!subjectCheck.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Subject not found."
+                    }
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               CHECK YEAR
+            --------------------------------------------- */
+
+            const yearCheck =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM academic_years
+                    WHERE id = $1
+                    LIMIT 1
+                    `,
+                    [
+                        academicYearId
+                    ]
+                );
+
+
+            if (!yearCheck.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Academic year not found."
+                    }
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               CHECK DUPLICATE
+            --------------------------------------------- */
+
+            const duplicate =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM teacher_class_subjects
+
+                    WHERE teacher_id = $1
+                      AND class_id = $2
+                      AND subject_id = $3
+                      AND academic_year_id = $4
+                      AND id <> $5
+
+                    LIMIT 1
+                    `,
+                    [
+                        teacherId,
+                        classId,
+                        subjectId,
+                        academicYearId,
+                        id
+                    ]
+                );
+
+
+            if (duplicate.rows.length) {
+
+                return response(
+                    409,
+                    {
+                        success: false,
+                        message:
+                            "This subject is already assigned to this class for this academic year."
+                    }
+                );
+
+            }
+
+
+            const result =
+                await pool.query(
+                    `
+                    UPDATE teacher_class_subjects
+
+                    SET
+                        class_id = $1,
+                        subject_id = $2,
+                        academic_year_id = $3
+
+                    WHERE id = $4
+                      AND teacher_id = $5
+
+                    RETURNING *
+                    `,
+                    [
+                        classId,
+                        subjectId,
+                        academicYearId,
+                        id,
+                        teacherId
+                    ]
+                );
+
+
+            if (!result.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Teaching assignment not found."
+                    }
+                );
+
+            }
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    message:
+                        "Teaching assignment updated successfully.",
+                    assignment:
+                        result.rows[0]
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           DELETE TEACHING ASSIGNMENT
+        ================================================= */
+
+        if (
+            action === "deleteTeachingAssignment"
+        ) {
+
+            if (method !== "POST") {
+
+                return response(
+                    405,
+                    {
+                        success: false,
+                        message:
+                            "POST method required."
+                    }
+                );
+
+            }
+
+
+            const id =
+                Number(body.id);
+
+
+            if (!id) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Assignment ID is required."
+                    }
+                );
+
+            }
+
+
+            const result =
+                await pool.query(
+                    `
+                    DELETE FROM teacher_class_subjects
+
+                    WHERE id = $1
+                      AND teacher_id = $2
+
+                    RETURNING id
+                    `,
+                    [
+                        id,
+                        teacherId
+                    ]
+                );
+
+
+            if (!result.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Teaching assignment not found."
+                    }
+                );
+
+            }
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    message:
+                        "Teaching assignment deleted successfully."
+                }
+            );
+
+        }
 
 
         /* =================================================
@@ -311,19 +1162,17 @@ export const handler = async (event) => {
             }
 
 
-            /*
-                Check duplicate class
-                for this teacher.
-            */
-
             const duplicate =
                 await pool.query(
                     `
                     SELECT id
                     FROM classes
+
                     WHERE teacher_id = $1
+
                       AND LOWER(TRIM(class_name))
                           = LOWER(TRIM($2))
+
                     LIMIT 1
                     `,
                     [
@@ -375,12 +1224,12 @@ export const handler = async (event) => {
                     success: true,
                     message:
                         "Class added successfully.",
-                    class: result.rows[0]
+                    class:
+                        result.rows[0]
                 }
             );
 
         }
-
 
 
         /* =================================================
@@ -444,21 +1293,19 @@ export const handler = async (event) => {
             }
 
 
-            /*
-                Make sure another class
-                owned by this teacher does
-                not already use the name.
-            */
-
             const duplicate =
                 await pool.query(
                     `
                     SELECT id
                     FROM classes
+
                     WHERE teacher_id = $1
+
                       AND LOWER(TRIM(class_name))
                           = LOWER(TRIM($2))
+
                       AND id <> $3
+
                     LIMIT 1
                     `,
                     [
@@ -526,12 +1373,12 @@ export const handler = async (event) => {
                     success: true,
                     message:
                         "Class updated successfully.",
-                    class: result.rows[0]
+                    class:
+                        result.rows[0]
                 }
             );
 
         }
-
 
 
         /* =================================================
@@ -574,17 +1421,15 @@ export const handler = async (event) => {
             }
 
 
-            /*
-                Verify ownership.
-            */
-
             const classCheck =
                 await pool.query(
                     `
                     SELECT id
                     FROM classes
+
                     WHERE id = $1
                       AND teacher_id = $2
+
                     LIMIT 1
                     `,
                     [
@@ -608,20 +1453,6 @@ export const handler = async (event) => {
             }
 
 
-            /*
-                Delete inside a transaction.
-
-                Learners have ON DELETE CASCADE
-                for class_id.
-
-                Marks reference learners with
-                ON DELETE CASCADE.
-
-                Subject tests do NOT currently
-                have class_id ON DELETE CASCADE,
-                so remove the related tests first.
-            */
-
             const client =
                 await pool.connect();
 
@@ -633,15 +1464,10 @@ export const handler = async (event) => {
                 );
 
 
-                /*
-                    Delete marks connected
-                    to tests belonging to
-                    this class/teacher.
-                */
-
                 await client.query(
                     `
                     DELETE FROM marks
+
                     WHERE teacher_id = $1
                       AND class_id = $2
                     `,
@@ -651,15 +1477,11 @@ export const handler = async (event) => {
                     ]
                 );
 
-
-                /*
-                    Delete subject tests
-                    belonging to this class.
-                */
 
                 await client.query(
                     `
                     DELETE FROM subject_tests
+
                     WHERE teacher_id = $1
                       AND class_id = $2
                     `,
@@ -669,15 +1491,11 @@ export const handler = async (event) => {
                     ]
                 );
 
-
-                /*
-                    Delete grading settings
-                    for this class.
-                */
 
                 await client.query(
                     `
                     DELETE FROM grading_settings
+
                     WHERE teacher_id = $1
                       AND class_id = $2
                     `,
@@ -689,17 +1507,33 @@ export const handler = async (event) => {
 
 
                 /*
-                    Delete the class.
+                    Remove teaching assignments
+                    for this class first.
+                */
 
-                    Learners belonging to it
-                    are removed automatically
-                    because class_id uses
+                await client.query(
+                    `
+                    DELETE FROM teacher_class_subjects
+
+                    WHERE teacher_id = $1
+                      AND class_id = $2
+                    `,
+                    [
+                        teacherId,
+                        id
+                    ]
+                );
+
+
+                /*
+                    Learners are deleted by
                     ON DELETE CASCADE.
                 */
 
                 await client.query(
                     `
                     DELETE FROM classes
+
                     WHERE id = $1
                       AND teacher_id = $2
                     `,
@@ -742,7 +1576,6 @@ export const handler = async (event) => {
         }
 
 
-
         /* =================================================
            GET STUDENTS
         ================================================= */
@@ -771,18 +1604,15 @@ export const handler = async (event) => {
             }
 
 
-            /*
-                Make sure the class
-                belongs to this teacher.
-            */
-
             const classCheck =
                 await pool.query(
                     `
                     SELECT id
                     FROM classes
+
                     WHERE id = $1
                       AND teacher_id = $2
+
                     LIMIT 1
                     `,
                     [
@@ -838,12 +1668,12 @@ export const handler = async (event) => {
                 200,
                 {
                     success: true,
-                    students: result.rows
+                    students:
+                        result.rows
                 }
             );
 
         }
-
 
 
         /* =================================================
@@ -930,17 +1760,15 @@ export const handler = async (event) => {
             }
 
 
-            /*
-                Check class ownership.
-            */
-
             const classCheck =
                 await pool.query(
                     `
                     SELECT id
                     FROM classes
+
                     WHERE id = $1
                       AND teacher_id = $2
+
                     LIMIT 1
                     `,
                     [
@@ -1007,12 +1835,12 @@ export const handler = async (event) => {
                     success: true,
                     message:
                         "Student added successfully.",
-                    student: result.rows[0]
+                    student:
+                        result.rows[0]
                 }
             );
 
         }
-
 
 
         /* =================================================
@@ -1117,17 +1945,15 @@ export const handler = async (event) => {
             }
 
 
-            /*
-                Check new class ownership.
-            */
-
             const classCheck =
                 await pool.query(
                     `
                     SELECT id
                     FROM classes
+
                     WHERE id = $1
                       AND teacher_id = $2
+
                     LIMIT 1
                     `,
                     [
@@ -1150,12 +1976,6 @@ export const handler = async (event) => {
 
             }
 
-
-            /*
-                Update only the student's
-                current academic-year record
-                belonging to this teacher.
-            */
 
             const result =
                 await pool.query(
@@ -1210,12 +2030,12 @@ export const handler = async (event) => {
                     success: true,
                     message:
                         "Student updated successfully.",
-                    student: result.rows[0]
+                    student:
+                        result.rows[0]
                 }
             );
 
         }
-
 
 
         /* =================================================
@@ -1258,19 +2078,16 @@ export const handler = async (event) => {
             }
 
 
-            /*
-                Verify ownership and
-                current academic year.
-            */
-
             const studentCheck =
                 await pool.query(
                     `
                     SELECT id
                     FROM learners
+
                     WHERE id = $1
                       AND teacher_id = $2
                       AND academic_year_id = $3
+
                     LIMIT 1
                     `,
                     [
@@ -1306,14 +2123,10 @@ export const handler = async (event) => {
                 );
 
 
-                /*
-                    Delete marks belonging
-                    to this teacher/student.
-                */
-
                 await client.query(
                     `
                     DELETE FROM marks
+
                     WHERE learner_id = $1
                       AND teacher_id = $2
                     `,
@@ -1324,13 +2137,10 @@ export const handler = async (event) => {
                 );
 
 
-                /*
-                    Delete learner.
-                */
-
                 await client.query(
                     `
                     DELETE FROM learners
+
                     WHERE id = $1
                       AND teacher_id = $2
                       AND academic_year_id = $3
@@ -1373,7 +2183,6 @@ export const handler = async (event) => {
             );
 
         }
-
 
 
         /* =================================================
