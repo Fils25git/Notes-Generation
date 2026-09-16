@@ -1187,16 +1187,14 @@ if (!teacherId) {
 
 /* =========================================================
    API
-========================================================= */
-
-async function api(action, options = {}) {
+======================================================
+async function studentApi(action, options = {}) {
 
     const method =
         options.method || "GET";
 
     let url =
-        `${API}?action=${encodeURIComponent(action)}`;
-
+        `${STUDENT_API}?action=${encodeURIComponent(action)}`;
 
     if (method === "GET") {
 
@@ -1207,7 +1205,6 @@ async function api(action, options = {}) {
             "teacher_id",
             teacherId
         );
-
 
         if (options.params) {
 
@@ -1231,20 +1228,15 @@ async function api(action, options = {}) {
 
         }
 
-
         url += `&${params.toString()}`;
-
     }
-
 
     const config = {
         method,
         headers: {
-            "Content-Type":
-                "application/json"
+            "Content-Type": "application/json"
         }
     };
-
 
     if (method !== "GET") {
 
@@ -1253,9 +1245,7 @@ async function api(action, options = {}) {
                 teacher_id: teacherId,
                 ...(options.body || {})
             });
-
     }
-
 
     const response =
         await fetch(url, config);
@@ -1263,20 +1253,64 @@ async function api(action, options = {}) {
     const data =
         await response.json();
 
-
     if (!response.ok || data.success === false) {
 
         throw new Error(
             data.message ||
             "Something went wrong."
         );
-
     }
-
 
     return data;
 }
 
+
+async function academicApi(action, params = {}) {
+
+    const searchParams =
+        new URLSearchParams();
+
+    searchParams.set(
+        "action",
+        action
+    );
+
+    Object.entries(params)
+        .forEach(([key, value]) => {
+
+            if (
+                value !== undefined &&
+                value !== null &&
+                value !== ""
+            ) {
+
+                searchParams.set(
+                    key,
+                    value
+                );
+
+            }
+
+        });
+
+    const response =
+        await fetch(
+            `${ACADEMIC_API}?${searchParams.toString()}`
+        );
+
+    const data =
+        await response.json();
+
+    if (!response.ok || data.success === false) {
+
+        throw new Error(
+            data.message ||
+            "Unable to load academic data."
+        );
+    }
+
+    return data;
+}
 
 /* =========================================================
    TOAST
