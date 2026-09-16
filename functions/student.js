@@ -15,7 +15,6 @@ function response(statusCode, data) {
         },
 
         body: JSON.stringify(data)
-
     };
 
 }
@@ -51,7 +50,6 @@ function getTeacherId(event, body) {
     const method =
         event.httpMethod || "GET";
 
-
     if (method === "GET") {
 
         return Number(
@@ -59,7 +57,6 @@ function getTeacherId(event, body) {
         );
 
     }
-
 
     return Number(
         body.teacher_id
@@ -75,11 +72,8 @@ function getTeacherId(event, body) {
 async function teacherExists(teacherId) {
 
     if (!teacherId) {
-
         return false;
-
     }
-
 
     const result =
         await pool.query(
@@ -91,7 +85,6 @@ async function teacherExists(teacherId) {
             `,
             [teacherId]
         );
-
 
     return result.rows.length > 0;
 
@@ -110,13 +103,14 @@ async function getCurrentAcademicYear() {
             SELECT *
             FROM academic_years
             WHERE is_current = TRUE
+
             ORDER BY
                 start_date DESC NULLS LAST,
                 id DESC
+
             LIMIT 1
             `
         );
-
 
     return result.rows[0] || null;
 
@@ -124,55 +118,57 @@ async function getCurrentAcademicYear() {
 
 
 /* =====================================================
-   GET TEACHER SUBJECTS
+   FRONTEND SUBJECT LIST
+
+   Keep this list the same as the frontend.
 ===================================================== */
 
-async function getSubjectsForTeacher(teacherId) {
+const ALLOWED_SUBJECTS = [
 
-    const result =
-        await pool.query(
-            `
-            SELECT
-                id,
-                subject_name,
-                created_at
-            FROM subjects
-            WHERE teacher_id = $1
-            ORDER BY subject_name ASC
-            `,
-            [teacherId]
-        );
+    "English",
 
+    "Mathematics",
 
-    return result.rows;
+    "Kinyarwanda",
 
-}
+    "Science and Elementary Technology (SET)",
+
+    "Social and Religious Studies (SRS)",
+
+    "French",
+
+    "Creative Arts",
+
+    "Physical Education",
+
+    "ICT",
+
+    "Physics",
+
+    "Chemistry",
+
+    "Biology",
+
+    "History",
+
+    "Geography",
+
+    "Entrepreneurship",
+
+    "Computer Science"
+
+];
 
 
 /* =====================================================
-   GET ACADEMIC YEARS
+   CHECK SUBJECT
 ===================================================== */
 
-async function getAcademicYears() {
+function isAllowedSubject(subjectName) {
 
-    const result =
-        await pool.query(
-            `
-            SELECT
-                id,
-                year_name,
-                start_date,
-                end_date,
-                is_current
-            FROM academic_years
-            ORDER BY
-                start_date DESC NULLS LAST,
-                id DESC
-            `
-        );
-
-
-    return result.rows;
+    return ALLOWED_SUBJECTS.includes(
+        subjectName
+    );
 
 }
 
@@ -186,18 +182,14 @@ export const handler = async (event) => {
     const method =
         event.httpMethod || "GET";
 
-
     const params =
         event.queryStringParameters || {};
-
 
     const action =
         params.action || "";
 
-
     const body =
         getBody(event);
-
 
     try {
 
@@ -210,7 +202,6 @@ export const handler = async (event) => {
                 event,
                 body
             );
-
 
         if (!teacherId) {
 
@@ -225,12 +216,10 @@ export const handler = async (event) => {
 
         }
 
-
         const exists =
             await teacherExists(
                 teacherId
             );
-
 
         if (!exists) {
 
@@ -247,12 +236,11 @@ export const handler = async (event) => {
 
 
         /* =================================================
-           GET CURRENT ACADEMIC YEAR
+           CURRENT ACADEMIC YEAR
         ================================================= */
 
         const academicYear =
             await getCurrentAcademicYear();
-
 
         if (!academicYear) {
 
@@ -272,9 +260,7 @@ export const handler = async (event) => {
            GET CLASSES
         ================================================= */
 
-        if (
-            action === "getClasses"
-        ) {
+        if (action === "getClasses") {
 
             const result =
                 await pool.query(
@@ -310,7 +296,6 @@ export const handler = async (event) => {
                     ]
                 );
 
-
             return response(
                 200,
                 {
@@ -324,37 +309,27 @@ export const handler = async (event) => {
 
         /* =================================================
            GET SUBJECTS
+
+           Subjects now come from frontend.
+
+           This action simply returns the same list
+           so the frontend can optionally load it
+           from the backend.
         ================================================= */
 
-        if (
-            action === "getSubjects"
-        ) {
-
-            if (method !== "GET") {
-
-                return response(
-                    405,
-                    {
-                        success: false,
-                        message:
-                            "GET method required."
-                    }
-                );
-
-            }
-
-
-            const subjects =
-                await getSubjectsForTeacher(
-                    teacherId
-                );
-
+        if (action === "getSubjects") {
 
             return response(
                 200,
                 {
                     success: true,
-                    subjects
+                    subjects:
+                        ALLOWED_SUBJECTS.map(
+                            (subject, index) => ({
+                                id: index + 1,
+                                subject_name: subject
+                            })
+                        )
                 }
             );
 
@@ -365,33 +340,31 @@ export const handler = async (event) => {
            GET ACADEMIC YEARS
         ================================================= */
 
-        if (
-            action === "getAcademicYears"
-        ) {
+        if (action === "getAcademicYears") {
 
-            if (method !== "GET") {
+            const result =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        year_name,
+                        start_date,
+                        end_date,
+                        is_current
 
-                return response(
-                    405,
-                    {
-                        success: false,
-                        message:
-                            "GET method required."
-                    }
+                    FROM academic_years
+
+                    ORDER BY
+                        start_date DESC NULLS LAST,
+                        id DESC
+                    `
                 );
-
-            }
-
-
-            const years =
-                await getAcademicYears();
-
 
             return response(
                 200,
                 {
                     success: true,
-                    years
+                    years: result.rows
                 }
             );
 
@@ -406,20 +379,6 @@ export const handler = async (event) => {
             action === "getTeachingAssignments"
         ) {
 
-            if (method !== "GET") {
-
-                return response(
-                    405,
-                    {
-                        success: false,
-                        message:
-                            "GET method required."
-                    }
-                );
-
-            }
-
-
             const result =
                 await pool.query(
                     `
@@ -430,8 +389,7 @@ export const handler = async (event) => {
                         tcs.class_id,
                         c.class_name,
 
-                        tcs.subject_id,
-                        s.subject_name,
+                        tcs.subject_name,
 
                         tcs.academic_year_id,
                         ay.year_name,
@@ -444,15 +402,17 @@ export const handler = async (event) => {
                     INNER JOIN classes c
                         ON c.id = tcs.class_id
 
-                    INNER JOIN subjects s
-                        ON s.id = tcs.subject_id
-
                     INNER JOIN academic_years ay
-                        ON ay.id = tcs.academic_year_id
+                        ON ay.id =
+                            tcs.academic_year_id
 
                     LEFT JOIN learners l
-                        ON l.class_id = tcs.class_id
-                        AND l.teacher_id = tcs.teacher_id
+                        ON l.class_id =
+                            tcs.class_id
+
+                        AND l.teacher_id =
+                            tcs.teacher_id
+
                         AND l.academic_year_id =
                             tcs.academic_year_id
 
@@ -463,8 +423,7 @@ export const handler = async (event) => {
                         tcs.teacher_id,
                         tcs.class_id,
                         c.class_name,
-                        tcs.subject_id,
-                        s.subject_name,
+                        tcs.subject_name,
                         tcs.academic_year_id,
                         ay.year_name,
                         ay.start_date
@@ -472,17 +431,17 @@ export const handler = async (event) => {
                     ORDER BY
                         ay.start_date DESC NULLS LAST,
                         c.class_name ASC,
-                        s.subject_name ASC
+                        tcs.subject_name ASC
                     `,
                     [teacherId]
                 );
-
 
             return response(
                 200,
                 {
                     success: true,
-                    assignments: result.rows
+                    assignments:
+                        result.rows
                 }
             );
 
@@ -510,17 +469,20 @@ export const handler = async (event) => {
 
             }
 
-
             const classId =
-                Number(body.class_id);
+                Number(
+                    body.class_id
+                );
 
-
-            const subjectId =
-                Number(body.subject_id);
-
+            const subjectName =
+                String(
+                    body.subject_name || ""
+                ).trim();
 
             const academicYearId =
-                Number(body.academic_year_id);
+                Number(
+                    body.academic_year_id
+                );
 
 
             if (!classId) {
@@ -537,7 +499,7 @@ export const handler = async (event) => {
             }
 
 
-            if (!subjectId) {
+            if (!subjectName) {
 
                 return response(
                     400,
@@ -545,6 +507,24 @@ export const handler = async (event) => {
                         success: false,
                         message:
                             "Subject is required."
+                    }
+                );
+
+            }
+
+
+            if (
+                !isAllowedSubject(
+                    subjectName
+                )
+            ) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Please select a subject from the available list."
                     }
                 );
 
@@ -574,8 +554,10 @@ export const handler = async (event) => {
                     `
                     SELECT id
                     FROM classes
+
                     WHERE id = $1
                       AND teacher_id = $2
+
                     LIMIT 1
                     `,
                     [
@@ -600,40 +582,6 @@ export const handler = async (event) => {
 
 
             /* ---------------------------------------------
-               CHECK SUBJECT OWNERSHIP
-            --------------------------------------------- */
-
-            const subjectCheck =
-                await pool.query(
-                    `
-                    SELECT id
-                    FROM subjects
-                    WHERE id = $1
-                      AND teacher_id = $2
-                    LIMIT 1
-                    `,
-                    [
-                        subjectId,
-                        teacherId
-                    ]
-                );
-
-
-            if (!subjectCheck.rows.length) {
-
-                return response(
-                    404,
-                    {
-                        success: false,
-                        message:
-                            "Subject not found."
-                    }
-                );
-
-            }
-
-
-            /* ---------------------------------------------
                CHECK ACADEMIC YEAR
             --------------------------------------------- */
 
@@ -642,7 +590,9 @@ export const handler = async (event) => {
                     `
                     SELECT id
                     FROM academic_years
+
                     WHERE id = $1
+
                     LIMIT 1
                     `,
                     [
@@ -677,7 +627,7 @@ export const handler = async (event) => {
 
                     WHERE teacher_id = $1
                       AND class_id = $2
-                      AND subject_id = $3
+                      AND subject_name = $3
                       AND academic_year_id = $4
 
                     LIMIT 1
@@ -685,7 +635,7 @@ export const handler = async (event) => {
                     [
                         teacherId,
                         classId,
-                        subjectId,
+                        subjectName,
                         academicYearId
                     ]
                 );
@@ -711,7 +661,7 @@ export const handler = async (event) => {
                     INSERT INTO teacher_class_subjects (
                         teacher_id,
                         class_id,
-                        subject_id,
+                        subject_name,
                         academic_year_id
                     )
 
@@ -722,12 +672,17 @@ export const handler = async (event) => {
                         $4
                     )
 
-                    RETURNING *
+                    RETURNING
+                        id,
+                        teacher_id,
+                        class_id,
+                        subject_name,
+                        academic_year_id
                     `,
                     [
                         teacherId,
                         classId,
-                        subjectId,
+                        subjectName,
                         academicYearId
                     ]
                 );
@@ -772,17 +727,18 @@ export const handler = async (event) => {
             const id =
                 Number(body.id);
 
-
             const classId =
                 Number(body.class_id);
 
-
-            const subjectId =
-                Number(body.subject_id);
-
+            const subjectName =
+                String(
+                    body.subject_name || ""
+                ).trim();
 
             const academicYearId =
-                Number(body.academic_year_id);
+                Number(
+                    body.academic_year_id
+                );
 
 
             if (!id) {
@@ -813,7 +769,7 @@ export const handler = async (event) => {
             }
 
 
-            if (!subjectId) {
+            if (!subjectName) {
 
                 return response(
                     400,
@@ -821,6 +777,24 @@ export const handler = async (event) => {
                         success: false,
                         message:
                             "Subject is required."
+                    }
+                );
+
+            }
+
+
+            if (
+                !isAllowedSubject(
+                    subjectName
+                )
+            ) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Please select a subject from the available list."
                     }
                 );
 
@@ -850,8 +824,10 @@ export const handler = async (event) => {
                     `
                     SELECT id
                     FROM classes
+
                     WHERE id = $1
                       AND teacher_id = $2
+
                     LIMIT 1
                     `,
                     [
@@ -876,40 +852,6 @@ export const handler = async (event) => {
 
 
             /* ---------------------------------------------
-               CHECK SUBJECT
-            --------------------------------------------- */
-
-            const subjectCheck =
-                await pool.query(
-                    `
-                    SELECT id
-                    FROM subjects
-                    WHERE id = $1
-                      AND teacher_id = $2
-                    LIMIT 1
-                    `,
-                    [
-                        subjectId,
-                        teacherId
-                    ]
-                );
-
-
-            if (!subjectCheck.rows.length) {
-
-                return response(
-                    404,
-                    {
-                        success: false,
-                        message:
-                            "Subject not found."
-                    }
-                );
-
-            }
-
-
-            /* ---------------------------------------------
                CHECK YEAR
             --------------------------------------------- */
 
@@ -918,7 +860,9 @@ export const handler = async (event) => {
                     `
                     SELECT id
                     FROM academic_years
+
                     WHERE id = $1
+
                     LIMIT 1
                     `,
                     [
@@ -953,7 +897,7 @@ export const handler = async (event) => {
 
                     WHERE teacher_id = $1
                       AND class_id = $2
-                      AND subject_id = $3
+                      AND subject_name = $3
                       AND academic_year_id = $4
                       AND id <> $5
 
@@ -962,7 +906,7 @@ export const handler = async (event) => {
                     [
                         teacherId,
                         classId,
-                        subjectId,
+                        subjectName,
                         academicYearId,
                         id
                     ]
@@ -990,17 +934,22 @@ export const handler = async (event) => {
 
                     SET
                         class_id = $1,
-                        subject_id = $2,
+                        subject_name = $2,
                         academic_year_id = $3
 
                     WHERE id = $4
                       AND teacher_id = $5
 
-                    RETURNING *
+                    RETURNING
+                        id,
+                        teacher_id,
+                        class_id,
+                        subject_name,
+                        academic_year_id
                     `,
                     [
                         classId,
-                        subjectId,
+                        subjectName,
                         academicYearId,
                         id,
                         teacherId
@@ -1123,9 +1072,7 @@ export const handler = async (event) => {
            ADD CLASS
         ================================================= */
 
-        if (
-            action === "addClass"
-        ) {
+        if (action === "addClass") {
 
             if (method !== "POST") {
 
@@ -1140,12 +1087,10 @@ export const handler = async (event) => {
 
             }
 
-
             const className =
                 String(
                     body.class_name || ""
-                )
-                .trim();
+                ).trim();
 
 
             if (!className) {
@@ -1236,9 +1181,7 @@ export const handler = async (event) => {
            UPDATE CLASS
         ================================================= */
 
-        if (
-            action === "updateClass"
-        ) {
+        if (action === "updateClass") {
 
             if (method !== "POST") {
 
@@ -1257,12 +1200,10 @@ export const handler = async (event) => {
             const id =
                 Number(body.id);
 
-
             const className =
                 String(
                     body.class_name || ""
-                )
-                .trim();
+                ).trim();
 
 
             if (!id) {
@@ -1385,9 +1326,7 @@ export const handler = async (event) => {
            DELETE CLASS
         ================================================= */
 
-        if (
-            action === "deleteClass"
-        ) {
+        if (action === "deleteClass") {
 
             if (method !== "POST") {
 
@@ -1506,11 +1445,6 @@ export const handler = async (event) => {
                 );
 
 
-                /*
-                    Remove teaching assignments
-                    for this class first.
-                */
-
                 await client.query(
                     `
                     DELETE FROM teacher_class_subjects
@@ -1524,11 +1458,6 @@ export const handler = async (event) => {
                     ]
                 );
 
-
-                /*
-                    Learners are deleted by
-                    ON DELETE CASCADE.
-                */
 
                 await client.query(
                     `
@@ -1580,9 +1509,7 @@ export const handler = async (event) => {
            GET STUDENTS
         ================================================= */
 
-        if (
-            action === "getStudents"
-        ) {
+        if (action === "getStudents") {
 
             const classId =
                 Number(
@@ -1680,9 +1607,7 @@ export const handler = async (event) => {
            ADD STUDENT
         ================================================= */
 
-        if (
-            action === "addStudent"
-        ) {
+        if (action === "addStudent") {
 
             if (method !== "POST") {
 
@@ -1701,16 +1626,12 @@ export const handler = async (event) => {
             const fullName =
                 String(
                     body.full_name || ""
-                )
-                .trim();
-
+                ).trim();
 
             const gender =
                 String(
                     body.gender || ""
-                )
-                .trim();
-
+                ).trim();
 
             const classId =
                 Number(
@@ -1847,9 +1768,7 @@ export const handler = async (event) => {
            UPDATE STUDENT
         ================================================= */
 
-        if (
-            action === "updateStudent"
-        ) {
+        if (action === "updateStudent") {
 
             if (method !== "POST") {
 
@@ -1868,20 +1787,15 @@ export const handler = async (event) => {
             const id =
                 Number(body.id);
 
-
             const fullName =
                 String(
                     body.full_name || ""
-                )
-                .trim();
-
+                ).trim();
 
             const gender =
                 String(
                     body.gender || ""
-                )
-                .trim();
-
+                ).trim();
 
             const classId =
                 Number(
@@ -2042,9 +1956,7 @@ export const handler = async (event) => {
            DELETE STUDENT
         ================================================= */
 
-        if (
-            action === "deleteStudent"
-        ) {
+        if (action === "deleteStudent") {
 
             if (method !== "POST") {
 
