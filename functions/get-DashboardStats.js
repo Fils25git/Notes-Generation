@@ -44,7 +44,7 @@ export const handler = async (event) => {
         const teacher = teacherRes.rows[0];
 
         // --------------------------------
-        // GET CURRENT ACADEMIC YEAR
+        // CURRENT ACADEMIC YEAR
         // --------------------------------
         const yearRes = await pool.query(
             `
@@ -58,103 +58,104 @@ export const handler = async (event) => {
 
         const currentYear = yearRes.rows[0] || null;
 
-        if (!currentYear) {
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
-                    success: true,
-                    students: 0,
-                    classes: 0,
-                    subjects: 0,
-                    tests: 0,
-                    academic_year: "No Year Set",
-                    term: "No Term Set",
-                    teacher: {
-                        id: teacher.id,
-                        name: teacher.name,
-                        email: teacher.email,
-                        phone: teacher.phone,
-                        role: teacher.role
-                    }
-                })
-            };
+        // --------------------------------
+        // CURRENT TERM
+        // --------------------------------
+        let currentTerm = null;
+
+        if (currentYear) {
+            const termRes = await pool.query(
+                `
+                SELECT t.*
+                FROM terms t
+                WHERE t.academic_year_id = $1
+                  AND t.is_current = TRUE
+                ORDER BY t.term_number
+                LIMIT 1
+                `,
+                [currentYear.id]
+            );
+
+            currentTerm = termRes.rows[0] || null;
         }
-
-        const academicYearId = currentYear.id;
-
-        // --------------------------------
-        // GET CURRENT TERM
-        // --------------------------------
-        const termRes = await pool.query(
-            `
-            SELECT t.*
-            FROM terms t
-            INNER JOIN academic_years ay
-                ON t.academic_year_id = ay.id
-            WHERE ay.id = $1
-              AND t.is_current = TRUE
-            ORDER BY t.term_number
-            LIMIT 1
-            `,
-            [academicYearId]
-        );
-
-        const currentTerm = termRes.rows[0] || null;
 
         // --------------------------------
         // COUNT STUDENTS
         // --------------------------------
-        const students = await pool.query(
-            `
-            SELECT COUNT(*) AS count
-            FROM learners
-            WHERE teacher_id = $1
-              AND academic_year_id = $2
-            `,
-            [teacherId, academicYearId]
-        );
+        let studentsCount = 0;
+
+        if (currentYear) {
+            const students = await pool.query(
+                `
+                SELECT COUNT(*) AS count
+                FROM learners
+                WHERE teacher_id = $1
+                  AND academic_year_id = $2
+                `,
+                [teacherId, currentYear.id]
+            );
+
+            studentsCount = Number(students.rows[0].count);
+        }
 
         // --------------------------------
         // COUNT CLASSES
         // --------------------------------
-        const classes = await pool.query(
-            `
-            SELECT COUNT(DISTINCT c.id) AS count
-            FROM classes c
-            INNER JOIN teacher_class_subjects tcs
-                ON tcs.class_id = c.id
-            WHERE c.teacher_id = $1
-              AND tcs.teacher_id = $1
-              AND tcs.academic_year_id = $2
-            `,
-            [teacherId, academicYearId]
-        );
+        let classesCount = 0;
+
+        if (currentYear) {
+            const classes = await pool.query(
+                `
+                SELECT COUNT(DISTINCT class_id) AS count
+                FROM teacher_class_subjects
+                WHERE teacher_id = $1
+                  AND academic_year_id = $2
+                `,
+                [teacherId, currentYear.id]
+            );
+
+            classesCount = Number(classes.rows[0].count);
+        }
 
         // --------------------------------
-        // COUNT SUBJECTS ACTUALLY TAUGHT
+        // COUNT SUBJECTS
         // --------------------------------
-        const subjects = await pool.query(
-            `
-            SELECT COUNT(DISTINCT tcs.subject_id) AS count
-            FROM teacher_class_subjects tcs
-            WHERE tcs.teacher_id = $1
-              AND tcs.academic_year_id = $2
-            `,
-            [teacherId, academicYearId]
-        );
+        let subjectsCount = 0;
+
+        if (currentYear) {
+            const subjects = await pool.query(
+                `
+                SELECT COUNT(DISTINCT LOWER(TRIM(subject_name))) AS count
+                FROM teacher_class_subjects
+                WHERE teacher_id = $1
+                  AND academic_year_id = $2
+                  AND subject_name IS NOT NULL
+                  AND TRIM(subject_name) <> ''
+                `,
+                [teacherId, currentYear.id]
+            );
+
+            subjectsCount = Number(subjects.rows[0].count);
+        }
 
         // --------------------------------
         // COUNT TESTS
         // --------------------------------
-        const tests = await pool.query(
-            `
-            SELECT COUNT(*) AS count
-            FROM subject_tests
-            WHERE teacher_id = $1
-              AND academic_year_id = $2
-            `,
-            [teacherId, academicYearId]
-        );
+        let testsCount = 0;
+
+        if (currentYear) {
+            const tests = await pool.query(
+                `
+                SELECT COUNT(*) AS count
+                FROM subject_tests
+                WHERE teacher_id = $1
+                  AND academic_year_id = $2
+                `,
+                [teacherId, currentYear.id]
+            );
+
+            testsCount = Number(tests.rows[0].count);
+        }
 
         // --------------------------------
         // SUCCESS RESPONSE
@@ -164,13 +165,13 @@ export const handler = async (event) => {
             body: JSON.stringify({
                 success: true,
 
-                students: Number(students.rows[0].count),
-                classes: Number(classes.rows[0].count),
-                subjects: Number(subjects.rows[0].count),
-                tests: Number(tests.rows[0].count),
+                students: studentsCount,
+                classes: classesCount,
+                subjects: subjectsCount,
+                tests: testsCount,
 
                 academic_year:
-                    currentYear.year_name || "No Year Set",
+                    currentYear?.year_name || "No Year Set",
 
                 term:
                     currentTerm?.term_name || "No Term Set",
@@ -197,4 +198,3 @@ export const handler = async (event) => {
         };
     }
 };
-
