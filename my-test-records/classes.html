@@ -1111,8 +1111,12 @@ td {
    CONFIG
 ========================================================= */
 
-const API =
+
+const STUDENT_API =
     "../.netlify/functions/student";
+
+const ACADEMIC_API =
+    "../.netlify/functions/academic";
 
 const teacherId =
     Number(localStorage.getItem("userId"));
@@ -1319,22 +1323,26 @@ async function loadData() {
             yearData
         ] = await Promise.all([
 
-            api("getClasses"),
+            studentApi("getClasses"),
 
-            api("getAcademicYears")
+            academicApi("getYears")
 
         ]);
-
 
         classes =
             classData.classes || [];
 
         academicYears =
-            yearData.academic_years || [];
+            yearData.years || [];
 
+        console.log("Classes from DB:", classes);
+
+        console.log(
+            "Academic years from DB:",
+            academicYears
+        );
 
         await loadAssignments();
-
 
         populateClassSelect();
 
@@ -1342,22 +1350,21 @@ async function loadData() {
 
         populateSubjectSelect();
 
-
         updateSummary();
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Load Data Error:",
+            error
+        );
 
         showToast(
             error.message,
             "error"
         );
-
     }
-
 }
-
 
 /* =========================================================
    LOAD ASSIGNMENTS
@@ -1366,9 +1373,9 @@ async function loadData() {
 async function loadAssignments() {
 
     const data =
-        await api(
-            "getTeachingAssignments"
-        );
+    await studentApi(
+        "getTeachingAssignments"
+    );
 
     assignments =
         data.assignments || [];
@@ -2030,8 +2037,8 @@ async function saveAssignment() {
 
         if (assignmentId) {
 
-            await api(
-                "updateTeachingAssignment",
+            await studentApi(
+    "updateTeachingAssignment",
                 {
                     method: "POST",
 
@@ -2062,8 +2069,8 @@ async function saveAssignment() {
 
         } else {
 
-            await api(
-                "addTeachingAssignment",
+            await studentApi(
+    "addTeachingAssignment",
                 {
                     method: "POST",
 
@@ -2137,7 +2144,7 @@ async function deleteAssignment(id) {
 
     try {
 
-        await api(
+        await studentApi(
             "deleteTeachingAssignment",
             {
                 method: "POST",
