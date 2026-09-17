@@ -1,5 +1,5 @@
 
-import db from "./db.js";
+import { pool } from "./db.js";
 
 
 /* ============================================================
@@ -7,7 +7,6 @@ import db from "./db.js";
    ============================================================ */
 
 function response(statusCode, data) {
-
     return {
         statusCode,
         headers: {
@@ -58,7 +57,7 @@ async function getBody(event) {
 
 async function teacherExists(teacherId) {
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT id, name, email, phone
         FROM users
@@ -76,11 +75,9 @@ async function teacherExists(teacherId) {
    ACADEMIC YEAR VALIDATION
    ============================================================ */
 
-async function academicYearExists(
-    academicYearId
-) {
+async function academicYearExists(academicYearId) {
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT *
         FROM academic_years
@@ -98,12 +95,9 @@ async function academicYearExists(
    TERM VALIDATION
    ============================================================ */
 
-async function termBelongsToYear(
-    termId,
-    academicYearId
-) {
+async function termBelongsToYear(termId, academicYearId) {
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT *
         FROM terms
@@ -125,12 +119,9 @@ async function termBelongsToYear(
    CLASS OWNERSHIP
    ============================================================ */
 
-async function getTeacherClass(
-    teacherId,
-    classId
-) {
+async function getTeacherClass(teacherId, classId) {
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT *
         FROM classes
@@ -152,12 +143,9 @@ async function getTeacherClass(
    SUBJECT OWNERSHIP
    ============================================================ */
 
-async function getTeacherSubject(
-    teacherId,
-    subjectId
-) {
+async function getTeacherSubject(teacherId, subjectId) {
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT *
         FROM subjects
@@ -181,7 +169,7 @@ async function getTeacherSubject(
 
    IMPORTANT:
 
-   Your actual database stores:
+   Actual database structure:
 
        teacher_class_subjects.subject_name
 
@@ -189,7 +177,7 @@ async function getTeacherSubject(
 
        teacher_class_subjects.subject_id
 
-   Therefore we match the subject using its name.
+   Therefore subjects are matched by normalized name.
    ============================================================ */
 
 async function teachingAssignmentExists(
@@ -199,7 +187,7 @@ async function teachingAssignmentExists(
     academicYearId
 ) {
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT tcs.*
         FROM teacher_class_subjects tcs
@@ -226,20 +214,17 @@ async function teachingAssignmentExists(
    GET CLASSES
    ============================================================
 
-   Only classes that the teacher actually has teaching
-   assignments for in the selected academic year are returned.
+   Only classes that have at least one teaching assignment
+   for the teacher in the selected academic year are returned.
    ============================================================ */
 
-async function getClasses(
-    teacherId,
-    academicYearId
-) {
+async function getClasses(teacherId, academicYearId) {
 
     if (!academicYearId) {
         return [];
     }
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT DISTINCT
             c.id,
@@ -270,12 +255,12 @@ async function getClasses(
    GET SUBJECTS FOR CLASS
    ============================================================
 
-   The assignment table contains subject_name.
+   teacher_class_subjects stores subject_name.
 
-   The marks system needs subject_id because subject_tests
-   references subjects(id).
+   subject_tests requires subjects.id.
 
-   Therefore we join subjects by teacher + normalized name.
+   Therefore we match the assignment subject name with
+   the teacher's subjects table.
    ============================================================ */
 
 async function getSubjectsForClass(
@@ -284,23 +269,27 @@ async function getSubjectsForClass(
     academicYearId
 ) {
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT DISTINCT
             s.id,
             s.subject_name,
             s.teacher_id
         FROM teacher_class_subjects tcs
+
         INNER JOIN subjects s
             ON s.teacher_id = tcs.teacher_id
            AND LOWER(TRIM(s.subject_name))
                = LOWER(TRIM(tcs.subject_name))
+
         INNER JOIN classes c
             ON c.id = tcs.class_id
            AND c.teacher_id = tcs.teacher_id
+
         WHERE tcs.teacher_id = $1
           AND tcs.class_id = $2
           AND tcs.academic_year_id = $3
+
         ORDER BY
             s.subject_name ASC
         `,
@@ -321,7 +310,7 @@ async function getSubjectsForClass(
 
 async function getSubjects(teacherId) {
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT *
         FROM subjects
@@ -354,7 +343,9 @@ async function getTests(
         );
 
     if (!classRow) {
-        throw new Error("You do not have access to this class.");
+        throw new Error(
+            "You do not have access to this class."
+        );
     }
 
 
@@ -365,7 +356,9 @@ async function getTests(
         );
 
     if (!subjectRow) {
-        throw new Error("You do not have access to this subject.");
+        throw new Error(
+            "You do not have access to this subject."
+        );
     }
 
 
@@ -375,7 +368,9 @@ async function getTests(
         );
 
     if (!yearRow) {
-        throw new Error("Academic year not found.");
+        throw new Error(
+            "Academic year not found."
+        );
     }
 
 
@@ -407,7 +402,7 @@ async function getTests(
     }
 
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         SELECT
             id,
@@ -447,10 +442,7 @@ async function getTests(
    ADD TEST
    ============================================================ */
 
-async function addTest(
-    teacherId,
-    data
-) {
+async function addTest(teacherId, data) {
 
     const {
         test_name,
@@ -464,7 +456,9 @@ async function addTest(
 
 
     if (!test_name?.trim()) {
-        throw new Error("Test name is required.");
+        throw new Error(
+            "Test name is required."
+        );
     }
 
 
@@ -481,10 +475,35 @@ async function addTest(
     }
 
 
+    const classId =
+        Number(class_id);
+
+    const subjectId =
+        Number(subject_id);
+
+    const academicYearId =
+        Number(academic_year_id);
+
+    const termId =
+        Number(term_id);
+
+
+    if (
+        !classId ||
+        !subjectId ||
+        !academicYearId ||
+        !termId
+    ) {
+        throw new Error(
+            "Class, subject, academic year and term are required."
+        );
+    }
+
+
     const classRow =
         await getTeacherClass(
             teacherId,
-            Number(class_id)
+            classId
         );
 
     if (!classRow) {
@@ -497,7 +516,7 @@ async function addTest(
     const subjectRow =
         await getTeacherSubject(
             teacherId,
-            Number(subject_id)
+            subjectId
         );
 
     if (!subjectRow) {
@@ -509,7 +528,7 @@ async function addTest(
 
     const yearRow =
         await academicYearExists(
-            Number(academic_year_id)
+            academicYearId
         );
 
     if (!yearRow) {
@@ -521,8 +540,8 @@ async function addTest(
 
     const termRow =
         await termBelongsToYear(
-            Number(term_id),
-            Number(academic_year_id)
+            termId,
+            academicYearId
         );
 
     if (!termRow) {
@@ -535,9 +554,9 @@ async function addTest(
     const assignment =
         await teachingAssignmentExists(
             teacherId,
-            Number(class_id),
+            classId,
             subjectRow.subject_name,
-            Number(academic_year_id)
+            academicYearId
         );
 
     if (!assignment) {
@@ -547,7 +566,7 @@ async function addTest(
     }
 
 
-    const result = await db.query(
+    const result = await pool.query(
         `
         INSERT INTO subject_tests (
             teacher_id,
@@ -560,16 +579,23 @@ async function addTest(
             is_exam
         )
         VALUES (
-            $1,$2,$3,$4,$5,$6,$7,$8
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8
         )
         RETURNING *
         `,
         [
             teacherId,
-            Number(subject_id),
-            Number(class_id),
-            Number(academic_year_id),
-            Number(term_id),
+            subjectId,
+            classId,
+            academicYearId,
+            termId,
             test_name.trim(),
             maxScore,
             Boolean(is_exam)
@@ -585,10 +611,7 @@ async function addTest(
    UPDATE TEST
    ============================================================ */
 
-async function updateTest(
-    teacherId,
-    data
-) {
+async function updateTest(teacherId, data) {
 
     const {
         id,
@@ -629,7 +652,7 @@ async function updateTest(
 
 
     const existing =
-        await db.query(
+        await pool.query(
             `
             SELECT *
             FROM subject_tests
@@ -655,7 +678,7 @@ async function updateTest(
 
 
     const result =
-        await db.query(
+        await pool.query(
             `
             UPDATE subject_tests
             SET
@@ -679,7 +702,8 @@ async function updateTest(
     /*
      * Keep max_score on existing marks synchronized.
      */
-    await db.query(
+
+    await pool.query(
         `
         UPDATE marks
         SET max_score = $1
@@ -707,8 +731,18 @@ async function deleteTest(
     testId
 ) {
 
+    const id =
+        Number(testId);
+
+    if (!id) {
+        throw new Error(
+            "Test ID is required."
+        );
+    }
+
+
     const result =
-        await db.query(
+        await pool.query(
             `
             DELETE FROM subject_tests
             WHERE id = $1
@@ -716,7 +750,7 @@ async function deleteTest(
             RETURNING id
             `,
             [
-                Number(testId),
+                id,
                 teacherId
             ]
         );
@@ -774,17 +808,14 @@ async function getMarks(
     }
 
 
-    const assignment =
-        await teachingAssignmentExists(
-            teacherId,
-            classId,
-            subjectRow.subject_name,
+    const yearRow =
+        await academicYearExists(
             academicYearId
         );
 
-    if (!assignment) {
+    if (!yearRow) {
         throw new Error(
-            "This subject is not assigned to you for this class."
+            "Academic year not found."
         );
     }
 
@@ -802,11 +833,27 @@ async function getMarks(
     }
 
 
-    /*
-     * Learners
-     */
+    const assignment =
+        await teachingAssignmentExists(
+            teacherId,
+            classId,
+            subjectRow.subject_name,
+            academicYearId
+        );
+
+    if (!assignment) {
+        throw new Error(
+            "This subject is not assigned to you for this class."
+        );
+    }
+
+
+    /* ========================================================
+       LEARNERS
+       ======================================================== */
+
     const learnersResult =
-        await db.query(
+        await pool.query(
             `
             SELECT
                 id,
@@ -833,11 +880,12 @@ async function getMarks(
         );
 
 
-    /*
-     * Tests
-     */
+    /* ========================================================
+       TESTS
+       ======================================================== */
+
     const testsResult =
-        await db.query(
+        await pool.query(
             `
             SELECT
                 id,
@@ -865,11 +913,12 @@ async function getMarks(
         );
 
 
-    /*
-     * Marks
-     */
+    /* ========================================================
+       MARKS
+       ======================================================== */
+
     const marksResult =
-        await db.query(
+        await pool.query(
             `
             SELECT
                 m.id,
@@ -898,15 +947,9 @@ async function getMarks(
         );
 
 
-    /*
-     * Convert marks into:
-     *
-     * {
-     *   learnerId: {
-     *      testId: score
-     *   }
-     * }
-     */
+    /* ========================================================
+       FORMAT MARKS
+       ======================================================== */
 
     const marks = {};
 
@@ -991,8 +1034,98 @@ async function saveMark(
     }
 
 
+    /* ========================================================
+       VALIDATE SUBJECT
+       ======================================================== */
+
+    const subject =
+        await getTeacherSubject(
+            teacherId,
+            subjectId
+        );
+
+    if (!subject) {
+        throw new Error(
+            "You do not have access to this subject."
+        );
+    }
+
+
+    /* ========================================================
+       VALIDATE CLASS
+       ======================================================== */
+
+    const classRow =
+        await getTeacherClass(
+            teacherId,
+            classId
+        );
+
+    if (!classRow) {
+        throw new Error(
+            "You do not have access to this class."
+        );
+    }
+
+
+    /* ========================================================
+       VALIDATE ACADEMIC YEAR
+       ======================================================== */
+
+    const yearRow =
+        await academicYearExists(
+            academicYearId
+        );
+
+    if (!yearRow) {
+        throw new Error(
+            "Academic year not found."
+        );
+    }
+
+
+    /* ========================================================
+       VALIDATE TERM
+       ======================================================== */
+
+    const termRow =
+        await termBelongsToYear(
+            termId,
+            academicYearId
+        );
+
+    if (!termRow) {
+        throw new Error(
+            "Invalid term for the selected academic year."
+        );
+    }
+
+
+    /* ========================================================
+       VALIDATE TEACHING ASSIGNMENT
+       ======================================================== */
+
+    const assignment =
+        await teachingAssignmentExists(
+            teacherId,
+            classId,
+            subject.subject_name,
+            academicYearId
+        );
+
+    if (!assignment) {
+        throw new Error(
+            "This subject is not assigned to you for this class."
+        );
+    }
+
+
+    /* ========================================================
+       VALIDATE TEST
+       ======================================================== */
+
     const testResult =
-        await db.query(
+        await pool.query(
             `
             SELECT *
             FROM subject_tests
@@ -1025,8 +1158,12 @@ async function saveMark(
     }
 
 
+    /* ========================================================
+       VALIDATE LEARNER
+       ======================================================== */
+
     const learnerResult =
-        await db.query(
+        await pool.query(
             `
             SELECT id
             FROM learners
@@ -1050,10 +1187,9 @@ async function saveMark(
     }
 
 
-    /*
-     * Empty mark:
-     * remove an existing mark.
-     */
+    /* ========================================================
+       EMPTY MARK = DELETE
+       ======================================================== */
 
     if (
         score === null ||
@@ -1061,7 +1197,7 @@ async function saveMark(
         score === undefined
     ) {
 
-        await db.query(
+        await pool.query(
             `
             DELETE FROM marks
             WHERE learner_id = $1
@@ -1083,13 +1219,15 @@ async function saveMark(
     }
 
 
+    /* ========================================================
+       VALIDATE SCORE
+       ======================================================== */
+
     const numericScore =
         Number(score);
 
 
-    if (
-        !Number.isFinite(numericScore)
-    ) {
+    if (!Number.isFinite(numericScore)) {
         throw new Error(
             "Mark must be a valid number."
         );
@@ -1113,15 +1251,12 @@ async function saveMark(
     }
 
 
-    /*
-     * UPSERT.
-     *
-     * UNIQUE(learner_id, test_id)
-     * already exists in your database.
-     */
+    /* ========================================================
+       UPSERT MARK
+       ======================================================== */
 
     const result =
-        await db.query(
+        await pool.query(
             `
             INSERT INTO marks (
                 teacher_id,
@@ -1132,10 +1267,20 @@ async function saveMark(
                 term_id,
                 test_id,
                 score,
-                max_score
+                max_score,
+                remarks
             )
             VALUES (
-                $1,$2,$3,$4,$5,$6,$7,$8,$9
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                $7,
+                $8,
+                $9,
+                $10
             )
             ON CONFLICT (
                 learner_id,
@@ -1182,7 +1327,7 @@ async function getGradingSettings(
 ) {
 
     const result =
-        await db.query(
+        await pool.query(
             `
             SELECT *
             FROM grading_settings
@@ -1248,6 +1393,18 @@ async function saveGradingSettings(
         Number(term_id);
 
 
+    if (
+        !subjectId ||
+        !classId ||
+        !academicYearId ||
+        !termId
+    ) {
+        throw new Error(
+            "Subject, class, academic year and term are required."
+        );
+    }
+
+
     const subject =
         await getTeacherSubject(
             teacherId,
@@ -1270,6 +1427,31 @@ async function saveGradingSettings(
     if (!classRow) {
         throw new Error(
             "Invalid class."
+        );
+    }
+
+
+    const yearRow =
+        await academicYearExists(
+            academicYearId
+        );
+
+    if (!yearRow) {
+        throw new Error(
+            "Academic year not found."
+        );
+    }
+
+
+    const termRow =
+        await termBelongsToYear(
+            termId,
+            academicYearId
+        );
+
+    if (!termRow) {
+        throw new Error(
+            "Invalid term."
         );
     }
 
@@ -1317,7 +1499,7 @@ async function saveGradingSettings(
 
 
     const result =
-        await db.query(
+        await pool.query(
             `
             INSERT INTO grading_settings (
                 teacher_id,
@@ -1329,7 +1511,13 @@ async function saveGradingSettings(
                 overall_exam_max
             )
             VALUES (
-                $1,$2,$3,$4,$5,$6,$7
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                $7
             )
             ON CONFLICT (
                 teacher_id,
@@ -1367,18 +1555,23 @@ async function saveGradingSettings(
 
 export async function handler(event) {
 
-    /*
-     * CORS preflight
-     */
+    /* ========================================================
+       CORS PREFLIGHT
+       ======================================================== */
 
     if (event.httpMethod === "OPTIONS") {
-        return response(200, {
-            success: true
-        });
+
+        return response(
+            200,
+            {
+                success: true
+            }
+        );
     }
 
 
     let body = {};
+
 
     try {
 
@@ -1434,6 +1627,10 @@ export async function handler(event) {
 
     try {
 
+        /* ====================================================
+           VERIFY TEACHER
+        ==================================================== */
+
         const teacher =
             await teacherExists(
                 teacherId
@@ -1452,9 +1649,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            GET CLASSES
-        ====================================================== */
+        ==================================================== */
 
         if (action === "getClasses") {
 
@@ -1482,9 +1679,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            GET SUBJECTS
-        ====================================================== */
+        ==================================================== */
 
         if (action === "getSubjects") {
 
@@ -1504,9 +1701,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            GET SUBJECTS FOR CLASS
-        ====================================================== */
+        ==================================================== */
 
         if (
             action ===
@@ -1518,6 +1715,7 @@ export async function handler(event) {
                     event.queryStringParameters?.class_id ||
                     body.class_id
                 );
+
 
             const academicYearId =
                 Number(
@@ -1580,9 +1778,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            GET TESTS
-        ====================================================== */
+        ==================================================== */
 
         if (action === "getTests") {
 
@@ -1606,9 +1804,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            ADD TEST
-        ====================================================== */
+        ==================================================== */
 
         if (action === "addTest") {
 
@@ -1629,9 +1827,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            UPDATE TEST
-        ====================================================== */
+        ==================================================== */
 
         if (action === "updateTest") {
 
@@ -1652,9 +1850,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            DELETE TEST
-        ====================================================== */
+        ==================================================== */
 
         if (action === "deleteTest") {
 
@@ -1675,9 +1873,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            GET MARKS
-        ====================================================== */
+        ==================================================== */
 
         if (action === "getMarks") {
 
@@ -1701,9 +1899,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            SAVE MARK
-        ====================================================== */
+        ==================================================== */
 
         if (action === "saveMark") {
 
@@ -1724,9 +1922,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            GET GRADING SETTINGS
-        ====================================================== */
+        ==================================================== */
 
         if (
             action ===
@@ -1753,9 +1951,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            SAVE GRADING SETTINGS
-        ====================================================== */
+        ==================================================== */
 
         if (
             action ===
@@ -1779,9 +1977,9 @@ export async function handler(event) {
         }
 
 
-        /* =====================================================
+        /* ====================================================
            UNKNOWN ACTION
-        ====================================================== */
+        ==================================================== */
 
         return response(
             404,
@@ -1791,7 +1989,6 @@ export async function handler(event) {
                     `Unknown action: ${action}`
             }
         );
-
 
     } catch (error) {
 
@@ -1812,4 +2009,3 @@ export async function handler(event) {
         );
     }
 }
-
