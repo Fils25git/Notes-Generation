@@ -773,79 +773,93 @@ async function deleteTest(
 /* ============================================================
    GET MARKS
    ============================================================ */
+/* ====================================================
+   GET MARKS
+   ==================================================== */
 
-async function getMarks(
-    teacherId,
-    classId,
-    subjectId,
-    academicYearId,
-    termId
-) {
+if (action === "getMarks") {
 
-    const classRow =
-        await getTeacherClass(
-            teacherId,
-            classId
+    /*
+     * getMarks is called using GET from marks.js.
+     *
+     * Therefore read the IDs from the query string.
+     * Fall back to body values in case another request
+     * calls this action using POST.
+     */
+
+    const classId =
+        Number(
+            event.queryStringParameters?.class_id ||
+            body.class_id
         );
 
-    if (!classRow) {
-        throw new Error(
-            "You do not have access to this class."
+    const subjectId =
+        Number(
+            event.queryStringParameters?.subject_id ||
+            body.subject_id
+        );
+
+    const academicYearId =
+        Number(
+            event.queryStringParameters?.academic_year_id ||
+            body.academic_year_id
+        );
+
+    const termId =
+        Number(
+            event.queryStringParameters?.term_id ||
+            body.term_id
+        );
+
+
+    /*
+     * Make sure all IDs are valid positive integers
+     * before sending them to PostgreSQL.
+     */
+
+    if (
+        !Number.isInteger(classId) ||
+        classId <= 0 ||
+
+        !Number.isInteger(subjectId) ||
+        subjectId <= 0 ||
+
+        !Number.isInteger(academicYearId) ||
+        academicYearId <= 0 ||
+
+        !Number.isInteger(termId) ||
+        termId <= 0
+    ) {
+
+        return response(
+            400,
+            {
+                success: false,
+                message:
+                    "Valid class, subject, academic year and term IDs are required."
+            }
         );
     }
 
 
-    const subjectRow =
-        await getTeacherSubject(
-            teacherId,
-            subjectId
-        );
-
-    if (!subjectRow) {
-        throw new Error(
-            "You do not have access to this subject."
-        );
-    }
-
-
-    const yearRow =
-        await academicYearExists(
-            academicYearId
-        );
-
-    if (!yearRow) {
-        throw new Error(
-            "Academic year not found."
-        );
-    }
-
-
-    const termRow =
-        await termBelongsToYear(
-            termId,
-            academicYearId
-        );
-
-    if (!termRow) {
-        throw new Error(
-            "Invalid term for the selected academic year."
-        );
-    }
-
-
-    const assignment =
-        await teachingAssignmentExists(
+    const result =
+        await getMarks(
             teacherId,
             classId,
-            subjectRow.subject_name,
-            academicYearId
+            subjectId,
+            academicYearId,
+            termId
         );
 
-    if (!assignment) {
-        throw new Error(
-            "This subject is not assigned to you for this class."
-        );
-    }
+
+    return response(
+        200,
+        {
+            success: true,
+            ...result
+        }
+    );
+}
 
 
     /* ========================================================
