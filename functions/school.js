@@ -1,10 +1,13 @@
 import db from "./db.js";
 
+
 export const handler = async (event) => {
+
     try {
 
         const action =
             event.queryStringParameters?.action;
+
 
         // =====================================================
         // GET TEACHER ID
@@ -12,51 +15,65 @@ export const handler = async (event) => {
 
         let teacher_id;
 
+
         if (event.httpMethod === "GET") {
 
             teacher_id =
-                Number(event.queryStringParameters?.teacher_id);
+                Number(
+                    event.queryStringParameters?.teacher_id
+                );
 
         } else {
 
             const body =
-                JSON.parse(event.body || "{}");
+                JSON.parse(
+                    event.body || "{}"
+                );
 
             teacher_id =
                 Number(body.teacher_id);
+
         }
 
-        // Teacher ID is required for every marks operation
+
+        // =====================================================
+        // CHECK TEACHER
+        // =====================================================
+
         if (!teacher_id) {
 
-            return {
-                statusCode: 401,
-                body: JSON.stringify({
+            return response(
+                401,
+                {
                     success: false,
                     message: "Teacher ID is required"
-                })
-            };
+                }
+            );
 
         }
 
 
-        // =====================================================
-        // GET SUBJECTS
-        // =====================================================
+        const teacherCheck =
+            await db.query(
+                `
+                SELECT id
+                FROM users
+                WHERE id = $1
+                `,
+                [teacher_id]
+            );
 
-        if (action === "getSubjects") {
 
-            const result = await db.query(`
-                SELECT *
-                FROM subjects
-                WHERE teacher_id = $1
-                ORDER BY id
-            `, [teacher_id]);
+        if (!teacherCheck.rows.length) {
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify(result.rows)
-            };
+            return response(
+                404,
+                {
+                    success: false,
+                    message: "Teacher not found"
+                }
+            );
+
         }
 
 
@@ -66,17 +83,302 @@ export const handler = async (event) => {
 
         if (action === "getClasses") {
 
-            const result = await db.query(`
-                SELECT *
-                FROM classes
-                WHERE teacher_id = $1
-                ORDER BY id
-            `, [teacher_id]);
+            const {
+                academic_year_id
+            } =
+                event.queryStringParameters;
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify(result.rows)
-            };
+
+            /*
+             * Only return classes where the teacher has
+             * a teaching assignment for the selected year.
+             *
+             * teacher_class_subjects uses subject_name.
+             */
+
+            const result =
+                await db.query(
+                    `
+                    SELECT DISTINCT
+                        c.id,
+                        c.class_name
+
+                    FROM classes c
+
+                    INNER JOIN teacher_class_subjects tcs
+                        ON tcs.class_id = c.id
+
+                    WHERE c.teacher_id = $1
+                      AND tcs.teacher_id = $1
+                      AND (
+                            $2::INTEGER IS NULL
+                            OR tcs.academic_year_id = $2
+                          )
+
+                    ORDER BY c.class_name
+                    `,
+                    [
+                        teacher_id,
+                        academic_year_id
+                            ? Number(academic_year_id)
+                            : null
+                    ]
+                );
+
+
+            return response(
+                200,
+                result.rows
+            );
+
+        }
+
+
+        // =====================================================
+        // GET SUBJECTS FOR SELECTED CLASS
+        // =====================================================
+
+        if (action === "getSubjectsForClass") {
+
+            const {
+                class_id,
+                academic_year_id
+            } =
+                event.queryStringParameters;
+
+
+            if (!class_id || !academic_year_id) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Class and academic year are required"
+                    }
+                );
+
+            }
+
+
+            /*
+             * IMPORTANT:
+             *
+             * teacher_class_subjects does NOT contain subject_id.
+             *
+             * It contains subject_name.
+             *
+             * We therefore connect it to subjects by:
+             *
+             * teacher_id + subject_name
+             */
+
+            const result =
+                await db.query(
+                    `
+                    SELECT DISTINCT
+                        s.id,
+                        s.subject_name
+
+                    FROM teacher_class_subjects tcs
+
+                    INNER JOIN subjects s
+                        ON s.teacher_id = tcs.teacher_id
+                       AND LOWER(TRIM(s.subject_name))
+                           =
+                           LOWER(TRIM(tcs.subject_name))
+
+                    WHERE tcs.teacher_id = $1
+                      AND tcs.class_id = $2
+                      AND tcs.academic_year_id = $3
+
+                    ORDER BY s.subject_name
+                    `,
+                    [
+                        teacher_id,
+                        Number(class_id),
+                        Number(academic_year_id)
+                    ]
+                );
+
+
+            return response(
+                200,
+                result.rows
+            );
+
+        }
+
+
+        // =====================================================
+        // GET ALL SUBJECTS
+        // =====================================================
+
+        if (action === "getSubjects") {
+
+            const result =
+                await db.query(
+                    `
+                    SELECT
+                        id,
+                        subject_name
+
+                    FROM subjects
+
+                    WHERE teacher_id = $1
+
+                    ORDER BY subject_name
+                    `,
+                    [teacher_id]
+                );
+
+
+            return response(
+                200,
+                result.rows
+            );
+
+        }
+
+
+        // =====================================================
+        // VERIFY TEACHING ASSIGNMENT
+        // =====================================================
+
+        async function verifyTeachingAssignment(
+            classId,
+            subjectId,
+            academicYearId
+        ) {
+
+            const result =
+                await db.query(
+                    `
+                    SELECT
+                        tcs.id
+
+                    FROM teacher_class_subjects tcs
+
+                    INNER JOIN subjects s
+                        ON s.teacher_id = tcs.teacher_id
+                       AND LOWER(TRIM(s.subject_name))
+                           =
+                           LOWER(TRIM(tcs.subject_name))
+
+                    WHERE tcs.teacher_id = $1
+                      AND tcs.class_id = $2
+                      AND tcs.academic_year_id = $3
+                      AND s.id = $4
+
+                    LIMIT 1
+                    `,
+                    [
+                        teacher_id,
+                        Number(classId),
+                        Number(academicYearId),
+                        Number(subjectId)
+                    ]
+                );
+
+
+            return result.rows.length > 0;
+
+        }
+
+
+        // =====================================================
+        // GET TESTS
+        // =====================================================
+
+        if (action === "getTests") {
+
+            const {
+                class_id,
+                subject_id,
+                academic_year_id,
+                term_id
+            } =
+                event.queryStringParameters;
+
+
+            if (
+                !class_id ||
+                !subject_id ||
+                !academic_year_id ||
+                !term_id
+            ) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Class, subject, academic year and term are required"
+                    }
+                );
+
+            }
+
+
+            const allowed =
+                await verifyTeachingAssignment(
+                    class_id,
+                    subject_id,
+                    academic_year_id
+                );
+
+
+            if (!allowed) {
+
+                return response(
+                    403,
+                    {
+                        success: false,
+                        message:
+                            "This subject is not assigned to this class"
+                    }
+                );
+
+            }
+
+
+            const result =
+                await db.query(
+                    `
+                    SELECT
+                        id,
+                        test_name,
+                        max_score,
+                        is_exam,
+                        created_at
+
+                    FROM subject_tests
+
+                    WHERE teacher_id = $1
+                      AND class_id = $2
+                      AND subject_id = $3
+                      AND academic_year_id = $4
+                      AND term_id = $5
+
+                    ORDER BY
+                        is_exam ASC,
+                        id ASC
+                    `,
+                    [
+                        teacher_id,
+                        Number(class_id),
+                        Number(subject_id),
+                        Number(academic_year_id),
+                        Number(term_id)
+                    ]
+                );
+
+
+            return response(
+                200,
+                result.rows
+            );
+
         }
 
 
@@ -87,7 +389,10 @@ export const handler = async (event) => {
         if (action === "addTest") {
 
             const body =
-                JSON.parse(event.body || "{}");
+                JSON.parse(
+                    event.body || "{}"
+                );
+
 
             const {
                 subject_id,
@@ -100,89 +405,113 @@ export const handler = async (event) => {
             } = body;
 
 
-            // Make sure the subject belongs to this teacher
-            const subjectCheck = await db.query(`
-                SELECT id
-                FROM subjects
-                WHERE id = $1
-                AND teacher_id = $2
-            `, [subject_id, teacher_id]);
+            if (
+                !subject_id ||
+                !class_id ||
+                !academic_year_id ||
+                !term_id ||
+                !test_name ||
+                !max_score
+            ) {
 
-
-            if (!subjectCheck.rows.length) {
-
-                return {
-                    statusCode: 403,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
-                        message: "You do not have access to this subject"
-                    })
-                };
+                        message:
+                            "All test information is required"
+                    }
+                );
 
             }
 
 
-            // Make sure the class belongs to this teacher
-            const classCheck = await db.query(`
-                SELECT id
-                FROM classes
-                WHERE id = $1
-                AND teacher_id = $2
-            `, [class_id, teacher_id]);
+            const max =
+                Number(max_score);
 
 
-            if (!classCheck.rows.length) {
+            if (
+                !Number.isFinite(max) ||
+                max <= 0
+            ) {
 
-                return {
-                    statusCode: 403,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
-                        message: "You do not have access to this class"
-                    })
-                };
+                        message:
+                            "Maximum marks must be greater than 0"
+                    }
+                );
 
             }
 
 
-            const result = await db.query(`
-
-                INSERT INTO subject_tests(
-
-                    teacher_id,
-                    subject_id,
+            const allowed =
+                await verifyTeachingAssignment(
                     class_id,
-                    academic_year_id,
-                    term_id,
-                    test_name,
-                    max_score,
-                    is_exam
-
-                )
-
-                VALUES(
-                    $1,$2,$3,$4,$5,$6,$7,$8
-                )
-
-                RETURNING *
-
-            `, [
-
-                teacher_id,
-                subject_id,
-                class_id,
-                academic_year_id,
-                term_id,
-                test_name,
-                Number(max_score),
-                is_exam || false
-
-            ]);
+                    subject_id,
+                    academic_year_id
+                );
 
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify(result.rows[0])
-            };
+            if (!allowed) {
+
+                return response(
+                    403,
+                    {
+                        success: false,
+                        message:
+                            "This subject is not assigned to this class"
+                    }
+                );
+
+            }
+
+
+            const result =
+                await db.query(
+                    `
+                    INSERT INTO subject_tests (
+                        teacher_id,
+                        subject_id,
+                        class_id,
+                        academic_year_id,
+                        term_id,
+                        test_name,
+                        max_score,
+                        is_exam
+                    )
+
+                    VALUES (
+                        $1,$2,$3,$4,$5,$6,$7,$8
+                    )
+
+                    RETURNING *
+                    `,
+                    [
+                        teacher_id,
+                        Number(subject_id),
+                        Number(class_id),
+                        Number(academic_year_id),
+                        Number(term_id),
+                        test_name.trim(),
+                        max,
+                        Boolean(is_exam)
+                    ]
+                );
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    message:
+                        "Test created successfully",
+                    test:
+                        result.rows[0]
+                }
+            );
 
         }
 
@@ -194,7 +523,10 @@ export const handler = async (event) => {
         if (action === "updateTest") {
 
             const body =
-                JSON.parse(event.body || "{}");
+                JSON.parse(
+                    event.body || "{}"
+                );
+
 
             const {
                 id,
@@ -203,65 +535,114 @@ export const handler = async (event) => {
             } = body;
 
 
-            // Only update this teacher's test
-            const result = await db.query(`
+            if (
+                !id ||
+                !test_name ||
+                !max_score
+            ) {
 
-                UPDATE subject_tests
-
-                SET
-                    test_name = $1,
-                    max_score = $2
-
-                WHERE id = $3
-                AND teacher_id = $4
-
-                RETURNING id
-
-            `, [
-                test_name,
-                Number(max_score),
-                id,
-                teacher_id
-            ]);
-
-
-            if (!result.rows.length) {
-
-                return {
-                    statusCode: 403,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
-                        message: "Test not found or access denied"
-                    })
-                };
+                        message:
+                            "Test name and maximum marks are required"
+                    }
+                );
 
             }
 
 
-            // Update max score only for marks belonging
-            // to this teacher's test
-            await db.query(`
+            const max =
+                Number(max_score);
 
+
+            if (
+                !Number.isFinite(max) ||
+                max <= 0
+            ) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Maximum marks must be greater than 0"
+                    }
+                );
+
+            }
+
+
+            const result =
+                await db.query(
+                    `
+                    UPDATE subject_tests
+
+                    SET
+                        test_name = $1,
+                        max_score = $2
+
+                    WHERE id = $3
+                      AND teacher_id = $4
+
+                    RETURNING *
+                    `,
+                    [
+                        test_name.trim(),
+                        max,
+                        Number(id),
+                        teacher_id
+                    ]
+                );
+
+
+            if (!result.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Test not found or access denied"
+                    }
+                );
+
+            }
+
+
+            /*
+             * Keep marks.max_score synchronized with
+             * the test maximum.
+             */
+
+            await db.query(
+                `
                 UPDATE marks
 
                 SET max_score = $1
 
                 WHERE test_id = $2
-                AND teacher_id = $3
+                  AND teacher_id = $3
+                `,
+                [
+                    max,
+                    Number(id),
+                    teacher_id
+                ]
+            );
 
-            `, [
-                Number(max_score),
-                id,
-                teacher_id
-            ]);
 
-
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
-                    message: "updated"
-                })
-            };
+            return response(
+                200,
+                {
+                    success: true,
+                    message:
+                        "Test updated successfully",
+                    test:
+                        result.rows[0]
+                }
+            );
 
         }
 
@@ -274,46 +655,70 @@ export const handler = async (event) => {
 
             const {
                 test_id
-            } = JSON.parse(event.body || "{}");
+            } =
+                JSON.parse(
+                    event.body || "{}"
+                );
 
 
-            // Because marks.test_id has ON DELETE CASCADE,
-            // deleting the test will automatically delete
-            // its marks.
-            const result = await db.query(`
+            if (!test_id) {
 
-                DELETE FROM subject_tests
-
-                WHERE id = $1
-                AND teacher_id = $2
-
-                RETURNING id
-
-            `, [
-                test_id,
-                teacher_id
-            ]);
-
-
-            if (!result.rows.length) {
-
-                return {
-                    statusCode: 403,
-                    body: JSON.stringify({
+                return response(
+                    400,
+                    {
                         success: false,
-                        message: "Test not found or access denied"
-                    })
-                };
+                        message:
+                            "Test ID is required"
+                    }
+                );
 
             }
 
 
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
-                    message: "Deleted"
-                })
-            };
+            /*
+             * marks.test_id has ON DELETE CASCADE,
+             * so deleting the test also deletes its marks.
+             */
+
+            const result =
+                await db.query(
+                    `
+                    DELETE FROM subject_tests
+
+                    WHERE id = $1
+                      AND teacher_id = $2
+
+                    RETURNING id
+                    `,
+                    [
+                        Number(test_id),
+                        teacher_id
+                    ]
+                );
+
+
+            if (!result.rows.length) {
+
+                return response(
+                    404,
+                    {
+                        success: false,
+                        message:
+                            "Test not found or access denied"
+                    }
+                );
+
+            }
+
+
+            return response(
+                200,
+                {
+                    success: true,
+                    message:
+                        "Test deleted successfully"
+                }
+            );
 
         }
 
@@ -329,157 +734,199 @@ export const handler = async (event) => {
                 subject_id,
                 academic_year_id,
                 term_id
-            } = event.queryStringParameters;
+            } =
+                event.queryStringParameters;
 
 
-            // ---------------------------------------------
-            // GET LEARNERS
-            // ---------------------------------------------
-
-            const learners = await db.query(`
-
-                SELECT *
-
-                FROM learners
-
-                WHERE class_id = $1
-                AND academic_year_id = $2
-                AND teacher_id = $3
-
-                ORDER BY full_name
-
-            `, [
-                class_id,
-                academic_year_id,
-                teacher_id
-            ]);
+            const allowed =
+                await verifyTeachingAssignment(
+                    class_id,
+                    subject_id,
+                    academic_year_id
+                );
 
 
-            // ---------------------------------------------
-            // GET TESTS
-            // ---------------------------------------------
+            if (!allowed) {
 
-            const tests = await db.query(`
+                return response(
+                    403,
+                    {
+                        success: false,
+                        message:
+                            "This subject is not assigned to this class"
+                    }
+                );
 
-                SELECT *
-
-                FROM subject_tests
-
-                WHERE subject_id = $1
-                AND class_id = $2
-                AND academic_year_id = $3
-                AND term_id = $4
-                AND teacher_id = $5
-
-                ORDER BY id
-
-            `, [
-                subject_id,
-                class_id,
-                academic_year_id,
-                term_id,
-                teacher_id
-            ]);
+            }
 
 
-            // ---------------------------------------------
-            // GET MARKS
-            // ---------------------------------------------
+            // -------------------------------------------------
+            // LEARNERS
+            // -------------------------------------------------
 
-            const marks = await db.query(`
+            const learners =
+                await db.query(
+                    `
+                    SELECT
+                        id,
+                        full_name,
+                        gender
 
-                SELECT *
+                    FROM learners
 
-                FROM marks
+                    WHERE class_id = $1
+                      AND academic_year_id = $2
+                      AND teacher_id = $3
 
-                WHERE class_id = $1
-                AND subject_id = $2
-                AND academic_year_id = $3
-                AND term_id = $4
-                AND teacher_id = $5
+                    ORDER BY full_name
+                    `,
+                    [
+                        Number(class_id),
+                        Number(academic_year_id),
+                        teacher_id
+                    ]
+                );
 
-            `, [
-                class_id,
-                subject_id,
-                academic_year_id,
-                term_id,
-                teacher_id
-            ]);
+
+            // -------------------------------------------------
+            // TESTS
+            // -------------------------------------------------
+
+            const tests =
+                await db.query(
+                    `
+                    SELECT
+                        id,
+                        test_name,
+                        max_score,
+                        is_exam
+
+                    FROM subject_tests
+
+                    WHERE subject_id = $1
+                      AND class_id = $2
+                      AND academic_year_id = $3
+                      AND term_id = $4
+                      AND teacher_id = $5
+
+                    ORDER BY
+                        is_exam ASC,
+                        id ASC
+                    `,
+                    [
+                        Number(subject_id),
+                        Number(class_id),
+                        Number(academic_year_id),
+                        Number(term_id),
+                        teacher_id
+                    ]
+                );
+
+
+            // -------------------------------------------------
+            // MARKS
+            // -------------------------------------------------
+
+            const marks =
+                await db.query(
+                    `
+                    SELECT
+                        id,
+                        learner_id,
+                        test_id,
+                        score,
+                        max_score
+
+                    FROM marks
+
+                    WHERE class_id = $1
+                      AND subject_id = $2
+                      AND academic_year_id = $3
+                      AND term_id = $4
+                      AND teacher_id = $5
+                    `,
+                    [
+                        Number(class_id),
+                        Number(subject_id),
+                        Number(academic_year_id),
+                        Number(term_id),
+                        teacher_id
+                    ]
+                );
 
 
             const marksMap = {};
 
 
-            marks.rows.forEach(m => {
+            marks.rows.forEach(mark => {
 
                 marksMap[
-                    `${m.learner_id}_${m.test_id}`
-                ] = m;
+                    `${mark.learner_id}_${mark.test_id}`
+                ] = mark;
 
             });
 
 
             const finalData =
+                learners.rows.map(
+                    learner => {
 
-                learners.rows.map(learner => {
+                        const learnerMarks =
+                            tests.rows.map(
+                                test => {
 
-                    const learnerMarks =
-
-                        tests.rows.map(test => {
-
-                            const found =
-
-                                marksMap[
-                                    `${learner.id}_${test.id}`
-                                ];
-
-
-                            return {
-
-                                test_id: test.id,
-
-                                assessment_type:
-                                    test.test_name,
-
-                                score:
-                                    found
-                                        ? found.score
-                                        : "",
-
-                                max_score:
-                                    test.max_score,
-
-                                is_exam:
-                                    test.is_exam
-
-                            };
-
-                        });
+                                    const found =
+                                        marksMap[
+                                            `${learner.id}_${test.id}`
+                                        ];
 
 
-                    return {
+                                    return {
 
-                        id: learner.id,
+                                        test_id:
+                                            test.id,
 
-                        full_name:
-                            learner.full_name,
+                                        assessment_type:
+                                            test.test_name,
 
-                        marks:
-                            learnerMarks
+                                        score:
+                                            found
+                                                ? found.score
+                                                : "",
 
-                    };
+                                        max_score:
+                                            test.max_score,
 
-                });
+                                        is_exam:
+                                            test.is_exam
+
+                                    };
+
+                                }
+                            );
 
 
-            return {
+                        return {
 
-                statusCode: 200,
+                            id:
+                                learner.id,
 
-                body:
-                    JSON.stringify(finalData)
+                            full_name:
+                                learner.full_name,
 
-            };
+                            marks:
+                                learnerMarks
+
+                        };
+
+                    }
+                );
+
+
+            return response(
+                200,
+                finalData
+            );
 
         }
 
@@ -495,57 +942,50 @@ export const handler = async (event) => {
                 class_id,
                 academic_year_id,
                 term_id
-            } = event.queryStringParameters;
+            } =
+                event.queryStringParameters;
 
 
-            const result = await db.query(`
+            const result =
+                await db.query(
+                    `
+                    SELECT *
 
-                SELECT *
+                    FROM grading_settings
 
-                FROM grading_settings
-
-                WHERE subject_id = $1
-                AND class_id = $2
-                AND academic_year_id = $3
-                AND term_id = $4
-                AND teacher_id = $5
-
-            `, [
-                subject_id,
-                class_id,
-                academic_year_id,
-                term_id,
-                teacher_id
-            ]);
+                    WHERE subject_id = $1
+                      AND class_id = $2
+                      AND academic_year_id = $3
+                      AND term_id = $4
+                      AND teacher_id = $5
+                    `,
+                    [
+                        Number(subject_id),
+                        Number(class_id),
+                        Number(academic_year_id),
+                        Number(term_id),
+                        teacher_id
+                    ]
+                );
 
 
             if (result.rows.length) {
 
-                return {
-
-                    statusCode: 200,
-
-                    body:
-                        JSON.stringify(result.rows[0])
-
-                };
+                return response(
+                    200,
+                    result.rows[0]
+                );
 
             }
 
 
-            return {
-
-                statusCode: 200,
-
-                body: JSON.stringify({
-
+            return response(
+                200,
+                {
                     overall_test_max: 100,
-
                     overall_exam_max: 100
-
-                })
-
-            };
+                }
+            );
 
         }
 
@@ -557,7 +997,9 @@ export const handler = async (event) => {
         if (action === "saveGradingSettings") {
 
             const body =
-                JSON.parse(event.body || "{}");
+                JSON.parse(
+                    event.body || "{}"
+                );
 
 
             const {
@@ -570,31 +1012,33 @@ export const handler = async (event) => {
             } = body;
 
 
-            const existing = await db.query(`
+            const existing =
+                await db.query(
+                    `
+                    SELECT id
 
-                SELECT id
+                    FROM grading_settings
 
-                FROM grading_settings
-
-                WHERE subject_id = $1
-                AND class_id = $2
-                AND academic_year_id = $3
-                AND term_id = $4
-                AND teacher_id = $5
-
-            `, [
-                subject_id,
-                class_id,
-                academic_year_id,
-                term_id,
-                teacher_id
-            ]);
+                    WHERE subject_id = $1
+                      AND class_id = $2
+                      AND academic_year_id = $3
+                      AND term_id = $4
+                      AND teacher_id = $5
+                    `,
+                    [
+                        Number(subject_id),
+                        Number(class_id),
+                        Number(academic_year_id),
+                        Number(term_id),
+                        teacher_id
+                    ]
+                );
 
 
             if (existing.rows.length) {
 
-                await db.query(`
-
+                await db.query(
+                    `
                     UPDATE grading_settings
 
                     SET
@@ -602,21 +1046,21 @@ export const handler = async (event) => {
                         overall_exam_max = $2
 
                     WHERE id = $3
-                    AND teacher_id = $4
-
-                `, [
-                    overall_test_max,
-                    overall_exam_max,
-                    existing.rows[0].id,
-                    teacher_id
-                ]);
+                      AND teacher_id = $4
+                    `,
+                    [
+                        Number(overall_test_max),
+                        Number(overall_exam_max),
+                        existing.rows[0].id,
+                        teacher_id
+                    ]
+                );
 
             } else {
 
-                await db.query(`
-
-                    INSERT INTO grading_settings(
-
+                await db.query(
+                    `
+                    INSERT INTO grading_settings (
                         teacher_id,
                         subject_id,
                         class_id,
@@ -624,37 +1068,34 @@ export const handler = async (event) => {
                         term_id,
                         overall_test_max,
                         overall_exam_max
-
                     )
 
-                    VALUES(
+                    VALUES (
                         $1,$2,$3,$4,$5,$6,$7
                     )
-
-                `, [
-                    teacher_id,
-                    subject_id,
-                    class_id,
-                    academic_year_id,
-                    term_id,
-                    overall_test_max,
-                    overall_exam_max
-                ]);
+                    `,
+                    [
+                        teacher_id,
+                        Number(subject_id),
+                        Number(class_id),
+                        Number(academic_year_id),
+                        Number(term_id),
+                        Number(overall_test_max),
+                        Number(overall_exam_max)
+                    ]
+                );
 
             }
 
 
-            return {
-
-                statusCode: 200,
-
-                body: JSON.stringify({
-
-                    message: "Saved"
-
-                })
-
-            };
+            return response(
+                200,
+                {
+                    success: true,
+                    message:
+                        "Grading settings saved"
+                }
+            );
 
         }
 
@@ -666,7 +1107,9 @@ export const handler = async (event) => {
         if (action === "saveMark") {
 
             const body =
-                JSON.parse(event.body || "{}");
+                JSON.parse(
+                    event.body || "{}"
+                );
 
 
             const {
@@ -681,104 +1124,208 @@ export const handler = async (event) => {
             } = body;
 
 
-            // IMPORTANT:
-            // We do NOT trust teacher_id from the frontend.
-            // We use teacher_id obtained above.
+            const numericScore =
+                Number(score);
 
 
-            // Make sure learner belongs to this teacher
-            const learnerCheck = await db.query(`
+            const numericMax =
+                Number(max_score);
 
-                SELECT id
 
-                FROM learners
+            if (
+                !learner_id ||
+                !subject_id ||
+                !class_id ||
+                !academic_year_id ||
+                !term_id ||
+                !test_id
+            ) {
 
-                WHERE id = $1
-                AND teacher_id = $2
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Incomplete mark information"
+                    }
+                );
 
-            `, [
-                learner_id,
-                teacher_id
-            ]);
+            }
+
+
+            if (
+                !Number.isFinite(numericScore) ||
+                numericScore < 0 ||
+                numericScore > numericMax
+            ) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            `Score must be between 0 and ${numericMax}`
+                    }
+                );
+
+            }
+
+
+            // -------------------------------------------------
+            // VERIFY TEACHING ASSIGNMENT
+            // -------------------------------------------------
+
+            const allowed =
+                await verifyTeachingAssignment(
+                    class_id,
+                    subject_id,
+                    academic_year_id
+                );
+
+
+            if (!allowed) {
+
+                return response(
+                    403,
+                    {
+                        success: false,
+                        message:
+                            "This subject is not assigned to this class"
+                    }
+                );
+
+            }
+
+
+            // -------------------------------------------------
+            // VERIFY LEARNER
+            // -------------------------------------------------
+
+            const learnerCheck =
+                await db.query(
+                    `
+                    SELECT id
+
+                    FROM learners
+
+                    WHERE id = $1
+                      AND teacher_id = $2
+                      AND class_id = $3
+                      AND academic_year_id = $4
+                    `,
+                    [
+                        Number(learner_id),
+                        teacher_id,
+                        Number(class_id),
+                        Number(academic_year_id)
+                    ]
+                );
 
 
             if (!learnerCheck.rows.length) {
 
-                return {
-
-                    statusCode: 403,
-
-                    body: JSON.stringify({
-
+                return response(
+                    403,
+                    {
                         success: false,
-
                         message:
                             "You do not have access to this learner"
-
-                    })
-
-                };
+                    }
+                );
 
             }
 
 
-            // Make sure test belongs to this teacher
-            const testCheck = await db.query(`
+            // -------------------------------------------------
+            // VERIFY TEST
+            // -------------------------------------------------
 
-                SELECT id
+            const testCheck =
+                await db.query(
+                    `
+                    SELECT id, max_score
 
-                FROM subject_tests
+                    FROM subject_tests
 
-                WHERE id = $1
-                AND teacher_id = $2
-
-            `, [
-                test_id,
-                teacher_id
-            ]);
+                    WHERE id = $1
+                      AND teacher_id = $2
+                      AND subject_id = $3
+                      AND class_id = $4
+                      AND academic_year_id = $5
+                      AND term_id = $6
+                    `,
+                    [
+                        Number(test_id),
+                        teacher_id,
+                        Number(subject_id),
+                        Number(class_id),
+                        Number(academic_year_id),
+                        Number(term_id)
+                    ]
+                );
 
 
             if (!testCheck.rows.length) {
 
-                return {
-
-                    statusCode: 403,
-
-                    body: JSON.stringify({
-
+                return response(
+                    403,
+                    {
                         success: false,
-
                         message:
                             "You do not have access to this test"
-
-                    })
-
-                };
+                    }
+                );
 
             }
 
 
-            const existing = await db.query(`
+            const actualMax =
+                Number(
+                    testCheck.rows[0].max_score
+                );
 
-                SELECT id
 
-                FROM marks
+            if (
+                numericScore > actualMax
+            ) {
 
-                WHERE learner_id = $1
-                AND test_id = $2
-                AND teacher_id = $3
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            `Score cannot exceed ${actualMax}`
+                    }
+                );
 
-            `, [
-                learner_id,
-                test_id,
-                teacher_id
-            ]);
+            }
+
+
+            // -------------------------------------------------
+            // UPSERT MARK
+            // -------------------------------------------------
+
+            const existing =
+                await db.query(
+                    `
+                    SELECT id
+
+                    FROM marks
+
+                    WHERE learner_id = $1
+                      AND test_id = $2
+                    `,
+                    [
+                        Number(learner_id),
+                        Number(test_id)
+                    ]
+                );
 
 
             if (existing.rows.length) {
 
-                await db.query(`
-
+                await db.query(
+                    `
                     UPDATE marks
 
                     SET
@@ -786,21 +1333,21 @@ export const handler = async (event) => {
                         max_score = $2
 
                     WHERE id = $3
-                    AND teacher_id = $4
-
-                `, [
-                    score,
-                    max_score,
-                    existing.rows[0].id,
-                    teacher_id
-                ]);
+                      AND teacher_id = $4
+                    `,
+                    [
+                        numericScore,
+                        actualMax,
+                        existing.rows[0].id,
+                        teacher_id
+                    ]
+                );
 
             } else {
 
-                await db.query(`
-
-                    INSERT INTO marks(
-
+                await db.query(
+                    `
+                    INSERT INTO marks (
                         teacher_id,
                         learner_id,
                         subject_id,
@@ -810,39 +1357,36 @@ export const handler = async (event) => {
                         test_id,
                         score,
                         max_score
-
                     )
 
-                    VALUES(
+                    VALUES (
                         $1,$2,$3,$4,$5,$6,$7,$8,$9
                     )
-
-                `, [
-                    teacher_id,
-                    learner_id,
-                    subject_id,
-                    class_id,
-                    academic_year_id,
-                    term_id,
-                    test_id,
-                    score,
-                    max_score
-                ]);
+                    `,
+                    [
+                        teacher_id,
+                        Number(learner_id),
+                        Number(subject_id),
+                        Number(class_id),
+                        Number(academic_year_id),
+                        Number(term_id),
+                        Number(test_id),
+                        numericScore,
+                        actualMax
+                    ]
+                );
 
             }
 
 
-            return {
-
-                statusCode: 200,
-
-                body: JSON.stringify({
-
-                    message: "saved"
-
-                })
-
-            };
+            return response(
+                200,
+                {
+                    success: true,
+                    message:
+                        "Mark saved"
+                }
+            );
 
         }
 
@@ -851,36 +1395,66 @@ export const handler = async (event) => {
         // INVALID ACTION
         // =====================================================
 
-        return {
+        return response(
+            400,
+            {
+                success: false,
+                message:
+                    "Invalid action"
+            }
+        );
 
-            statusCode: 400,
-
-            body: JSON.stringify({
-
-                message: "Invalid action"
-
-            })
-
-        };
 
     }
 
     catch (error) {
 
-        console.log(error);
+        console.error(
+            "School Marks Error:",
+            error
+        );
 
-        return {
 
-            statusCode: 500,
-
-            body: JSON.stringify({
-
-                error: error.message
-
-            })
-
-        };
+        return response(
+            500,
+            {
+                success: false,
+                error:
+                    error.message
+            }
+        );
 
     }
 
 };
+
+
+// ============================================================
+// RESPONSE HELPER
+// ============================================================
+
+function response(
+    statusCode,
+    body
+) {
+
+    return {
+
+        statusCode,
+
+        headers: {
+
+            "Content-Type":
+                "application/json",
+
+            "Cache-Control":
+                "no-store"
+
+        },
+
+        body:
+            JSON.stringify(body)
+
+    };
+
+}
