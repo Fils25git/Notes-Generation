@@ -1,6 +1,12 @@
 
 /* ============================================================
    FILA ASSISTANT - MARKS SYSTEM
+   Corrected multi-user version
+   ============================================================ */
+
+
+/* ============================================================
+   TEACHER
    ============================================================ */
 
 const teacherId = Number(localStorage.getItem("userId"));
@@ -14,10 +20,13 @@ if (!teacherId) {
    STATE
    ============================================================ */
 
-let selectedYear = null;
+let selectedYear = Number(localStorage.getItem("selectedYear")) || null;
 let selectedTerm = Number(localStorage.getItem("selectedTerm")) || null;
 let selectedClass = Number(localStorage.getItem("selectedClass")) || null;
 let selectedSubject = Number(localStorage.getItem("selectedSubject")) || null;
+
+let selectedYearName =
+    localStorage.getItem("selectedYearName") || "";
 
 let currentClasses = [];
 let currentSubjects = [];
@@ -50,30 +59,54 @@ const saveStatus = document.getElementById("saveStatus");
 
 const manageTestsBtn = document.getElementById("manageTestsBtn");
 
-const manageTestsModal = document.getElementById("manageTestsModal");
-const testEditorModal = document.getElementById("testEditorModal");
+const manageTestsModal =
+    document.getElementById("manageTestsModal");
 
-const testsLoading = document.getElementById("testsLoading");
-const testsEmpty = document.getElementById("testsEmpty");
-const testsTable = document.getElementById("testsTable");
-const testsBody = document.getElementById("testsBody");
+const testEditorModal =
+    document.getElementById("testEditorModal");
 
-const testForm = document.getElementById("testForm");
-const testName = document.getElementById("testName");
-const testMaxScore = document.getElementById("testMaxScore");
-const testIsExam = document.getElementById("testIsExam");
+const testsLoading =
+    document.getElementById("testsLoading");
 
-const testEditorTitle = document.getElementById("testEditorTitle");
-const testEditorSubtitle = document.getElementById("testEditorSubtitle");
-const saveTestBtn = document.getElementById("saveTestBtn");
-const saveTestBtnText = document.getElementById("saveTestBtnText");
+const testsEmpty =
+    document.getElementById("testsEmpty");
+
+const testsTable =
+    document.getElementById("testsTable");
+
+const testsBody =
+    document.getElementById("testsBody");
+
+const testForm =
+    document.getElementById("testForm");
+
+const testName =
+    document.getElementById("testName");
+
+const testMaxScore =
+    document.getElementById("testMaxScore");
+
+const testIsExam =
+    document.getElementById("testIsExam");
+
+const testEditorTitle =
+    document.getElementById("testEditorTitle");
+
+const testEditorSubtitle =
+    document.getElementById("testEditorSubtitle");
+
+const saveTestBtn =
+    document.getElementById("saveTestBtn");
+
+const saveTestBtnText =
+    document.getElementById("saveTestBtnText");
 
 
 /* ============================================================
-   API
+   SCHOOL API
    ============================================================ */
 
-async function school(action, body = {}, method = "GET") {
+async function school(action, params = {}, method = "GET") {
 
     let url =
         `/.netlify/functions/school?action=${encodeURIComponent(action)}` +
@@ -86,59 +119,119 @@ async function school(action, body = {}, method = "GET") {
         }
     };
 
-    if (method !== "GET") {
+
+    /* ---------------------------------------------
+       GET
+       Put all parameters in the URL.
+    --------------------------------------------- */
+
+    if (method === "GET") {
+
+        Object.entries(params).forEach(([key, value]) => {
+
+            if (
+                value !== undefined &&
+                value !== null &&
+                value !== ""
+            ) {
+                url +=
+                    `&${encodeURIComponent(key)}=` +
+                    `${encodeURIComponent(value)}`;
+            }
+        });
+    }
+
+
+    /* ---------------------------------------------
+       POST
+    --------------------------------------------- */
+
+    else {
+
         options.body = JSON.stringify({
-            ...body,
+            ...params,
             teacher_id: teacherId
         });
     }
 
-    const response = await fetch(url, options);
+
+    const response =
+        await fetch(url, options);
 
     let data = {};
 
     try {
+
         data = await response.json();
+
     } catch {
-        throw new Error("The server returned an invalid response.");
+
+        throw new Error(
+            "The server returned an invalid response."
+        );
     }
 
-    if (!response.ok || data.success === false) {
+
+    if (
+        !response.ok ||
+        data.success === false
+    ) {
+
         throw new Error(
             data.message ||
             `Request failed (${response.status}).`
         );
     }
 
+
     return data;
 }
 
 
+/* ============================================================
+   ACADEMIC API
+   ============================================================ */
+
 async function academic(action, params = {}) {
 
-    const query = new URLSearchParams({
-        action,
-        ...params
-    });
+    const query =
+        new URLSearchParams({
+            action,
+            ...params
+        });
 
-    const response = await fetch(
-        `/.netlify/functions/academic?${query.toString()}`
-    );
+
+    const response =
+        await fetch(
+            `/.netlify/functions/academic?${query.toString()}`
+        );
+
 
     let data = {};
 
     try {
+
         data = await response.json();
+
     } catch {
-        throw new Error("The academic system returned an invalid response.");
+
+        throw new Error(
+            "The academic system returned an invalid response."
+        );
     }
 
-    if (!response.ok || data.success === false) {
+
+    if (
+        !response.ok ||
+        data.success === false
+    ) {
+
         throw new Error(
             data.message ||
             `Academic request failed (${response.status}).`
         );
     }
+
 
     return data;
 }
@@ -150,17 +243,25 @@ async function academic(action, params = {}) {
 
 function showToast(message, type = "success") {
 
-    const container = document.getElementById("toastContainer");
+    const container =
+        document.getElementById("toastContainer");
 
-    const toast = document.createElement("div");
+    const toast =
+        document.createElement("div");
 
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
+    toast.className =
+        `toast ${type}`;
+
+    toast.textContent =
+        message;
 
     container.appendChild(toast);
 
+
     setTimeout(() => {
+
         toast.remove();
+
     }, 3500);
 }
 
@@ -182,26 +283,46 @@ function escapeHtml(value) {
 
 function formatDate(dateValue) {
 
-    if (!dateValue) return "—";
-
-    const date = new Date(dateValue);
-
-    if (Number.isNaN(date.getTime())) {
+    if (!dateValue) {
         return "—";
     }
 
-    return date.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-    });
+
+    const date =
+        new Date(dateValue);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "—";
+    }
+
+
+    return date.toLocaleDateString(
+        "en-GB",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
 }
 
 
-function setSaveStatus(message = "", type = "") {
+function setSaveStatus(
+    message = "",
+    type = ""
+) {
 
-    saveStatus.textContent = message;
-    saveStatus.className = "save-status";
+    saveStatus.textContent =
+        message;
+
+    saveStatus.className =
+        "save-status";
+
 
     if (type) {
         saveStatus.classList.add(type);
@@ -212,7 +333,9 @@ function setSaveStatus(message = "", type = "") {
 function getSelectedClassObject() {
 
     return currentClasses.find(
-        item => Number(item.id) === Number(selectedClass)
+        item =>
+            Number(item.id) ===
+            Number(selectedClass)
     );
 }
 
@@ -220,7 +343,9 @@ function getSelectedClassObject() {
 function getSelectedSubjectObject() {
 
     return currentSubjects.find(
-        item => Number(item.id) === Number(selectedSubject)
+        item =>
+            Number(item.id) ===
+            Number(selectedSubject)
     );
 }
 
@@ -228,7 +353,9 @@ function getSelectedSubjectObject() {
 function getSelectedTermObject() {
 
     return currentTerms.find(
-        item => Number(item.id) === Number(selectedTerm)
+        item =>
+            Number(item.id) ===
+            Number(selectedTerm)
     );
 }
 
@@ -241,34 +368,118 @@ async function loadAcademicContext() {
 
     try {
 
-        const data = await academic("getCurrent");
+        const data =
+            await academic(
+                "getCurrent"
+            );
 
-        if (!data.year || !data.term) {
-            throw new Error("No active academic year and term were found.");
+
+        if (
+            !data.year ||
+            !data.term
+        ) {
+
+            throw new Error(
+                "No active academic year and term were found."
+            );
         }
 
-        selectedYear = Number(data.year.id);
 
-        if (!selectedTerm) {
-            selectedTerm = Number(data.term.id);
-            localStorage.setItem("selectedTerm", selectedTerm);
+        /* ---------------------------------------------
+           Always use the current academic year returned
+           by the academic system when the saved year
+           does not exist.
+        --------------------------------------------- */
+
+        const currentYearId =
+            Number(data.year.id);
+
+
+        if (
+            !selectedYear ||
+            selectedYear !== currentYearId
+        ) {
+
+            /*
+             * We keep a saved year only if it has been
+             * deliberately selected by the teacher.
+             *
+             * For initial page loading, current year
+             * becomes the default.
+             */
+
+            const savedYear =
+                Number(
+                    localStorage.getItem(
+                        "selectedYear"
+                    )
+                );
+
+
+            if (!savedYear) {
+
+                selectedYear =
+                    currentYearId;
+            }
+
         }
+
+
+        selectedYear =
+            selectedYear || currentYearId;
+
+
+        selectedYearName =
+            data.year.year_name ||
+            data.year.name ||
+            "";
+
 
         localStorage.setItem(
             "selectedYear",
             selectedYear
         );
 
+
+        localStorage.setItem(
+            "selectedYearName",
+            selectedYearName
+        );
+
+
+        /*
+         * Only use the current term when there is
+         * no saved term.
+         */
+
+        if (!selectedTerm) {
+
+            selectedTerm =
+                Number(data.term.id);
+
+            localStorage.setItem(
+                "selectedTerm",
+                selectedTerm
+            );
+        }
+
+
         return true;
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Academic context error:",
+            error
+        );
+
 
         showToast(
-            error.message || "Could not load academic context.",
+            error.message ||
+            "Could not load academic context.",
             "error"
         );
+
 
         return false;
     }
@@ -286,75 +497,169 @@ async function loadTerms() {
     termSelect.innerHTML =
         `<option value="">Loading terms...</option>`;
 
+
     try {
 
-        const data = await academic(
-            "getTerms",
-            {
-                academic_year_id: selectedYear
-            }
-        );
+        if (!selectedYear) {
+
+            throw new Error(
+                "No academic year selected."
+            );
+        }
+
+
+        const data =
+            await academic(
+                "getTerms",
+                {
+                    academic_year_id:
+                        selectedYear
+                }
+            );
+
 
         /*
          * academic.js returns:
          *
          * {
-         *   success: true,
-         *   terms: [...]
+         *     success: true,
+         *     terms: [...]
          * }
          */
 
-        currentTerms = Array.isArray(data.terms)
-            ? data.terms
-            : [];
+        let terms =
+            Array.isArray(data.terms)
+                ? data.terms
+                : [];
+
+
+        /*
+         * Remove accidental duplicate term records
+         * from the frontend.
+         *
+         * The database should still contain only the
+         * correct three terms for each academic year.
+         */
+
+        const uniqueTerms =
+            new Map();
+
+
+        terms.forEach(term => {
+
+            const key =
+                Number(term.term_number);
+
+
+            if (!uniqueTerms.has(key)) {
+
+                uniqueTerms.set(
+                    key,
+                    term
+                );
+            }
+        });
+
+
+        currentTerms =
+            Array.from(
+                uniqueTerms.values()
+            )
+            .sort(
+                (a, b) =>
+                    Number(a.term_number) -
+                    Number(b.term_number)
+            );
+
 
         termSelect.innerHTML =
             `<option value="">Select term</option>`;
 
+
         currentTerms.forEach(term => {
 
-            const option = document.createElement("option");
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-            option.value = term.id;
-            option.textContent = term.term_name;
 
-            termSelect.appendChild(option);
+            option.value =
+                term.id;
+
+
+            option.textContent =
+                term.term_name;
+
+
+            termSelect.appendChild(
+                option
+            );
         });
 
 
         /*
-         * Try to keep previously selected term.
-         * Otherwise select the current term.
+         * Try saved term first.
          */
 
-        let termToUse = currentTerms.find(
-            term =>
-                Number(term.id) === Number(selectedTerm)
-        );
+        let termToUse =
+            currentTerms.find(
+                term =>
+                    Number(term.id) ===
+                    Number(selectedTerm)
+            );
+
+
+        /*
+         * If saved term does not belong to the
+         * selected academic year, use the current term.
+         */
 
         if (!termToUse) {
 
-            const currentTerm = currentTerms.find(
-                term => term.is_current === true
-            );
-
-            termToUse = currentTerm || currentTerms[0];
+            termToUse =
+                currentTerms.find(
+                    term =>
+                        term.is_current === true
+                );
         }
+
+
+        /*
+         * Final fallback: first term.
+         */
+
+        if (!termToUse) {
+
+            termToUse =
+                currentTerms[0];
+        }
+
 
         if (termToUse) {
 
-            selectedTerm = Number(termToUse.id);
+            selectedTerm =
+                Number(termToUse.id);
 
-            termSelect.value = selectedTerm;
+
+            termSelect.value =
+                selectedTerm;
+
 
             localStorage.setItem(
                 "selectedTerm",
                 selectedTerm
             );
 
-            termSelect.disabled = false;
+
+            termSelect.disabled =
+                false;
 
         } else {
+
+            selectedTerm =
+                null;
+
 
             termSelect.innerHTML =
                 `<option value="">No terms found</option>`;
@@ -362,13 +667,23 @@ async function loadTerms() {
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Terms error:",
+            error
+        );
+
+
+        selectedTerm =
+            null;
+
 
         termSelect.innerHTML =
             `<option value="">Unable to load terms</option>`;
 
+
         showToast(
-            error.message || "Could not load terms.",
+            error.message ||
+            "Could not load terms.",
             "error"
         );
     }
@@ -386,92 +701,186 @@ async function loadClasses() {
     classSelect.innerHTML =
         `<option value="">Loading classes...</option>`;
 
+
     subjectSelect.disabled = true;
 
     subjectSelect.innerHTML =
         `<option value="">Select a class first</option>`;
 
+
     try {
 
-        const data = await school(
-            "getClasses",
-            {
-                academic_year_id: selectedYear
-            }
-        );
+        if (!selectedYear) {
 
-        currentClasses = Array.isArray(data.classes)
-            ? data.classes
-            : Array.isArray(data)
-                ? data
-                : [];
+            throw new Error(
+                "No academic year selected."
+            );
+        }
+
+
+        const data =
+            await school(
+                "getClasses",
+                {
+                    academic_year_id:
+                        selectedYear
+                }
+            );
+
+
+        currentClasses =
+            Array.isArray(data.classes)
+                ? data.classes
+                : Array.isArray(data)
+                    ? data
+                    : [];
+
 
         classSelect.innerHTML =
             `<option value="">Select class</option>`;
 
+
         currentClasses.forEach(item => {
 
-            const option = document.createElement("option");
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-            option.value = item.id;
-            option.textContent = item.class_name;
 
-            classSelect.appendChild(option);
+            option.value =
+                item.id;
+
+
+            option.textContent =
+                item.class_name;
+
+
+            classSelect.appendChild(
+                option
+            );
         });
 
 
+        /*
+         * No teaching classes.
+         */
+
         if (!currentClasses.length) {
+
+            selectedClass =
+                null;
+
+            selectedSubject =
+                null;
+
+
+            localStorage.removeItem(
+                "selectedClass"
+            );
+
+            localStorage.removeItem(
+                "selectedSubject"
+            );
+
 
             classSelect.innerHTML =
                 `<option value="">No teaching classes found</option>`;
 
-            selectedClass = null;
-            selectedSubject = null;
 
-            manageTestsBtn.disabled = true;
+            manageTestsBtn.disabled =
+                true;
+
 
             showMarksEmpty(
                 "No teaching classes found",
-                "Create a class and assign a subject to it before recording marks."
+                "Create a class and assign a subject to it for this academic year."
             );
+
 
             return;
         }
 
 
-        let classToUse = currentClasses.find(
-            item =>
-                Number(item.id) === Number(selectedClass)
-        );
+        /*
+         * Restore previously selected class if it
+         * exists in this academic year.
+         */
+
+        let classToUse =
+            currentClasses.find(
+                item =>
+                    Number(item.id) ===
+                    Number(selectedClass)
+            );
+
+
+        /*
+         * Otherwise use the first teaching class.
+         */
 
         if (!classToUse) {
-            classToUse = currentClasses[0];
+
+            classToUse =
+                currentClasses[0];
         }
 
-        selectedClass = Number(classToUse.id);
 
-        classSelect.value = selectedClass;
+        selectedClass =
+            Number(classToUse.id);
+
+
+        classSelect.value =
+            selectedClass;
+
 
         localStorage.setItem(
             "selectedClass",
             selectedClass
         );
 
-        classSelect.disabled = false;
+
+        classSelect.disabled =
+            false;
+
 
         await loadSubjects();
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Classes error:",
+            error
+        );
+
+
+        currentClasses =
+            [];
+
+
+        selectedClass =
+            null;
+
+
+        selectedSubject =
+            null;
+
 
         classSelect.innerHTML =
             `<option value="">Unable to load classes</option>`;
 
-        manageTestsBtn.disabled = true;
+
+        subjectSelect.innerHTML =
+            `<option value="">Select a class first</option>`;
+
+
+        manageTestsBtn.disabled =
+            true;
+
 
         showToast(
-            error.message || "Could not load teaching classes.",
+            error.message ||
+            "Could not load teaching classes.",
             "error"
         );
     }
@@ -484,30 +893,68 @@ async function loadClasses() {
 
 async function loadSubjects() {
 
-    subjectSelect.disabled = true;
+    subjectSelect.disabled =
+        true;
+
 
     subjectSelect.innerHTML =
         `<option value="">Loading subjects...</option>`;
 
-    selectedSubject = null;
 
-    localStorage.removeItem("selectedSubject");
+    manageTestsBtn.disabled =
+        true;
+
+
+    if (!selectedClass) {
+
+        subjectSelect.innerHTML =
+            `<option value="">Select a class first</option>`;
+
+
+        return;
+    }
+
+
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT remove selectedSubject from localStorage
+     * before reading it.
+     *
+     * The old version did exactly that, which meant
+     * the saved subject could never be restored.
+     */
+
+    const savedSubjectId =
+        Number(
+            localStorage.getItem(
+                "selectedSubject"
+            )
+        ) || null;
+
 
     try {
 
-        const data = await school(
-            "getSubjectsForClass",
-            {
-                class_id: selectedClass,
-                academic_year_id: selectedYear
-            }
-        );
+        const data =
+            await school(
+                "getSubjectsForClass",
+                {
+                    class_id:
+                        selectedClass,
 
-        currentSubjects = Array.isArray(data.subjects)
-            ? data.subjects
-            : Array.isArray(data)
-                ? data
-                : [];
+                    academic_year_id:
+                        selectedYear
+                }
+            );
+
+
+        currentSubjects =
+            Array.isArray(data.subjects)
+                ? data.subjects
+                : Array.isArray(data)
+                    ? data
+                    : [];
+
 
         subjectSelect.innerHTML =
             `<option value="">Select subject</option>`;
@@ -515,15 +962,24 @@ async function loadSubjects() {
 
         if (!currentSubjects.length) {
 
+            selectedSubject =
+                null;
+
+
+            localStorage.removeItem(
+                "selectedSubject"
+            );
+
+
             subjectSelect.innerHTML =
                 `<option value="">No subjects assigned</option>`;
 
-            manageTestsBtn.disabled = true;
 
             showMarksEmpty(
                 "No subject assigned",
                 "This class does not have a subject assigned to you for this academic year."
             );
+
 
             return;
         }
@@ -531,54 +987,106 @@ async function loadSubjects() {
 
         currentSubjects.forEach(subject => {
 
-            const option = document.createElement("option");
+            const option =
+                document.createElement(
+                    "option"
+                );
 
-            option.value = subject.id;
-            option.textContent = subject.subject_name;
 
-            subjectSelect.appendChild(option);
+            option.value =
+                subject.id;
+
+
+            option.textContent =
+                subject.subject_name;
+
+
+            subjectSelect.appendChild(
+                option
+            );
         });
 
 
-        const savedSubjectId = Number(
-            localStorage.getItem("selectedSubject")
-        );
+        /*
+         * Restore saved subject only if it actually
+         * belongs to this class.
+         */
 
-        let subjectToUse = currentSubjects.find(
-            subject =>
-                Number(subject.id) === savedSubjectId
-        );
+        let subjectToUse =
+            currentSubjects.find(
+                subject =>
+                    Number(subject.id) ===
+                    savedSubjectId
+            );
+
+
+        /*
+         * Otherwise use first assigned subject.
+         */
 
         if (!subjectToUse) {
-            subjectToUse = currentSubjects[0];
+
+            subjectToUse =
+                currentSubjects[0];
         }
 
-        selectedSubject = Number(subjectToUse.id);
 
-        subjectSelect.value = selectedSubject;
+        selectedSubject =
+            Number(subjectToUse.id);
+
+
+        subjectSelect.value =
+            selectedSubject;
+
 
         localStorage.setItem(
             "selectedSubject",
             selectedSubject
         );
 
-        subjectSelect.disabled = false;
 
-        manageTestsBtn.disabled = false;
+        subjectSelect.disabled =
+            false;
+
+
+        manageTestsBtn.disabled =
+            false;
+
 
         await loadMarks();
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Subjects error:",
+            error
+        );
+
+
+        currentSubjects =
+            [];
+
+
+        selectedSubject =
+            null;
+
+
+        localStorage.removeItem(
+            "selectedSubject"
+        );
+
 
         subjectSelect.innerHTML =
             `<option value="">Unable to load subjects</option>`;
 
-        manageTestsBtn.disabled = true;
+
+        manageTestsBtn.disabled =
+            true;
+
 
         showToast(
-            error.message || "Could not load subjects.",
+            error.message ||
+            "Could not load subjects.",
             "error"
         );
     }
@@ -589,17 +1097,33 @@ async function loadSubjects() {
    SHOW EMPTY
    ============================================================ */
 
-function showMarksEmpty(title, message) {
+function showMarksEmpty(
+    title,
+    message
+) {
 
-    marksLoading.style.display = "none";
-    marksTable.style.display = "none";
+    marksLoading.style.display =
+        "none";
 
-    marksEmpty.style.display = "block";
+
+    marksTable.style.display =
+        "none";
+
+
+    marksEmpty.style.display =
+        "block";
+
 
     marksEmpty.innerHTML = `
         <i class="fa-solid fa-clipboard-list"></i>
-        <h3>${escapeHtml(title)}</h3>
-        <p>${escapeHtml(message)}</p>
+
+        <h3>
+            ${escapeHtml(title)}
+        </h3>
+
+        <p>
+            ${escapeHtml(message)}
+        </p>
     `;
 }
 
@@ -622,54 +1146,91 @@ async function loadMarks() {
             "Please select a class, subject and term first."
         );
 
-        manageTestsBtn.disabled = true;
+
+        manageTestsBtn.disabled =
+            true;
+
 
         return;
     }
 
-    marksLoading.style.display = "block";
-    marksEmpty.style.display = "none";
-    marksTable.style.display = "none";
+
+    marksLoading.style.display =
+        "block";
+
+
+    marksEmpty.style.display =
+        "none";
+
+
+    marksTable.style.display =
+        "none";
+
 
     setSaveStatus("");
 
+
     try {
 
-        const data = await school(
-            "getMarks",
-            {
-                class_id: selectedClass,
-                subject_id: selectedSubject,
-                academic_year_id: selectedYear,
-                term_id: selectedTerm
-            }
-        );
+        const data =
+            await school(
+                "getMarks",
+                {
+                    class_id:
+                        selectedClass,
 
-        currentLearners = Array.isArray(data.learners)
-            ? data.learners
-            : [];
+                    subject_id:
+                        selectedSubject,
 
-        currentTests = Array.isArray(data.tests)
-            ? data.tests
-            : [];
+                    academic_year_id:
+                        selectedYear,
 
-        currentMarks = data.marks || {};
+                    term_id:
+                        selectedTerm
+                }
+            );
+
+
+        currentLearners =
+            Array.isArray(data.learners)
+                ? data.learners
+                : [];
+
+
+        currentTests =
+            Array.isArray(data.tests)
+                ? data.tests
+                : [];
+
+
+        currentMarks =
+            data.marks || {};
+
 
         renderMarksTable();
 
-        manageTestsBtn.disabled = false;
+
+        manageTestsBtn.disabled =
+            false;
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Marks error:",
+            error
+        );
+
 
         showMarksEmpty(
             "Unable to load marks",
-            error.message || "Please try again."
+            error.message ||
+            "Please try again."
         );
 
+
         showToast(
-            error.message || "Could not load marks.",
+            error.message ||
+            "Could not load marks.",
             "error"
         );
     }
@@ -682,7 +1243,9 @@ async function loadMarks() {
 
 function renderMarksTable() {
 
-    marksLoading.style.display = "none";
+    marksLoading.style.display =
+        "none";
+
 
     if (!currentLearners.length) {
 
@@ -691,11 +1254,17 @@ function renderMarksTable() {
             "Add learners to this class before recording marks."
         );
 
+
         return;
     }
 
-    marksEmpty.style.display = "none";
-    marksTable.style.display = "table";
+
+    marksEmpty.style.display =
+        "none";
+
+
+    marksTable.style.display =
+        "table";
 
 
     let headHtml = `
@@ -709,13 +1278,33 @@ function renderMarksTable() {
 
         headHtml += `
             <th>
-                ${escapeHtml(test.test_name)}
+
+                ${escapeHtml(
+                    test.test_name
+                )}
+
                 <br>
+
                 ${
                     test.is_exam
-                        ? `<span class="exam-badge">Exam / ${escapeHtml(test.max_score)}</span>`
-                        : `<span class="test-badge">Test / ${escapeHtml(test.max_score)}</span>`
+                        ? `
+                            <span class="exam-badge">
+                                Exam /
+                                ${escapeHtml(
+                                    test.max_score
+                                )}
+                            </span>
+                        `
+                        : `
+                            <span class="test-badge">
+                                Test /
+                                ${escapeHtml(
+                                    test.max_score
+                                )}
+                            </span>
+                        `
                 }
+
             </th>
         `;
     });
@@ -727,101 +1316,144 @@ function renderMarksTable() {
         </tr>
     `;
 
-    marksHead.innerHTML = headHtml;
+
+    marksHead.innerHTML =
+        headHtml;
 
 
-    marksBody.innerHTML = "";
+    marksBody.innerHTML =
+        "";
 
 
-    currentLearners.forEach((learner, index) => {
+    currentLearners.forEach(
+        (learner, index) => {
 
-        const learnerMarks =
-            currentMarks[String(learner.id)] || {};
-
-        let rowTotal = 0;
-        let rowMax = 0;
-
-        let rowHtml = `
-            <tr
-                data-learner-name="${escapeHtml(
-                    learner.full_name
-                ).toLowerCase()}"
-            >
-
-                <td>${index + 1}</td>
-
-                <td>
-                    <strong>
-                        ${escapeHtml(learner.full_name)}
-                    </strong>
-                </td>
-        `;
+            const learnerMarks =
+                currentMarks[
+                    String(learner.id)
+                ] || {};
 
 
-        currentTests.forEach(test => {
+            let rowTotal = 0;
+            let rowMax = 0;
 
-            const savedMark =
-                learnerMarks[String(test.id)];
 
-            const score =
-                savedMark !== undefined &&
-                savedMark !== null
-                    ? savedMark
-                    : "";
+            let rowHtml = `
+                <tr
+                    data-learner-name="${escapeHtml(
+                        learner.full_name
+                    ).toLowerCase()}"
+                >
 
-            if (score !== "") {
-                rowTotal += Number(score);
-            }
+                    <td>
+                        ${index + 1}
+                    </td>
 
-            rowMax += Number(test.max_score || 0);
+                    <td>
+                        <strong>
+                            ${escapeHtml(
+                                learner.full_name
+                            )}
+                        </strong>
+                    </td>
+            `;
+
+
+            currentTests.forEach(
+                test => {
+
+                    const savedMark =
+                        learnerMarks[
+                            String(test.id)
+                        ];
+
+
+                    const score =
+                        savedMark !== undefined &&
+                        savedMark !== null
+                            ? savedMark
+                            : "";
+
+
+                    if (score !== "") {
+
+                        rowTotal +=
+                            Number(score);
+                    }
+
+
+                    rowMax +=
+                        Number(
+                            test.max_score || 0
+                        );
+
+
+                    rowHtml += `
+                        <td>
+
+                            <input
+                                type="number"
+                                class="mark-input"
+
+                                min="0"
+
+                                max="${escapeHtml(
+                                    test.max_score
+                                )}"
+
+                                step="0.01"
+
+                                value="${escapeHtml(
+                                    score
+                                )}"
+
+                                data-learner-id="${learner.id}"
+
+                                data-test-id="${test.id}"
+
+                                data-max="${escapeHtml(
+                                    test.max_score
+                                )}"
+
+                                onchange="saveMark(this)"
+
+                                oninput="validateMarkInput(this)"
+                            >
+
+                        </td>
+                    `;
+                }
+            );
+
+
+            const percentage =
+                rowMax > 0
+                    ? (
+                        (rowTotal / rowMax) *
+                        100
+                    ).toFixed(2)
+                    : "0.00";
 
 
             rowHtml += `
-                <td>
+                    <td class="readonly-score">
+                        ${rowTotal.toFixed(2)}
+                    </td>
 
-                    <input
-                        type="number"
-                        class="mark-input"
-                        min="0"
-                        max="${escapeHtml(test.max_score)}"
-                        step="0.01"
-                        value="${escapeHtml(score)}"
-                        data-learner-id="${learner.id}"
-                        data-test-id="${test.id}"
-                        data-max="${escapeHtml(test.max_score)}"
-                        onchange="saveMark(this)"
-                        oninput="validateMarkInput(this)"
-                    >
+                    <td class="percentage">
+                        ${percentage}%
+                    </td>
 
-                </td>
+                </tr>
             `;
-        });
 
 
-        const percentage =
-            rowMax > 0
-                ? ((rowTotal / rowMax) * 100).toFixed(2)
-                : "0.00";
-
-
-        rowHtml += `
-                <td class="readonly-score">
-                    ${rowTotal.toFixed(2)}
-                </td>
-
-                <td class="percentage">
-                    ${percentage}%
-                </td>
-
-            </tr>
-        `;
-
-
-        marksBody.insertAdjacentHTML(
-            "beforeend",
-            rowHtml
-        );
-    });
+            marksBody.insertAdjacentHTML(
+                "beforeend",
+                rowHtml
+            );
+        }
+    );
 
 
     applySearch();
@@ -834,10 +1466,18 @@ function renderMarksTable() {
 
 function validateMarkInput(input) {
 
-    const value = Number(input.value);
-    const max = Number(input.dataset.max);
+    const value =
+        Number(input.value);
 
-    input.classList.remove("invalid");
+
+    const max =
+        Number(input.dataset.max);
+
+
+    input.classList.remove(
+        "invalid"
+    );
+
 
     if (
         input.value !== "" &&
@@ -848,10 +1488,14 @@ function validateMarkInput(input) {
         )
     ) {
 
-        input.classList.add("invalid");
+        input.classList.add(
+            "invalid"
+        );
+
 
         return false;
     }
+
 
     return true;
 }
@@ -863,24 +1507,31 @@ function validateMarkInput(input) {
 
 async function saveMark(input) {
 
-    if (!validateMarkInput(input)) {
+    if (
+        !validateMarkInput(input)
+    ) {
 
         showToast(
             `Mark must be between 0 and ${input.dataset.max}.`,
             "error"
         );
 
+
         return;
     }
 
 
-    const learnerId = Number(
-        input.dataset.learnerId
-    );
+    const learnerId =
+        Number(
+            input.dataset.learnerId
+        );
 
-    const testId = Number(
-        input.dataset.testId
-    );
+
+    const testId =
+        Number(
+            input.dataset.testId
+        );
+
 
     const value =
         input.value === ""
@@ -888,11 +1539,12 @@ async function saveMark(input) {
             : Number(input.value);
 
 
-    input.disabled = true;
+    input.disabled =
+        true;
+
 
     setSaveStatus(
-        "Saving...",
-        ""
+        "Saving..."
     );
 
 
@@ -901,13 +1553,26 @@ async function saveMark(input) {
         await school(
             "saveMark",
             {
-                learner_id: learnerId,
-                test_id: testId,
-                score: value,
-                class_id: selectedClass,
-                subject_id: selectedSubject,
-                academic_year_id: selectedYear,
-                term_id: selectedTerm
+                learner_id:
+                    learnerId,
+
+                test_id:
+                    testId,
+
+                score:
+                    value,
+
+                class_id:
+                    selectedClass,
+
+                subject_id:
+                    selectedSubject,
+
+                academic_year_id:
+                    selectedYear,
+
+                term_id:
+                    selectedTerm
             },
             "POST"
         );
@@ -918,25 +1583,39 @@ async function saveMark(input) {
             "success"
         );
 
+
+        /*
+         * Reload the table so totals and percentages
+         * are immediately updated.
+         */
+
         await loadMarks();
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Save mark error:",
+            error
+        );
+
 
         setSaveStatus(
-            error.message || "Could not save mark.",
+            error.message ||
+            "Could not save mark.",
             "error"
         );
 
+
         showToast(
-            error.message || "Could not save mark.",
+            error.message ||
+            "Could not save mark.",
             "error"
         );
 
     } finally {
 
-        input.disabled = false;
+        input.disabled =
+            false;
     }
 }
 
@@ -952,16 +1631,23 @@ function applySearch() {
             .trim()
             .toLowerCase();
 
+
     const rows =
-        marksBody.querySelectorAll("tr");
+        marksBody.querySelectorAll(
+            "tr"
+        );
+
 
     rows.forEach(row => {
 
         const name =
-            row.dataset.learnerName || "";
+            row.dataset.learnerName ||
+            "";
+
 
         row.style.display =
-            !search || name.includes(search)
+            !search ||
+            name.includes(search)
                 ? ""
                 : "none";
     });
@@ -983,20 +1669,34 @@ classSelect.addEventListener(
     async () => {
 
         selectedClass =
-            Number(classSelect.value) || null;
+            Number(
+                classSelect.value
+            ) || null;
+
 
         localStorage.setItem(
             "selectedClass",
             selectedClass || ""
         );
 
-        selectedSubject = null;
+
+        /*
+         * The old subject belongs to the previous
+         * class, so remove it.
+         */
+
+        selectedSubject =
+            null;
+
 
         localStorage.removeItem(
             "selectedSubject"
         );
 
-        manageTestsBtn.disabled = true;
+
+        manageTestsBtn.disabled =
+            true;
+
 
         await loadSubjects();
     }
@@ -1012,15 +1712,20 @@ subjectSelect.addEventListener(
     async () => {
 
         selectedSubject =
-            Number(subjectSelect.value) || null;
+            Number(
+                subjectSelect.value
+            ) || null;
+
 
         localStorage.setItem(
             "selectedSubject",
             selectedSubject || ""
         );
 
+
         manageTestsBtn.disabled =
             !selectedSubject;
+
 
         await loadMarks();
     }
@@ -1036,12 +1741,16 @@ termSelect.addEventListener(
     async () => {
 
         selectedTerm =
-            Number(termSelect.value) || null;
+            Number(
+                termSelect.value
+            ) || null;
+
 
         localStorage.setItem(
             "selectedTerm",
             selectedTerm || ""
         );
+
 
         await loadMarks();
     }
@@ -1066,6 +1775,7 @@ async function openManageTests() {
             "error"
         );
 
+
         return;
     }
 
@@ -1073,8 +1783,10 @@ async function openManageTests() {
     const classObject =
         getSelectedClassObject();
 
+
     const subjectObject =
         getSelectedSubjectObject();
+
 
     const termObject =
         getSelectedTermObject();
@@ -1083,25 +1795,35 @@ async function openManageTests() {
     document.getElementById(
         "modalClassName"
     ).textContent =
-        classObject?.class_name || "—";
+        classObject?.class_name ||
+        "—";
+
 
     document.getElementById(
         "modalSubjectName"
     ).textContent =
-        subjectObject?.subject_name || "—";
+        subjectObject?.subject_name ||
+        "—";
+
 
     document.getElementById(
         "modalTermName"
     ).textContent =
-        termObject?.term_name || "—";
+        termObject?.term_name ||
+        "—";
+
 
     document.getElementById(
         "modalYearName"
     ).textContent =
-        localStorage.getItem("selectedYearName") || "Current academic year";
+        selectedYearName ||
+        "—";
 
 
-    manageTestsModal.classList.add("show");
+    manageTestsModal.classList.add(
+        "show"
+    );
+
 
     await loadTestsForModal();
 }
@@ -1113,44 +1835,81 @@ async function openManageTests() {
 
 async function loadTestsForModal() {
 
-    testsLoading.style.display = "block";
-    testsEmpty.style.display = "none";
-    testsTable.style.display = "none";
+    testsLoading.style.display =
+        "block";
+
+
+    testsEmpty.style.display =
+        "none";
+
+
+    testsTable.style.display =
+        "none";
+
 
     try {
 
-        const data = await school(
-            "getTests",
-            {
-                class_id: selectedClass,
-                subject_id: selectedSubject,
-                academic_year_id: selectedYear,
-                term_id: selectedTerm
-            }
-        );
+        const data =
+            await school(
+                "getTests",
+                {
+                    class_id:
+                        selectedClass,
 
-        currentTests = Array.isArray(data.tests)
-            ? data.tests
-            : [];
+                    subject_id:
+                        selectedSubject,
+
+                    academic_year_id:
+                        selectedYear,
+
+                    term_id:
+                        selectedTerm
+                }
+            );
+
+
+        currentTests =
+            Array.isArray(data.tests)
+                ? data.tests
+                : [];
+
 
         renderTests();
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Tests error:",
+            error
+        );
 
-        testsLoading.style.display = "none";
 
-        testsEmpty.style.display = "block";
+        testsLoading.style.display =
+            "none";
+
+
+        testsEmpty.style.display =
+            "block";
+
 
         testsEmpty.innerHTML = `
             <i class="fa-solid fa-triangle-exclamation"></i>
-            <h3>Unable to load tests</h3>
-            <p>${escapeHtml(error.message)}</p>
+
+            <h3>
+                Unable to load tests
+            </h3>
+
+            <p>
+                ${escapeHtml(
+                    error.message
+                )}
+            </p>
         `;
 
+
         showToast(
-            error.message || "Could not load tests.",
+            error.message ||
+            "Could not load tests.",
             "error"
         );
     }
@@ -1163,83 +1922,121 @@ async function loadTestsForModal() {
 
 function renderTests() {
 
-    testsLoading.style.display = "none";
+    testsLoading.style.display =
+        "none";
+
 
     if (!currentTests.length) {
 
-        testsTable.style.display = "none";
-        testsEmpty.style.display = "block";
+        testsTable.style.display =
+            "none";
+
+
+        testsEmpty.style.display =
+            "block";
+
 
         return;
     }
 
 
-    testsEmpty.style.display = "none";
-    testsTable.style.display = "table";
-
-    testsBody.innerHTML = "";
+    testsEmpty.style.display =
+        "none";
 
 
-    currentTests.forEach((test, index) => {
-
-        const typeBadge =
-            test.is_exam
-                ? `<span class="exam-badge">Exam</span>`
-                : `<span class="test-badge">Test</span>`;
+    testsTable.style.display =
+        "table";
 
 
-        const row = document.createElement("tr");
+    testsBody.innerHTML =
+        "";
 
-        row.innerHTML = `
-            <td>${index + 1}</td>
 
-            <td>
-                <strong>
-                    ${escapeHtml(test.test_name)}
-                </strong>
-            </td>
+    currentTests.forEach(
+        (test, index) => {
 
-            <td>
-                ${typeBadge}
-            </td>
+            const typeBadge =
+                test.is_exam
+                    ? `
+                        <span class="exam-badge">
+                            Exam
+                        </span>
+                    `
+                    : `
+                        <span class="test-badge">
+                            Test
+                        </span>
+                    `;
 
-            <td>
-                ${escapeHtml(test.max_score)}
-            </td>
 
-            <td>
-                ${formatDate(test.created_at)}
-            </td>
+            const row =
+                document.createElement(
+                    "tr"
+                );
 
-            <td>
 
-                <div class="actions">
+            row.innerHTML = `
+                <td>
+                    ${index + 1}
+                </td>
 
-                    <button
-                        type="button"
-                        class="icon-btn edit"
-                        title="Edit test"
-                        onclick="openEditTestModal(${test.id})"
-                    >
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
+                <td>
+                    <strong>
+                        ${escapeHtml(
+                            test.test_name
+                        )}
+                    </strong>
+                </td>
 
-                    <button
-                        type="button"
-                        class="icon-btn delete"
-                        title="Delete test"
-                        onclick="deleteTest(${test.id})"
-                    >
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                <td>
+                    ${typeBadge}
+                </td>
 
-                </div>
+                <td>
+                    ${escapeHtml(
+                        test.max_score
+                    )}
+                </td>
 
-            </td>
-        `;
+                <td>
+                    ${formatDate(
+                        test.created_at
+                    )}
+                </td>
 
-        testsBody.appendChild(row);
-    });
+                <td>
+
+                    <div class="actions">
+
+                        <button
+                            type="button"
+                            class="icon-btn edit"
+                            title="Edit test"
+                            onclick="openEditTestModal(${test.id})"
+                        >
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="icon-btn delete"
+                            title="Delete test"
+                            onclick="deleteTest(${test.id})"
+                        >
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+
+                    </div>
+
+                </td>
+            `;
+
+
+            testsBody.appendChild(
+                row
+            );
+        }
+    );
 }
 
 
@@ -1249,25 +2046,43 @@ function renderTests() {
 
 function openAddTestModal() {
 
-    editingTestId = null;
+    editingTestId =
+        null;
+
 
     testEditorTitle.textContent =
         "Add New Test";
 
+
     testEditorSubtitle.textContent =
         "Create an assessment for the selected class.";
+
 
     saveTestBtnText.textContent =
         "Create Test";
 
-    testName.value = "";
-    testMaxScore.value = "";
-    testIsExam.checked = false;
 
-    testEditorModal.classList.add("show");
+    testName.value =
+        "";
+
+
+    testMaxScore.value =
+        "";
+
+
+    testIsExam.checked =
+        false;
+
+
+    testEditorModal.classList.add(
+        "show"
+    );
+
 
     setTimeout(() => {
+
         testName.focus();
+
     }, 100);
 }
 
@@ -1276,11 +2091,17 @@ function openAddTestModal() {
    EDIT TEST MODAL
    ============================================================ */
 
-function openEditTestModal(testId) {
+function openEditTestModal(
+    testId
+) {
 
-    const test = currentTests.find(
-        item => Number(item.id) === Number(testId)
-    );
+    const test =
+        currentTests.find(
+            item =>
+                Number(item.id) ===
+                Number(testId)
+        );
+
 
     if (!test) {
 
@@ -1289,35 +2110,48 @@ function openEditTestModal(testId) {
             "error"
         );
 
+
         return;
     }
 
 
-    editingTestId = Number(test.id);
+    editingTestId =
+        Number(test.id);
+
 
     testEditorTitle.textContent =
         "Edit Test";
 
+
     testEditorSubtitle.textContent =
         "Update this assessment.";
+
 
     saveTestBtnText.textContent =
         "Save Changes";
 
+
     testName.value =
         test.test_name || "";
 
+
     testMaxScore.value =
         test.max_score || "";
+
 
     testIsExam.checked =
         Boolean(test.is_exam);
 
 
-    testEditorModal.classList.add("show");
+    testEditorModal.classList.add(
+        "show"
+    );
+
 
     setTimeout(() => {
+
         testName.focus();
+
     }, 100);
 }
 
@@ -1332,11 +2166,16 @@ testForm.addEventListener(
 
         event.preventDefault();
 
+
         const name =
             testName.value.trim();
 
+
         const maxScore =
-            Number(testMaxScore.value);
+            Number(
+                testMaxScore.value
+            );
+
 
         const isExam =
             testIsExam.checked;
@@ -1349,7 +2188,9 @@ testForm.addEventListener(
                 "error"
             );
 
+
             testName.focus();
+
 
             return;
         }
@@ -1365,13 +2206,34 @@ testForm.addEventListener(
                 "error"
             );
 
+
             testMaxScore.focus();
+
 
             return;
         }
 
 
-        saveTestBtn.disabled = true;
+        if (
+            !selectedYear ||
+            !selectedClass ||
+            !selectedSubject ||
+            !selectedTerm
+        ) {
+
+            showToast(
+                "Please select a class, subject and term first.",
+                "error"
+            );
+
+
+            return;
+        }
+
+
+        saveTestBtn.disabled =
+            true;
+
 
         saveTestBtnText.textContent =
             editingTestId
@@ -1386,13 +2248,21 @@ testForm.addEventListener(
                 await school(
                     "updateTest",
                     {
-                        id: editingTestId,
-                        test_name: name,
-                        max_score: maxScore,
-                        is_exam: isExam
+                        id:
+                            editingTestId,
+
+                        test_name:
+                            name,
+
+                        max_score:
+                            maxScore,
+
+                        is_exam:
+                            isExam
                     },
                     "POST"
                 );
+
 
                 showToast(
                     "Test updated successfully."
@@ -1403,16 +2273,30 @@ testForm.addEventListener(
                 await school(
                     "addTest",
                     {
-                        test_name: name,
-                        max_score: maxScore,
-                        is_exam: isExam,
-                        class_id: selectedClass,
-                        subject_id: selectedSubject,
-                        academic_year_id: selectedYear,
-                        term_id: selectedTerm
+                        test_name:
+                            name,
+
+                        max_score:
+                            maxScore,
+
+                        is_exam:
+                            isExam,
+
+                        class_id:
+                            selectedClass,
+
+                        subject_id:
+                            selectedSubject,
+
+                        academic_year_id:
+                            selectedYear,
+
+                        term_id:
+                            selectedTerm
                     },
                     "POST"
                 );
+
 
                 showToast(
                     "Test created successfully."
@@ -1420,15 +2304,23 @@ testForm.addEventListener(
             }
 
 
-            closeModal("testEditorModal");
+            closeModal(
+                "testEditorModal"
+            );
+
 
             await loadTestsForModal();
+
 
             await loadMarks();
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Test save error:",
+                error
+            );
+
 
             showToast(
                 error.message ||
@@ -1438,7 +2330,9 @@ testForm.addEventListener(
 
         } finally {
 
-            saveTestBtn.disabled = false;
+            saveTestBtn.disabled =
+                false;
+
 
             saveTestBtnText.textContent =
                 editingTestId
@@ -1453,13 +2347,17 @@ testForm.addEventListener(
    DELETE TEST
    ============================================================ */
 
-async function deleteTest(testId) {
+async function deleteTest(
+    testId
+) {
 
     const test =
         currentTests.find(
             item =>
-                Number(item.id) === Number(testId)
+                Number(item.id) ===
+                Number(testId)
         );
+
 
     if (!test) {
         return;
@@ -1483,7 +2381,8 @@ async function deleteTest(testId) {
         await school(
             "deleteTest",
             {
-                id: testId
+                id:
+                    testId
             },
             "POST"
         );
@@ -1496,11 +2395,16 @@ async function deleteTest(testId) {
 
         await loadTestsForModal();
 
+
         await loadMarks();
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "Delete test error:",
+            error
+        );
+
 
         showToast(
             error.message ||
@@ -1520,15 +2424,25 @@ function closeModal(id) {
     const modal =
         document.getElementById(id);
 
+
     if (modal) {
-        modal.classList.remove("show");
+
+        modal.classList.remove(
+            "show"
+        );
     }
 }
 
 
-function handleModalBackdrop(event, id) {
+function handleModalBackdrop(
+    event,
+    id
+) {
 
-    if (event.target.id === id) {
+    if (
+        event.target.id === id
+    ) {
+
         closeModal(id);
     }
 }
@@ -1538,12 +2452,21 @@ document.addEventListener(
     "keydown",
     event => {
 
-        if (event.key !== "Escape") {
+        if (
+            event.key !== "Escape"
+        ) {
             return;
         }
 
-        closeModal("manageTestsModal");
-        closeModal("testEditorModal");
+
+        closeModal(
+            "manageTestsModal"
+        );
+
+
+        closeModal(
+            "testEditorModal"
+        );
     }
 );
 
@@ -1554,16 +2477,49 @@ document.addEventListener(
 
 function logout() {
 
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_email");
-    localStorage.removeItem("userId");
+    localStorage.removeItem(
+        "isLoggedIn"
+    );
 
-    localStorage.removeItem("selectedYear");
-    localStorage.removeItem("selectedYearName");
-    localStorage.removeItem("selectedClass");
-    localStorage.removeItem("selectedSubject");
-    localStorage.removeItem("selectedTerm");
+
+    localStorage.removeItem(
+        "auth_token"
+    );
+
+
+    localStorage.removeItem(
+        "user_email"
+    );
+
+
+    localStorage.removeItem(
+        "userId"
+    );
+
+
+    localStorage.removeItem(
+        "selectedYear"
+    );
+
+
+    localStorage.removeItem(
+        "selectedYearName"
+    );
+
+
+    localStorage.removeItem(
+        "selectedClass"
+    );
+
+
+    localStorage.removeItem(
+        "selectedSubject"
+    );
+
+
+    localStorage.removeItem(
+        "selectedTerm"
+    );
 }
 
 
@@ -1573,18 +2529,39 @@ function logout() {
 
 async function initMarksPage() {
 
+    /*
+     * 1. Load academic year/term context
+     */
+
     const academicLoaded =
         await loadAcademicContext();
+
 
     if (!academicLoaded) {
         return;
     }
 
 
+    /*
+     * 2. Load terms belonging ONLY to
+     *    the selected academic year.
+     */
+
     await loadTerms();
+
+
+    /*
+     * 3. Load classes assigned to this
+     *    teacher for this academic year.
+     */
 
     await loadClasses();
 }
 
 
+/* ============================================================
+   START
+   ============================================================ */
+
 initMarksPage();
+
