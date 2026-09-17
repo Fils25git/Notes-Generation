@@ -1176,19 +1176,68 @@ function showMarksEmpty(
 /* ============================================================
    LOAD MARKS
    ============================================================ */
+/* ============================================================
+   LOAD MARKS
+   ============================================================ */
 
 async function loadMarks() {
 
+    /*
+     * Convert all selected IDs to numbers first.
+     * This prevents NaN, empty strings, or invalid values
+     * from being sent to PostgreSQL.
+     */
+
+    const yearId =
+        Number(selectedYear);
+
+    const termId =
+        Number(selectedTerm);
+
+    const classId =
+        Number(selectedClass);
+
+    const subjectId =
+        Number(selectedSubject);
+
+
+    /*
+     * Every ID must be a valid positive integer.
+     */
+
     if (
-        !selectedYear ||
-        !selectedClass ||
-        !selectedSubject ||
-        !selectedTerm
+        !Number.isInteger(yearId) ||
+        yearId <= 0 ||
+
+        !Number.isInteger(termId) ||
+        termId <= 0 ||
+
+        !Number.isInteger(classId) ||
+        classId <= 0 ||
+
+        !Number.isInteger(subjectId) ||
+        subjectId <= 0
     ) {
+
+        console.error(
+            "Invalid marks context:",
+            {
+                selectedYear,
+                selectedTerm,
+                selectedClass,
+                selectedSubject,
+
+                yearId,
+                termId,
+                classId,
+                subjectId
+            }
+        );
+
 
         showMarksEmpty(
             "Select your teaching context",
-            "Please select a class, subject and term first."
+            "Please select a valid class, subject and term first."
         );
 
 
@@ -1217,21 +1266,25 @@ async function loadMarks() {
 
     try {
 
+        /*
+         * Send only the validated numeric IDs.
+         */
+
         const data =
             await school(
                 "getMarks",
                 {
                     class_id:
-                        selectedClass,
+                        classId,
 
                     subject_id:
-                        selectedSubject,
+                        subjectId,
 
                     academic_year_id:
-                        selectedYear,
+                        yearId,
 
                     term_id:
-                        selectedTerm
+                        termId
                 }
             );
 
