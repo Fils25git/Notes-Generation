@@ -1,31 +1,46 @@
+
+// ============================================================
+// MARKS SYSTEM
+// ============================================================
+
 const teacherId =
-Number(localStorage.getItem("userId"));
+    Number(localStorage.getItem("userId"));
+
+
+// ============================================================
+// AUTHENTICATION
+// ============================================================
 
 if (!teacherId) {
+
     window.location.href = "../login.html";
+
 }
-let selectedSubject=
-localStorage.getItem(
-"selectedSubject"
-);
-
-let selectedClass=
-localStorage.getItem(
-"selectedClass"
-);
-
-let selectedTerm=
-localStorage.getItem(
-"selectedTerm"
-);
-
-let selectedYear=null;
 
 
-// ======================
+// ============================================================
+// STATE
+// ============================================================
+
+let selectedSubject =
+    localStorage.getItem("selectedSubject") || null;
+
+let selectedClass =
+    localStorage.getItem("selectedClass") || null;
+
+let selectedTerm =
+    localStorage.getItem("selectedTerm") || null;
+
+let selectedYear = null;
+
+let editingTestId = null;
+
+let deleteTimer = null;
+
+
+// ============================================================
 // API
-// ======================
-
+// ============================================================
 
 async function school(
     action,
@@ -35,24 +50,31 @@ async function school(
 
     try {
 
-        const teacherId =
+        const currentTeacherId =
             Number(localStorage.getItem("userId"));
 
-        if (!teacherId) {
+        if (!currentTeacherId) {
+
             window.location.href = "../login.html";
-            return [];
+
+            return null;
+
         }
 
 
         let url =
-            `/.netlify/functions/school?action=${action}`;
+            `/.netlify/functions/school?action=${encodeURIComponent(action)}`;
+
 
         const options = {
 
             method,
 
             headers: {
-                "Content-Type": "application/json"
+
+                "Content-Type":
+                    "application/json"
+
             }
 
         };
@@ -62,13 +84,16 @@ async function school(
 
             const params =
                 new URLSearchParams({
-                    ...body,
-                    teacher_id: teacherId
-                }).toString();
 
-            if (params) {
-                url += "&" + params;
-            }
+                    ...body,
+
+                    teacher_id:
+                        currentTeacherId
+
+                });
+
+
+            url += "&" + params.toString();
 
         } else {
 
@@ -77,7 +102,8 @@ async function school(
 
                     ...body,
 
-                    teacher_id: teacherId
+                    teacher_id:
+                        currentTeacherId
 
                 });
 
@@ -88,1281 +114,2239 @@ async function school(
             await fetch(url, options);
 
 
+        const data =
+            await response.json()
+                .catch(() => null);
+
+
         if (!response.ok) {
 
-            const error =
-                await response.json().catch(() => ({}));
-
-            debug(
-                error.message ||
-                "Request failed"
+            showToast(
+                data?.message ||
+                data?.error ||
+                "Request failed.",
+                "error"
             );
 
-            return [];
+            return null;
 
         }
 
 
-        return await response.json();
+        return data;
 
     }
 
     catch (error) {
 
-        debug(error.message);
+        console.error(error);
 
-        return [];
+        showToast(
+            "Unable to connect to the server.",
+            "error"
+        );
+
+        return null;
 
     }
 
 }
 
 
+// ============================================================
+// ACADEMIC CONTEXT
+// ============================================================
 
-// ======================
-// CURRENT SETTINGS
-// ======================
+async function loadAcademicContext() {
 
-async function loadAcademicContext(){
+    try {
 
-const data=
-await fetch(
-"/.netlify/functions/academic?action=getCurrent"
-)
-.then(
-r=>r.json()
-);
-
-selectedYear=
-data.year?.id;
+        const response =
+            await fetch(
+                "/.netlify/functions/academic?action=getCurrent"
+            );
 
 
-if(
-!selectedTerm
-){
+        const data =
+            await response.json();
 
-selectedTerm=
-data.term?.id;
 
-localStorage.setItem(
-"selectedTerm",
-selectedTerm
-);
+        if (!data.success) {
+
+            showToast(
+                data.message ||
+                "Unable to load academic system.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        selectedYear =
+            data.year?.id || null;
+
+
+        /*
+         * If the previously selected term does not exist,
+         * use the current term.
+         */
+
+        if (!selectedTerm) {
+
+            selectedTerm =
+                data.term?.id || null;
+
+            if (selectedTerm) {
+
+                localStorage.setItem(
+                    "selectedTerm",
+                    selectedTerm
+                );
+
+            }
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Unable to load academic information.",
+            "error"
+        );
+
+    }
 
 }
 
-}
 
-
-
-// ======================
+// ============================================================
 // TERMS
-// ======================
+// ============================================================
 
-async function loadTerms(){
+async function loadTerms() {
 
-const data=
-await fetch(
-"/.netlify/functions/academic?action=getTerms"
-)
-.then(
-r=>r.json()
-);
-
-const container=
-document.getElementById(
-"termContainer"
-);
-
-container.innerHTML="";
+    const container =
+        document.getElementById(
+            "termContainer"
+        );
 
 
-data.forEach(term=>{
-
-const active=
-Number(selectedTerm)
-===
-term.id;
-
-container.innerHTML+=`
-
-<button
-
-class="
-class-btn
-${active?"active":""}
-"
-
-onclick="
-selectTerm(
-${term.id},
-event
-)
-"
-
->
-
-${term.term_name}
-
-</button>
-
-`;
-
-});
-
-}
+    container.innerHTML =
+        `<span class="empty-filter">
+            Loading terms...
+        </span>`;
 
 
+    if (!selectedYear) {
 
-async function selectTerm(
-id,
-event
-){
+        container.innerHTML =
+            `<span class="empty-filter">
+                No academic year selected.
+            </span>`;
 
-selectedTerm=id;
+        return;
 
-localStorage.setItem(
-"selectedTerm",
-id
-);
+    }
 
 
-document
-.querySelectorAll(
-"#termContainer button"
-)
-.forEach(
-x=>
-x.classList.remove(
-"active"
-)
-);
+    try {
 
-event.target
-.classList.add(
-"active"
-);
-
-loadMarks();
-
-}
+        const response =
+            await fetch(
+                `/.netlify/functions/academic?action=getTerms&academic_year_id=${selectedYear}`
+            );
 
 
-
-// ======================
-// SUBJECTS
-// ======================
-
-async function loadSubjects(){
-
-const data=
-await school(
-"getSubjects"
-);
-
-const container=
-document.getElementById(
-"subjectContainer"
-);
-
-container.innerHTML="";
+        const data =
+            await response.json();
 
 
-if(
-!selectedSubject
-){
-
-selectedSubject=
-data[0]?.id;
-
-localStorage.setItem(
-"selectedSubject",
-selectedSubject
-);
-
-}
+        const terms =
+            Array.isArray(data)
+                ? data
+                : (data.terms || []);
 
 
-data.forEach(s=>{
-
-const active=
-Number(
-selectedSubject
-)
-===
-s.id;
+        container.innerHTML = "";
 
 
-container.innerHTML+=`
+        if (!terms.length) {
 
-<button
+            container.innerHTML =
+                `<span class="empty-filter">
+                    No terms available.
+                </span>`;
 
-class="
-subject-btn
-${active?"active":""}
-"
+            return;
 
-onclick="
-selectSubject(
-${s.id},
-event
-)
-"
+        }
 
->
 
-${s.subject_name}
+        /*
+         * Make sure selected term belongs to this year.
+         */
 
-</button>
+        const selectedStillExists =
+            terms.some(
+                term =>
+                    Number(term.id) ===
+                    Number(selectedTerm)
+            );
 
-`;
 
-});
+        if (!selectedStillExists) {
+
+            const currentTerm =
+                terms.find(
+                    term =>
+                        term.is_current === true
+                );
+
+
+            selectedTerm =
+                currentTerm?.id ||
+                terms[0]?.id ||
+                null;
+
+
+            if (selectedTerm) {
+
+                localStorage.setItem(
+                    "selectedTerm",
+                    selectedTerm
+                );
+
+            }
+
+        }
+
+
+        terms.forEach(term => {
+
+            const active =
+                Number(selectedTerm) ===
+                Number(term.id);
+
+
+            const button =
+                document.createElement("button");
+
+
+            button.type = "button";
+
+            button.className =
+                `class-btn ${active ? "active" : ""}`;
+
+
+            button.textContent =
+                term.term_name;
+
+
+            button.addEventListener(
+                "click",
+                () => selectTerm(term.id)
+            );
+
+
+            container.appendChild(button);
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        container.innerHTML =
+            `<span class="empty-filter">
+                Failed to load terms.
+            </span>`;
+
+    }
 
 }
 
 
+// ============================================================
+// SELECT TERM
+// ============================================================
 
-function selectSubject(
-id,
-event
-){
+async function selectTerm(id) {
 
-selectedSubject=id;
+    selectedTerm = id;
 
-localStorage.setItem(
-"selectedSubject",
-id
-);
-
-
-document
-.querySelectorAll(
-".subject-btn"
-)
-.forEach(
-x=>
-x.classList.remove(
-"active"
-)
-);
+    localStorage.setItem(
+        "selectedTerm",
+        id
+    );
 
 
-event.target
-.classList.add(
-"active"
-);
+    document
+        .querySelectorAll(
+            "#termContainer button"
+        )
+        .forEach(button =>
+            button.classList.remove("active")
+        );
 
-loadMarks();
+
+    event?.target?.classList.add("active");
+
+
+    await loadMarks();
 
 }
 
 
-
-// ======================
+// ============================================================
 // CLASSES
-// ======================
+// ============================================================
 
-async function loadClasses(){
+async function loadClasses() {
 
-const data=
-await school(
-"getClasses"
-);
-
-const container=
-document.getElementById(
-"classContainer"
-);
-
-container.innerHTML="";
+    const container =
+        document.getElementById(
+            "classContainer"
+        );
 
 
-if(
-!selectedClass
-){
+    container.innerHTML =
+        `<span class="empty-filter">
+            Loading classes...
+        </span>`;
 
-selectedClass=
-data[0]?.id;
 
-localStorage.setItem(
-"selectedClass",
-selectedClass
-);
+    const data =
+        await school(
+            "getClasses",
+            {
+                academic_year_id:
+                    selectedYear
+            }
+        );
+
+
+    const classes =
+        Array.isArray(data)
+            ? data
+            : (data?.classes || []);
+
+
+    container.innerHTML = "";
+
+
+    if (!classes.length) {
+
+        selectedClass = null;
+        selectedSubject = null;
+
+        localStorage.removeItem(
+            "selectedClass"
+        );
+
+        localStorage.removeItem(
+            "selectedSubject"
+        );
+
+
+        container.innerHTML =
+            `<span class="empty-filter">
+                No teaching classes found for this academic year.
+            </span>`;
+
+
+        document.getElementById(
+            "subjectContainer"
+        ).innerHTML =
+            `<span class="empty-filter">
+                Select a class first.
+            </span>`;
+
+        return;
+
+    }
+
+
+    /*
+     * Make sure selected class still exists.
+     */
+
+    const exists =
+        classes.some(
+            c =>
+                Number(c.id) ===
+                Number(selectedClass)
+        );
+
+
+    if (!exists) {
+
+        selectedClass =
+            classes[0].id;
+
+        localStorage.setItem(
+            "selectedClass",
+            selectedClass
+        );
+
+    }
+
+
+    classes.forEach(c => {
+
+        const active =
+            Number(selectedClass) ===
+            Number(c.id);
+
+
+        const button =
+            document.createElement("button");
+
+
+        button.type = "button";
+
+        button.className =
+            `class-btn ${active ? "active" : ""}`;
+
+
+        button.textContent =
+            c.class_name;
+
+
+        button.addEventListener(
+            "click",
+            () => selectClass(c.id)
+        );
+
+
+        container.appendChild(button);
+
+    });
+
+
+    await loadSubjects();
 
 }
 
 
-data.forEach(c=>{
+// ============================================================
+// SELECT CLASS
+// ============================================================
 
-const active=
-Number(
-selectedClass
-)
-===
-c.id;
+async function selectClass(id) {
+
+    selectedClass = id;
+
+    localStorage.setItem(
+        "selectedClass",
+        id
+    );
 
 
-container.innerHTML+=`
+    document
+        .querySelectorAll(
+            "#classContainer button"
+        )
+        .forEach(button =>
+            button.classList.remove("active")
+        );
 
-<button
 
-class="
-class-btn
-${active?"active":""}
-"
+    const buttons =
+        document.querySelectorAll(
+            "#classContainer button"
+        );
 
-onclick="
-selectClass(
-${c.id},
-event
-)
-"
 
->
+    buttons.forEach(button => {
 
-${c.class_name}
+        if (
+            Number(button.dataset.classId) ===
+            Number(id)
+        ) {
 
-</button>
+            button.classList.add("active");
 
-`;
+        }
 
-});
+    });
+
+
+    /*
+     * Re-render classes so active state is guaranteed.
+     */
+
+    await loadClasses();
+
+    await loadMarks();
+
+}
+
+
+// ============================================================
+// SUBJECTS FOR SELECTED CLASS
+// ============================================================
+
+async function loadSubjects() {
+
+    const container =
+        document.getElementById(
+            "subjectContainer"
+        );
+
+
+    container.innerHTML =
+        `<span class="empty-filter">
+            Loading subjects...
+        </span>`;
+
+
+    if (!selectedClass || !selectedYear) {
+
+        container.innerHTML =
+            `<span class="empty-filter">
+                Select a class first.
+            </span>`;
+
+        return;
+
+    }
+
+
+    const data =
+        await school(
+            "getSubjectsForClass",
+            {
+                class_id:
+                    selectedClass,
+
+                academic_year_id:
+                    selectedYear
+            }
+        );
+
+
+    const subjects =
+        Array.isArray(data)
+            ? data
+            : (data?.subjects || []);
+
+
+    container.innerHTML = "";
+
+
+    if (!subjects.length) {
+
+        selectedSubject = null;
+
+        localStorage.removeItem(
+            "selectedSubject"
+        );
+
+
+        container.innerHTML =
+            `<span class="empty-filter">
+                No subjects have been assigned to this class.
+            </span>`;
+
+        return;
+
+    }
+
+
+    const exists =
+        subjects.some(
+            subject =>
+                Number(subject.id) ===
+                Number(selectedSubject)
+        );
+
+
+    if (!exists) {
+
+        selectedSubject =
+            subjects[0].id;
+
+        localStorage.setItem(
+            "selectedSubject",
+            selectedSubject
+        );
+
+    }
+
+
+    subjects.forEach(subject => {
+
+        const active =
+            Number(selectedSubject) ===
+            Number(subject.id);
+
+
+        const button =
+            document.createElement("button");
+
+
+        button.type = "button";
+
+        button.className =
+            `subject-btn ${active ? "active" : ""}`;
+
+
+        button.textContent =
+            subject.subject_name;
+
+
+        button.addEventListener(
+            "click",
+            () => selectSubject(subject.id)
+        );
+
+
+        container.appendChild(button);
+
+    });
 
 }
 
 
+// ============================================================
+// SELECT SUBJECT
+// ============================================================
 
-function selectClass(
-id,
-event
-){
+async function selectSubject(id) {
 
-selectedClass=id;
+    selectedSubject = id;
 
-localStorage.setItem(
-"selectedClass",
-id
-);
+    localStorage.setItem(
+        "selectedSubject",
+        id
+    );
 
-document
-.querySelectorAll(
-".class-btn"
-)
-.forEach(
-x=>
-x.classList.remove(
-"active"
-)
-);
 
-event.target
-.classList.add(
-"active"
-);
+    document
+        .querySelectorAll(
+            ".subject-btn"
+        )
+        .forEach(button =>
+            button.classList.remove("active")
+        );
 
-loadMarks();
+
+    const buttons =
+        document.querySelectorAll(
+            ".subject-btn"
+        );
+
+
+    const subjects =
+        await school(
+            "getSubjectsForClass",
+            {
+                class_id:
+                    selectedClass,
+
+                academic_year_id:
+                    selectedYear
+            }
+        );
+
+
+    const list =
+        Array.isArray(subjects)
+            ? subjects
+            : (subjects?.subjects || []);
+
+
+    list.forEach(subject => {
+
+        if (
+            Number(subject.id) ===
+            Number(id)
+        ) {
+
+            buttons[
+                list.indexOf(subject)
+            ]?.classList.add("active");
+
+        }
+
+    });
+
+
+    await loadMarks();
 
 }
 
-// ======================
+
+// ============================================================
 // LOAD MARKS
-// ======================
+// ============================================================
 
-async function loadMarks(){
+async function loadMarks() {
 
-if(
-!selectedYear||
-!selectedTerm||
-!selectedClass||
-!selectedSubject
-){
-return;
-}
+    if (
+        !selectedYear ||
+        !selectedTerm ||
+        !selectedClass ||
+        !selectedSubject
+    ) {
 
+        return;
 
-const data=
-await school(
-"getMarks",
-{
-class_id:selectedClass,
-subject_id:selectedSubject,
-academic_year_id:selectedYear,
-term_id:selectedTerm
-}
-);
+    }
 
 
-const settings=
-await school(
-"getGradingSettings",
-{
-subject_id:selectedSubject,
-class_id:selectedClass,
-academic_year_id:selectedYear,
-term_id:selectedTerm
-}
-);
+    const data =
+        await school(
+            "getMarks",
+            {
+
+                class_id:
+                    selectedClass,
+
+                subject_id:
+                    selectedSubject,
+
+                academic_year_id:
+                    selectedYear,
+
+                term_id:
+                    selectedTerm
+
+            }
+        );
 
 
-const overallTestMax=
-Number(
-settings.overall_test_max||100
-);
+    if (!Array.isArray(data)) {
 
-const overallExamMax=
-Number(
-settings.overall_exam_max||100
-);
+        return;
+
+    }
 
 
+    const settings =
+        await school(
+            "getGradingSettings",
+            {
 
-const header=
-document.getElementById(
-"marksHeader"
-);
+                subject_id:
+                    selectedSubject,
 
-header.innerHTML=`
+                class_id:
+                    selectedClass,
 
-<th>#</th>
-<th>Pupil Name</th>
+                academic_year_id:
+                    selectedYear,
 
-`;
+                term_id:
+                    selectedTerm
+
+            }
+        ) || {};
 
 
-if(data.length){
+    const overallTestMax =
+        Number(
+            settings.overall_test_max || 100
+        );
 
-data[0].marks.forEach(
-m=>{
 
-header.innerHTML+=`
+    const overallExamMax =
+        Number(
+            settings.overall_exam_max || 100
+        );
 
-<th
-style="
-cursor:pointer;
-user-select:none;
--webkit-user-select:none;
--webkit-touch-callout:none;
-"
 
-onclick="
-editTest(
-${m.test_id},
-'${m.assessment_type}',
-${m.max_score}
-)
-"
-
-ontouchstart="
-event.preventDefault();
-startDeleteTimer(
-${m.test_id},
-'${m.assessment_type}'
-)
-"
-
-ontouchend="
-cancelDeleteTimer()
-"
-
-ontouchcancel="
-cancelDeleteTimer()
-"
-
-oncontextmenu="
-return false
-"
-
->
-
-${m.assessment_type}
-
-<br>
-
-/${m.max_score}
-
-</th>
-
-`;
-});
+    renderMarksTable(
+        data,
+        overallTestMax,
+        overallExamMax
+    );
 
 }
 
 
-let headerTotalTestsMax=0;
-let headerExamMax=0;
-let headerMaxPossible=0;
+// ============================================================
+// RENDER MARKS TABLE
+// ============================================================
 
-if(data.length){
+function renderMarksTable(
+    data,
+    overallTestMax,
+    overallExamMax
+) {
 
-data[0].marks.forEach(
-m=>{
+    const header =
+        document.getElementById(
+            "marksHeader"
+        );
 
-if(m.is_exam){
 
-headerExamMax+=
-Number(
-m.max_score||0
-);
+    const table =
+        document.getElementById(
+            "marksTable"
+        );
 
-}else{
 
-headerTotalTestsMax+=
-Number(
-m.max_score||0
-);
+    header.innerHTML = `
+        <th>#</th>
+        <th>Pupil Name</th>
+    `;
 
-}
 
-}
-);
+    table.innerHTML = "";
 
-headerMaxPossible=
 
-headerTotalTestsMax+
-headerExamMax;
+    if (!data.length) {
 
-}
+        table.innerHTML = `
+            <tr>
+                <td colspan="2"
+                    style="text-align:center;padding:30px;">
+                    No learners found for this class.
+                </td>
+            </tr>
+        `;
 
+        return;
 
-header.innerHTML+=`
+    }
 
-<th>Total Tests
-<br>
-/${headerTotalTestsMax}</th>
 
-<th
-style="
-cursor:pointer
-"
+    /*
+     * TEST HEADERS
+     */
 
-onclick="
-editOverallTest()
-"
->
+    const tests =
+        data[0]?.marks || [];
 
-Overall Test
-<br>
-/${overallTestMax}
 
-</th>
+    let totalTestsMax = 0;
 
-<th>Exam
-<br>
-/${headerExamMax}</th>
+    let examMax = 0;
 
-<th
-style="
-cursor:pointer
-"
 
-onclick="
-editOverallExam()
-"
->
+    tests.forEach(mark => {
 
-Overall Exam
-<br>
-/${overallExamMax}
+        const max =
+            Number(mark.max_score || 0);
 
-</th>
 
-<th>Total
-<br>
-/${headerMaxPossible}</th>
+        if (mark.is_exam) {
 
-<th>%</th>
+            examMax += max;
 
-`;
+        } else {
 
+            totalTestsMax += max;
 
+        }
 
-const table=
-document.getElementById(
-"marksTable"
-);
 
-table.innerHTML="";
+        header.innerHTML += `
 
+            <th
+                style="
+                    cursor:pointer;
+                    user-select:none;
+                "
+                onclick="
+                    editManagedTest(
+                        ${mark.test_id},
+                        '${escapeJs(mark.assessment_type)}',
+                        ${max}
+                    )
+                "
+                title="Click to edit this test"
+            >
 
+                ${escapeHtml(mark.assessment_type)}
 
-data.forEach(
-(learner,i)=>{
+                <br>
 
+                /${max}
 
-let totalTests=0;
-let totalTestsMax=0;
+            </th>
 
-let exam=0;
-let examMax=0;
+        `;
 
-let totalExam=0;
-let totalExamMax=0;
+    });
 
 
+    const headerMaxPossible =
+        totalTestsMax + examMax;
 
-const cells=
-learner.marks
-.map(
-mark=>{
 
-const score=
-Number(
-mark.score||0
-);
+    header.innerHTML += `
 
-const max=
-Number(
-mark.max_score||0
-);
+        <th>
+            Total Tests
+            <br>
+            /${totalTestsMax}
+        </th>
 
+        <th
+            style="cursor:pointer;"
+            onclick="editOverallTest()"
+            title="Edit overall test maximum"
+        >
+            Overall Test
+            <br>
+            /${overallTestMax}
+        </th>
 
-if(mark.is_exam){
+        <th>
+            Exam
+            <br>
+            /${examMax}
+        </th>
 
-exam += score;
+        <th
+            style="cursor:pointer;"
+            onclick="editOverallExam()"
+            title="Edit overall exam maximum"
+        >
+            Overall Exam
+            <br>
+            /${overallExamMax}
+        </th>
 
-if(mark.score !== ""){
-examMax += max;
-}
+        <th>
+            Total
+            <br>
+            /${headerMaxPossible}
+        </th>
 
-totalExam += score;
-totalExamMax += max;
+        <th>%</th>
 
-}else{
+    `;
 
-totalTests += score;
 
-if(mark.score !== ""){
-totalTestsMax += max;
-}
+    /*
+     * LEARNERS
+     */
 
-}
-  
+    data.forEach((learner, index) => {
 
-return`
+        let totalTests = 0;
 
-<td>
+        let totalTestsMax = 0;
 
-<input
-type="number"
+        let totalExam = 0;
 
-value="${
-score||""
-}"
+        let totalExamMax = 0;
 
-max="${max}"
 
-oninput="
+        const cells =
+            learner.marks
+                .map(mark => {
 
-if(
-Number(this.value)>
-${max}
-){
+                    const score =
+                        mark.score === "" ||
+                        mark.score === null ||
+                        mark.score === undefined
+                            ? ""
+                            : Number(mark.score);
 
-this.style.border=
-'2px solid red';
 
-}
-else{
+                    const max =
+                        Number(
+                            mark.max_score || 0
+                        );
 
-this.style.border='';
 
-}
+                    if (mark.is_exam) {
 
-"
+                        if (score !== "") {
 
-onchange="
-saveMark(
-${learner.id},
-${mark.test_id},
-this.value,
-${max}
-)
-"
+                            totalExam += score;
 
->
+                            totalExamMax += max;
 
-</td>
+                        }
 
-`;
+                    } else {
 
-}
-).join("");
+                        if (score !== "") {
 
+                            totalTests += score;
 
+                            totalTestsMax += max;
 
+                        }
 
+                    }
 
-// ===================
-// REAL CALCULATIONS
-// ===================
-  
-let overallTest=0;
 
-if(
-totalTestsMax>0
-){
+                    return `
 
-overallTest=
+                        <td>
 
-(
-totalTests/
-totalTestsMax
-)
-*
-overallTestMax;
+                            <input
+                                type="number"
+                                value="${score}"
+                                min="0"
+                                max="${max}"
+                                step="0.1"
 
-}
+                                oninput="
+                                    validateMarkInput(
+                                        this,
+                                        ${max}
+                                    )
+                                "
 
+                                onchange="
+                                    saveMark(
+                                        ${learner.id},
+                                        ${mark.test_id},
+                                        this.value,
+                                        ${max}
+                                    )
+                                "
 
-let overallExam=0;
+                            >
 
-if(
-examMax>0
-){
+                        </td>
 
-overallExam=
+                    `;
 
-(
-totalExam/
-totalExamMax
-)
-*
-overallExamMax;
+                })
+                .join("");
 
-}
 
+        /*
+         * Overall test
+         */
 
-overallTest=
-overallTest.toFixed(1);
+        let overallTest = 0;
 
-overallExam=
-overallExam.toFixed(1);
 
+        if (totalTestsMax > 0) {
 
-const total=
+            overallTest =
+                (
+                    totalTests /
+                    totalTestsMax
+                ) *
+                overallTestMax;
 
-(
-Number(totalTests)
-+
-Number(totalExam)
-).toFixed(1);
+        }
 
 
-const maxPossible=
+        /*
+         * Overall exam
+         */
 
-Number(totalTestsMax)
-+
-Number(totalExamMax);
+        let overallExam = 0;
 
 
-const percentage=
+        if (totalExamMax > 0) {
 
-maxPossible>0
+            overallExam =
+                (
+                    totalExam /
+                    totalExamMax
+                ) *
+                overallExamMax;
 
-?
+        }
 
-(
-(
-total*100
-)
-/
-maxPossible
-).toFixed(1)
 
-:0;
+        const total =
+            totalTests +
+            totalExam;
 
 
-table.innerHTML+=`
+        const maxPossible =
+            totalTestsMax +
+            totalExamMax;
 
-<tr>
 
-<td>${i+1}</td>
+        const percentage =
+            maxPossible > 0
+                ? (
+                    total /
+                    maxPossible
+                ) * 100
+                : 0;
 
-<td>${learner.full_name}</td>
 
-${cells}
+        table.innerHTML += `
 
-<td>${totalTests}</td>
+            <tr>
 
-<td>${overallTest}</td>
+                <td>
+                    ${index + 1}
+                </td>
 
-<td>${exam}</td>
 
-<td>${overallExam}</td>
+                <td>
+                    ${escapeHtml(learner.full_name)}
+                </td>
 
-<td>${total}</td>
 
-<td>${percentage}%</td>
+                ${cells}
 
-</tr>
 
-`;
+                <td>
+                    ${formatNumber(totalTests)}
+                </td>
 
-});
 
-}
+                <td>
+                    ${formatNumber(overallTest)}
+                </td>
 
-// ======================
-// ADD TEST
-// ======================
 
-async function addTest(){
+                <td>
+                    ${formatNumber(totalExam)}
+                </td>
 
-const test_name=
-document.getElementById(
-"testName"
-).value.trim();
 
-const max_score=
-document.getElementById(
-"testMax"
-).value;
+                <td>
+                    ${formatNumber(overallExam)}
+                </td>
 
-const is_exam=
-document.getElementById(
-"isExam"
-).checked;
 
+                <td>
+                    ${formatNumber(total)}
+                </td>
 
-if(
-!test_name
-||
-!max_score
-){
 
-alert(
-"Fill all fields"
-);
+                <td>
+                    ${formatNumber(percentage)}%
+                </td>
 
-return;
+            </tr>
 
-}
+        `;
 
-
-await school(
-"addTest",
-{
-
-subject_id:
-selectedSubject,
-
-class_id:
-selectedClass,
-
-academic_year_id:
-selectedYear,
-
-term_id:
-selectedTerm,
-
-test_name,
-max_score,
-is_exam
-
-},
-"POST"
-);
-
-
-closeTestModal();
-
-loadMarks();
+    });
 
 }
 
 
+// ============================================================
+// MARK VALIDATION
+// ============================================================
+
+function validateMarkInput(
+    input,
+    max
+) {
+
+    const value =
+        Number(input.value);
 
 
+    if (
+        input.value !== "" &&
+        (
+            value < 0 ||
+            value > max
+        )
+    ) {
 
-// ======================
+        input.style.border =
+            "2px solid #dc2626";
+
+    } else {
+
+        input.style.border = "";
+
+    }
+
+}
+
+
+// ============================================================
 // SAVE MARK
-// ======================
+// ============================================================
 
 async function saveMark(
-learner_id,
-test_id,
-score,
-max_score
-){
+    learner_id,
+    test_id,
+    score,
+    max_score
+) {
 
-if(
-score===""
-){
-return;
+    if (score === "") {
+
+        return;
+
+    }
+
+
+    const numericScore =
+        Number(score);
+
+
+    if (
+        Number.isNaN(numericScore) ||
+        numericScore < 0 ||
+        numericScore > Number(max_score)
+    ) {
+
+        showToast(
+            `Mark must be between 0 and ${max_score}.`,
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "saveStatus"
+    ).innerHTML =
+        "Saving...";
+
+
+    const result =
+        await school(
+            "saveMark",
+            {
+
+                learner_id,
+
+                subject_id:
+                    selectedSubject,
+
+                class_id:
+                    selectedClass,
+
+                academic_year_id:
+                    selectedYear,
+
+                term_id:
+                    selectedTerm,
+
+                test_id,
+
+                score:
+                    numericScore,
+
+                max_score:
+                    Number(max_score)
+
+            },
+            "POST"
+        );
+
+
+    if (
+        result &&
+        result.success === false
+    ) {
+
+        document.getElementById(
+            "saveStatus"
+        ).innerHTML = "";
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "saveStatus"
+    ).innerHTML =
+        "✓ Saved";
+
+
+    setTimeout(() => {
+
+        document.getElementById(
+            "saveStatus"
+        ).innerHTML = "";
+
+    }, 1800);
+
 }
 
 
+// ============================================================
+// MANAGE TESTS MODAL
+// ============================================================
+
+async function openTestModal() {
+
+    if (
+        !selectedClass ||
+        !selectedSubject ||
+        !selectedYear ||
+        !selectedTerm
+    ) {
+
+        showToast(
+            "Please select a class, subject and term first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    document
+        .getElementById("testModal")
+        .classList.add("active");
+
+
+    updateTestModalSubtitle();
+
+    closeTestForm();
+
+    await loadTests();
+
+}
+
+
+function closeTestModal() {
+
+    document
+        .getElementById("testModal")
+        .classList.remove("active");
+
+    closeTestForm();
+
+}
+
+
+// Close when clicking outside modal
+
 document
-.getElementById(
-"saveStatus"
-)
-.innerHTML=
-"Saving...";
+    .getElementById("testModal")
+    ?.addEventListener(
+        "click",
+        event => {
+
+            if (
+                event.target.id ===
+                "testModal"
+            ) {
+
+                closeTestModal();
+
+            }
+
+        }
+    );
 
 
-await school(
-"saveMark",
-{
+// Close with Escape
 
-learner_id,
+document.addEventListener(
+    "keydown",
+    event => {
 
-subject_id:
-selectedSubject,
+        if (
+            event.key === "Escape" &&
+            document
+                .getElementById("testModal")
+                ?.classList.contains("active")
+        ) {
 
-class_id:
-selectedClass,
+            closeTestModal();
 
-academic_year_id:
-selectedYear,
+        }
 
-term_id:
-selectedTerm,
-
-test_id,
-
-score,
-
-max_score
-
-},
-"POST"
+    }
 );
 
 
-document
-.getElementById(
-"saveStatus"
-)
-.innerHTML=
-"✓ Saved";
+// ============================================================
+// MODAL TITLE
+// ============================================================
+
+function updateTestModalSubtitle() {
+
+    const subtitle =
+        document.getElementById(
+            "testModalSubtitle"
+        );
 
 
-setTimeout(()=>{
-
-document
-.getElementById(
-"saveStatus"
-)
-.innerHTML="";
-
-},2000);
+    subtitle.textContent =
+        "Tests for the selected class, subject and term.";
 
 }
 
 
+// ============================================================
+// LOAD TESTS
+// ============================================================
 
-// ======================
+async function loadTests() {
+
+    const loading =
+        document.getElementById(
+            "testsLoading"
+        );
+
+    const empty =
+        document.getElementById(
+            "noTestsMessage"
+        );
+
+    const tableContainer =
+        document.getElementById(
+            "testsTableContainer"
+        );
+
+    const table =
+        document.getElementById(
+            "testsTable"
+        );
+
+    const count =
+        document.getElementById(
+            "testsCount"
+        );
+
+
+    loading.style.display = "block";
+
+    empty.style.display = "none";
+
+    tableContainer.style.display = "none";
+
+    table.innerHTML = "";
+
+    count.textContent =
+        "Loading...";
+
+
+    const data =
+        await school(
+            "getTests",
+            {
+
+                class_id:
+                    selectedClass,
+
+                subject_id:
+                    selectedSubject,
+
+                academic_year_id:
+                    selectedYear,
+
+                term_id:
+                    selectedTerm
+
+            }
+        );
+
+
+    loading.style.display = "none";
+
+
+    if (!Array.isArray(data) || !data.length) {
+
+        count.textContent =
+            "0 tests";
+
+
+        empty.style.display =
+            "block";
+
+        return;
+
+    }
+
+
+    count.textContent =
+        `${data.length} test${data.length === 1 ? "" : "s"}`;
+
+
+    tableContainer.style.display =
+        "block";
+
+
+    data.forEach((test, index) => {
+
+        const type =
+            test.is_exam
+                ? "Exam"
+                : "Test";
+
+
+        const created =
+            test.created_at
+                ? new Date(
+                    test.created_at
+                ).toLocaleDateString()
+                : "—";
+
+
+        table.innerHTML += `
+
+            <tr>
+
+                <td>
+                    ${index + 1}
+                </td>
+
+
+                <td>
+                    <strong>
+                        ${escapeHtml(test.test_name)}
+                    </strong>
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="
+                            test-type
+                            ${test.is_exam ? "exam" : ""}
+                        "
+                    >
+
+                        ${type}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+                    <strong>
+                        /${Number(test.max_score)}
+                    </strong>
+                </td>
+
+
+                <td>
+                    ${created}
+                </td>
+
+
+                <td>
+
+                    <div class="test-actions">
+
+                        <button
+                            type="button"
+                            class="test-action edit"
+                            onclick="
+                                editManagedTest(
+                                    ${test.id},
+                                    '${escapeJs(test.test_name)}',
+                                    ${Number(test.max_score)},
+                                    ${test.is_exam ? "true" : "false"}
+                                )
+                            "
+                        >
+
+                            <i class="fa-solid fa-pen"></i>
+
+                            Edit
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="test-action delete"
+                            onclick="
+                                deleteManagedTest(
+                                    ${test.id},
+                                    '${escapeJs(test.test_name)}'
+                                )
+                            "
+                        >
+
+                            <i class="fa-solid fa-trash"></i>
+
+                            Delete
+
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+}
+
+
+// ============================================================
+// OPEN ADD TEST FORM
+// ============================================================
+
+function openAddTestForm() {
+
+    editingTestId = null;
+
+
+    document.getElementById(
+        "testFormTitle"
+    ).textContent =
+        "Add New Test";
+
+
+    document.getElementById(
+        "saveTestButton"
+    ).innerHTML =
+        `<i class="fa-solid fa-check"></i>
+         Create Test`;
+
+
+    document.getElementById(
+        "testName"
+    ).value = "";
+
+
+    document.getElementById(
+        "testMax"
+    ).value = "";
+
+
+    document.getElementById(
+        "isExam"
+    ).checked = false;
+
+
+    document
+        .getElementById("testForm")
+        .classList.add("active");
+
+
+    document.getElementById(
+        "testName"
+    ).focus();
+
+}
+
+
+// ============================================================
+// CLOSE TEST FORM
+// ============================================================
+
+function closeTestForm() {
+
+    document
+        .getElementById("testForm")
+        .classList.remove("active");
+
+    editingTestId = null;
+
+}
+
+
+// ============================================================
+// SAVE TEST FORM
+// ============================================================
+
+async function saveTestForm() {
+
+    const name =
+        document
+            .getElementById("testName")
+            .value
+            .trim();
+
+
+    const max =
+        Number(
+            document
+                .getElementById("testMax")
+                .value
+        );
+
+
+    const isExam =
+        document
+            .getElementById("isExam")
+            .checked;
+
+
+    if (!name) {
+
+        showToast(
+            "Please enter the test name.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(max) ||
+        max <= 0
+    ) {
+
+        showToast(
+            "Maximum marks must be greater than 0.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    let result;
+
+
+    if (editingTestId) {
+
+        result =
+            await school(
+                "updateTest",
+                {
+
+                    id:
+                        editingTestId,
+
+                    test_name:
+                        name,
+
+                    max_score:
+                        max
+
+                },
+                "POST"
+            );
+
+    } else {
+
+        result =
+            await school(
+                "addTest",
+                {
+
+                    subject_id:
+                        selectedSubject,
+
+                    class_id:
+                        selectedClass,
+
+                    academic_year_id:
+                        selectedYear,
+
+                    term_id:
+                        selectedTerm,
+
+                    test_name:
+                        name,
+
+                    max_score:
+                        max,
+
+                    is_exam:
+                        isExam
+
+                },
+                "POST"
+            );
+
+    }
+
+
+    if (
+        !result ||
+        result.success === false
+    ) {
+
+        return;
+
+    }
+
+
+    showToast(
+        editingTestId
+            ? "Test updated successfully."
+            : "Test created successfully.",
+        "success"
+    );
+
+
+    closeTestForm();
+
+
+    await loadTests();
+
+    await loadMarks();
+
+}
+
+
+// ============================================================
 // EDIT TEST
-// ======================
+// ============================================================
 
-async function editTest(
-id,
-name,
-max
-){
+function editManagedTest(
+    id,
+    name,
+    max,
+    isExam
+) {
 
-const test_name=
-prompt(
-"Edit test name",
-name
-);
-
-if(
-!test_name
-){
-return;
-}
-
-const max_score=
-prompt(
-"Edit max score",
-max
-);
-
-if(
-!max_score
-){
-return;
-}
+    editingTestId = id;
 
 
-await school(
-"updateTest",
-{
-
-id,
-test_name,
-max_score
-
-},
-"POST"
-);
-
-loadMarks();
-
-}
-
-// ======================
-// EDIT OVERALL TEST
-// ======================
-
-async function editOverallTest(){
-
-const value=
-prompt(
-"Set overall test maximum"
-);
-
-if(!value)return;
+    document.getElementById(
+        "testFormTitle"
+    ).textContent =
+        "Edit Test";
 
 
-const settings=
-await school(
-"getGradingSettings",
-{
-subject_id:selectedSubject,
-class_id:selectedClass,
-academic_year_id:selectedYear,
-term_id:selectedTerm
-}
-);
+    document.getElementById(
+        "saveTestButton"
+    ).innerHTML =
+        `<i class="fa-solid fa-save"></i>
+         Save Changes`;
 
 
-await school(
-"saveGradingSettings",
-{
+    document.getElementById(
+        "testName"
+    ).value =
+        name;
 
-subject_id:selectedSubject,
-class_id:selectedClass,
-academic_year_id:selectedYear,
-term_id:selectedTerm,
 
-overall_test_max:value,
+    document.getElementById(
+        "testMax"
+    ).value =
+        max;
 
-overall_exam_max:
-settings.overall_exam_max||100
 
-},
-"POST"
-);
+    document.getElementById(
+        "isExam"
+    ).checked =
+        Boolean(isExam);
 
-loadMarks();
+
+    document
+        .getElementById("testForm")
+        .classList.add("active");
+
+
+    document.getElementById(
+        "testName"
+    ).focus();
 
 }
 
 
-
-// ======================
-// EDIT OVERALL EXAM
-// ======================
-
-async function editOverallExam(){
-
-const value=
-prompt(
-"Set overall exam maximum"
-);
-
-if(!value)return;
-
-
-const settings=
-await school(
-"getGradingSettings",
-{
-subject_id:selectedSubject,
-class_id:selectedClass,
-academic_year_id:selectedYear,
-term_id:selectedTerm
-}
-);
-
-
-await school(
-"saveGradingSettings",
-{
-
-subject_id:selectedSubject,
-class_id:selectedClass,
-academic_year_id:selectedYear,
-term_id:selectedTerm,
-
-overall_test_max:
-settings.overall_test_max||100,
-
-overall_exam_max:value
-
-},
-"POST"
-);
-
-loadMarks();
-
-  }
-let deleteTimer=null;
-
-
-// ======================
-// HOLD TO DELETE
-// ======================
-
-function startDeleteTimer(
-id,
-name
-){
-
-deleteTimer=
-setTimeout(()=>{
-
-confirmDeleteTest(
-id,
-name
-);
-
-},1000);
-
-}
-
-
-function cancelDeleteTimer(){
-
-clearTimeout(
-deleteTimer
-);
-
-}
-
-
-
-// ======================
+// ============================================================
 // DELETE TEST
-// ======================
+// ============================================================
 
-async function confirmDeleteTest(
-id,
-name
-){
+async function deleteManagedTest(
+    id,
+    testName
+) {
 
-const yes=
-confirm(
+    const confirmed =
+        confirm(
+            `Delete "${testName}"?\n\nAll marks recorded for this test will also be deleted.`
+        );
 
-`Are you sure you want to delete "${name}" ?`
 
-);
+    if (!confirmed) {
 
-if(!yes){
-return;
+        return;
+
+    }
+
+
+    const result =
+        await school(
+            "deleteTest",
+            {
+                test_id: id
+            },
+            "POST"
+        );
+
+
+    if (
+        !result ||
+        result.success === false
+    ) {
+
+        return;
+
+    }
+
+
+    showToast(
+        "Test deleted successfully.",
+        "success"
+    );
+
+
+    await loadTests();
+
+    await loadMarks();
+
 }
 
 
-await school(
-"deleteTest",
-{
-test_id:id
-},
-"POST"
-);
+// ============================================================
+// OVERALL TEST
+// ============================================================
+
+async function editOverallTest() {
+
+    const current =
+        await school(
+            "getGradingSettings",
+            {
+
+                subject_id:
+                    selectedSubject,
+
+                class_id:
+                    selectedClass,
+
+                academic_year_id:
+                    selectedYear,
+
+                term_id:
+                    selectedTerm
+
+            }
+        );
 
 
-loadMarks();
+    const value =
+        prompt(
+            "Set overall test maximum:",
+            current?.overall_test_max || 100
+        );
 
-  }
 
-// ======================
+    if (value === null) {
+
+        return;
+
+    }
+
+
+    const max =
+        Number(value);
+
+
+    if (
+        !Number.isFinite(max) ||
+        max <= 0
+    ) {
+
+        showToast(
+            "Enter a valid maximum.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    await school(
+        "saveGradingSettings",
+        {
+
+            subject_id:
+                selectedSubject,
+
+            class_id:
+                selectedClass,
+
+            academic_year_id:
+                selectedYear,
+
+            term_id:
+                selectedTerm,
+
+            overall_test_max:
+                max,
+
+            overall_exam_max:
+                Number(
+                    current?.overall_exam_max || 100
+                )
+
+        },
+        "POST"
+    );
+
+
+    await loadMarks();
+
+}
+
+
+// ============================================================
+// OVERALL EXAM
+// ============================================================
+
+async function editOverallExam() {
+
+    const current =
+        await school(
+            "getGradingSettings",
+            {
+
+                subject_id:
+                    selectedSubject,
+
+                class_id:
+                    selectedClass,
+
+                academic_year_id:
+                    selectedYear,
+
+                term_id:
+                    selectedTerm
+
+            }
+        );
+
+
+    const value =
+        prompt(
+            "Set overall exam maximum:",
+            current?.overall_exam_max || 100
+        );
+
+
+    if (value === null) {
+
+        return;
+
+    }
+
+
+    const max =
+        Number(value);
+
+
+    if (
+        !Number.isFinite(max) ||
+        max <= 0
+    ) {
+
+        showToast(
+            "Enter a valid maximum.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    await school(
+        "saveGradingSettings",
+        {
+
+            subject_id:
+                selectedSubject,
+
+            class_id:
+                selectedClass,
+
+            academic_year_id:
+                selectedYear,
+
+            term_id:
+                selectedTerm,
+
+            overall_test_max:
+                Number(
+                    current?.overall_test_max || 100
+                ),
+
+            overall_exam_max:
+                max
+
+        },
+        "POST"
+    );
+
+
+    await loadMarks();
+
+}
+
+
+// ============================================================
 // SEARCH
-// ======================
+// ============================================================
 
 document
-.getElementById(
-"searchInput"
-)
-.addEventListener(
-"input",
-searchLearners
-);
+    .getElementById("searchInput")
+    .addEventListener(
+        "input",
+        searchLearners
+    );
 
 
-function searchLearners(){
+function searchLearners() {
 
-const value=
-document
-.getElementById(
-"searchInput"
-)
-.value
-.toLowerCase();
+    const value =
+        document
+            .getElementById("searchInput")
+            .value
+            .toLowerCase()
+            .trim();
 
 
-document
-.querySelectorAll(
-"#marksTable tr"
-)
-.forEach(
-row=>{
+    document
+        .querySelectorAll(
+            "#marksTable tr"
+        )
+        .forEach(row => {
 
-row.style.display=
-row.innerText
-.toLowerCase()
-.includes(value)
-?
-""
-:
-"none";
+            row.style.display =
+                row.innerText
+                    .toLowerCase()
+                    .includes(value)
+                    ? ""
+                    : "none";
 
-});
+        });
 
 }
 
 
+// ============================================================
+// TOAST
+// ============================================================
 
-// ======================
-// MODAL
-// ======================
+function showToast(
+    message,
+    type = "success"
+) {
 
-function openTestModal(){
+    const container =
+        document.getElementById(
+            "toastContainer"
+        );
 
-document
-.getElementById(
-"testModal"
-)
-.classList.add(
-"active"
-);
+
+    const toast =
+        document.createElement("div");
+
+
+    toast.className =
+        `toast ${type}`;
+
+
+    toast.textContent =
+        message;
+
+
+    container.appendChild(toast);
+
+
+    setTimeout(() => {
+
+        toast.remove();
+
+    }, 3500);
+
+}
+
+
+// ============================================================
+// HELPERS
+// ============================================================
+
+function formatNumber(value) {
+
+    const number =
+        Number(value || 0);
+
+
+    return Number.isInteger(number)
+        ? number
+        : number.toFixed(1);
 
 }
 
 
-function closeTestModal(){
+function escapeHtml(value) {
 
-document
-.getElementById(
-"testModal"
-)
-.classList.remove(
-"active"
-);
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+function escapeJs(value) {
+
+    return String(value)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r");
 
 }
 
 
+// ============================================================
+// LOGOUT
+// ============================================================
 
-// ======================
-// INIT
-// ======================
+function logout() {
 
-async function init(){
+    localStorage.removeItem("isLoggedIn");
 
-await loadAcademicContext();
+    localStorage.removeItem("auth_token");
 
-await loadTerms();
+    localStorage.removeItem("user_email");
 
-await loadSubjects();
+    localStorage.removeItem("userId");
 
-await loadClasses();
+    localStorage.removeItem("selectedSubject");
 
-await loadMarks();
+    localStorage.removeItem("selectedClass");
+
+    localStorage.removeItem("selectedTerm");
 
 }
+
+
+// ============================================================
+// INITIALIZE
+// ============================================================
+
+async function init() {
+
+    await loadAcademicContext();
+
+    await loadTerms();
+
+    await loadClasses();
+
+    await loadMarks();
+
+}
+
 
 init();
