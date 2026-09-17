@@ -360,6 +360,7 @@ function getSelectedTermObject() {
 }
 
 
+
 /* ============================================================
    ACADEMIC CONTEXT
    ============================================================ */
@@ -386,48 +387,74 @@ async function loadAcademicContext() {
 
 
         /* ---------------------------------------------
-           Always use the current academic year returned
-           by the academic system when the saved year
-           does not exist.
+           Get valid numeric academic year ID
         --------------------------------------------- */
 
         const currentYearId =
             Number(data.year.id);
 
-
         if (
-            !selectedYear ||
-            selectedYear !== currentYearId
+            !Number.isInteger(currentYearId) ||
+            currentYearId <= 0
         ) {
 
-            /*
-             * We keep a saved year only if it has been
-             * deliberately selected by the teacher.
-             *
-             * For initial page loading, current year
-             * becomes the default.
-             */
-
-            const savedYear =
-                Number(
-                    localStorage.getItem(
-                        "selectedYear"
-                    )
-                );
+            throw new Error(
+                "Invalid academic year ID."
+            );
+        }
 
 
-            if (!savedYear) {
+        /* ---------------------------------------------
+           Get valid numeric term ID
+        --------------------------------------------- */
 
-                selectedYear =
-                    currentYearId;
-            }
+        const currentTermId =
+            Number(data.term.id);
+
+        if (
+            !Number.isInteger(currentTermId) ||
+            currentTermId <= 0
+        ) {
+
+            throw new Error(
+                "Invalid term ID."
+            );
+        }
+
+
+        /* ---------------------------------------------
+           Use current academic year by default.
+           A saved year is used only when it is a
+           valid positive integer.
+        --------------------------------------------- */
+
+        const savedYear =
+            Number(
+                localStorage.getItem(
+                    "selectedYear"
+                )
+            );
+
+
+        if (
+            Number.isInteger(savedYear) &&
+            savedYear > 0
+        ) {
+
+            selectedYear =
+                savedYear;
+
+        } else {
+
+            selectedYear =
+                currentYearId;
 
         }
 
 
-        selectedYear =
-            selectedYear || currentYearId;
-
+        /* ---------------------------------------------
+           Academic year name
+        --------------------------------------------- */
 
         selectedYearName =
             data.year.year_name ||
@@ -447,21 +474,39 @@ async function loadAcademicContext() {
         );
 
 
-        /*
-         * Only use the current term when there is
-         * no saved term.
-         */
+        /* ---------------------------------------------
+           Use saved term only when it is a valid ID.
+           Otherwise use the current term.
+        --------------------------------------------- */
 
-        if (!selectedTerm) {
+        const savedTerm =
+            Number(
+                localStorage.getItem(
+                    "selectedTerm"
+                )
+            );
+
+
+        if (
+            Number.isInteger(savedTerm) &&
+            savedTerm > 0
+        ) {
 
             selectedTerm =
-                Number(data.term.id);
+                savedTerm;
 
-            localStorage.setItem(
-                "selectedTerm",
-                selectedTerm
-            );
+        } else {
+
+            selectedTerm =
+                currentTermId;
+
         }
+
+
+        localStorage.setItem(
+            "selectedTerm",
+            selectedTerm
+        );
 
 
         return true;
