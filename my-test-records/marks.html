@@ -228,109 +228,290 @@ color:green;
 </div>
 
 
-
-
-<!-- ADD TEST MODAL -->
-
-<div
-class="modal"
-id="testModal">
-
-<div class="modal-content">
-
-<h2>
-
-Add New Test
-
-</h2>
-
-
-
-<div class="input-group">
-
-<label>
-
-Test Name
-
-</label>
-
-<input
-id="testName"
-type="text"
-placeholder="Example: Test 1">
-
-</div>
-
-
-
-
-<div class="input-group">
-
-<label>
-
-Out Of
-
-</label>
-
-<input
-id="testMax"
-type="number"
-placeholder="Maximum score">
-
-</div>
-
-
-
-
-<div
-style="
-margin-top:15px;
-">
-
-<label>
-
-<input
-id="isExam"
-type="checkbox">
-
-Is Exam
-
-</label>
-
-</div>
-
-
-
-
-<div
-style="
-display:flex;
-gap:10px;
-margin-top:20px;
-">
+<!-- MANAGE TESTS BUTTON -->
 
 <button
-class="btn btn-danger"
-onclick="closeTestModal()">
+    class="btn btn-primary"
+    onclick="openTestModal()">
 
-Cancel
+    <i class="fa-solid fa-list-check"></i>
+
+    Manage Tests
 
 </button>
 
 
-<button
-class="btn btn-primary"
-onclick="addTest()">
+<!-- MANAGE TESTS MODAL -->
 
-Add Test
+<div
+    class="modal"
+    id="testModal">
 
-</button>
+    <div
+        class="modal-content"
+        style="
+            width: min(950px, 95vw);
+            max-width: 950px;
+            max-height: 90vh;
+            overflow-y: auto;
+        ">
+
+        <!-- MODAL HEADER -->
+
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:15px;
+                margin-bottom:20px;
+            ">
+
+            <div>
+
+                <h2 style="margin:0;">
+                    Manage Tests
+                </h2>
+
+                <p
+                    id="testModalSubtitle"
+                    style="
+                        margin:6px 0 0;
+                        color:#666;
+                    ">
+
+                    Manage tests for the selected class and subject.
+
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                onclick="closeTestModal()"
+                style="
+                    border:none;
+                    background:none;
+                    font-size:24px;
+                    cursor:pointer;
+                ">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+        <!-- ADD NEW TEST -->
+
+        <div
+            style="
+                display:flex;
+                justify-content:flex-end;
+                margin-bottom:20px;
+            ">
+
+            <button
+                class="btn btn-primary"
+                onclick="openAddTestForm()">
+
+                <i class="fa-solid fa-plus"></i>
+
+                Add New Test
+
+            </button>
+
+        </div>
+
+
+        <!-- ADD TEST FORM -->
+
+        <div
+            id="addTestForm"
+            style="
+                display:none;
+                padding:18px;
+                border:1px solid #ddd;
+                border-radius:10px;
+                margin-bottom:20px;
+            ">
+
+            <h3 style="margin-top:0;">
+                Add New Test
+            </h3>
+
+
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(auto-fit,minmax(200px,1fr));
+                    gap:15px;
+                ">
+
+                <div class="input-group">
+
+                    <label>
+                        Test Name
+                    </label>
+
+                    <input
+                        id="testName"
+                        type="text"
+                        placeholder="Example: Test 1">
+
+                </div>
+
+
+                <div class="input-group">
+
+                    <label>
+                        Maximum Marks
+                    </label>
+
+                    <input
+                        id="testMax"
+                        type="number"
+                        min="1"
+                        placeholder="Example: 20">
+
+                </div>
+
+
+                <div
+                    style="
+                        display:flex;
+                        align-items:end;
+                        padding-bottom:5px;
+                    ">
+
+                    <label>
+
+                        <input
+                            id="isExam"
+                            type="checkbox">
+
+                        Is Exam
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <div
+                style="
+                    display:flex;
+                    justify-content:flex-end;
+                    gap:10px;
+                    margin-top:15px;
+                ">
+
+                <button
+                    class="btn btn-danger"
+                    onclick="closeAddTestForm()">
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                    class="btn btn-primary"
+                    onclick="addTest()">
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Create Test
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- TEST LIST -->
+
+        <div id="testsLoading"
+             style="
+                text-align:center;
+                padding:30px;
+                display:none;
+             ">
+
+            Loading tests...
+
+        </div>
+
+
+        <div
+            id="noTestsMessage"
+            style="
+                display:none;
+                text-align:center;
+                padding:35px;
+                color:#777;
+            ">
+
+            <i
+                class="fa-solid fa-clipboard-list"
+                style="
+                    font-size:35px;
+                    margin-bottom:10px;
+                ">
+            </i>
+
+            <p>
+                No tests have been created for this class and subject yet.
+            </p>
+
+        </div>
+
+
+        <div
+            class="table-container"
+            id="testsTableContainer"
+            style="display:none;">
+
+            <table
+                class="marks-table"
+                style="width:100%;">
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+
+                        <th>Test Name</th>
+
+                        <th>Type</th>
+
+                        <th>Max Marks</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody
+                    id="testsTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 
-</div>
 
-</div>
 
 <script src="js/marks.js"></script>
 
