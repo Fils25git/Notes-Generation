@@ -1,37 +1,15 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Record Marks | Fila Assistant</title>
 
-    <link
-        rel="stylesheet"
-        href="css/global.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="css/dashboard.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="css/marks.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="css/responsive.css"
-    >
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/responsive.css">
 
     <link
         rel="stylesheet"
@@ -39,1063 +17,769 @@
     >
 
     <style>
-
-        /* =====================================================
-           PAGE
-        ===================================================== */
+        /* =========================================================
+           MARKS PAGE
+        ========================================================= */
 
         .marks-page {
-
-            width: 100%;
-
+            padding-bottom: 40px;
         }
 
-
-        /* =====================================================
-           FILTER AREA
-        ===================================================== */
-
-        .marks-filters {
-
-            background: var(--card-bg, #ffffff);
-
-            border-radius: 14px;
-
-            padding: 20px;
-
-            margin-bottom: 20px;
-
-            box-shadow:
-                0 2px 10px rgba(0,0,0,.06);
-
-        }
-
-
-        .filter-title {
-
-            font-size: 15px;
-
-            font-weight: 700;
-
-            margin-bottom: 14px;
-
-            color: #333;
-
-        }
-
-
-        .filter-section {
-
-            margin-bottom: 18px;
-
-        }
-
-
-        .filter-section:last-child {
-
-            margin-bottom: 0;
-
-        }
-
-
-        .filter-buttons {
-
+        .page-heading {
             display: flex;
-
-            flex-wrap: wrap;
-
-            gap: 9px;
-
-        }
-
-
-        .subject-btn,
-        .class-btn {
-
-            border: 1px solid #d9dee7;
-
-            background: #fff;
-
-            color: #374151;
-
-            border-radius: 9px;
-
-            padding: 9px 15px;
-
-            cursor: pointer;
-
-            font-size: 14px;
-
-            transition: .2s ease;
-
-        }
-
-
-        .subject-btn:hover,
-        .class-btn:hover {
-
-            border-color: #2563eb;
-
-            color: #2563eb;
-
-        }
-
-
-        .subject-btn.active,
-        .class-btn.active {
-
-            background: #2563eb;
-
-            border-color: #2563eb;
-
-            color: #fff;
-
-        }
-
-
-        .empty-filter {
-
-            color: #777;
-
-            font-size: 14px;
-
-            padding: 8px 0;
-
-        }
-
-
-        /* =====================================================
-           SEARCH
-        ===================================================== */
-
-        .student-search {
-
-            margin-bottom: 15px;
-
-        }
-
-
-        .student-search input {
-
-            width: 100%;
-
-            max-width: 450px;
-
-            padding: 12px 14px;
-
-            border: 1px solid #d9dee7;
-
-            border-radius: 9px;
-
-            outline: none;
-
-            font-size: 14px;
-
-        }
-
-
-        .student-search input:focus {
-
-            border-color: #2563eb;
-
-        }
-
-
-        /* =====================================================
-           SAVE STATUS
-        ===================================================== */
-
-        #saveStatus {
-
-            min-height: 20px;
-
-            margin-bottom: 10px;
-
-            font-size: 14px;
-
-        }
-
-
-        /* =====================================================
-           MODAL
-        ===================================================== */
-
-        .test-modal {
-
-            position: fixed;
-
-            inset: 0;
-
-            background: rgba(15, 23, 42, .62);
-
-            display: none;
-
             align-items: center;
-
-            justify-content: center;
-
-            padding: 20px;
-
-            z-index: 9999;
-
-        }
-
-
-        .test-modal.active {
-
-            display: flex;
-
-        }
-
-
-        .test-modal-content {
-
-            width: min(1050px, 96vw);
-
-            max-height: 92vh;
-
-            overflow-y: auto;
-
-            background: #fff;
-
-            border-radius: 16px;
-
-            box-shadow:
-                0 20px 60px rgba(0,0,0,.25);
-
-            animation: modalIn .18s ease;
-
-        }
-
-
-        @keyframes modalIn {
-
-            from {
-
-                opacity: 0;
-
-                transform: translateY(12px) scale(.98);
-
-            }
-
-            to {
-
-                opacity: 1;
-
-                transform: translateY(0) scale(1);
-
-            }
-
-        }
-
-
-        .test-modal-header {
-
-            padding: 22px 24px;
-
-            border-bottom: 1px solid #e5e7eb;
-
-            display: flex;
-
-            align-items: flex-start;
-
             justify-content: space-between;
-
             gap: 20px;
-
+            margin-bottom: 24px;
         }
 
+        .page-heading h1 {
+            margin: 0 0 5px;
+        }
 
-        .test-modal-title {
-
+        .page-heading p {
             margin: 0;
-
-            font-size: 22px;
-
-            color: #111827;
-
+            opacity: .7;
         }
 
+        /* Context selectors */
 
-        .test-modal-subtitle {
+        .marks-context {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
 
-            margin: 6px 0 0;
+        .context-card {
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.04);
+        }
 
-            color: #6b7280;
+        .context-card label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
 
+        .context-card select {
+            width: 100%;
+            height: 44px;
+            border: 1px solid #d9d9d9;
+            border-radius: 9px;
+            padding: 0 12px;
+            background: #fff;
             font-size: 14px;
-
+            outline: none;
         }
 
+        .context-card select:focus {
+            border-color: #2563eb;
+        }
+
+        .context-card select:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        /* Search */
+
+        .marks-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 16px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+            max-width: 100%;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 42px;
+            border: 1px solid #ddd;
+            border-radius: 9px;
+            padding: 0 12px 0 38px;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .search-box input:focus {
+            border-color: #2563eb;
+        }
+
+        /* Table */
+
+        .marks-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            background: #fff;
+            border: 1px solid #e7e7e7;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.04);
+        }
+
+        .marks-table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+        }
+
+        .marks-table th,
+        .marks-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .marks-table th {
+            background: #f8fafc;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .marks-table td {
+            font-size: 14px;
+        }
+
+        .marks-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .marks-table th:first-child,
+        .marks-table td:first-child {
+            width: 45px;
+            text-align: center;
+        }
+
+        .marks-table th:nth-child(2),
+        .marks-table td:nth-child(2) {
+            min-width: 210px;
+        }
+
+        .mark-input {
+            width: 75px;
+            height: 36px;
+            border: 1px solid #d8d8d8;
+            border-radius: 7px;
+            padding: 0 8px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .mark-input:focus {
+            border-color: #2563eb;
+        }
+
+        .mark-input.invalid {
+            border-color: #dc2626;
+            background: #fff5f5;
+        }
+
+        .readonly-score {
+            font-weight: 600;
+        }
+
+        .percentage {
+            font-weight: 700;
+        }
+
+        .exam-badge,
+        .test-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .exam-badge {
+            background: #fff1f2;
+            color: #be123c;
+        }
+
+        .test-badge {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        /* Empty state */
+
+        .empty-state {
+            padding: 55px 25px;
+            text-align: center;
+            color: #777;
+        }
+
+        .empty-state i {
+            font-size: 38px;
+            margin-bottom: 12px;
+            opacity: .45;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 7px;
+            color: #444;
+        }
+
+        .empty-state p {
+            margin: 0;
+        }
+
+        /* Loading */
+
+        .loading-state {
+            padding: 35px;
+            text-align: center;
+            color: #777;
+        }
+
+        .loading-state i {
+            margin-right: 7px;
+        }
+
+        /* Save status */
+
+        .save-status {
+            min-height: 20px;
+            font-size: 13px;
+            margin-top: 8px;
+            color: #555;
+        }
+
+        .save-status.success {
+            color: #15803d;
+        }
+
+        .save-status.error {
+            color: #dc2626;
+        }
+
+        /* =========================================================
+           MODALS
+        ========================================================= */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .58);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 9999;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 540px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.22);
+        }
+
+        .large-modal {
+            max-width: 1050px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 22px 24px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            margin: 0 0 5px;
+            font-size: 20px;
+        }
+
+        .modal-header p {
+            margin: 0;
+            font-size: 13px;
+            color: #777;
+        }
 
         .modal-close {
-
-            width: 38px;
-
-            height: 38px;
-
-            border: none;
-
-            border-radius: 8px;
-
+            border: 0;
             background: #f3f4f6;
-
-            color: #4b5563;
-
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
             cursor: pointer;
-
             font-size: 17px;
-
+            color: #555;
         }
-
 
         .modal-close:hover {
-
             background: #e5e7eb;
-
         }
 
-
-        .test-modal-body {
-
+        .modal-body {
             padding: 24px;
-
         }
 
-
-        /* =====================================================
-           TEST FORM
-        ===================================================== */
-
-        .test-form {
-
-            display: none;
-
-            border: 1px solid #e5e7eb;
-
-            background: #f8fafc;
-
-            border-radius: 12px;
-
-            padding: 20px;
-
-            margin-bottom: 22px;
-
-        }
-
-
-        .test-form.active {
-
-            display: block;
-
-        }
-
-
-        .test-form-grid {
-
-            display: grid;
-
-            grid-template-columns:
-                minmax(0, 1fr)
-                180px
-                150px;
-
-            gap: 15px;
-
-        }
-
-
-        .form-field label {
-
-            display: block;
-
-            font-size: 13px;
-
-            font-weight: 600;
-
-            margin-bottom: 7px;
-
-            color: #374151;
-
-        }
-
-
-        .form-field input {
-
-            width: 100%;
-
-            box-sizing: border-box;
-
-            padding: 11px 12px;
-
-            border: 1px solid #d1d5db;
-
-            border-radius: 8px;
-
-            background: #fff;
-
-            outline: none;
-
-            font-size: 14px;
-
-        }
-
-
-        .form-field input:focus {
-
-            border-color: #2563eb;
-
-        }
-
-
-        .checkbox-field {
-
+        .modal-footer {
             display: flex;
-
-            align-items: center;
-
-            gap: 8px;
-
-            padding-top: 28px;
-
-            font-size: 14px;
-
-        }
-
-
-        .test-form-actions {
-
-            display: flex;
-
             justify-content: flex-end;
-
             gap: 10px;
-
-            margin-top: 18px;
-
+            padding: 18px 24px;
+            border-top: 1px solid #eee;
         }
 
+        /* Context chips */
 
-        /* =====================================================
-           TEST LIST
-        ===================================================== */
-
-        .tests-toolbar {
-
+        .test-context {
             display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-bottom: 20px;
+        }
 
-            justify-content: space-between;
+        .context-chip {
+            background: #f1f5f9;
+            border-radius: 20px;
+            padding: 7px 11px;
+            font-size: 12px;
+            color: #475569;
+        }
 
+        .context-chip strong {
+            color: #1e293b;
+        }
+
+        /* Test management */
+
+        .manage-tests-toolbar {
+            display: flex;
             align-items: center;
-
+            justify-content: space-between;
             gap: 15px;
-
             margin-bottom: 15px;
-
         }
 
-
-        .tests-toolbar h3 {
-
+        .manage-tests-toolbar h3 {
             margin: 0;
-
-            font-size: 17px;
-
+            font-size: 16px;
         }
-
-
-        .tests-count {
-
-            color: #6b7280;
-
-            font-size: 13px;
-
-        }
-
 
         .tests-table-wrapper {
-
             overflow-x: auto;
-
             border: 1px solid #e5e7eb;
-
             border-radius: 10px;
-
         }
-
 
         .tests-table {
-
             width: 100%;
-
+            min-width: 720px;
             border-collapse: collapse;
-
-            min-width: 650px;
-
         }
 
+        .tests-table th,
+        .tests-table td {
+            padding: 12px 13px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
 
         .tests-table th {
-
             background: #f8fafc;
-
-            color: #374151;
-
-            font-size: 13px;
-
-            font-weight: 700;
-
-            text-align: left;
-
-            padding: 13px 14px;
-
-            border-bottom: 1px solid #e5e7eb;
-
+            font-size: 12px;
         }
-
 
         .tests-table td {
-
-            padding: 13px 14px;
-
-            border-bottom: 1px solid #eef0f3;
-
-            color: #374151;
-
-            font-size: 14px;
-
+            font-size: 13px;
         }
-
 
         .tests-table tr:last-child td {
-
-            border-bottom: none;
-
+            border-bottom: 0;
         }
 
-
-        .test-type {
-
-            display: inline-flex;
-
-            padding: 4px 9px;
-
-            border-radius: 20px;
-
-            background: #eef2ff;
-
-            color: #3730a3;
-
-            font-size: 12px;
-
-            font-weight: 600;
-
-        }
-
-
-        .test-type.exam {
-
-            background: #fff7ed;
-
-            color: #c2410c;
-
-        }
-
-
-        .test-actions {
-
+        .actions {
             display: flex;
-
             gap: 7px;
-
-            flex-wrap: wrap;
-
         }
 
-
-        .test-action {
-
-            border: none;
-
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            border: 0;
             border-radius: 7px;
-
-            padding: 7px 10px;
-
             cursor: pointer;
-
-            font-size: 12px;
-
-            font-weight: 600;
-
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-
-        .test-action.edit {
-
+        .icon-btn.edit {
             background: #eff6ff;
-
-            color: #1d4ed8;
-
+            color: #2563eb;
         }
 
-
-        .test-action.delete {
-
-            background: #fef2f2;
-
+        .icon-btn.delete {
+            background: #fff1f2;
             color: #dc2626;
-
         }
 
-
-        /* =====================================================
-           EMPTY / LOADING
-        ===================================================== */
-
-        .tests-state {
-
-            text-align: center;
-
-            padding: 45px 20px;
-
-            color: #6b7280;
-
+        .icon-btn:hover {
+            opacity: .82;
         }
 
+        /* Form */
 
-        .tests-state i {
-
-            font-size: 35px;
-
-            margin-bottom: 12px;
-
-            color: #9ca3af;
-
+        .form-group {
+            margin-bottom: 17px;
         }
 
-
-        .tests-state p {
-
-            margin: 5px 0;
-
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
+        .form-control {
+            width: 100%;
+            height: 44px;
+            border: 1px solid #d9d9d9;
+            border-radius: 8px;
+            padding: 0 12px;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 14px;
+        }
 
-        /* =====================================================
-           TOAST
-        ===================================================== */
+        .form-control:focus {
+            border-color: #2563eb;
+        }
 
-        .toast-container {
-
-            position: fixed;
-
-            right: 20px;
-
-            bottom: 20px;
-
-            z-index: 20000;
-
+        .checkbox-row {
             display: flex;
-
-            flex-direction: column;
-
-            gap: 10px;
-
+            align-items: center;
+            gap: 9px;
+            font-size: 14px;
+            cursor: pointer;
         }
 
+        .checkbox-row input {
+            width: 17px;
+            height: 17px;
+        }
+
+        .btn {
+            border: 0;
+            border-radius: 8px;
+            min-height: 40px;
+            padding: 0 15px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        /* Toast */
+
+        #toastContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 20000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 320px;
+            max-width: calc(100vw - 40px);
+        }
 
         .toast {
-
-            min-width: 260px;
-
-            max-width: 380px;
-
-            padding: 13px 16px;
-
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-left: 4px solid #2563eb;
             border-radius: 9px;
-
-            background: #111827;
-
-            color: white;
-
-            box-shadow:
-                0 8px 25px rgba(0,0,0,.18);
-
-            font-size: 14px;
-
+            padding: 13px 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.12);
+            font-size: 13px;
             animation: toastIn .2s ease;
-
         }
-
 
         .toast.success {
-
-            background: #166534;
-
+            border-left-color: #16a34a;
         }
-
 
         .toast.error {
-
-            background: #b91c1c;
-
+            border-left-color: #dc2626;
         }
-
 
         @keyframes toastIn {
-
             from {
-
                 opacity: 0;
-
-                transform: translateY(8px);
-
+                transform: translateY(-8px);
             }
-
             to {
-
                 opacity: 1;
-
                 transform: translateY(0);
-
             }
-
         }
 
-
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
-
-        @media (max-width: 700px) {
-
-            .test-modal {
-
-                padding: 10px;
-
-            }
-
-
-            .test-modal-content {
-
-                width: 100%;
-
-                max-height: 95vh;
-
-                border-radius: 12px;
-
-            }
-
-
-            .test-modal-header,
-            .test-modal-body {
-
-                padding: 17px;
-
-            }
-
-
-            .test-form-grid {
-
+        @media (max-width: 800px) {
+            .marks-context {
                 grid-template-columns: 1fr;
-
             }
 
-
-            .checkbox-field {
-
-                padding-top: 0;
-
-            }
-
-
-            .tests-toolbar {
-
-                align-items: flex-start;
-
+            .page-heading,
+            .marks-toolbar,
+            .manage-tests-toolbar {
+                align-items: stretch;
                 flex-direction: column;
-
             }
 
+            .search-box {
+                width: 100%;
+            }
+
+            .modal-overlay {
+                padding: 10px;
+            }
+
+            .modal {
+                max-height: calc(100vh - 20px);
+            }
+
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
         }
-
     </style>
-
 </head>
-
 
 <body>
 
+<div class="dashboard-container">
 
-<div class="dashboard-wrapper">
-
-
-    <!-- =====================================================
+    <!-- =========================================================
          SIDEBAR
-    ====================================================== -->
-
+    ========================================================== -->
     <aside class="sidebar">
 
-        <div class="sidebar-logo">
-
+        <div class="sidebar-header">
             <h2>Marks System</h2>
-
         </div>
 
+        <nav class="sidebar-nav">
 
-        <div class="sidebar-menu">
-
-            <a
-                href="dashboard.html"
-                class="sidebar-link"
-            >
-
+            <a href="dashboard.html">
                 <i class="fa-solid fa-house"></i>
-
-                Dashboard
-
+                <span>Dashboard</span>
             </a>
 
-
-            <a
-                href="students.html"
-                class="sidebar-link"
-            >
-
+            <a href="students.html">
                 <i class="fa-solid fa-users"></i>
-
-                Manage Students
-
+                <span>Manage Students</span>
             </a>
 
-
-            <a
-                href="marks.html"
-                class="sidebar-link active"
-            >
-
-                <i class="fa-solid fa-pen"></i>
-
-                Record Marks
-
+            <a href="marks.html" class="active">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Record Marks</span>
             </a>
 
-
-            <a
-                href="results.html"
-                class="sidebar-link"
-            >
-
+            <a href="results.html">
                 <i class="fa-solid fa-chart-column"></i>
-
-                Results
-
+                <span>Results</span>
             </a>
 
-
-            <a
-                href="login.html"
-                class="sidebar-link"
-                onclick="logout()"
-            >
-
+            <a href="login.html" onclick="logout()">
                 <i class="fa-solid fa-right-from-bracket"></i>
-
-                Logout
-
+                <span>Logout</span>
             </a>
 
-        </div>
+        </nav>
 
     </aside>
 
 
-
-    <!-- =====================================================
+    <!-- =========================================================
          MAIN CONTENT
-    ====================================================== -->
+    ========================================================== -->
+    <main class="main-content">
 
-    <main class="main-content marks-page">
+        <div class="marks-page">
 
+            <div class="page-heading">
 
-        <div class="topbar">
-
-            <div class="teacher-info">
-
-                <h2>Record Marks</h2>
-
-                <p>
-                    Record and manage learner assessments
-                </p>
-
-            </div>
-
-
-            <div class="marks-actions">
+                <div>
+                    <h1>Record Marks</h1>
+                    <p>Record and manage learner assessments</p>
+                </div>
 
                 <button
+                    type="button"
                     class="btn btn-primary"
-                    onclick="openTestModal()"
-                    id="manageTestsButton"
+                    onclick="openManageTests()"
+                    id="manageTestsBtn"
+                    disabled
                 >
-
                     <i class="fa-solid fa-list-check"></i>
-
                     Manage Tests
-
                 </button>
 
             </div>
 
-        </div>
 
+            <!-- =================================================
+                 CLASS / SUBJECT / TERM
+            ================================================== -->
 
+            <div class="marks-context">
 
-        <!-- =================================================
-             FILTERS
-        ================================================== -->
+                <div class="context-card">
+                    <label for="classSelect">
+                        <i class="fa-solid fa-school"></i>
+                        Class
+                    </label>
 
-        <div class="marks-filters">
-
-
-            <!-- SUBJECT -->
-
-            <div class="filter-section">
-
-                <div class="filter-title">
-
-                    <i class="fa-solid fa-book"></i>
-
-                    Subject
-
+                    <select id="classSelect">
+                        <option value="">Loading classes...</option>
+                    </select>
                 </div>
 
 
-                <div
-                    id="subjectContainer"
-                    class="filter-buttons"
-                >
+                <div class="context-card">
+                    <label for="subjectSelect">
+                        <i class="fa-solid fa-book"></i>
+                        Subject
+                    </label>
 
-                    <span class="empty-filter">
-                        Loading subjects...
-                    </span>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- CLASS -->
-
-            <div class="filter-section">
-
-                <div class="filter-title">
-
-                    <i class="fa-solid fa-users-rectangle"></i>
-
-                    Class
-
+                    <select id="subjectSelect" disabled>
+                        <option value="">Select a class first</option>
+                    </select>
                 </div>
 
 
-                <div
-                    id="classContainer"
-                    class="filter-buttons"
-                >
+                <div class="context-card">
+                    <label for="termSelect">
+                        <i class="fa-solid fa-calendar"></i>
+                        Term
+                    </label>
 
-                    <span class="empty-filter">
-                        Loading classes...
-                    </span>
-
+                    <select id="termSelect" disabled>
+                        <option value="">Loading terms...</option>
+                    </select>
                 </div>
 
             </div>
 
 
+            <!-- =================================================
+                 TOOLBAR
+            ================================================== -->
 
-            <!-- TERM -->
+            <div class="marks-toolbar">
 
-            <div class="filter-section">
-
-                <div class="filter-title">
-
-                    <i class="fa-solid fa-calendar-days"></i>
-
-                    Term
-
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Search learner..."
+                        autocomplete="off"
+                    >
                 </div>
 
-
-                <div
-                    id="termContainer"
-                    class="filter-buttons"
-                >
-
-                    <span class="empty-filter">
-                        Loading terms...
-                    </span>
-
-                </div>
+                <div id="saveStatus" class="save-status"></div>
 
             </div>
 
-        </div>
 
+            <!-- =================================================
+                 MARKS TABLE
+            ================================================== -->
 
+            <div class="marks-table-wrapper">
 
-        <!-- =================================================
-             SEARCH
-        ================================================== -->
+                <div id="marksLoading" class="loading-state">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Loading marks...
+                </div>
 
-        <div class="student-search">
+                <div id="marksEmpty" class="empty-state" style="display:none;">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <h3>No marks to display</h3>
+                    <p>Please select a class, subject and term.</p>
+                </div>
 
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Search learner..."
-                autocomplete="off"
-            >
-
-        </div>
-
-
-
-        <!-- =================================================
-             SAVE STATUS
-        ================================================== -->
-
-        <div id="saveStatus"></div>
-
-
-
-        <!-- =================================================
-             MARKS TABLE
-        ================================================== -->
-
-        <div class="card">
-
-            <div class="table-container">
-
-                <table class="marks-table">
-
-                    <thead>
-
-                        <tr id="marksHeader">
-
-                            <th>#</th>
-
-                            <th>Pupil Name</th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="marksTable">
-
-                    </tbody>
-
+                <table
+                    class="marks-table"
+                    id="marksTable"
+                    style="display:none;"
+                >
+                    <thead id="marksHead"></thead>
+                    <tbody id="marksBody"></tbody>
                 </table>
 
             </div>
@@ -1107,272 +791,131 @@
 </div>
 
 
-
-<!-- =========================================================
+<!-- =============================================================
      MANAGE TESTS MODAL
-========================================================= -->
+============================================================== -->
 
 <div
-    class="test-modal"
-    id="testModal"
+    class="modal-overlay"
+    id="manageTestsModal"
+    onclick="handleModalBackdrop(event, 'manageTestsModal')"
 >
 
-    <div class="test-modal-content">
+    <div class="modal large-modal">
 
-
-        <!-- HEADER -->
-
-        <div class="test-modal-header">
+        <div class="modal-header">
 
             <div>
-
-                <h2
-                    class="test-modal-title"
-                    id="testModalTitle"
-                >
-                    Manage Tests
-                </h2>
-
-
-                <p
-                    class="test-modal-subtitle"
-                    id="testModalSubtitle"
-                >
-                    Manage tests for the selected class and subject.
-                </p>
-
+                <h2>Manage Tests</h2>
+                <p>Create, edit and remove assessments for this class.</p>
             </div>
-
 
             <button
                 type="button"
                 class="modal-close"
-                onclick="closeTestModal()"
-                aria-label="Close"
+                onclick="closeModal('manageTestsModal')"
             >
-
                 <i class="fa-solid fa-xmark"></i>
-
             </button>
 
         </div>
 
 
+        <div class="modal-body">
 
-        <!-- BODY -->
+            <div class="test-context">
 
-        <div class="test-modal-body">
-
-
-            <!-- ADD BUTTON -->
-
-            <div
-                class="tests-toolbar"
-                id="testsToolbar"
-            >
-
-                <div>
-
-                    <h3>
-                        Assessment Tests
-                    </h3>
-
-                    <div
-                        class="tests-count"
-                        id="testsCount"
-                    >
-                        Loading...
-                    </div>
-
+                <div class="context-chip">
+                    Class:
+                    <strong id="modalClassName">—</strong>
                 </div>
 
+                <div class="context-chip">
+                    Subject:
+                    <strong id="modalSubjectName">—</strong>
+                </div>
+
+                <div class="context-chip">
+                    Term:
+                    <strong id="modalTermName">—</strong>
+                </div>
+
+                <div class="context-chip">
+                    Academic Year:
+                    <strong id="modalYearName">—</strong>
+                </div>
+
+            </div>
+
+
+            <div class="manage-tests-toolbar">
+
+                <h3>Existing Assessments</h3>
 
                 <button
+                    type="button"
                     class="btn btn-primary"
-                    onclick="openAddTestForm()"
+                    onclick="openAddTestModal()"
                 >
-
                     <i class="fa-solid fa-plus"></i>
-
                     Add New Test
-
                 </button>
 
             </div>
 
 
+            <div class="tests-table-wrapper">
 
-            <!-- ADD / EDIT FORM -->
-
-            <div
-                class="test-form"
-                id="testForm"
-            >
-
-                <h3
-                    id="testFormTitle"
-                    style="margin-top:0;"
+                <div
+                    id="testsLoading"
+                    class="loading-state"
                 >
-                    Add New Test
-                </h3>
-
-
-                <div class="test-form-grid">
-
-
-                    <div class="form-field">
-
-                        <label for="testName">
-                            Test Name
-                        </label>
-
-                        <input
-                            id="testName"
-                            type="text"
-                            placeholder="Example: Test 1"
-                            maxlength="100"
-                        >
-
-                    </div>
-
-
-                    <div class="form-field">
-
-                        <label for="testMax">
-                            Maximum Marks
-                        </label>
-
-                        <input
-                            id="testMax"
-                            type="number"
-                            min="1"
-                            step="1"
-                            placeholder="Example: 20"
-                        >
-
-                    </div>
-
-
-                    <label class="checkbox-field">
-
-                        <input
-                            id="isExam"
-                            type="checkbox"
-                        >
-
-                        This is an exam
-
-                    </label>
-
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    Loading tests...
                 </div>
 
-
-                <div class="test-form-actions">
-
-                    <button
-                        class="btn btn-danger"
-                        onclick="closeTestForm()"
-                    >
-
-                        Cancel
-
-                    </button>
-
-
-                    <button
-                        class="btn btn-primary"
-                        id="saveTestButton"
-                        onclick="saveTestForm()"
-                    >
-
-                        <i class="fa-solid fa-check"></i>
-
-                        Create Test
-
-                    </button>
-
+                <div
+                    id="testsEmpty"
+                    class="empty-state"
+                    style="display:none;"
+                >
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                    <h3>No tests created yet</h3>
+                    <p>Click "Add New Test" to create the first assessment.</p>
                 </div>
 
-            </div>
-
-
-
-            <!-- LOADING -->
-
-            <div
-                class="tests-state"
-                id="testsLoading"
-                style="display:none;"
-            >
-
-                <i class="fa-solid fa-spinner fa-spin"></i>
-
-                <p>Loading tests...</p>
-
-            </div>
-
-
-
-            <!-- EMPTY -->
-
-            <div
-                class="tests-state"
-                id="noTestsMessage"
-                style="display:none;"
-            >
-
-                <i class="fa-solid fa-clipboard-list"></i>
-
-                <p>
-                    No tests have been created yet.
-                </p>
-
-                <small>
-                    Click "Add New Test" to create the first assessment.
-                </small>
-
-            </div>
-
-
-
-            <!-- TABLE -->
-
-            <div
-                class="tests-table-wrapper"
-                id="testsTableContainer"
-                style="display:none;"
-            >
-
-                <table class="tests-table">
-
+                <table
+                    class="tests-table"
+                    id="testsTable"
+                    style="display:none;"
+                >
                     <thead>
-
                         <tr>
-
                             <th>#</th>
-
                             <th>Test Name</th>
-
                             <th>Type</th>
-
-                            <th>Max Marks</th>
-
+                            <th>Maximum Marks</th>
                             <th>Created</th>
-
-                            <th>Action</th>
-
+                            <th>Actions</th>
                         </tr>
-
                     </thead>
 
-
-                    <tbody id="testsTable">
-
-                    </tbody>
-
+                    <tbody id="testsBody"></tbody>
                 </table>
 
             </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="closeModal('manageTestsModal')"
+            >
+                Close
+            </button>
 
         </div>
 
@@ -1381,21 +924,133 @@
 </div>
 
 
-
-<!-- =========================================================
-     TOAST
-========================================================= -->
+<!-- =============================================================
+     ADD / EDIT TEST MODAL
+============================================================== -->
 
 <div
-    id="toastContainer"
-    class="toast-container"
-></div>
+    class="modal-overlay"
+    id="testEditorModal"
+    onclick="handleModalBackdrop(event, 'testEditorModal')"
+>
 
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div>
+                <h2 id="testEditorTitle">Add New Test</h2>
+                <p id="testEditorSubtitle">
+                    Create an assessment for the selected class.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeModal('testEditorModal')"
+            >
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+        </div>
+
+
+        <form id="testForm">
+
+            <div class="modal-body">
+
+                <div class="form-group">
+
+                    <label for="testName">
+                        Test Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="testName"
+                        class="form-control"
+                        placeholder="e.g. Test 1"
+                        maxlength="100"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="testMaxScore">
+                        Maximum Marks
+                    </label>
+
+                    <input
+                        type="number"
+                        id="testMaxScore"
+                        class="form-control"
+                        min="1"
+                        max="1000"
+                        step="0.01"
+                        placeholder="e.g. 20"
+                        required
+                    >
+
+                </div>
+
+
+                <label class="checkbox-row">
+
+                    <input
+                        type="checkbox"
+                        id="testIsExam"
+                    >
+
+                    <span>
+                        This is an exam
+                    </span>
+
+                </label>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="closeModal('testEditorModal')"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="saveTestBtn"
+                >
+                    <i class="fa-solid fa-check"></i>
+                    <span id="saveTestBtnText">Create Test</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =============================================================
+     TOASTS
+============================================================== -->
+
+<div id="toastContainer"></div>
 
 
 <script src="js/marks.js"></script>
 
-
 </body>
-
 </html>
+
