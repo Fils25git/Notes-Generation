@@ -19,7 +19,157 @@
 <link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+<style>
+    /* ====================================================
+GRADING SETTINGS MODAL
+==================================================== */
 
+.grading-modal {
+position: fixed;
+inset: 0;
+z-index: 9999;
+}
+
+.grading-modal-overlay {
+position: absolute;
+inset: 0;
+background: rgba(0, 0, 0, 0.55);
+}
+
+.grading-modal-content {
+position: relative;
+width: min(500px, calc(100% - 30px));
+max-height: 90vh;
+overflow-y: auto;
+margin: 5vh auto 0;
+background: #fff;
+border-radius: 12px;
+box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+.grading-modal-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 18px 20px;
+border-bottom: 1px solid #eee;
+}
+
+.grading-modal-header h2 {
+margin: 0;
+font-size: 20px;
+}
+
+.grading-modal-close {
+border: none;
+background: transparent;
+font-size: 28px;
+cursor: pointer;
+line-height: 1;
+}
+
+.grading-modal-body {
+padding: 20px;
+}
+
+.grading-modal-description {
+margin-top: 0;
+color: #666;
+font-size: 14px;
+}
+
+.grading-selection-info {
+background: #f5f5f5;
+padding: 12px;
+border-radius: 8px;
+margin-bottom: 20px;
+font-size: 14px;
+}
+
+.grading-form-group {
+margin-bottom: 20px;
+}
+
+.grading-form-group label {
+display: block;
+font-weight: 600;
+margin-bottom: 7px;
+}
+
+.grading-form-group input {
+width: 100%;
+box-sizing: border-box;
+padding: 11px 12px;
+border: 1px solid #ccc;
+border-radius: 7px;
+font-size: 15px;
+}
+
+.grading-form-group small {
+display: block;
+margin-top: 6px;
+color: #777;
+font-size: 12px;
+}
+
+.grading-settings-message {
+display: none;
+padding: 10px;
+border-radius: 7px;
+margin-top: 10px;
+font-size: 14px;
+}
+
+.grading-settings-message.success {
+display: block;
+background: #e8f7ee;
+color: #176b38;
+}
+
+.grading-settings-message.error {
+display: block;
+background: #fdecec;
+color: #a12626;
+}
+
+.grading-modal-footer {
+display: flex;
+justify-content: flex-end;
+gap: 10px;
+padding: 15px 20px;
+border-top: 1px solid #eee;
+}
+
+.grading-cancel-btn,
+.grading-save-btn {
+padding: 10px 16px;
+border-radius: 7px;
+border: none;
+cursor: pointer;
+font-weight: 600;
+}
+
+@media (max-width: 600px) {
+
+
+.grading-modal-content {
+    width: calc(100% - 20px);
+    margin-top: 3vh;
+}
+
+.grading-modal-footer {
+    flex-direction: column;
+}
+
+.grading-cancel-btn,
+.grading-save-btn {
+    width: 100%;
+}
+
+
+}
+
+</style>
 </head>
 
 <body>
@@ -271,6 +421,158 @@
 </div>
 
 <script src="js/results.js"></script>
+    <!-- ====================================================
+     GRADING SETTINGS MODAL
+==================================================== -->
+
+<div
+    id="gradingSettingsModal"
+    class="grading-modal"
+    style="display:none;"
+>
+
+
+<div class="grading-modal-overlay"
+     onclick="closeGradingSettingsModal()">
+</div>
+
+
+<div class="grading-modal-content">
+
+    <div class="grading-modal-header">
+
+        <h2>
+            <i class="fa-solid fa-gear"></i>
+            Grading Settings
+        </h2>
+
+        <button
+            type="button"
+            class="grading-modal-close"
+            onclick="closeGradingSettingsModal()"
+        >
+            &times;
+        </button>
+
+    </div>
+
+
+    <div class="grading-modal-body">
+
+        <p class="grading-modal-description">
+
+            Set the maximum marks used to calculate
+            Overall Test and Overall Exam.
+
+        </p>
+
+
+        <!-- CURRENT SELECTION -->
+
+        <div
+            id="gradingSelectionInfo"
+            class="grading-selection-info"
+        >
+            Loading selection...
+        </div>
+
+
+        <!-- OVERALL TEST -->
+
+        <div class="grading-form-group">
+
+            <label for="modalOverallTestMax">
+
+                Overall Test Maximum Marks
+
+            </label>
+
+            <input
+                type="number"
+                id="modalOverallTestMax"
+                min="1"
+                step="0.01"
+                placeholder="Example: 90"
+            >
+
+            <small>
+
+                Example: All tests can be converted
+                to a maximum of 90 marks.
+
+            </small>
+
+        </div>
+
+
+        <!-- OVERALL EXAM -->
+
+        <div class="grading-form-group">
+
+            <label for="modalOverallExamMax">
+
+                Overall Exam Maximum Marks
+
+            </label>
+
+            <input
+                type="number"
+                id="modalOverallExamMax"
+                min="1"
+                step="0.01"
+                placeholder="Example: 90"
+            >
+
+            <small>
+
+                Example: The final exam can be
+                converted to a maximum of 90 marks.
+
+            </small>
+
+        </div>
+
+
+        <div
+            id="gradingSettingsMessage"
+            class="grading-settings-message"
+        ></div>
+
+
+    </div>
+
+
+    <div class="grading-modal-footer">
+
+        <button
+            type="button"
+            class="grading-cancel-btn"
+            onclick="closeGradingSettingsModal()"
+        >
+            Cancel
+        </button>
+
+
+        <button
+            type="button"
+            id="saveGradingSettingsBtn"
+            class="grading-save-btn"
+            onclick="saveGradingSettingsFromModal()"
+        >
+
+            <i class="fa-solid fa-save"></i>
+
+            Save Settings
+
+        </button>
+
+    </div>
+
+</div>
+
+
+</div>
+
 
 </body>
 </html>
