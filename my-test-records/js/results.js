@@ -861,50 +861,52 @@ try {
 
 
     /*
-       Support the possible response formats.
+       Backend returns:
+
+       {
+           success: true,
+           learners: [...],
+           tests: [...],
+           marks: {
+               learnerId: {
+                   testId: score
+               }
+           }
+       }
     */
 
-    let learners = [];
-
-
-    if (Array.isArray(data)) {
-
-        learners = data;
-
-    } else if (
+    const learners =
         Array.isArray(data.learners)
-    ) {
+            ? data.learners
+            : [];
 
-        learners =
-            data.learners;
 
-    } else if (
-        Array.isArray(data.marks)
-    ) {
+    const tests =
+        Array.isArray(data.tests)
+            ? data.tests
+            : [];
 
-        learners =
-            data.marks;
 
-    } else if (
-        Array.isArray(data.results)
-    ) {
-
-        learners =
-            data.results;
-
-    } else if (
-        Array.isArray(data.data)
-    ) {
-
-        learners =
-            data.data;
-
-    }
+    const marks =
+        data.marks &&
+        typeof data.marks === "object"
+            ? data.marks
+            : {};
 
 
     console.log(
-        "Learners extracted for results:",
+        "Learners:",
         learners
+    );
+
+    console.log(
+        "Tests:",
+        tests
+    );
+
+    console.log(
+        "Marks:",
+        marks
     );
 
 
@@ -912,7 +914,7 @@ try {
        GRADING SETTINGS
     ================================================ */
 
-    const settings =
+    const settingsResponse =
         await school(
             "getGradingSettings",
             {
@@ -933,8 +935,12 @@ try {
 
     console.log(
         "Returned grading settings:",
-        settings
+        settingsResponse
     );
+
+
+    const settings =
+        settingsResponse?.settings || {};
 
 
     const overallTestMax =
@@ -947,6 +953,17 @@ try {
         Number(
             settings.overall_exam_max
         ) || 90;
+
+
+    console.log(
+        "Overall Test Max:",
+        overallTestMax
+    );
+
+    console.log(
+        "Overall Exam Max:",
+        overallExamMax
+    );
 
 
     /* ================================================
@@ -1017,42 +1034,31 @@ try {
 
 
     /*
-       Get assessment columns from the first
-       learner who actually has marks.
+       Build assessment columns from ALL tests,
+       not from learner.marks.
     */
 
-    let firstMarkedLearner =
-        learners.find(
-            learner =>
-                Array.isArray(
-                    learner.marks
-                ) &&
-                learner.marks.length > 0
-        );
-
-
-    const firstMarks =
-        firstMarkedLearner?.marks || [];
-
-
-    firstMarks.forEach(
-        mark => {
+    tests.forEach(
+        test => {
 
             const max =
                 Number(
-                    mark.max_score
+                    test.max_score
                 ) || 0;
 
 
-            if (mark.is_exam) {
+            const isExam =
+                test.is_exam === true ||
+                test.is_exam === "true";
 
-                headerExamMax +=
-                    max;
+
+            if (isExam) {
+
+                headerExamMax += max;
 
             } else {
 
-                headerTotalTestsMax +=
-                    max;
+                headerTotalTestsMax += max;
 
             }
 
@@ -1061,7 +1067,7 @@ try {
 
                 <th>
 
-                    ${mark.assessment_type || "Assessment"}
+                    ${test.test_name || "Assessment"}
 
                     <br>
 
@@ -1073,11 +1079,6 @@ try {
 
         }
     );
-
-
-    const headerMaxPossible =
-        headerTotalTestsMax +
-        headerExamMax;
 
 
     header.innerHTML += `
@@ -1179,7 +1180,7 @@ try {
                         padding:25px;
                     ">
 
-                    No learners or marks found.
+                    No learners found.
 
                 </td>
 
@@ -1239,48 +1240,80 @@ try {
             let totalExamMax = 0;
 
 
-            const marks =
-                Array.isArray(
-                    learner.marks
-                )
-                    ? learner.marks
-                    : [];
+            /*
+               Get this learner's marks.
 
+               Example:
+
+               marks[38] = {
+                   2: "20"
+               }
+            */
+
+            const learnerMarks =
+                marks[
+                    String(learner.id)
+                ] ||
+                marks[
+                    learner.id
+                ] ||
+                {};
+
+
+            console.log(
+                `Marks for learner ${learner.id}:`,
+                learnerMarks
+            );
+
+
+            /* ============================================
+               ASSESSMENT CELLS
+            ============================================ */
 
             const cells =
-                marks.map(
-                    mark => {
+                tests.map(
+                    test => {
+
+                        const learnerTestMarks =
+                            learnerMarks || {};
+
+
+                        const rawScore =
+                            learnerTestMarks[
+                                String(test.id)
+                            ];
+
 
                         const score =
-                            Number(
-                                mark.score
-                            ) || 0;
+                            rawScore !== undefined &&
+                            rawScore !== null &&
+                            rawScore !== ""
+                                ? Number(rawScore)
+                                : 0;
 
 
                         const max =
                             Number(
-                                mark.max_score
+                                test.max_score
                             ) || 0;
 
 
-                        if (
-                            mark.is_exam === true ||
-                            mark.is_exam === "true"
-                        ) {
+                        const isExam =
+                            test.is_exam === true ||
+                            test.is_exam === "true";
 
-                            totalExam +=
-                                score;
 
-                            totalExamMax +=
-                                max;
+                        if (isExam) {
+
+                            totalExam += score;
+
+                            totalExamMax += max;
 
                         } else {
 
-                            totalTests +=
-                                score;
+                            totalTests += score;
 
-                            totalTestsMax +=
-                                max;
+                            totalTestsMax += max;
 
                         }
 
@@ -1358,7 +1391,9 @@ try {
             let percentage = 0;
 
 
-            if (maximum > 0) {
+            if (
+                maximum > 0
+            ) {
 
                 percentage =
                     (
@@ -1442,12 +1477,20 @@ try {
 
                         ${totalTests.toFixed(1)}
 
+                        /
+
+                        ${totalTestsMax}
+
                     </td>
 
 
                     <td>
 
                         ${overallTest.toFixed(1)}
+
+                        /
+
+                        ${overallTestMax}
 
                     </td>
 
@@ -1456,6 +1499,10 @@ try {
 
                         ${totalExam.toFixed(1)}
 
+                        /
+
+                        ${totalExamMax}
+
                     </td>
 
 
@@ -1463,12 +1510,20 @@ try {
 
                         ${overallExam.toFixed(1)}
 
+                        /
+
+                        ${overallExamMax}
+
                     </td>
 
 
                     <td>
 
                         ${total.toFixed(1)}
+
+                        /
+
+                        ${maximum}
 
                     </td>
 
@@ -1607,6 +1662,7 @@ try {
         </tr>
 
     `;
+
 
 } catch (error) {
 
