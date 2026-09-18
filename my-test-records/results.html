@@ -176,12 +176,12 @@ font-weight: 600;
 
 <div class="dashboard-wrapper">
 
-
+<button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu"> ☰ </button>
 <!-- =====================================================
      SIDEBAR
 ===================================================== -->
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
 
     <div class="sidebar-logo">
 
@@ -580,6 +580,6 @@ font-weight: 600;
 
 </div>
 
-
+<script> const menuToggle = document.getElementById("menuToggle"); const sidebar = document.getElementById("sidebar"); const sidebarClose = document.getElementById("sidebarClose"); menuToggle.addEventListener("click", () => { sidebar.classList.add("open"); }); if (sidebarClose) { sidebarClose.addEventListener("click", () => { sidebar.classList.remove("open"); }); } </script>
 </body>
 </html>
