@@ -774,6 +774,461 @@ await loadResults();
 }
 
 /* ====================================================
+GRADING SETTINGS MODAL
+==================================================== */
+
+function openGradingSettingsModal() {
+
+
+if (
+    !selectedYear ||
+    !selectedClass ||
+    !selectedSubject ||
+    !selectedTerm
+) {
+
+    alert(
+        "Please select a class, subject and term first."
+    );
+
+    return;
+
+}
+
+
+const modal =
+    document.getElementById(
+        "gradingSettingsModal"
+    );
+
+
+modal.style.display =
+    "block";
+
+
+document.body.style.overflow =
+    "hidden";
+
+
+updateGradingSelectionInfo();
+
+
+loadGradingSettingsIntoModal();
+
+
+}
+
+/* ====================================================
+CLOSE MODAL
+==================================================== */
+
+function closeGradingSettingsModal() {
+
+
+const modal =
+    document.getElementById(
+        "gradingSettingsModal"
+    );
+
+
+modal.style.display =
+    "none";
+
+
+document.body.style.overflow =
+    "";
+
+
+}
+
+/* ====================================================
+SELECTION INFORMATION
+==================================================== */
+
+function updateGradingSelectionInfo() {
+
+
+const classButton =
+    document.querySelector(
+        "#classContainer .class-btn.active"
+    );
+
+
+const termButton =
+    document.querySelector(
+        "#termContainer .class-btn.active"
+    );
+
+
+const subjectButton =
+    document.querySelector(
+        ".subject-btn.active"
+    );
+
+
+const className =
+    classButton?.innerText?.trim()
+    || "Class";
+
+
+const termName =
+    termButton?.innerText?.trim()
+    || "Term";
+
+
+const subjectName =
+    subjectButton?.innerText?.trim()
+    || "Subject";
+
+
+const yearName =
+    localStorage.getItem(
+        "selectedYearName"
+    )
+    || selectedYear;
+
+
+document.getElementById(
+    "gradingSelectionInfo"
+).innerHTML = `
+
+    <strong>Academic Year:</strong>
+    ${yearName}
+    <br>
+
+    <strong>Subject:</strong>
+    ${subjectName}
+    <br>
+
+    <strong>Class:</strong>
+    ${className}
+    <br>
+
+    <strong>Term:</strong>
+    ${termName}
+
+`;
+
+
+}
+
+/* ====================================================
+LOAD SETTINGS
+==================================================== */
+
+async function loadGradingSettingsIntoModal() {
+
+
+const testInput =
+    document.getElementById(
+        "modalOverallTestMax"
+    );
+
+
+const examInput =
+    document.getElementById(
+        "modalOverallExamMax"
+    );
+
+
+const message =
+    document.getElementById(
+        "gradingSettingsMessage"
+    );
+
+
+message.className =
+    "grading-settings-message";
+
+
+message.textContent =
+    "";
+
+
+try {
+
+    const response =
+        await school(
+            "getGradingSettings",
+            {
+                subject_id:
+                    selectedSubject,
+
+                class_id:
+                    selectedClass,
+
+                academic_year_id:
+                    selectedYear,
+
+                term_id:
+                    selectedTerm
+            }
+        );
+
+
+    console.log(
+        "Modal grading settings:",
+        response
+    );
+
+
+    const settings =
+        response.settings || {};
+
+
+    testInput.value =
+        settings.overall_test_max ??
+        90;
+
+
+    examInput.value =
+        settings.overall_exam_max ??
+        90;
+
+
+} catch (error) {
+
+    console.error(
+        "Failed to load grading settings:",
+        error
+    );
+
+
+    testInput.value =
+        90;
+
+
+    examInput.value =
+        90;
+
+
+    message.className =
+        "grading-settings-message error";
+
+
+    message.textContent =
+        "Unable to load saved settings.";
+
+}
+
+
+}
+
+/* ====================================================
+SAVE SETTINGS
+==================================================== */
+
+async function saveGradingSettingsFromModal() {
+
+if (
+    !selectedYear ||
+    !selectedClass ||
+    !selectedSubject ||
+    !selectedTerm
+) {
+
+    return;
+
+}
+
+
+const testMax =
+    Number(
+        document.getElementById(
+            "modalOverallTestMax"
+        ).value
+    );
+
+
+const examMax =
+    Number(
+        document.getElementById(
+            "modalOverallExamMax"
+        ).value
+    );
+
+
+const message =
+    document.getElementById(
+        "gradingSettingsMessage"
+    );
+
+
+if (
+    !Number.isFinite(testMax) ||
+    testMax <= 0
+) {
+
+    message.className =
+        "grading-settings-message error";
+
+
+    message.textContent =
+        "Enter a valid Overall Test maximum mark.";
+
+
+    return;
+
+}
+
+
+if (
+    !Number.isFinite(examMax) ||
+    examMax <= 0
+) {
+
+    message.className =
+        "grading-settings-message error";
+
+
+    message.textContent =
+        "Enter a valid Overall Exam maximum mark.";
+
+
+    return;
+
+}
+
+
+const button =
+    document.getElementById(
+        "saveGradingSettingsBtn"
+    );
+
+
+button.disabled =
+    true;
+
+
+button.innerHTML = `
+
+    <i class="fa-solid fa-spinner fa-spin"></i>
+
+    Saving...
+
+`;
+
+
+try {
+
+    const response =
+        await school(
+            "saveGradingSettings",
+            {
+                subject_id:
+                    selectedSubject,
+
+                class_id:
+                    selectedClass,
+
+                academic_year_id:
+                    selectedYear,
+
+                term_id:
+                    selectedTerm,
+
+                overall_test_max:
+                    testMax,
+
+                overall_exam_max:
+                    examMax
+            },
+            "POST"
+        );
+
+
+    console.log(
+        "Saved grading settings:",
+        response
+    );
+
+
+    message.className =
+        "grading-settings-message success";
+
+
+    message.textContent =
+        "Settings saved successfully.";
+
+
+    /*
+       Reload the Results table so the new
+       Overall Test / Overall Exam values
+       are immediately applied.
+    */
+
+    await loadResults();
+
+
+    setTimeout(
+        () => {
+
+            closeGradingSettingsModal();
+
+        },
+        700
+    );
+
+
+} catch (error) {
+
+    console.error(
+        "Failed to save grading settings:",
+        error
+    );
+
+
+    message.className =
+        "grading-settings-message error";
+
+
+    message.textContent =
+        error.message ||
+        "Failed to save settings.";
+
+} finally {
+
+    button.disabled =
+        false;
+
+
+    button.innerHTML = `
+
+        <i class="fa-solid fa-save"></i>
+
+        Save Settings
+
+    `;
+
+}
+
+
+}
+
+/* ====================================================
+ESC KEY
+==================================================== */
+
+document.addEventListener(
+"keydown",
+function(event) {
+
+
+    if (
+        event.key === "Escape"
+    ) {
+
+        closeGradingSettingsModal();
+
+    }
+
+}
+
+
+);
+
+
+/* ====================================================
 LOAD RESULTS
 ==================================================== */
 
