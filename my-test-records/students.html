@@ -257,21 +257,7 @@
     color: #555;
 }
 
-    .menu-toggle {
-display: none;
-position: fixed;
-top: 15px;
-left: 15px;
-z-index: 1100;
-width: 44px;
-height: 44px;
-border: none;
-border-radius: 8px;
-background: #ffffff;
-font-size: 25px;
-cursor: pointer;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
+    .menu-toggle { display: none; width: 42px; height: 42px; border: none; border-radius: 8px; background: transparent; font-size: 22px; cursor: pointer; align-items: center; justify-content: center; flex-shrink: 0; }
 
 .sidebar-close {
 display: none;
@@ -280,24 +266,28 @@ display: none;
 @media (max-width: 768px) {
 
 .menu-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+display: flex;
 }
 
 .sidebar {
-    position: fixed;
-    top: 0;
-    left: -280px;
-    width: 280px;
-    height: 100vh;
-    z-index: 1200;
-    transition: left 0.3s ease;
-    overflow-y: auto;
+position: fixed;
+top: 0;
+left: -280px;
+width: 280px;
+height: 100vh;
+z-index: 1200;
+transition: left 0.3s ease;
+overflow-y: auto;
 }
 
 .sidebar.open {
-    left: 0;
+left: 0;
+}
+
+.main-content {
+margin-left: 0 !important;
+width: 100% !important;
+}
 }
 
 .sidebar-close {
@@ -324,7 +314,7 @@ display: none;
 
 
 <body>
-<button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu"> ☰ </button>
+
 <div class="dashboard-wrapper">
 
 
@@ -332,7 +322,7 @@ display: none;
      SIDEBAR
 ===================================================== -->
 
-<aside class="sidebar id="sidebar">
+<aside class="sidebar" id="sidebar">
     <button class="sidebar-close" id="sidebarClose" type="button">×</button>
 
     <div class="sidebar-logo">
@@ -397,9 +387,13 @@ display: none;
 
     <!-- TOPBAR -->
 
-    <div class="topbar">
+   <div class="topbar">
 
-        <div class="teacher-info">
+<button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">
+<i class="fa-solid fa-bars"></i>
+</button>
+
+<div class="teacher-info">
 
             <h2>Manage Students</h2>
 
