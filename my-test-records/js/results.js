@@ -413,7 +413,7 @@ CLASSES
 
 async function loadClasses() {
 
-```
+
 if (!selectedYear) {
     return;
 }
