@@ -257,6 +257,67 @@
     color: #555;
 }
 
+    .menu-toggle {
+display: none;
+position: fixed;
+top: 15px;
+left: 15px;
+z-index: 1100;
+width: 44px;
+height: 44px;
+border: none;
+border-radius: 8px;
+background: #ffffff;
+font-size: 25px;
+cursor: pointer;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-close {
+display: none;
+}
+
+@media (max-width: 768px) {
+
+.menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    z-index: 1200;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+}
+
+.sidebar.open {
+    left: 0;
+}
+
+.sidebar-close {
+    display: block;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    border: none;
+    background: transparent;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+}
+
+}
+
 </style>
 
 </head>
