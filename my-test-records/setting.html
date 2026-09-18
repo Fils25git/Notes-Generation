@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+```
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Grading Settings</title>
+
+<link
+    rel="stylesheet"
+    href="css/global.css"
+>
+
+<link
+    rel="stylesheet"
+    href="css/dashboard.css"
+>
+
+<link
+    rel="stylesheet"
+    href="css/responsive.css"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+>
+
+<style>
+
+    .settings-container {
+        max-width: 700px;
+        margin: 30px auto;
+    }
+
+    .settings-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .settings-card h2 {
+        margin-bottom: 8px;
+    }
+
+    .settings-description {
+        color: #666;
+        margin-bottom: 25px;
+    }
+
+    .selection-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .form-group select,
+    .form-group input {
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid #ccc;
+        border-radius: 7px;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+
+    .settings-values {
+        border-top: 1px solid #eee;
+        padding-top: 25px;
+        margin-top: 10px;
+    }
+
+    .setting-row {
+        margin-bottom: 20px;
+    }
+
+    .setting-row label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 7px;
+    }
+
+    .setting-help {
+        font-size: 13px;
+        color: #777;
+        margin-top: 5px;
+    }
+
+    .save-btn {
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .message {
+        padding: 12px;
+        border-radius: 7px;
+        margin-bottom: 20px;
+        display: none;
+    }
+
+    .message.success {
+        display: block;
+        background: #e8f7ee;
+        color: #176b38;
+    }
+
+    .message.error {
+        display: block;
+        background: #fdecec;
+        color: #a12626;
+    }
+
+    .current-selection {
+        background: #f7f7f7;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .current-selection strong {
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    @media (max-width: 600px) {
+
+        .selection-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .settings-container {
+            margin: 15px;
+        }
+
+        .settings-card {
+            padding: 18px;
+        }
+
+    }
+
+</style>
+```
+
+</head>
+
+<body>
+
+```
+<!-- ==========================================
+     HEADER
+=========================================== -->
+
+<header class="topbar">
+
+    <div class="topbar-left">
+
+        <button
+            type="button"
+            onclick="history.back()"
+            class="back-btn"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+
+        <h1>
+            Grading Settings
+        </h1>
+
+    </div>
+
+</header>
+
+
+<!-- ==========================================
+     MAIN
+=========================================== -->
+
+<main class="settings-container">
+
+    <div class="settings-card">
+
+        <h2>
+            Overall Marks Settings
+        </h2>
+
+        <p class="settings-description">
+            Set the maximum marks used for Overall Test and Overall Exam.
+        </p>
+
+
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+        <!-- ======================================
+             SELECTIONS
+        ======================================= -->
+
+        <div class="selection-grid">
+
+
+            <div class="form-group">
+
+                <label for="subjectSelect">
+                    Subject
+                </label>
+
+                <select id="subjectSelect">
+
+                    <option value="">
+                        Select subject
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="classSelect">
+                    Class
+                </label>
+
+                <select id="classSelect">
+
+                    <option value="">
+                        Select class
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="termSelect">
+                    Term
+                </label>
+
+                <select id="termSelect">
+
+                    <option value="">
+                        Select term
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Academic Year
+                </label>
+
+                <input
+                    type="text"
+                    id="academicYearDisplay"
+                    readonly
+                    placeholder="Loading..."
+                >
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ======================================
+             CURRENT SELECTION
+        ======================================= -->
+
+        <div
+            id="currentSelection"
+            class="current-selection"
+            style="display:none;"
+        ></div>
+
+
+        <!-- ======================================
+             SETTINGS VALUES
+        ======================================= -->
+
+        <div class="settings-values">
+
+
+            <div class="setting-row">
+
+                <label for="overallTestMax">
+
+                    Overall Test Maximum Marks
+
+                </label>
+
+                <input
+                    type="number"
+                    id="overallTestMax"
+                    min="1"
+                    step="0.01"
+                    placeholder="Example: 90"
+                >
+
+                <div class="setting-help">
+
+                    Example: If all tests are converted to a total of 90 marks,
+                    enter 90.
+
+                </div>
+
+            </div>
+
+
+            <div class="setting-row">
+
+                <label for="overallExamMax">
+
+                    Overall Exam Maximum Marks
+
+                </label>
+
+                <input
+                    type="number"
+                    id="overallExamMax"
+                    min="1"
+                    step="0.01"
+                    placeholder="Example: 90"
+                >
+
+                <div class="setting-help">
+
+                    Example: If the final exam is converted to 90 marks,
+                    enter 90.
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="save-btn"
+                id="saveButton"
+                onclick="saveSettings()"
+            >
+
+                <i class="fa-solid fa-save"></i>
+
+                Save Settings
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+</main>
+```
+
+<script>
+
+/* ====================================================
+   STATE
+==================================================== */
+
+const teacherId =
+    Number(
+        localStorage.getItem("userId")
+    );
+
+
+let selectedYear =
+    Number(
+        localStorage.getItem("selectedYear")
+    ) || null;
+
+
+let selectedSubject =
+    Number(
+        localStorage.getItem("selectedSubject")
+    ) || null;
+
+
+let selectedClass =
+    Number(
+        localStorage.getItem("selectedClass")
+    ) || null;
+
+
+let selectedTerm =
+    Number(
+        localStorage.getItem("selectedTerm")
+    ) || null;
+
+
+/* ====================================================
+   LOGIN CHECK
+==================================================== */
+
+if (!teacherId) {
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+/* ====================================================
+   MESSAGE
+==================================================== */
+
+function showMessage(
+    message,
+    type = "success"
+) {
+
+    const box =
+        document.getElementById(
+            "message"
+        );
+
+    box.textContent =
+        message;
+
+    box.className =
+        `message ${type}`;
+
+}
+
+
+/* ====================================================
+   API
+==================================================== */
+
+async function school(
+    action,
+    params = {},
+    method = "GET"
+) {
+
+    const currentTeacherId =
+        Number(
+            localStorage.getItem("userId")
+        );
+
+
+    if (!currentTeacherId) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
+
+
+    const urlParams =
+        new URLSearchParams();
+
+
+    urlParams.set(
+        "teacher_id",
+        currentTeacherId
+    );
+
+
+    Object.entries(params).forEach(
+        ([key, value]) => {
+
+            if (
+                value !== null &&
+                value !== undefined &&
+                value !== ""
+            ) {
+
+                urlParams.set(
+                    key,
+                    value
+                );
+
+            }
+
+        }
+    );
+
+
+    let url =
+        `/.netlify/functions/school?action=${encodeURIComponent(action)}`;
+
+
+    const options = {
+
+        method,
+
+        headers: {
+            "Content-Type": "application/json"
+        }
+
+    };
+
+
+    if (method === "GET") {
+
+        url +=
+            `&${urlParams.toString()}`;
+
+    } else {
+
+        options.body =
+            JSON.stringify({
+                teacher_id:
+                    currentTeacherId,
+                ...params
+            });
+
+    }
+
+
+    console.log(
+        `${action} request:`,
+        method === "GET"
+            ? url
+            : options.body
+    );
+
+
+    const response =
+        await fetch(
+            url,
+            options
+        );
+
+
+    if (!response.ok) {
+
+        const errorText =
+            await response.text();
+
+        console.error(
+            `${action} failed:`,
+            errorText
+        );
+
+        throw new Error(
+            `${action} failed with status ${response.status}`
+        );
+
+    }
+
+
+    const data =
+        await response.json();
+
+
+    if (
+        data.success === false
+    ) {
+
+        throw new Error(
+            data.message ||
+            `${action} failed`
+        );
+
+    }
+
+
+    return data;
+
+}
+
+
+/* ====================================================
+   LOAD ACADEMIC YEAR
+==================================================== */
+
+async function loadAcademicYear() {
+
+    const response =
+        await fetch(
+            "/.netlify/functions/academic?action=getCurrent"
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Unable to load academic year."
+        );
+
+    }
+
+
+    const data =
+        await response.json();
+
+
+    if (
+        !data.year ||
+        !data.year.id
+    ) {
+
+        throw new Error(
+            "No current academic year found."
+        );
+
+    }
+
+
+    selectedYear =
+        Number(
+            data.year.id
+        );
+
+
+    localStorage.setItem(
+        "selectedYear",
+        selectedYear
+    );
+
+
+    document.getElementById(
+        "academicYearDisplay"
+    ).value =
+        data.year.year_name || "";
+
+
+}
+
+
+/* ====================================================
+   LOAD SUBJECTS
+==================================================== */
+
+async function loadSubjects() {
+
+    const data =
+        await school(
+            "getSubjects",
+            {
+                academic_year_id:
+                    selectedYear
+            }
+        );
+
+
+    const subjects =
+        Array.isArray(data.subjects)
+            ? data.subjects
+            : [];
+
+
+    const select =
+        document.getElementById(
+            "subjectSelect"
+        );
+
+
+    select.innerHTML =
+        `<option value="">
+            Select subject
+        </option>`;
+
+
+    subjects.forEach(
+        subject => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                subject.id;
+
+
+            option.textContent =
+                subject.subject_name;
+
+
+            if (
+                Number(subject.id) ===
+                Number(selectedSubject)
+            ) {
+
+                option.selected =
+                    true;
+
+            }
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (
+        !selectedSubject &&
+        subjects.length
+    ) {
+
+        selectedSubject =
+            Number(
+                subjects[0].id
+            );
+
+        select.value =
+            selectedSubject;
+
+        localStorage.setItem(
+            "selectedSubject",
+            selectedSubject
+        );
+
+    }
+
+}
+
+
+/* ====================================================
+   LOAD CLASSES
+==================================================== */
+
+async function loadClasses() {
+
+    const data =
+        await school(
+            "getClasses",
+            {
+                academic_year_id:
+                    selectedYear
+            }
+        );
+
+
+    const classes =
+        Array.isArray(data.classes)
+            ? data.classes
+            : [];
+
+
+    const select =
+        document.getElementById(
+            "classSelect"
+        );
+
+
+    select.innerHTML =
+        `<option value="">
+            Select class
+        </option>`;
+
+
+    classes.forEach(
+        item => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                item.id;
+
+
+            option.textContent =
+                item.class_name;
+
+
+            if (
+                Number(item.id) ===
+                Number(selectedClass)
+            ) {
+
+                option.selected =
+                    true;
+
+            }
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (
+        !selectedClass &&
+        classes.length
+    ) {
+
+        selectedClass =
+            Number(
+                classes[0].id
+            );
+
+        select.value =
+            selectedClass;
+
+        localStorage.setItem(
+            "selectedClass",
+            selectedClass
+        );
+
+    }
+
+}
+
+
+/* ====================================================
+   LOAD TERMS
+==================================================== */
+
+async function loadTerms() {
+
+    const response =
+        await fetch(
+            `/.netlify/functions/academic?action=getTerms&academic_year_id=${encodeURIComponent(selectedYear)}`
+        );
+
+
+    if (!response.ok) {
+
+        throw new Error(
+            "Unable to load terms."
+        );
+
+    }
+
+
+    const result =
+        await response.json();
+
+
+    const terms =
+        Array.isArray(result)
+            ? result
+            : Array.isArray(result.terms)
+                ? result.terms
+                : [];
+
+
+    const select =
+        document.getElementById(
+            "termSelect"
+        );
+
+
+    select.innerHTML =
+        `<option value="">
+            Select term
+        </option>`;
+
+
+    terms.forEach(
+        term => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                term.id;
+
+
+            option.textContent =
+                term.term_name;
+
+
+            if (
+                Number(term.id) ===
+                Number(selectedTerm)
+            ) {
+
+                option.selected =
+                    true;
+
+            }
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (
+        !selectedTerm &&
+        terms.length
+    ) {
+
+        const currentTerm =
+            terms.find(
+                term =>
+                    term.is_current === true ||
+                    term.is_current === "true"
+            );
+
+
+        selectedTerm =
+            Number(
+                currentTerm?.id ||
+                terms[0].id
+            );
+
+
+        select.value =
+            selectedTerm;
+
+
+        localStorage.setItem(
+            "selectedTerm",
+            selectedTerm
+        );
+
+    }
+
+}
+
+
+/* ====================================================
+   LOAD CURRENT SETTINGS
+==================================================== */
+
+async function loadSettings() {
+
+    if (
+        !selectedSubject ||
+        !selectedClass ||
+        !selectedYear ||
+        !selectedTerm
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await school(
+                "getGradingSettings",
+                {
+                    subject_id:
+                        selectedSubject,
+
+                    class_id:
+                        selectedClass,
+
+                    academic_year_id:
+                        selectedYear,
+
+                    term_id:
+                        selectedTerm
+                }
+            );
+
+
+        console.log(
+            "Grading settings response:",
+            response
+        );
+
+
+        const settings =
+            response.settings || {};
+
+
+        document.getElementById(
+            "overallTestMax"
+        ).value =
+            settings.overall_test_max ??
+            90;
+
+
+        document.getElementById(
+            "overallExamMax"
+        ).value =
+            settings.overall_exam_max ??
+            90;
+
+
+        updateSelectionDisplay();
+
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load grading settings:",
+            error
+        );
+
+        showMessage(
+            "Unable to load grading settings.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ====================================================
+   SELECTION DISPLAY
+==================================================== */
+
+function updateSelectionDisplay() {
+
+    const subjectSelect =
+        document.getElementById(
+            "subjectSelect"
+        );
+
+
+    const classSelect =
+        document.getElementById(
+            "classSelect"
+        );
+
+
+    const termSelect =
+        document.getElementById(
+            "termSelect"
+        );
+
+
+    const subjectName =
+        subjectSelect
+            .selectedOptions[0]
+            ?.textContent
+            || "";
+
+
+    const className =
+        classSelect
+            .selectedOptions[0]
+            ?.textContent
+            || "";
+
+
+    const termName =
+        termSelect
+            .selectedOptions[0]
+            ?.textContent
+            || "";
+
+
+    if (
+        subjectName &&
+        className &&
+        termName
+    ) {
+
+        const box =
+            document.getElementById(
+                "currentSelection"
+            );
+
+
+        box.style.display =
+            "block";
+
+
+        box.innerHTML = `
+
+            <strong>Current selection:</strong>
+
+            ${subjectName}
+            -
+            ${className}
+            -
+            ${termName}
+
+        `;
+
+    }
+
+}
+
+
+/* ====================================================
+   SAVE SETTINGS
+==================================================== */
+
+async function saveSettings() {
+
+    if (
+        !selectedSubject ||
+        !selectedClass ||
+        !selectedYear ||
+        !selectedTerm
+    ) {
+
+        showMessage(
+            "Please select subject, class and term.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const overallTestMax =
+        Number(
+            document.getElementById(
+                "overallTestMax"
+            ).value
+        );
+
+
+    const overallExamMax =
+        Number(
+            document.getElementById(
+                "overallExamMax"
+            ).value
+        );
+
+
+    if (
+        !Number.isFinite(overallTestMax) ||
+        overallTestMax <= 0
+    ) {
+
+        showMessage(
+            "Please enter a valid Overall Test maximum mark.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(overallExamMax) ||
+        overallExamMax <= 0
+    ) {
+
+        showMessage(
+            "Please enter a valid Overall Exam maximum mark.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "saveButton"
+        );
+
+
+    button.disabled =
+        true;
+
+
+    button.innerHTML = `
+
+        <i class="fa-solid fa-spinner fa-spin"></i>
+
+        Saving...
+
+    `;
+
+
+    try {
+
+        const response =
+            await school(
+                "saveGradingSettings",
+                {
+                    subject_id:
+                        selectedSubject,
+
+                    class_id:
+                        selectedClass,
+
+                    academic_year_id:
+                        selectedYear,
+
+                    term_id:
+                        selectedTerm,
+
+                    overall_test_max:
+                        overallTestMax,
+
+                    overall_exam_max:
+                        overallExamMax
+                },
+                "POST"
+            );
+
+
+        console.log(
+            "Saved grading settings:",
+            response
+        );
+
+
+        showMessage(
+            "Grading settings saved successfully.",
+            "success"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Failed to save grading settings:",
+            error
+        );
+
+
+        showMessage(
+            error.message ||
+            "Failed to save grading settings.",
+            "error"
+        );
+
+
+    } finally {
+
+        button.disabled =
+            false;
+
+
+        button.innerHTML = `
+
+            <i class="fa-solid fa-save"></i>
+
+            Save Settings
+
+        `;
+
+    }
+
+}
+
+
+/* ====================================================
+   EVENTS
+==================================================== */
+
+document.getElementById(
+    "subjectSelect"
+).addEventListener(
+    "change",
+    async function () {
+
+        selectedSubject =
+            Number(this.value) || null;
+
+
+        localStorage.setItem(
+            "selectedSubject",
+            selectedSubject || ""
+        );
+
+
+        await loadSettings();
+
+    }
+);
+
+
+document.getElementById(
+    "classSelect"
+).addEventListener(
+    "change",
+    async function () {
+
+        selectedClass =
+            Number(this.value) || null;
+
+
+        localStorage.setItem(
+            "selectedClass",
+            selectedClass || ""
+        );
+
+
+        await loadSettings();
+
+    }
+);
+
+
+document.getElementById(
+    "termSelect"
+).addEventListener(
+    "change",
+    async function () {
+
+        selectedTerm =
+            Number(this.value) || null;
+
+
+        localStorage.setItem(
+            "selectedTerm",
+            selectedTerm || ""
+        );
+
+
+        await loadSettings();
+
+    }
+);
+
+
+/* ====================================================
+   INIT
+==================================================== */
+
+async function init() {
+
+    try {
+
+        await loadAcademicYear();
+
+        await loadSubjects();
+
+        await loadClasses();
+
+        await loadTerms();
+
+        await loadSettings();
+
+    } catch (error) {
+
+        console.error(
+            "Settings initialization failed:",
+            error
+        );
+
+
+        showMessage(
+            error.message ||
+            "Failed to load grading settings.",
+            "error"
+        );
+
+    }
+
+}
+
+
+init();
+
+</script>
+
+</body>
+
+</html>
