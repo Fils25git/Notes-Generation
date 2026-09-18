@@ -32,13 +32,21 @@ method = "GET"
 ) {
 
 
-const urlParams = new URLSearchParams();
+const currentTeacherId =
+    Number(localStorage.getItem("userId"));
+
+if (!currentTeacherId) {
+    window.location.href = "login.html";
+    return;
+}
+
+const urlParams =
+    new URLSearchParams();
 
 urlParams.set(
     "teacher_id",
-    teacherId
+    currentTeacherId
 );
-
 
 Object.entries(params).forEach(
     ([key, value]) => {
@@ -59,7 +67,6 @@ Object.entries(params).forEach(
     }
 );
 
-
 let url =
     `/.netlify/functions/school?action=${encodeURIComponent(action)}`;
 
@@ -73,26 +80,27 @@ const options = {
 
 };
 
-
 if (method === "GET") {
 
-    const query =
-        urlParams.toString();
-
-    if (query) {
-        url += `&${query}`;
-    }
+    url +=
+        `&${urlParams.toString()}`;
 
 } else {
 
     options.body =
         JSON.stringify({
-            teacher_id: teacherId,
+            teacher_id: currentTeacherId,
             ...params
         });
 
 }
 
+console.log(
+    `${action} request:`,
+    method === "GET"
+        ? url
+        : options.body
+);
 
 const response =
     await fetch(
@@ -100,29 +108,33 @@ const response =
         options
     );
 
-
 if (!response.ok) {
 
+    const errorText =
+        await response.text();
+
+    console.error(
+        `${action} failed:`,
+        errorText
+    );
+
     throw new Error(
-        `Request failed: ${response.status}`
+        `${action} failed with status ${response.status}`
     );
 
 }
 
-
 const data =
     await response.json();
-
 
 if (data.success === false) {
 
     throw new Error(
         data.message ||
-        "Request failed"
+        `${action} failed`
     );
 
 }
-
 
 return data;
 
@@ -139,8 +151,7 @@ percentage
 
 
 percentage =
-    Number(percentage);
-
+    Number(percentage) || 0;
 
 if (percentage >= 80) {
 
@@ -151,7 +162,6 @@ if (percentage >= 80) {
 
 }
 
-
 if (percentage >= 75) {
 
     return {
@@ -160,7 +170,6 @@ if (percentage >= 75) {
     };
 
 }
-
 
 if (percentage >= 70) {
 
@@ -171,7 +180,6 @@ if (percentage >= 70) {
 
 }
 
-
 if (percentage >= 65) {
 
     return {
@@ -180,7 +188,6 @@ if (percentage >= 65) {
     };
 
 }
-
 
 if (percentage >= 60) {
 
@@ -191,7 +198,6 @@ if (percentage >= 60) {
 
 }
 
-
 if (percentage >= 50) {
 
     return {
@@ -200,7 +206,6 @@ if (percentage >= 50) {
     };
 
 }
-
 
 return {
     grade: "F",
@@ -222,7 +227,6 @@ const response =
         "/.netlify/functions/academic?action=getCurrent"
     );
 
-
 if (!response.ok) {
 
     throw new Error(
@@ -231,10 +235,8 @@ if (!response.ok) {
 
 }
 
-
 const context =
     await response.json();
-
 
 if (
     !context.year ||
@@ -249,16 +251,13 @@ if (
 
 }
 
-
 selectedYear =
     Number(context.year.id);
-
 
 localStorage.setItem(
     "selectedYear",
     selectedYear
 );
-
 
 localStorage.setItem(
     "selectedYearName",
@@ -275,6 +274,10 @@ SUBJECTS
 async function loadSubjects() {
 
 
+if (!selectedYear) {
+    return;
+}
+
 const data =
     await school(
         "getSubjects",
@@ -284,43 +287,40 @@ const data =
         }
     );
 
-
 const subjects =
     Array.isArray(data)
         ? data
-        : data.subjects || [];
-
+        : Array.isArray(data.subjects)
+            ? data.subjects
+            : [];
 
 const container =
     document.getElementById(
         "subjectContainer"
     );
 
-
 container.innerHTML = "";
-
 
 if (!subjects.length) {
 
     selectedSubject = null;
 
-    container.innerHTML =
-        `<p class="empty-state">
+    container.innerHTML = `
+        <p class="empty-state">
             No subjects assigned.
-         </p>`;
+        </p>
+    `;
 
     return;
 
 }
 
-
 const savedSubject =
     subjects.find(
-        s =>
-            Number(s.id) ===
+        subject =>
+            Number(subject.id) ===
             Number(selectedSubject)
     );
-
 
 if (savedSubject) {
 
@@ -339,14 +339,12 @@ if (savedSubject) {
 
 }
 
-
 subjects.forEach(
     subject => {
 
         const active =
             Number(selectedSubject) ===
             Number(subject.id);
-
 
         container.innerHTML += `
 
@@ -364,13 +362,14 @@ subjects.forEach(
     }
 );
 
+
 }
 
 /* ====================================================
 SELECT SUBJECT
 ==================================================== */
 
-function selectSubject(
+async function selectSubject(
 id,
 event
 ) {
@@ -379,12 +378,10 @@ event
 selectedSubject =
     Number(id);
 
-
 localStorage.setItem(
     "selectedSubject",
     selectedSubject
 );
-
 
 document
     .querySelectorAll(
@@ -397,7 +394,6 @@ document
             )
     );
 
-
 if (event?.currentTarget) {
 
     event.currentTarget.classList.add(
@@ -406,8 +402,7 @@ if (event?.currentTarget) {
 
 }
 
-
-loadResults();
+await loadResults();
 
 
 }
@@ -418,6 +413,10 @@ CLASSES
 
 async function loadClasses() {
 
+```
+if (!selectedYear) {
+    return;
+}
 
 const data =
     await school(
@@ -428,43 +427,40 @@ const data =
         }
     );
 
-
 const classes =
     Array.isArray(data)
         ? data
-        : data.classes || [];
-
+        : Array.isArray(data.classes)
+            ? data.classes
+            : [];
 
 const container =
     document.getElementById(
         "classContainer"
     );
 
-
 container.innerHTML = "";
-
 
 if (!classes.length) {
 
     selectedClass = null;
 
-    container.innerHTML =
-        `<p class="empty-state">
+    container.innerHTML = `
+        <p class="empty-state">
             No classes found.
-         </p>`;
+        </p>
+    `;
 
     return;
 
 }
 
-
 const savedClass =
     classes.find(
-        c =>
-            Number(c.id) ===
+        item =>
+            Number(item.id) ===
             Number(selectedClass)
     );
-
 
 if (savedClass) {
 
@@ -483,23 +479,21 @@ if (savedClass) {
 
 }
 
-
 classes.forEach(
-    c => {
+    item => {
 
         const active =
             Number(selectedClass) ===
-            Number(c.id);
-
+            Number(item.id);
 
         container.innerHTML += `
 
             <button
                 type="button"
                 class="class-btn ${active ? "active" : ""}"
-                onclick="selectClass(${Number(c.id)}, event)">
+                onclick="selectClass(${Number(item.id)}, event)">
 
-                ${c.class_name}
+                ${item.class_name}
 
             </button>
 
@@ -515,7 +509,7 @@ classes.forEach(
 SELECT CLASS
 ==================================================== */
 
-function selectClass(
+async function selectClass(
 id,
 event
 ) {
@@ -524,16 +518,14 @@ event
 selectedClass =
     Number(id);
 
-
 localStorage.setItem(
     "selectedClass",
     selectedClass
 );
 
-
 document
     .querySelectorAll(
-        ".class-btn"
+        "#classContainer .class-btn"
     )
     .forEach(
         button =>
@@ -541,7 +533,6 @@ document
                 "active"
             )
     );
-
 
 if (event?.currentTarget) {
 
@@ -551,8 +542,7 @@ if (event?.currentTarget) {
 
 }
 
-
-loadResults();
+await loadResults();
 
 
 }
@@ -568,12 +558,10 @@ if (!selectedYear) {
     return;
 }
 
-
 const response =
     await fetch(
         `/.netlify/functions/academic?action=getTerms&academic_year_id=${encodeURIComponent(selectedYear)}`
     );
-
 
 if (!response.ok) {
 
@@ -583,47 +571,112 @@ if (!response.ok) {
 
 }
 
-
 const result =
     await response.json();
 
-
-const terms =
+const returnedTerms =
     Array.isArray(result)
         ? result
-        : result.terms || [];
+        : Array.isArray(result.terms)
+            ? result.terms
+            : [];
 
+/*
+   Remove duplicate terms.
+
+   Prefer term_number because the same
+   term may appear more than once.
+*/
+
+const uniqueTerms = [];
+
+const usedTermNumbers =
+    new Set();
+
+returnedTerms.forEach(
+    term => {
+
+        const termNumber =
+            Number(term.term_number);
+
+        if (
+            Number.isInteger(termNumber) &&
+            termNumber > 0
+        ) {
+
+            if (
+                usedTermNumbers.has(
+                    termNumber
+                )
+            ) {
+
+                return;
+
+            }
+
+            usedTermNumbers.add(
+                termNumber
+            );
+
+            uniqueTerms.push(
+                term
+            );
+
+            return;
+
+        }
+
+        const termId =
+            Number(term.id);
+
+        if (
+            Number.isInteger(termId) &&
+            termId > 0 &&
+            !usedTermNumbers.has(
+                `id-${termId}`
+            )
+        ) {
+
+            usedTermNumbers.add(
+                `id-${termId}`
+            );
+
+            uniqueTerms.push(
+                term
+            );
+
+        }
+
+    }
+);
 
 const container =
     document.getElementById(
         "termContainer"
     );
 
-
 container.innerHTML = "";
 
-
-if (!terms.length) {
+if (!uniqueTerms.length) {
 
     selectedTerm = null;
 
-    container.innerHTML =
-        `<p class="empty-state">
+    container.innerHTML = `
+        <p class="empty-state">
             No terms found.
-         </p>`;
+        </p>
+    `;
 
     return;
 
 }
 
-
 const savedTerm =
-    terms.find(
+    uniqueTerms.find(
         term =>
             Number(term.id) ===
             Number(selectedTerm)
     );
-
 
 if (savedTerm) {
 
@@ -633,18 +686,17 @@ if (savedTerm) {
 } else {
 
     const currentTerm =
-        terms.find(
+        uniqueTerms.find(
             term =>
-                term.is_current === true
+                term.is_current === true ||
+                term.is_current === "true"
         );
-
 
     selectedTerm =
         Number(
             currentTerm?.id ||
-            terms[0].id
+            uniqueTerms[0].id
         );
-
 
     localStorage.setItem(
         "selectedTerm",
@@ -653,14 +705,12 @@ if (savedTerm) {
 
 }
 
-
-terms.forEach(
+uniqueTerms.forEach(
     term => {
 
         const active =
             Number(selectedTerm) ===
             Number(term.id);
-
 
         container.innerHTML += `
 
@@ -685,7 +735,7 @@ terms.forEach(
 SELECT TERM
 ==================================================== */
 
-function selectTerm(
+async function selectTerm(
 id,
 event
 ) {
@@ -694,16 +744,14 @@ event
 selectedTerm =
     Number(id);
 
-
 localStorage.setItem(
     "selectedTerm",
     selectedTerm
 );
 
-
 document
     .querySelectorAll(
-        "#termContainer button"
+        "#termContainer .class-btn"
     )
     .forEach(
         button =>
@@ -711,7 +759,6 @@ document
                 "active"
             )
     );
-
 
 if (event?.currentTarget) {
 
@@ -721,8 +768,7 @@ if (event?.currentTarget) {
 
 }
 
-
-loadResults();
+await loadResults();
 
 
 }
@@ -753,10 +799,15 @@ if (
     ).innerHTML = `
 
         <tr>
-            <td colspan="20"
+
+            <td
+                colspan="20"
                 style="text-align:center;">
+
                 Select a class, subject and term.
+
             </td>
+
         </tr>
 
     `;
@@ -767,6 +818,22 @@ if (
 
 
 try {
+
+    console.log(
+        "Loading results with:",
+        {
+            teacher_id: teacherId,
+            class_id: selectedClass,
+            subject_id: selectedSubject,
+            academic_year_id: selectedYear,
+            term_id: selectedTerm
+        }
+    );
+
+
+    /* ================================================
+       GET MARKS
+    ================================================ */
 
     const data =
         await school(
@@ -787,11 +854,63 @@ try {
         );
 
 
-    const learners =
-        Array.isArray(data)
-            ? data
-            : data.marks || data.learners || [];
+    console.log(
+        "Complete getMarks response:",
+        data
+    );
 
+
+    /*
+       Support the possible response formats.
+    */
+
+    let learners = [];
+
+
+    if (Array.isArray(data)) {
+
+        learners = data;
+
+    } else if (
+        Array.isArray(data.learners)
+    ) {
+
+        learners =
+            data.learners;
+
+    } else if (
+        Array.isArray(data.marks)
+    ) {
+
+        learners =
+            data.marks;
+
+    } else if (
+        Array.isArray(data.results)
+    ) {
+
+        learners =
+            data.results;
+
+    } else if (
+        Array.isArray(data.data)
+    ) {
+
+        learners =
+            data.data;
+
+    }
+
+
+    console.log(
+        "Learners extracted for results:",
+        learners
+    );
+
+
+    /* ================================================
+       GRADING SETTINGS
+    ================================================ */
 
     const settings =
         await school(
@@ -813,27 +932,7 @@ try {
 
 
     console.log(
-        "Selected year:",
-        selectedYear
-    );
-
-    console.log(
-        "Selected class:",
-        selectedClass
-    );
-
-    console.log(
-        "Selected subject:",
-        selectedSubject
-    );
-
-    console.log(
-        "Selected term:",
-        selectedTerm
-    );
-
-    console.log(
-        "Returned settings:",
+        "Returned grading settings:",
         settings
     );
 
@@ -849,6 +948,10 @@ try {
             settings.overall_exam_max
         ) || 90;
 
+
+    /* ================================================
+       NAMES
+    ================================================ */
 
     const classButton =
         document.querySelector(
@@ -889,9 +992,9 @@ try {
         `Students Marksheet for ${className} in ${termName}`;
 
 
-    /* ====================================================
+    /* ================================================
        HEADER
-       ==================================================== */
+    ================================================ */
 
     const header =
         document.getElementById(
@@ -909,55 +1012,67 @@ try {
 
 
     let headerTotalTestsMax = 0;
+
     let headerExamMax = 0;
 
 
-    if (learners.length) {
+    /*
+       Get assessment columns from the first
+       learner who actually has marks.
+    */
 
-        const firstMarks =
-            Array.isArray(
-                learners[0].marks
-            )
-                ? learners[0].marks
-                : [];
-
-
-        firstMarks.forEach(
-            mark => {
-
-                const max =
-                    Number(
-                        mark.max_score
-                    ) || 0;
-
-
-                if (mark.is_exam) {
-
-                    headerExamMax +=
-                        max;
-
-                } else {
-
-                    headerTotalTestsMax +=
-                        max;
-
-                }
-
-
-                header.innerHTML += `
-
-                    <th>
-                        ${mark.assessment_type || "Assessment"}
-                        <br>
-                        /${max}
-                    </th>
-
-                `;
-
-            }
+    let firstMarkedLearner =
+        learners.find(
+            learner =>
+                Array.isArray(
+                    learner.marks
+                ) &&
+                learner.marks.length > 0
         );
 
-    }
+
+    const firstMarks =
+        firstMarkedLearner?.marks || [];
+
+
+    firstMarks.forEach(
+        mark => {
+
+            const max =
+                Number(
+                    mark.max_score
+                ) || 0;
+
+
+            if (mark.is_exam) {
+
+                headerExamMax +=
+                    max;
+
+            } else {
+
+                headerTotalTestsMax +=
+                    max;
+
+            }
+
+
+            header.innerHTML += `
+
+                <th>
+
+                    ${mark.assessment_type || "Assessment"}
+
+                    <br>
+
+                    /${max}
+
+                </th>
+
+            `;
+
+        }
+    );
 
 
     const headerMaxPossible =
@@ -968,45 +1083,79 @@ try {
     header.innerHTML += `
 
         <th>
+
             Total Tests
+
             <br>
+
             /${headerTotalTestsMax}
+
         </th>
 
+
         <th>
+
             Overall Test
+
             <br>
+
             /${overallTestMax}
+
         </th>
 
+
         <th>
+
             Exam
+
             <br>
+
             /${headerExamMax}
+
         </th>
 
+
         <th>
+
             Overall Exam
+
             <br>
+
             /${overallExamMax}
+
         </th>
+
 
         <th>
+
             Total
+
             <br>
+
             /${overallTestMax + overallExamMax}
+
         </th>
 
-        <th>%</th>
 
-        <th>Category</th>
+        <th>
+
+            %
+
+        </th>
+
+
+        <th>
+
+            Category
+
+        </th>
 
     `;
 
 
-    /* ====================================================
+    /* ================================================
        TABLE
-       ==================================================== */
+    ================================================ */
 
     const table =
         document.getElementById(
@@ -1025,7 +1174,10 @@ try {
 
                 <td
                     colspan="20"
-                    style="text-align:center;">
+                    style="
+                        text-align:center;
+                        padding:25px;
+                    ">
 
                     No learners or marks found.
 
@@ -1042,8 +1194,12 @@ try {
 
             <tr>
 
-                <td colspan="7"
-                    style="text-align:center;">
+                <td
+                    colspan="7"
+                    style="
+                        text-align:center;
+                        padding:20px;
+                    ">
 
                     No results available.
 
@@ -1052,7 +1208,6 @@ try {
             </tr>
 
         `;
-
 
         return;
 
@@ -1068,13 +1223,19 @@ try {
     let passed = 0;
 
 
+    /* ================================================
+       LEARNERS
+    ================================================ */
+
     learners.forEach(
         (learner, index) => {
 
             let totalTests = 0;
+
             let totalTestsMax = 0;
 
             let totalExam = 0;
+
             let totalExamMax = 0;
 
 
@@ -1102,7 +1263,10 @@ try {
                             ) || 0;
 
 
-                        if (mark.is_exam) {
+                        if (
+                            mark.is_exam === true ||
+                            mark.is_exam === "true"
+                        ) {
 
                             totalExam +=
                                 score;
@@ -1124,7 +1288,9 @@ try {
                         return `
 
                             <td>
+
                                 ${score}
+
                             </td>
 
                         `;
@@ -1134,12 +1300,15 @@ try {
 
 
             /* ============================================
-               NORMALIZED SCORES
-               ============================================ */
+               OVERALL TEST
+            ============================================ */
 
             let overallTest = 0;
 
-            if (totalTestsMax > 0) {
+
+            if (
+                totalTestsMax > 0
+            ) {
 
                 overallTest =
                     (
@@ -1151,9 +1320,16 @@ try {
             }
 
 
+            /* ============================================
+               OVERALL EXAM
+            ============================================ */
+
             let overallExam = 0;
 
-            if (totalExamMax > 0) {
+
+            if (
+                totalExamMax > 0
+            ) {
 
                 overallExam =
                     (
@@ -1167,7 +1343,7 @@ try {
 
             /* ============================================
                FINAL TOTAL
-               ============================================ */
+            ============================================ */
 
             const total =
                 overallTest +
@@ -1188,7 +1364,8 @@ try {
                     (
                         total /
                         maximum
-                    ) * 100;
+                    ) *
+                    100;
 
             }
 
@@ -1245,45 +1422,72 @@ try {
                 <tr>
 
                     <td>
+
                         ${index + 1}
+
                     </td>
 
+
                     <td>
+
                         ${learner.full_name || "Unnamed"}
+
                     </td>
+
 
                     ${cells}
 
+
                     <td>
+
                         ${totalTests.toFixed(1)}
+
                     </td>
 
+
                     <td>
+
                         ${overallTest.toFixed(1)}
+
                     </td>
 
+
                     <td>
+
                         ${totalExam.toFixed(1)}
+
                     </td>
 
+
                     <td>
+
                         ${overallExam.toFixed(1)}
+
                     </td>
 
+
                     <td>
+
                         ${total.toFixed(1)}
+
                     </td>
 
+
                     <td>
+
                         ${percentage.toFixed(1)}%
+
                     </td>
+
 
                     <td>
 
                         <span class="badge">
 
                             ${category.grade}
+
                             -
+
                             ${category.text}
 
                         </span>
@@ -1298,9 +1502,9 @@ try {
     );
 
 
-    /* ====================================================
+    /* ================================================
        ANALYSIS
-       ==================================================== */
+    ================================================ */
 
     const average =
         learners.length
@@ -1328,13 +1532,21 @@ try {
             : "0.0";
 
 
-    if (!Number.isFinite(lowest)) {
+    if (
+        !Number.isFinite(lowest)
+    ) {
+
         lowest = 0;
+
     }
 
 
-    if (!Number.isFinite(highest)) {
+    if (
+        !Number.isFinite(highest)
+    ) {
+
         highest = 0;
+
     }
 
 
@@ -1345,31 +1557,51 @@ try {
         <tr>
 
             <td>
+
                 ${subjectName}
+
             </td>
 
+
             <td>
+
                 ${average}%
+
             </td>
 
+
             <td>
+
                 ${passed}
+
             </td>
 
+
             <td>
+
                 ${failed}
+
             </td>
 
-            <td>
-                ${lowest.toFixed(1)}%
-            </td>
 
             <td>
-                ${highest.toFixed(1)}%
+
+                ${Number(lowest).toFixed(1)}%
+
             </td>
 
+
             <td>
+
+                ${Number(highest).toFixed(1)}%
+
+            </td>
+
+
+            <td>
+
                 ${passRate}%
+
             </td>
 
         </tr>
@@ -1390,8 +1622,12 @@ try {
 
         <tr>
 
-            <td colspan="20"
-                style="text-align:center;">
+            <td
+                colspan="20"
+                style="
+                    text-align:center;
+                    padding:25px;
+                ">
 
                 Failed to load results.
 
@@ -1439,8 +1675,12 @@ try {
 
         <tr>
 
-            <td colspan="20"
-                style="text-align:center;">
+            <td
+                colspan="20"
+                style="
+                    text-align:center;
+                    padding:25px;
+                ">
 
                 Failed to load results.
 
@@ -1467,35 +1707,35 @@ function downloadPDF() {
 const title =
     document.getElementById(
         "reportTitle"
-    ).innerHTML;
+    )?.innerHTML
+    || "Marks Results";
 
 
-const resultsTable =
+const resultsCard =
     document.querySelector(
         ".card"
-    )?.outerHTML;
+    );
 
 
 const analysisTable =
     document.getElementById(
         "analysisTable"
     )
-    ?.closest("table")
-    ?.outerHTML;
+    ?.closest("table");
 
 
 const printWindow =
     window.open(
         "",
         "",
-        "width=900,height=700"
+        "width=1000,height=800"
     );
 
 
 if (!printWindow) {
 
     alert(
-        "Please allow pop-ups to download or print the results."
+        "Please allow pop-ups to print or download the results."
     );
 
     return;
@@ -1511,23 +1751,27 @@ printWindow.document.write(`
 
     <head>
 
-        <title>Marks Results</title>
+        <title>
+            Marks Results
+        </title>
 
         <style>
 
             body {
                 font-family: Arial, sans-serif;
                 padding: 20px;
+                color: #222;
             }
 
             h2 {
                 text-align: center;
+                margin-bottom: 20px;
             }
 
             table {
                 width: 100%;
                 border-collapse: collapse;
-                margin-bottom: 25px;
+                margin-bottom: 30px;
             }
 
             th,
@@ -1541,6 +1785,10 @@ printWindow.document.write(`
                 font-weight: bold;
             }
 
+            .badge {
+                display: inline-block;
+            }
+
         </style>
 
     </head>
@@ -1551,13 +1799,23 @@ printWindow.document.write(`
             ${title}
         </h2>
 
-        ${resultsTable || ""}
+        ${
+            resultsCard
+                ? resultsCard.outerHTML
+                : ""
+        }
+
 
         <h2>
             Analysis
         </h2>
 
-        ${analysisTable || ""}
+
+        ${
+            analysisTable
+                ? analysisTable.outerHTML
+                : ""
+        }
 
     </body>
 
@@ -1570,7 +1828,12 @@ printWindow.document.close();
 
 printWindow.focus();
 
-printWindow.print();
+setTimeout(
+    () => {
+        printWindow.print();
+    },
+    300
+);
 
 
 }
@@ -1599,8 +1862,25 @@ if (!table) {
 }
 
 
-const html =
-    table.outerHTML;
+const html = `
+
+    <html>
+
+    <head>
+
+        <meta charset="UTF-8">
+
+    </head>
+
+    <body>
+
+        ${table.outerHTML}
+
+    </body>
+
+    </html>
+
+`;
 
 
 const blob =
@@ -1619,11 +1899,13 @@ const link =
     );
 
 
-link.href =
+const url =
     URL.createObjectURL(
         blob
     );
 
+
+link.href = url;
 
 link.download =
     "marks-results.xls";
@@ -1640,8 +1922,11 @@ document.body.removeChild(
 );
 
 
-URL.revokeObjectURL(
-    link.href
+setTimeout(
+    () => {
+        URL.revokeObjectURL(url);
+    },
+    100
 );
 
 
