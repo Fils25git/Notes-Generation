@@ -1,269 +1,276 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-    content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <title>Marks Results</title>
+<title>Marks Results</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/marks.css">
-    <link rel="stylesheet" href="css/responsive.css">
+<!-- CSS -->
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/marks.css">
+<link rel="stylesheet" href="css/responsive.css">
 
-    <!-- ICONS -->
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<!-- ICONS -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+
 </head>
+
 <body>
 
-    <div class="dashboard-wrapper">
+<div class="dashboard-wrapper">
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
 
-            <div class="sidebar-logo">
+<!-- SIDEBAR -->
+<aside class="sidebar">
 
-                <h2>Marks System</h2>
+    <div class="sidebar-logo">
+        <h2>Marks System</h2>
+    </div>
 
-            </div>
+    <div class="sidebar-menu">
 
-            <div class="sidebar-menu">
+        <a href="dashboard.html"
+           class="sidebar-link">
 
-                <a href="dashboard.html"
-                class="sidebar-link">
+            <i class="fa-solid fa-house"></i>
+            Dashboard
 
-                    <i class="fa-solid fa-house"></i>
+        </a>
 
-                    Dashboard
+        <a href="students.html"
+           class="sidebar-link">
 
-                </a>
+            <i class="fa-solid fa-users"></i>
+            Manage Students
 
-                <a href="students.html"
-                class="sidebar-link">
+        </a>
 
-                    <i class="fa-solid fa-users"></i>
+        <a href="marks.html"
+           class="sidebar-link">
 
-                    Manage Students
+            <i class="fa-solid fa-pen"></i>
+            Record Marks
 
-                </a>
+        </a>
 
-                <a href="marks.html"
-                class="sidebar-link">
+        <a href="results.html"
+           class="sidebar-link active">
 
-                    <i class="fa-solid fa-pen"></i>
+            <i class="fa-solid fa-chart-column"></i>
+            Marks Results
 
-                    Record Marks
+        </a>
 
-                </a>
+        <a href="login.html"
+           class="sidebar-link">
 
-                <a href="results.html"
-                class="sidebar-link active">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
 
-                    <i class="fa-solid fa-chart-column"></i>
-
-                    Marks Results
-
-                </a>
-
-                <a href="login.html"
-                class="sidebar-link">
-
-                    <i class="fa-solid fa-right-from-bracket"></i>
-
-                    Logout
-
-                </a>
-
-            </div>
-
-        </aside>
-
-        <!-- MAIN CONTENT -->
-        <main class="main-content">
-
-            <!-- TOPBAR -->
-            <div class="topbar">
-
-                <div class="teacher-info">
-
-                    <h2>
-                        Marks Results
-                    </h2>
-
-                    <p>
-                        View totals, percentages and reports
-                    </p>
-
-                </div>
-
-                <div class="marks-actions">
-
-                    <button
-class="btn btn-primary"
-onclick="downloadPDF()">
-
-<i class="fa-solid fa-download"></i>
-
-Download PDF
-
-</button>
-
-
-<button
-class="btn btn-success"
-onclick="exportExcel()">
-
-<i class="fa-solid fa-file-excel"></i>
-
-Export Excel
-
-</button>
-
-
-<button
-class="btn btn-warning"
-onclick="printResults()">
-
-<i class="fa-solid fa-print"></i>
-
-Print
-
-</button>
-
-                </div>
-
-            </div>
-
-            <!-- SUBJECT SELECTOR -->
-            <div
-id="subjectContainer"
-class="subject-selector">
-</div>
-
-            <div
-id="classContainer"
-class="class-selector">
-</div>
-            <div
-id="termContainer"
-class="class-selector">
-            </div>
-            <h2
-id="reportTitle"
-style="
-margin:20px 0;
-text-align:center;
-">
-
-Students Marksheet
-
-            </h2>
-
-            <!-- RESULTS CARD -->
-            <div class="card">
-
-                <div class="table-container">
-
-                    <table>
-
-                        <thead>
-
-<tr id="resultsHeader">
-
-<th>#</th>
-
-<th>Pupil Name</th>
-
-<!-- Tests will come dynamically -->
-
-<th>Total Tests</th>
-
-<th>Overall Test</th>
-
-<th>Exam</th>
-
-<th>Overall Exam</th>
-
-<th>Total</th>
-
-<th>%</th>
-
-<th>Category</th>
-
-</tr>
-
-</thead>
-
-<tbody id="resultsTable">
-
-</tbody>
-
-                                                    
-
-                    </table>
-
-                </div>
-
-            </div>
-
-            <div
-<h2
-style="
-margin-top:25px;
-margin-bottom:15px;
-">
-
-Analysis
-
-</h2>
-
-
-<div class="card">
-
-<div class="table-container">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Subject</th>
-
-<th>Average</th>
-
-<th>Passed</th>
-
-<th>Failed</th>
-
-<th>Lowest</th>
-
-<th>Highest</th>
-
-<th>% Pass Rate</th>
-
-</tr>
-
-</thead>
-
-<tbody
-id="analysisTable">
-
-</tbody>
-
-</table>
-
-</div>
-
-                                      </div>
-        </main>
+        </a>
 
     </div>
-    <script src="js/results.js"></script>
+
+</aside>
+
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+
+        <div class="teacher-info">
+
+            <h2>Marks Results</h2>
+
+            <p>
+                View totals, percentages and reports
+            </p>
+
+        </div>
+
+        <div class="marks-actions">
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                onclick="downloadPDF()">
+
+                <i class="fa-solid fa-download"></i>
+
+                Download PDF
+
+            </button>
+
+
+            <button
+                type="button"
+                class="btn btn-success"
+                onclick="exportExcel()">
+
+                <i class="fa-solid fa-file-excel"></i>
+
+                Export Excel
+
+            </button>
+
+
+            <button
+                type="button"
+                class="btn btn-warning"
+                onclick="printResults()">
+
+                <i class="fa-solid fa-print"></i>
+
+                Print
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- SUBJECT SELECTOR -->
+    <div
+        id="subjectContainer"
+        class="subject-selector">
+    </div>
+
+
+    <!-- CLASS SELECTOR -->
+    <div
+        id="classContainer"
+        class="class-selector">
+    </div>
+
+
+    <!-- TERM SELECTOR -->
+    <div
+        id="termContainer"
+        class="class-selector">
+    </div>
+
+
+    <!-- REPORT TITLE -->
+    <h2
+        id="reportTitle"
+        style="
+            margin:20px 0;
+            text-align:center;
+        ">
+
+        Students Marksheet
+
+    </h2>
+
+
+    <!-- RESULTS CARD -->
+    <div class="card">
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr id="resultsHeader">
+
+                        <th>#</th>
+
+                        <th>Pupil Name</th>
+
+                        <th>Total Tests</th>
+
+                        <th>Overall Test</th>
+
+                        <th>Exam</th>
+
+                        <th>Overall Exam</th>
+
+                        <th>Total</th>
+
+                        <th>%</th>
+
+                        <th>Category</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="resultsTable">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- ANALYSIS -->
+    <h2
+        style="
+            margin-top:25px;
+            margin-bottom:15px;
+        ">
+
+        Analysis
+
+    </h2>
+
+
+    <div class="card">
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Subject</th>
+
+                        <th>Average</th>
+
+                        <th>Passed</th>
+
+                        <th>Failed</th>
+
+                        <th>Lowest</th>
+
+                        <th>Highest</th>
+
+                        <th>% Pass Rate</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="analysisTable">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+</div>
+
+<script src="js/results.js"></script>
 
 </body>
-                      </html>
+</html>
