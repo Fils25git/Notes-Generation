@@ -615,6 +615,134 @@
                 padding-right: 16px;
             }
         }
+
+        
+/* =========================================================
+   FORCE MARKS MODALS ABOVE GLOBAL STYLES
+   ========================================================= */
+
+.modal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+
+    display: none !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 20px !important;
+
+    background: rgba(15, 23, 42, 0.58) !important;
+
+    z-index: 99999 !important;
+}
+
+.modal-overlay.show {
+    display: flex !important;
+}
+
+
+/* The actual white modal box */
+
+.modal-overlay > .modal {
+    display: block !important;
+
+    position: relative !important;
+
+    width: 100% !important;
+    max-width: 540px !important;
+
+    max-height: calc(100vh - 40px) !important;
+
+    overflow-y: auto !important;
+
+    background: #ffffff !important;
+
+    color: #1e293b !important;
+
+    border-radius: 16px !important;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22) !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    z-index: 100000 !important;
+}
+
+.modal-overlay > .large-modal {
+    max-width: 1050px !important;
+}
+
+
+/* Make sure modal children are visible */
+
+.modal-overlay > .modal .modal-header,
+.modal-overlay > .modal .modal-body,
+.modal-overlay > .modal .modal-footer {
+    display: block;
+    visibility: visible;
+    opacity: 1;
+}
+
+
+/* Header needs flex */
+
+.modal-overlay > .modal .modal-header {
+    display: flex !important;
+}
+
+
+/* Footer needs flex */
+
+.modal-overlay > .modal .modal-footer {
+    display: flex !important;
+}
+
+
+/* Editor form */
+
+.modal-overlay > .modal form {
+    display: block !important;
+}
+
+
+/* Make the second modal appear above the first one */
+
+#testEditorModal {
+    z-index: 100001 !important;
+}
+
+#testEditorModal > .modal {
+    z-index: 100002 !important;
+}
+
+
+/* Manage tests modal */
+
+#manageTestsModal {
+    z-index: 99999 !important;
+}
+
+#manageTestsModal > .modal {
+    z-index: 100000 !important;
+}
+
+
+/* Mobile */
+
+@media (max-width: 800px) {
+
+    .modal-overlay {
+        padding: 10px !important;
+    }
+
+    .modal-overlay > .modal {
+        max-height: calc(100vh - 20px) !important;
+    }
+}
+
+
     </style>
 </head>
 
