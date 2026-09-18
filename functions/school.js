@@ -19,22 +19,30 @@ function response(statusCode, data) {
 }
 
 
+/* ============================================================
+   TEACHER ID
+   ============================================================ */
+
 function getTeacherId(event, body = {}) {
 
     const queryTeacherId =
         event.queryStringParameters?.teacher_id;
 
     const teacherId =
-        queryTeacherId ||
-        body.teacher_id;
+        queryTeacherId || body.teacher_id;
 
-    const id = Number(teacherId);
+    const id =
+        Number(teacherId);
 
     return Number.isInteger(id) && id > 0
         ? id
         : null;
 }
 
+
+/* ============================================================
+   BODY
+   ============================================================ */
 
 async function getBody(event) {
 
@@ -51,20 +59,76 @@ async function getBody(event) {
 
 
 /* ============================================================
+   GET PARAMETER
+   ============================================================
+
+   Supports both:
+
+   GET:
+   ?class_id=4
+
+   POST:
+   {
+       "class_id": 4
+   }
+   ============================================================ */
+
+function getParam(event, body, name) {
+
+    const queryValue =
+        event.queryStringParameters?.[name];
+
+    const bodyValue =
+        body?.[name];
+
+    return queryValue !== undefined
+        ? queryValue
+        : bodyValue;
+}
+
+
+/* ============================================================
+   INTEGER PARAMETER
+   ============================================================ */
+
+function getIntegerParam(event, body, name) {
+
+    const value =
+        getParam(
+            event,
+            body,
+            name
+        );
+
+    const number =
+        Number(value);
+
+    return Number.isInteger(number) && number > 0
+        ? number
+        : null;
+}
+
+
+/* ============================================================
    TEACHER VALIDATION
    ============================================================ */
 
 async function teacherExists(teacherId) {
 
-    const result = await pool.query(
-        `
-        SELECT id, name, email, phone
-        FROM users
-        WHERE id = $1
-        LIMIT 1
-        `,
-        [teacherId]
-    );
+    const result =
+        await pool.query(
+            `
+            SELECT
+                id,
+                name,
+                email,
+                phone
+            FROM users
+            WHERE id = $1
+            LIMIT 1
+            `,
+            [teacherId]
+        );
 
     return result.rows[0] || null;
 }
@@ -74,17 +138,20 @@ async function teacherExists(teacherId) {
    ACADEMIC YEAR VALIDATION
    ============================================================ */
 
-async function academicYearExists(academicYearId) {
+async function academicYearExists(
+    academicYearId
+) {
 
-    const result = await pool.query(
-        `
-        SELECT *
-        FROM academic_years
-        WHERE id = $1
-        LIMIT 1
-        `,
-        [academicYearId]
-    );
+    const result =
+        await pool.query(
+            `
+            SELECT *
+            FROM academic_years
+            WHERE id = $1
+            LIMIT 1
+            `,
+            [academicYearId]
+        );
 
     return result.rows[0] || null;
 }
@@ -94,21 +161,25 @@ async function academicYearExists(academicYearId) {
    TERM VALIDATION
    ============================================================ */
 
-async function termBelongsToYear(termId, academicYearId) {
+async function termBelongsToYear(
+    termId,
+    academicYearId
+) {
 
-    const result = await pool.query(
-        `
-        SELECT *
-        FROM terms
-        WHERE id = $1
-          AND academic_year_id = $2
-        LIMIT 1
-        `,
-        [
-            termId,
-            academicYearId
-        ]
-    );
+    const result =
+        await pool.query(
+            `
+            SELECT *
+            FROM terms
+            WHERE id = $1
+              AND academic_year_id = $2
+            LIMIT 1
+            `,
+            [
+                termId,
+                academicYearId
+            ]
+        );
 
     return result.rows[0] || null;
 }
@@ -118,21 +189,25 @@ async function termBelongsToYear(termId, academicYearId) {
    CLASS OWNERSHIP
    ============================================================ */
 
-async function getTeacherClass(teacherId, classId) {
+async function getTeacherClass(
+    teacherId,
+    classId
+) {
 
-    const result = await pool.query(
-        `
-        SELECT *
-        FROM classes
-        WHERE id = $1
-          AND teacher_id = $2
-        LIMIT 1
-        `,
-        [
-            classId,
-            teacherId
-        ]
-    );
+    const result =
+        await pool.query(
+            `
+            SELECT *
+            FROM classes
+            WHERE id = $1
+              AND teacher_id = $2
+            LIMIT 1
+            `,
+            [
+                classId,
+                teacherId
+            ]
+        );
 
     return result.rows[0] || null;
 }
@@ -142,21 +217,25 @@ async function getTeacherClass(teacherId, classId) {
    SUBJECT OWNERSHIP
    ============================================================ */
 
-async function getTeacherSubject(teacherId, subjectId) {
+async function getTeacherSubject(
+    teacherId,
+    subjectId
+) {
 
-    const result = await pool.query(
-        `
-        SELECT *
-        FROM subjects
-        WHERE id = $1
-          AND teacher_id = $2
-        LIMIT 1
-        `,
-        [
-            subjectId,
-            teacherId
-        ]
-    );
+    const result =
+        await pool.query(
+            `
+            SELECT *
+            FROM subjects
+            WHERE id = $1
+              AND teacher_id = $2
+            LIMIT 1
+            `,
+            [
+                subjectId,
+                teacherId
+            ]
+        );
 
     return result.rows[0] || null;
 }
@@ -168,15 +247,13 @@ async function getTeacherSubject(teacherId, subjectId) {
 
    IMPORTANT:
 
-   Actual database structure:
+   teacher_class_subjects uses:
 
-       teacher_class_subjects.subject_name
+       subject_name
 
-   NOT:
+   It does NOT use:
 
-       teacher_class_subjects.subject_id
-
-   Therefore subjects are matched by normalized name.
+       subject_id
    ============================================================ */
 
 async function teachingAssignmentExists(
@@ -186,65 +263,186 @@ async function teachingAssignmentExists(
     academicYearId
 ) {
 
-    const result = await pool.query(
-        `
-        SELECT tcs.*
-        FROM teacher_class_subjects tcs
-        WHERE tcs.teacher_id = $1
-          AND tcs.class_id = $2
-          AND tcs.academic_year_id = $3
-          AND LOWER(TRIM(tcs.subject_name))
-              = LOWER(TRIM($4))
-        LIMIT 1
-        `,
-        [
-            teacherId,
-            classId,
-            academicYearId,
-            subjectName
-        ]
-    );
+    const result =
+        await pool.query(
+            `
+            SELECT
+                tcs.*
+            FROM teacher_class_subjects tcs
+            WHERE tcs.teacher_id = $1
+              AND tcs.class_id = $2
+              AND tcs.academic_year_id = $3
+              AND LOWER(TRIM(tcs.subject_name))
+                  = LOWER(TRIM($4))
+            LIMIT 1
+            `,
+            [
+                teacherId,
+                classId,
+                academicYearId,
+                subjectName
+            ]
+        );
 
     return result.rows[0] || null;
 }
 
 
 /* ============================================================
-   GET CLASSES
+   SYNC ASSIGNED SUBJECTS INTO subjects TABLE
    ============================================================
 
-   Only classes that have at least one teaching assignment
-   for the teacher in the selected academic year are returned.
+   teacher_class_subjects is the assignment table.
+
+   subjects is the teacher's subject table used by:
+
+       subject_tests
+       marks
+       grading_settings
+
+   If a teacher has an assigned subject in
+   teacher_class_subjects but that subject does not yet exist
+   in subjects, create it automatically.
+
+   Subjects are matched by normalized name.
+
+   Example:
+
+       teacher_class_subjects
+       ----------------------
+       teacher_id = 161
+       class_id = 4
+       subject_name = Mathematics
+
+   becomes:
+
+       subjects
+       --------
+       teacher_id = 161
+       subject_name = Mathematics
    ============================================================ */
 
-async function getClasses(teacherId, academicYearId) {
+async function syncAssignedSubjects(
+    teacherId,
+    academicYearId = null
+) {
 
-    if (!academicYearId) {
+    if (academicYearId) {
+
+        await pool.query(
+            `
+            INSERT INTO subjects (
+                teacher_id,
+                subject_name
+            )
+            SELECT DISTINCT
+                tcs.teacher_id,
+                TRIM(tcs.subject_name)
+            FROM teacher_class_subjects tcs
+            WHERE tcs.teacher_id = $1
+              AND tcs.academic_year_id = $2
+              AND tcs.subject_name IS NOT NULL
+              AND TRIM(tcs.subject_name) <> ''
+              AND NOT EXISTS (
+                    SELECT 1
+                    FROM subjects s
+                    WHERE s.teacher_id = tcs.teacher_id
+                      AND LOWER(TRIM(s.subject_name))
+                          =
+                          LOWER(TRIM(tcs.subject_name))
+              )
+            `,
+            [
+                teacherId,
+                academicYearId
+            ]
+        );
+
+        return;
+    }
+
+
+    await pool.query(
+        `
+        INSERT INTO subjects (
+            teacher_id,
+            subject_name
+        )
+        SELECT DISTINCT
+            tcs.teacher_id,
+            TRIM(tcs.subject_name)
+        FROM teacher_class_subjects tcs
+        WHERE tcs.teacher_id = $1
+          AND tcs.subject_name IS NOT NULL
+          AND TRIM(tcs.subject_name) <> ''
+          AND NOT EXISTS (
+                SELECT 1
+                FROM subjects s
+                WHERE s.teacher_id = tcs.teacher_id
+                  AND LOWER(TRIM(s.subject_name))
+                      =
+                      LOWER(TRIM(tcs.subject_name))
+          )
+        `,
+        [teacherId]
+    );
+}
+
+
+/* ============================================================
+   GET CLASSES
+   ============================================================ */
+
+async function getClasses(
+    teacherId,
+    academicYearId
+) {
+
+    if (
+        !Number.isInteger(academicYearId) ||
+        academicYearId <= 0
+    ) {
         return [];
     }
 
-    const result = await pool.query(
-        `
-        SELECT DISTINCT
-            c.id,
-            c.class_name,
-            c.teacher_id,
-            c.created_at
-        FROM classes c
-        INNER JOIN teacher_class_subjects tcs
-            ON tcs.class_id = c.id
-           AND tcs.teacher_id = c.teacher_id
-           AND tcs.academic_year_id = $2
-        WHERE c.teacher_id = $1
-        ORDER BY
-            c.class_name ASC,
-            c.id ASC
-        `,
-        [
-            teacherId,
-            academicYearId
-        ]
+
+    /*
+     * Make sure assigned subjects are also present
+     * in the subjects table.
+     */
+
+    await syncAssignedSubjects(
+        teacherId,
+        academicYearId
     );
+
+
+    const result =
+        await pool.query(
+            `
+            SELECT DISTINCT
+                c.id,
+                c.class_name,
+                c.teacher_id,
+                c.created_at
+            FROM classes c
+
+            INNER JOIN teacher_class_subjects tcs
+                ON tcs.class_id = c.id
+               AND tcs.teacher_id = c.teacher_id
+               AND tcs.academic_year_id = $2
+
+            WHERE c.teacher_id = $1
+
+            ORDER BY
+                c.class_name ASC,
+                c.id ASC
+            `,
+            [
+                teacherId,
+                academicYearId
+            ]
+        );
 
     return result.rows;
 }
@@ -252,14 +450,6 @@ async function getClasses(teacherId, academicYearId) {
 
 /* ============================================================
    GET SUBJECTS FOR CLASS
-   ============================================================
-
-   teacher_class_subjects stores subject_name.
-
-   subject_tests requires subjects.id.
-
-   Therefore we match the assignment subject name with
-   the teacher's subjects table.
    ============================================================ */
 
 async function getSubjectsForClass(
@@ -268,36 +458,49 @@ async function getSubjectsForClass(
     academicYearId
 ) {
 
-    const result = await pool.query(
-        `
-        SELECT DISTINCT
-            s.id,
-            s.subject_name,
-            s.teacher_id
-        FROM teacher_class_subjects tcs
+    /*
+     * First synchronize assigned subjects into subjects.
+     */
 
-        INNER JOIN subjects s
-            ON s.teacher_id = tcs.teacher_id
-           AND LOWER(TRIM(s.subject_name))
-               = LOWER(TRIM(tcs.subject_name))
-
-        INNER JOIN classes c
-            ON c.id = tcs.class_id
-           AND c.teacher_id = tcs.teacher_id
-
-        WHERE tcs.teacher_id = $1
-          AND tcs.class_id = $2
-          AND tcs.academic_year_id = $3
-
-        ORDER BY
-            s.subject_name ASC
-        `,
-        [
-            teacherId,
-            classId,
-            academicYearId
-        ]
+    await syncAssignedSubjects(
+        teacherId,
+        academicYearId
     );
+
+
+    const result =
+        await pool.query(
+            `
+            SELECT DISTINCT
+                s.id,
+                s.subject_name,
+                s.teacher_id
+
+            FROM teacher_class_subjects tcs
+
+            INNER JOIN subjects s
+                ON s.teacher_id = tcs.teacher_id
+               AND LOWER(TRIM(s.subject_name))
+                   =
+                   LOWER(TRIM(tcs.subject_name))
+
+            INNER JOIN classes c
+                ON c.id = tcs.class_id
+               AND c.teacher_id = tcs.teacher_id
+
+            WHERE tcs.teacher_id = $1
+              AND tcs.class_id = $2
+              AND tcs.academic_year_id = $3
+
+            ORDER BY
+                s.subject_name ASC
+            `,
+            [
+                teacherId,
+                classId,
+                academicYearId
+            ]
+        );
 
     return result.rows;
 }
@@ -307,17 +510,31 @@ async function getSubjectsForClass(
    GET ALL TEACHER SUBJECTS
    ============================================================ */
 
-async function getSubjects(teacherId) {
+async function getSubjects(
+    teacherId
+) {
 
-    const result = await pool.query(
-        `
-        SELECT *
-        FROM subjects
-        WHERE teacher_id = $1
-        ORDER BY subject_name ASC
-        `,
-        [teacherId]
+    /*
+     * Synchronize all assigned subjects first.
+     */
+
+    await syncAssignedSubjects(
+        teacherId
     );
+
+
+    const result =
+        await pool.query(
+            `
+            SELECT
+                *
+            FROM subjects
+            WHERE teacher_id = $1
+            ORDER BY
+                subject_name ASC
+            `,
+            [teacherId]
+        );
 
     return result.rows;
 }
@@ -401,37 +618,41 @@ async function getTests(
     }
 
 
-    const result = await pool.query(
-        `
-        SELECT
-            id,
-            teacher_id,
-            subject_id,
-            class_id,
-            academic_year_id,
-            term_id,
-            test_name,
-            max_score,
-            is_exam,
-            created_at
-        FROM subject_tests
-        WHERE teacher_id = $1
-          AND subject_id = $2
-          AND class_id = $3
-          AND academic_year_id = $4
-          AND term_id = $5
-        ORDER BY
-            is_exam ASC,
-            id ASC
-        `,
-        [
-            teacherId,
-            subjectId,
-            classId,
-            academicYearId,
-            termId
-        ]
-    );
+    const result =
+        await pool.query(
+            `
+            SELECT
+                id,
+                teacher_id,
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id,
+                test_name,
+                max_score,
+                is_exam,
+                created_at
+
+            FROM subject_tests
+
+            WHERE teacher_id = $1
+              AND subject_id = $2
+              AND class_id = $3
+              AND academic_year_id = $4
+              AND term_id = $5
+
+            ORDER BY
+                is_exam ASC,
+                id ASC
+            `,
+            [
+                teacherId,
+                subjectId,
+                classId,
+                academicYearId,
+                termId
+            ]
+        );
 
     return result.rows;
 }
@@ -441,7 +662,10 @@ async function getTests(
    ADD TEST
    ============================================================ */
 
-async function addTest(teacherId, data) {
+async function addTest(
+    teacherId,
+    data
+) {
 
     const {
         test_name,
@@ -463,6 +687,7 @@ async function addTest(teacherId, data) {
 
     const maxScore =
         Number(max_score);
+
 
     if (
         !Number.isFinite(maxScore) ||
@@ -488,10 +713,17 @@ async function addTest(teacherId, data) {
 
 
     if (
-        !classId ||
-        !subjectId ||
-        !academicYearId ||
-        !termId
+        !Number.isInteger(classId) ||
+        classId <= 0 ||
+
+        !Number.isInteger(subjectId) ||
+        subjectId <= 0 ||
+
+        !Number.isInteger(academicYearId) ||
+        academicYearId <= 0 ||
+
+        !Number.isInteger(termId) ||
+        termId <= 0
     ) {
         throw new Error(
             "Class, subject, academic year and term are required."
@@ -565,42 +797,44 @@ async function addTest(teacherId, data) {
     }
 
 
-    const result = await pool.query(
-        `
-        INSERT INTO subject_tests (
-            teacher_id,
-            subject_id,
-            class_id,
-            academic_year_id,
-            term_id,
-            test_name,
-            max_score,
-            is_exam
-        )
-        VALUES (
-            $1,
-            $2,
-            $3,
-            $4,
-            $5,
-            $6,
-            $7,
-            $8
-        )
-        RETURNING *
-        `,
-        [
-            teacherId,
-            subjectId,
-            classId,
-            academicYearId,
-            termId,
-            test_name.trim(),
-            maxScore,
-            Boolean(is_exam)
-        ]
-    );
+    const result =
+        await pool.query(
+            `
+            INSERT INTO subject_tests (
+                teacher_id,
+                subject_id,
+                class_id,
+                academic_year_id,
+                term_id,
+                test_name,
+                max_score,
+                is_exam
+            )
 
+            VALUES (
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                $7,
+                $8
+            )
+
+            RETURNING *
+            `,
+            [
+                teacherId,
+                subjectId,
+                classId,
+                academicYearId,
+                termId,
+                test_name.trim(),
+                maxScore,
+                Boolean(is_exam)
+            ]
+        );
 
     return result.rows[0];
 }
@@ -610,7 +844,10 @@ async function addTest(teacherId, data) {
    UPDATE TEST
    ============================================================ */
 
-async function updateTest(teacherId, data) {
+async function updateTest(
+    teacherId,
+    data
+) {
 
     const {
         id,
@@ -623,7 +860,11 @@ async function updateTest(teacherId, data) {
     const testId =
         Number(id);
 
-    if (!testId) {
+
+    if (
+        !Number.isInteger(testId) ||
+        testId <= 0
+    ) {
         throw new Error(
             "Test ID is required."
         );
@@ -632,6 +873,7 @@ async function updateTest(teacherId, data) {
 
     const maxScore =
         Number(max_score);
+
 
     if (
         !Number.isFinite(maxScore) ||
@@ -669,6 +911,7 @@ async function updateTest(teacherId, data) {
     const test =
         existing.rows[0];
 
+
     if (!test) {
         throw new Error(
             "Test not found or you do not have permission to edit it."
@@ -680,12 +923,15 @@ async function updateTest(teacherId, data) {
         await pool.query(
             `
             UPDATE subject_tests
+
             SET
                 test_name = $1,
                 max_score = $2,
                 is_exam = $3
+
             WHERE id = $4
               AND teacher_id = $5
+
             RETURNING *
             `,
             [
@@ -699,7 +945,8 @@ async function updateTest(teacherId, data) {
 
 
     /*
-     * Keep max_score on existing marks synchronized.
+     * Keep existing marks synchronized
+     * with the new maximum score.
      */
 
     await pool.query(
@@ -733,7 +980,11 @@ async function deleteTest(
     const id =
         Number(testId);
 
-    if (!id) {
+
+    if (
+        !Number.isInteger(id) ||
+        id <= 0
+    ) {
         throw new Error(
             "Test ID is required."
         );
@@ -746,6 +997,7 @@ async function deleteTest(
             DELETE FROM subject_tests
             WHERE id = $1
               AND teacher_id = $2
+
             RETURNING id
             `,
             [
@@ -772,93 +1024,99 @@ async function deleteTest(
 /* ============================================================
    GET MARKS
    ============================================================ */
-/* ====================================================
-   GET MARKS
-   ==================================================== */
 
-if (action === "getMarks") {
+async function getMarks(
+    teacherId,
+    classId,
+    subjectId,
+    academicYearId,
+    termId
+) {
 
-    /*
-     * getMarks is called using GET from marks.js.
-     *
-     * Therefore read the IDs from the query string.
-     * Fall back to body values in case another request
-     * calls this action using POST.
-     */
+    /* ========================================================
+       VALIDATE CLASS
+       ======================================================== */
 
-    const classId =
-        Number(
-            event.queryStringParameters?.class_id ||
-            body.class_id
+    const classRow =
+        await getTeacherClass(
+            teacherId,
+            classId
         );
 
-    const subjectId =
-        Number(
-            event.queryStringParameters?.subject_id ||
-            body.subject_id
-        );
-
-    const academicYearId =
-        Number(
-            event.queryStringParameters?.academic_year_id ||
-            body.academic_year_id
-        );
-
-    const termId =
-        Number(
-            event.queryStringParameters?.term_id ||
-            body.term_id
-        );
-
-
-    /*
-     * Make sure all IDs are valid positive integers
-     * before sending them to PostgreSQL.
-     */
-
-    if (
-        !Number.isInteger(classId) ||
-        classId <= 0 ||
-
-        !Number.isInteger(subjectId) ||
-        subjectId <= 0 ||
-
-        !Number.isInteger(academicYearId) ||
-        academicYearId <= 0 ||
-
-        !Number.isInteger(termId) ||
-        termId <= 0
-    ) {
-
-        return response(
-            400,
-            {
-                success: false,
-                message:
-                    "Valid class, subject, academic year and term IDs are required."
-            }
+    if (!classRow) {
+        throw new Error(
+            "You do not have access to this class."
         );
     }
 
 
-    const result =
-        await getMarks(
+    /* ========================================================
+       VALIDATE SUBJECT
+       ======================================================== */
+
+    const subjectRow =
+        await getTeacherSubject(
             teacherId,
-            classId,
-            subjectId,
-            academicYearId,
-            termId
+            subjectId
         );
 
+    if (!subjectRow) {
+        throw new Error(
+            "You do not have access to this subject."
+        );
+    }
 
-    return response(
-        200,
-        {
-            success: true,
-            ...result
-        }
-    );
-}
+
+    /* ========================================================
+       VALIDATE ACADEMIC YEAR
+       ======================================================== */
+
+    const yearRow =
+        await academicYearExists(
+            academicYearId
+        );
+
+    if (!yearRow) {
+        throw new Error(
+            "Academic year not found."
+        );
+    }
+
+
+    /* ========================================================
+       VALIDATE TERM
+       ======================================================== */
+
+    const termRow =
+        await termBelongsToYear(
+            termId,
+            academicYearId
+        );
+
+    if (!termRow) {
+        throw new Error(
+            "The selected term does not belong to the selected academic year."
+        );
+    }
+
+
+    /* ========================================================
+       VALIDATE ASSIGNMENT
+       ======================================================== */
+
+    const assignment =
+        await teachingAssignmentExists(
+            teacherId,
+            classId,
+            subjectRow.subject_name,
+            academicYearId
+        );
+
+    if (!assignment) {
+        throw new Error(
+            "This subject is not assigned to you for this class."
+        );
+    }
 
 
     /* ========================================================
@@ -874,13 +1132,16 @@ if (action === "getMarks") {
                 gender,
                 class_id,
                 academic_year_id
+
             FROM learners
+
             WHERE teacher_id = $1
               AND class_id = $2
               AND (
                     academic_year_id = $3
                     OR academic_year_id IS NULL
                   )
+
             ORDER BY
                 full_name ASC,
                 id ASC
@@ -906,12 +1167,15 @@ if (action === "getMarks") {
                 max_score,
                 is_exam,
                 created_at
+
             FROM subject_tests
+
             WHERE teacher_id = $1
               AND subject_id = $2
               AND class_id = $3
               AND academic_year_id = $4
               AND term_id = $5
+
             ORDER BY
                 is_exam ASC,
                 id ASC
@@ -940,9 +1204,12 @@ if (action === "getMarks") {
                 m.score,
                 m.max_score,
                 m.remarks
+
             FROM marks m
+
             INNER JOIN subject_tests st
                 ON st.id = m.test_id
+
             WHERE m.teacher_id = $1
               AND m.subject_id = $2
               AND m.class_id = $3
@@ -967,23 +1234,25 @@ if (action === "getMarks") {
     const marks = {};
 
 
-    marksResult.rows.forEach(mark => {
+    marksResult.rows.forEach(
+        mark => {
 
-        const learnerKey =
-            String(mark.learner_id);
+            const learnerKey =
+                String(mark.learner_id);
 
-        const testKey =
-            String(mark.test_id);
+            const testKey =
+                String(mark.test_id);
 
 
-        if (!marks[learnerKey]) {
-            marks[learnerKey] = {};
+            if (!marks[learnerKey]) {
+                marks[learnerKey] = {};
+            }
+
+
+            marks[learnerKey][testKey] =
+                mark.score;
         }
-
-
-        marks[learnerKey][testKey] =
-            mark.score;
-    });
+    );
 
 
     return {
@@ -1034,12 +1303,23 @@ async function saveMark(
 
 
     if (
-        !learnerId ||
-        !testId ||
-        !classId ||
-        !subjectId ||
-        !academicYearId ||
-        !termId
+        !Number.isInteger(learnerId) ||
+        learnerId <= 0 ||
+
+        !Number.isInteger(testId) ||
+        testId <= 0 ||
+
+        !Number.isInteger(classId) ||
+        classId <= 0 ||
+
+        !Number.isInteger(subjectId) ||
+        subjectId <= 0 ||
+
+        !Number.isInteger(academicYearId) ||
+        academicYearId <= 0 ||
+
+        !Number.isInteger(termId) ||
+        termId <= 0
     ) {
         throw new Error(
             "Incomplete mark information."
@@ -1115,7 +1395,7 @@ async function saveMark(
 
 
     /* ========================================================
-       VALIDATE TEACHING ASSIGNMENT
+       VALIDATE ASSIGNMENT
        ======================================================== */
 
     const assignment =
@@ -1142,12 +1422,14 @@ async function saveMark(
             `
             SELECT *
             FROM subject_tests
+
             WHERE id = $1
               AND teacher_id = $2
               AND subject_id = $3
               AND class_id = $4
               AND academic_year_id = $5
               AND term_id = $6
+
             LIMIT 1
             `,
             [
@@ -1163,6 +1445,7 @@ async function saveMark(
 
     const test =
         testResult.rows[0];
+
 
     if (!test) {
         throw new Error(
@@ -1180,9 +1463,11 @@ async function saveMark(
             `
             SELECT id
             FROM learners
+
             WHERE id = $1
               AND teacher_id = $2
               AND class_id = $3
+
             LIMIT 1
             `,
             [
@@ -1213,6 +1498,7 @@ async function saveMark(
         await pool.query(
             `
             DELETE FROM marks
+
             WHERE learner_id = $1
               AND test_id = $2
               AND teacher_id = $3
@@ -1283,6 +1569,7 @@ async function saveMark(
                 max_score,
                 remarks
             )
+
             VALUES (
                 $1,
                 $2,
@@ -1295,14 +1582,17 @@ async function saveMark(
                 $9,
                 $10
             )
+
             ON CONFLICT (
                 learner_id,
                 test_id
             )
+
             DO UPDATE SET
                 score = EXCLUDED.score,
                 max_score = EXCLUDED.max_score,
                 remarks = EXCLUDED.remarks
+
             RETURNING *
             `,
             [
@@ -1344,11 +1634,13 @@ async function getGradingSettings(
             `
             SELECT *
             FROM grading_settings
+
             WHERE teacher_id = $1
               AND subject_id = $2
               AND class_id = $3
               AND academic_year_id = $4
               AND term_id = $5
+
             LIMIT 1
             `,
             [
@@ -1407,10 +1699,17 @@ async function saveGradingSettings(
 
 
     if (
-        !subjectId ||
-        !classId ||
-        !academicYearId ||
-        !termId
+        !Number.isInteger(subjectId) ||
+        subjectId <= 0 ||
+
+        !Number.isInteger(classId) ||
+        classId <= 0 ||
+
+        !Number.isInteger(academicYearId) ||
+        academicYearId <= 0 ||
+
+        !Number.isInteger(termId) ||
+        termId <= 0
     ) {
         throw new Error(
             "Subject, class, academic year and term are required."
@@ -1523,6 +1822,7 @@ async function saveGradingSettings(
                 overall_test_max,
                 overall_exam_max
             )
+
             VALUES (
                 $1,
                 $2,
@@ -1532,6 +1832,7 @@ async function saveGradingSettings(
                 $6,
                 $7
             )
+
             ON CONFLICT (
                 teacher_id,
                 subject_id,
@@ -1539,11 +1840,14 @@ async function saveGradingSettings(
                 academic_year_id,
                 term_id
             )
+
             DO UPDATE SET
                 overall_test_max =
                     EXCLUDED.overall_test_max,
+
                 overall_exam_max =
                     EXCLUDED.overall_exam_max
+
             RETURNING *
             `,
             [
@@ -1642,7 +1946,7 @@ export async function handler(event) {
 
         /* ====================================================
            VERIFY TEACHER
-        ==================================================== */
+           ==================================================== */
 
         const teacher =
             await teacherExists(
@@ -1656,7 +1960,8 @@ export async function handler(event) {
                 403,
                 {
                     success: false,
-                    message: "Teacher account not found."
+                    message:
+                        "Teacher account not found."
                 }
             );
         }
@@ -1664,15 +1969,29 @@ export async function handler(event) {
 
         /* ====================================================
            GET CLASSES
-        ==================================================== */
+           ==================================================== */
 
         if (action === "getClasses") {
 
             const academicYearId =
-                Number(
-                    event.queryStringParameters?.academic_year_id ||
-                    body.academic_year_id
+                getIntegerParam(
+                    event,
+                    body,
+                    "academic_year_id"
                 );
+
+
+            if (!academicYearId) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Academic year is required."
+                    }
+                );
+            }
 
 
             const classes =
@@ -1693,8 +2012,8 @@ export async function handler(event) {
 
 
         /* ====================================================
-           GET SUBJECTS
-        ==================================================== */
+           GET ALL SUBJECTS
+           ==================================================== */
 
         if (action === "getSubjects") {
 
@@ -1716,7 +2035,7 @@ export async function handler(event) {
 
         /* ====================================================
            GET SUBJECTS FOR CLASS
-        ==================================================== */
+           ==================================================== */
 
         if (
             action ===
@@ -1724,16 +2043,18 @@ export async function handler(event) {
         ) {
 
             const classId =
-                Number(
-                    event.queryStringParameters?.class_id ||
-                    body.class_id
+                getIntegerParam(
+                    event,
+                    body,
+                    "class_id"
                 );
 
 
             const academicYearId =
-                Number(
-                    event.queryStringParameters?.academic_year_id ||
-                    body.academic_year_id
+                getIntegerParam(
+                    event,
+                    body,
+                    "academic_year_id"
                 );
 
 
@@ -1793,17 +2114,73 @@ export async function handler(event) {
 
         /* ====================================================
            GET TESTS
-        ==================================================== */
+           ==================================================== */
 
         if (action === "getTests") {
+
+            /*
+             * IMPORTANT:
+             *
+             * marks.js calls this using GET.
+             *
+             * Therefore IDs must be read from the query
+             * string instead of body.
+             */
+
+            const classId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "class_id"
+                );
+
+            const subjectId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "subject_id"
+                );
+
+            const academicYearId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "academic_year_id"
+                );
+
+            const termId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "term_id"
+                );
+
+
+            if (
+                !classId ||
+                !subjectId ||
+                !academicYearId ||
+                !termId
+            ) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Valid class, subject, academic year and term IDs are required."
+                    }
+                );
+            }
+
 
             const tests =
                 await getTests(
                     teacherId,
-                    Number(body.class_id),
-                    Number(body.subject_id),
-                    Number(body.academic_year_id),
-                    Number(body.term_id)
+                    classId,
+                    subjectId,
+                    academicYearId,
+                    termId
                 );
 
 
@@ -1819,7 +2196,7 @@ export async function handler(event) {
 
         /* ====================================================
            ADD TEST
-        ==================================================== */
+           ==================================================== */
 
         if (action === "addTest") {
 
@@ -1842,7 +2219,7 @@ export async function handler(event) {
 
         /* ====================================================
            UPDATE TEST
-        ==================================================== */
+           ==================================================== */
 
         if (action === "updateTest") {
 
@@ -1865,14 +2242,18 @@ export async function handler(event) {
 
         /* ====================================================
            DELETE TEST
-        ==================================================== */
+           ==================================================== */
 
         if (action === "deleteTest") {
+
+            const testId =
+                Number(body.id);
+
 
             const result =
                 await deleteTest(
                     teacherId,
-                    Number(body.id)
+                    testId
                 );
 
 
@@ -1888,17 +2269,82 @@ export async function handler(event) {
 
         /* ====================================================
            GET MARKS
-        ==================================================== */
+           ==================================================== */
 
         if (action === "getMarks") {
+
+            /*
+             * IMPORTANT:
+             *
+             * marks.js calls getMarks using GET.
+             *
+             * The old code used:
+             *
+             *     Number(body.class_id)
+             *
+             * which became:
+             *
+             *     Number(undefined)
+             *
+             * = NaN
+             *
+             * We now correctly read the query parameters.
+             */
+
+            const classId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "class_id"
+                );
+
+            const subjectId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "subject_id"
+                );
+
+            const academicYearId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "academic_year_id"
+                );
+
+            const termId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "term_id"
+                );
+
+
+            if (
+                !classId ||
+                !subjectId ||
+                !academicYearId ||
+                !termId
+            ) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Valid class, subject, academic year and term IDs are required."
+                    }
+                );
+            }
+
 
             const result =
                 await getMarks(
                     teacherId,
-                    Number(body.class_id),
-                    Number(body.subject_id),
-                    Number(body.academic_year_id),
-                    Number(body.term_id)
+                    classId,
+                    subjectId,
+                    academicYearId,
+                    termId
                 );
 
 
@@ -1914,7 +2360,7 @@ export async function handler(event) {
 
         /* ====================================================
            SAVE MARK
-        ==================================================== */
+           ==================================================== */
 
         if (action === "saveMark") {
 
@@ -1937,20 +2383,67 @@ export async function handler(event) {
 
         /* ====================================================
            GET GRADING SETTINGS
-        ==================================================== */
+           ==================================================== */
 
         if (
             action ===
             "getGradingSettings"
         ) {
 
+            const subjectId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "subject_id"
+                );
+
+            const classId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "class_id"
+                );
+
+            const academicYearId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "academic_year_id"
+                );
+
+            const termId =
+                getIntegerParam(
+                    event,
+                    body,
+                    "term_id"
+                );
+
+
+            if (
+                !subjectId ||
+                !classId ||
+                !academicYearId ||
+                !termId
+            ) {
+
+                return response(
+                    400,
+                    {
+                        success: false,
+                        message:
+                            "Valid subject, class, academic year and term IDs are required."
+                    }
+                );
+            }
+
+
             const settings =
                 await getGradingSettings(
                     teacherId,
-                    Number(body.subject_id),
-                    Number(body.class_id),
-                    Number(body.academic_year_id),
-                    Number(body.term_id)
+                    subjectId,
+                    classId,
+                    academicYearId,
+                    termId
                 );
 
 
@@ -1966,7 +2459,7 @@ export async function handler(event) {
 
         /* ====================================================
            SAVE GRADING SETTINGS
-        ==================================================== */
+           ==================================================== */
 
         if (
             action ===
@@ -1992,7 +2485,7 @@ export async function handler(event) {
 
         /* ====================================================
            UNKNOWN ACTION
-        ==================================================== */
+           ==================================================== */
 
         return response(
             404,
