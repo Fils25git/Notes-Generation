@@ -157,7 +157,7 @@ export const handler = async (event) => {
                         $3,
                         false
                     )
-                ON CONFLICT DO NOTHING
+                ON CONFLICT (academic_year_id, term_number) DO NOTHING
                 `,
                 [
                     academicYear.id,
@@ -190,7 +190,7 @@ export const handler = async (event) => {
                         $3,
                         false
                     )
-                ON CONFLICT DO NOTHING
+                ON CONFLICT (academic_year_id, term_number) DO NOTHING
                 `,
                 [
                     academicYear.id,
@@ -223,7 +223,7 @@ export const handler = async (event) => {
                         $3,
                         false
                     )
-                ON CONFLICT DO NOTHING
+                ON CONFLICT (academic_year_id, term_number) DO NOTHING
                 `,
                 [
                     academicYear.id,
@@ -482,7 +482,7 @@ export const handler = async (event) => {
                     )
                 VALUES
                     ($1, 'Term 1', 1, $2, $3, false)
-                ON CONFLICT DO NOTHING
+               ON CONFLICT (academic_year_id, term_number) DO NOTHING
                 `,
                 [
                     academicYear.id,
@@ -504,7 +504,7 @@ export const handler = async (event) => {
                     )
                 VALUES
                     ($1, 'Term 2', 2, $2, $3, false)
-                ON CONFLICT DO NOTHING
+               ON CONFLICT (academic_year_id, term_number) DO NOTHING
                 `,
                 [
                     academicYear.id,
@@ -526,7 +526,7 @@ export const handler = async (event) => {
                     )
                 VALUES
                     ($1, 'Term 3', 3, $2, $3, false)
-                ON CONFLICT DO NOTHING
+                ON CONFLICT (academic_year_id, term_number) DO NOTHING
                 `,
                 [
                     academicYear.id,
