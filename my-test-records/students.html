@@ -2115,7 +2115,14 @@ if (teacherId) {
 
 </script>
 
-<script> const menuToggle = document.getElementById("menuToggle"); const sidebar = document.getElementById("sidebar"); const sidebarClose = document.getElementById("sidebarClose"); menuToggle.addEventListener("click", () => { sidebar.classList.add("open"); }); if (sidebarClose) { sidebarClose.addEventListener("click", () => { sidebar.classList.remove("open"); }); } </script>
+<script> 
+    const menuToggle = document.getElementById("menuToggle"); 
+    const sidebar = document.getElementById("sidebar"); 
+    const sidebarClose = document.getElementById("sidebarClose");
+    menuToggle.addEventListener("click", () => { sidebar.classList.add("open"); });
+    if (sidebarClose) { 
+        sidebarClose.addEventListener("click", () => { 
+            sidebar.classList.remove("open"); }); } </script>
 </body>
 
     </html>
