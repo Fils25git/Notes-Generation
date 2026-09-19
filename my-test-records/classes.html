@@ -213,7 +213,33 @@ body {
     font-size: 13px;
 }
 
+/* =====================================================
+   TEACHING ASSIGNMENT MODAL
+   ===================================================== */
 
+.assignment-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .48);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.assignment-modal-overlay.show {
+    display: flex;
+}
+
+.assignment-modal {
+    background: white;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 17px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, .2);
+    overflow: hidden;
+}
 /* =========================================================
    CONTENT CARD
 ========================================================= */
@@ -959,12 +985,8 @@ visibility: visible;
      MODAL
 ======================================================= -->
 
-<div
-    class="modal-overlay"
-    id="assignmentModal"
->
-
-    <div class="modal">
+<div class="assignment-modal-overlay" id="assignmentModal">
+    <div class="assignment-modal">
 
         <div class="modal-head">
 
