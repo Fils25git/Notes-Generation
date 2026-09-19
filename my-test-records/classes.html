@@ -372,7 +372,7 @@ body {
 position: fixed;
 inset: 0;
 background: rgba(15, 23, 42, .48);
-display: none !important;
+display: none;
 align-items: center;
 justify-content: center;
 padding: 20px;
@@ -380,7 +380,7 @@ z-index: 1000;
 }
 
 .modal-overlay.show {
-display: flex !important;
+display: flex;
 }
 }
 
@@ -391,6 +391,8 @@ display: flex !important;
     border-radius: 17px;
     box-shadow: 0 20px 60px rgba(15, 23, 42, .2);
     overflow: hidden;
+    opacity: 1;
+visibility: visible;
 }
 
 .modal-head {
