@@ -8,7 +8,13 @@
    10 lesson plans available on their balance.
 
    LOGIN:
-   Uses localStorage.getItem("userId")
+   Uses:
+       localStorage.getItem("auth_token")
+       localStorage.getItem("user_email")
+
+   BALANCE:
+   Uses:
+       /.netlify/functions/get-balance?email=USER_EMAIL
 
    HOW TO USE:
 
@@ -16,11 +22,13 @@
 
        <script src="js/service-access.js"></script>
 
-   If the page is in a different folder, adjust the path accordingly.
+   If the protected page is inside a folder, adjust the
+   script path and redirect paths according to your structure.
 
    ============================================================ */
 
 (function () {
+
     "use strict";
 
 
@@ -28,29 +36,46 @@
        CONFIGURATION
        ============================================================ */
 
+    /*
+     * Minimum number of lesson plans required
+     * to access the protected service.
+     */
     const MINIMUM_BALANCE = 10;
 
-    /*
-     * Your Netlify balance function.
-     */
-    const BALANCE_API = "/.netlify/functions/get-balance";
 
     /*
-     * Page to send users to after access is denied.
-     *
-     * IMPORTANT:
-     * If your protected page is inside a folder, change this
-     * according to your project structure.
-     *
-     * Example:
-     * "../dashboard.html"
+     * Netlify balance function.
      */
-    const REDIRECT_PAGE = "dashboard.html";
+    const BALANCE_API =
+        "/.netlify/functions/get-balance";
+
+
+    /*
+     * Page to send the user to if access is denied.
+     *
+     * If the protected page and dashboard.html are
+     * in the SAME folder:
+     *
+     *     "dashboard.html"
+     *
+     * If the protected page is INSIDE a folder:
+     *
+     *     "../dashboard.html"
+     */
+    const REDIRECT_PAGE =
+        "dashboard.html";
+
 
     /*
      * Login page.
+     *
+     * If this protected page is inside a folder
+     * and login.html is one level above:
+     *
+     *     "../login.html"
      */
-    const LOGIN_PAGE = "../login.html";
+    const LOGIN_PAGE =
+        "../login.html";
 
 
     /* ============================================================
@@ -82,10 +107,19 @@
         }
 
 
-        const modal = document.createElement("div");
+        const modal =
+            document.createElement("div");
 
-        modal.id = "filaServiceAccessModal";
 
+        modal.id =
+            "filaServiceAccessModal";
+
+
+        /*
+         * IMPORTANT:
+         * These classes are unique to this service-access system.
+         * They do not use your normal .modal class.
+         */
         modal.className =
             "fila-service-access-overlay";
 
@@ -105,13 +139,13 @@
 
 
                 <h2 id="filaServiceAccessTitle">
-                    Serivisi Ntiremewe
+                    Ntimwemerewe iyi Serivisi.
                 </h2>
 
 
                 <p>
                     Mwihangane, Ntabwo mwemerewe gukoresha iyi
-                    Serivisi Ya
+                    Serivisi ya
                     <strong>Fila Marks System</strong>.
                 </p>
 
@@ -126,7 +160,9 @@
                     kuri balance yawe.
 
                     Gusa gukoresha iyi system
-                    <strong>ntibizatuma lesson plans zawe zivaho.</strong>
+                    <strong>
+                        ntibizatuma lesson plans zawe zivaho.
+                    </strong>
                 </p>
 
 
@@ -137,7 +173,7 @@
                     </span>
 
                     <strong id="filaCurrentLessonBalance">
-                        0
+                        —
                     </strong>
 
                     <span>
@@ -163,10 +199,7 @@
 
 
         /*
-         * The user cannot close the modal and continue using
-         * the protected page.
-         *
-         * Clicking Sawa sends them back to the dashboard.
+         * Clicking Sawa sends the user back to dashboard.
          */
         const button =
             document.getElementById(
@@ -187,6 +220,7 @@
             );
 
         }
+
     }
 
 
@@ -231,6 +265,7 @@
                 display: none;
 
                 align-items: center;
+
                 justify-content: center;
 
                 padding: 20px;
@@ -561,6 +596,7 @@
 
 
         document.head.appendChild(style);
+
     }
 
 
@@ -568,20 +604,39 @@
        GET LOGGED-IN USER
        ============================================================ */
 
-    function getUserId() {
+    function getUserCredentials() {
 
         /*
-         * Your application uses userId to determine
-         * whether the teacher is logged in.
+         * Your current application stores authentication
+         * information using these localStorage keys.
          */
 
-        const teacherId =
-            Number(
-                localStorage.getItem("userId")
+        const token =
+            localStorage.getItem(
+                "auth_token"
             );
 
 
-        return teacherId;
+        const userEmail =
+            localStorage.getItem(
+                "user_email"
+            );
+
+
+        return {
+
+            token:
+                token
+                    ? token.trim()
+                    : "",
+
+            email:
+                userEmail
+                    ? userEmail.trim()
+                    : ""
+
+        };
+
     }
 
 
@@ -608,16 +663,26 @@
 
         if (balanceElement) {
 
-            balanceElement.textContent =
+            if (
+                balance !== null &&
                 Number.isFinite(balance)
-                    ? balance
-                    : "—";
+            ) {
+
+                balanceElement.textContent =
+                    balance;
+
+            } else {
+
+                balanceElement.textContent =
+                    "—";
+
+            }
 
         }
 
 
         /*
-         * Show the modal.
+         * Show modal.
          */
         if (modal) {
 
@@ -627,21 +692,21 @@
 
 
         /*
-         * Prevent scrolling behind the modal.
+         * Prevent scrolling behind modal.
          */
         document.body.style.overflow =
             "hidden";
 
 
         /*
-         * Prevent Escape from closing/bypassing
-         * the access restriction.
+         * Prevent Escape from bypassing restriction.
          */
         document.addEventListener(
             "keydown",
             preventEscape,
             true
         );
+
     }
 
 
@@ -651,13 +716,17 @@
 
     function preventEscape(event) {
 
-        if (event.key === "Escape") {
+        if (
+            event.key ===
+            "Escape"
+        ) {
 
             event.preventDefault();
 
             event.stopPropagation();
 
         }
+
     }
 
 
@@ -667,39 +736,52 @@
 
     async function checkServiceAccess() {
 
-        /*
-         * Get the logged-in user's ID.
-         */
-        const teacherId =
-            getUserId();
+        /* ========================================================
+           GET LOGIN INFORMATION
+           ======================================================== */
+
+        const credentials =
+            getUserCredentials();
 
 
         /* ========================================================
            LOGIN CHECK
            ======================================================== */
 
-        if (!teacherId) {
+        if (
+            !credentials.token ||
+            !credentials.email
+        ) {
 
             window.location.href =
                 LOGIN_PAGE;
 
             return false;
+
         }
 
 
         try {
 
             /* ====================================================
-               BUILD API REQUEST
+               BUILD BALANCE REQUEST
                ==================================================== */
 
             const params =
                 new URLSearchParams();
 
 
+            /*
+             * IMPORTANT:
+             *
+             * The existing get-balance function expects
+             * the user's EMAIL.
+             *
+             * Do NOT send userId here.
+             */
             params.set(
-                "userId",
-                String(teacherId)
+                "email",
+                credentials.email
             );
 
 
@@ -711,13 +793,19 @@
                 await fetch(
                     `${BALANCE_API}?${params.toString()}`,
                     {
-                        method: "GET",
+                        method:
+                            "GET",
 
                         credentials:
                             "same-origin",
 
                         cache:
-                            "no-store"
+                            "no-store",
+
+                        headers: {
+                            "Accept":
+                                "application/json"
+                        }
                     }
                 );
 
@@ -736,7 +824,7 @@
 
 
             /* ====================================================
-               READ RESPONSE
+               READ JSON RESPONSE
                ==================================================== */
 
             const data =
@@ -747,7 +835,9 @@
                CHECK API SUCCESS
                ==================================================== */
 
-            if (data.success !== true) {
+            if (
+                data.success !== true
+            ) {
 
                 throw new Error(
                     "Balance API did not return success."
@@ -757,22 +847,31 @@
 
 
             /* ====================================================
-               GET BALANCE
+               GET LESSON PLAN BALANCE
                ==================================================== */
 
             const balance =
-                Number(data.balance) || 0;
+                Number(
+                    data.balance
+                ) || 0;
 
 
             /* ====================================================
                ACCESS RULE
                ====================================================
 
-               10 or more
+               10 or more lesson plans
                     = ALLOWED
 
                Less than 10
                     = DENIED
+
+               IMPORTANT:
+               We intentionally check data.balance only.
+
+               referralBonus is NOT added to the 10-plan
+               requirement unless you decide later that it
+               should count as lesson-plan balance.
             */
 
             if (
@@ -785,6 +884,7 @@
                 );
 
                 return false;
+
             }
 
 
@@ -806,14 +906,19 @@
             /*
              * FAIL CLOSED
              *
-             * If the system cannot verify the balance,
-             * access is denied.
+             * If balance cannot be verified,
+             * do not allow access.
              */
 
-            showAccessDenied(null);
+            showAccessDenied(
+                null
+            );
+
 
             return false;
+
         }
+
     }
 
 
@@ -830,8 +935,7 @@
 
 
         /*
-         * If body does not exist yet,
-         * wait until DOM is ready.
+         * Wait for body if necessary.
          */
         if (!document.body) {
 
@@ -839,22 +943,24 @@
                 "DOMContentLoaded",
                 initializeServiceAccess,
                 {
-                    once: true
+                    once:
+                        true
                 }
             );
 
             return;
+
         }
 
 
         /*
-         * Create modal.
+         * Create modal structure.
          */
         createAccessModal();
 
 
         /*
-         * Check access.
+         * Check service access.
          */
         const allowed =
             await checkServiceAccess();
@@ -881,6 +987,7 @@
                 }
             )
         );
+
     }
 
 
@@ -907,5 +1014,6 @@
        ============================================================ */
 
     initializeServiceAccess();
+
 
 })();
