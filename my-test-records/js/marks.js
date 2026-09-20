@@ -1605,118 +1605,232 @@ function validateMarkInput(input) {
 
 async function saveMark(input) {
 
-    if (
-        !validateMarkInput(input)
-    ) {
 
-        showToast(
-            `Mark must be between 0 and ${input.dataset.max}.`,
-            "error"
-        );
+if (!validateMarkInput(input)) {
 
+    showToast(
+        `Mark must be between 0 and ${input.dataset.max}.`,
+        "error"
+    );
 
-        return;
-    }
+    return;
+}
 
 
-    const learnerId =
-        Number(
-            input.dataset.learnerId
-        );
-
-
-    const testId =
-        Number(
-            input.dataset.testId
-        );
-
-
-    const value =
-        input.value === ""
-            ? null
-            : Number(input.value);
-
-
-    input.disabled =
-        true;
-
-
-    setSaveStatus(
-        "Saving..."
+const learnerId =
+    Number(
+        input.dataset.learnerId
     );
 
 
-    try {
-
-        await school(
-            "saveMark",
-            {
-                learner_id:
-                    learnerId,
-
-                test_id:
-                    testId,
-
-                score:
-                    value,
-
-                class_id:
-                    selectedClass,
-
-                subject_id:
-                    selectedSubject,
-
-                academic_year_id:
-                    selectedYear,
-
-                term_id:
-                    selectedTerm
-            },
-            "POST"
-        );
+const testId =
+    Number(
+        input.dataset.testId
+    );
 
 
-        setSaveStatus(
-            "Mark saved.",
-            "success"
-        );
+const value =
+    input.value === ""
+        ? null
+        : Number(input.value);
 
 
-        /*
-         * Reload the table so totals and percentages
-         * are immediately updated.
-         */
+input.disabled = true;
 
-        await loadMarks();
-
-    } catch (error) {
-
-        console.error(
-            "Save mark error:",
-            error
-        );
+setSaveStatus(
+    "Saving..."
+);
 
 
-        setSaveStatus(
-            error.message ||
-            "Could not save mark.",
-            "error"
-        );
+try {
+
+    /* ---------------------------------------------
+       SAVE MARK TO DATABASE
+    --------------------------------------------- */
+
+    await school(
+        "saveMark",
+        {
+            learner_id:
+                learnerId,
+
+            test_id:
+                testId,
+
+            score:
+                value,
+
+            class_id:
+                selectedClass,
+
+            subject_id:
+                selectedSubject,
+
+            academic_year_id:
+                selectedYear,
+
+            term_id:
+                selectedTerm
+        },
+        "POST"
+    );
 
 
-        showToast(
-            error.message ||
-            "Could not save mark.",
-            "error"
-        );
+    /* ---------------------------------------------
+       UPDATE LOCAL MARK DATA
+       WITHOUT RELOADING THE TABLE
+    --------------------------------------------- */
 
-    } finally {
+    const learnerKey =
+        String(learnerId);
 
-        input.disabled =
-            false;
+    const testKey =
+        String(testId);
+
+
+    if (
+        !currentMarks[learnerKey]
+    ) {
+
+        currentMarks[learnerKey] = {};
     }
+
+
+    currentMarks[learnerKey][testKey] =
+        value;
+
+
+    /* ---------------------------------------------
+       UPDATE ONLY THIS LEARNER'S ROW
+    --------------------------------------------- */
+
+    const row =
+        input.closest("tr");
+
+
+    if (row) {
+
+        const markInputs =
+            row.querySelectorAll(
+                ".mark-input"
+            );
+
+
+        let total = 0;
+        let maxTotal = 0;
+
+
+        markInputs.forEach(markInput => {
+
+            const markValue =
+                markInput.value === ""
+                    ? null
+                    : Number(markInput.value);
+
+
+            const max =
+                Number(
+                    markInput.dataset.max
+                ) || 0;
+
+
+            if (
+                markValue !== null &&
+                Number.isFinite(markValue)
+            ) {
+
+                total += markValue;
+            }
+
+
+            maxTotal += max;
+        });
+
+
+        const percentage =
+            maxTotal > 0
+                ? (
+                    (total / maxTotal) *
+                    100
+                ).toFixed(2)
+                : "0.00";
+
+
+        /* -----------------------------------------
+           UPDATE TOTAL
+        ----------------------------------------- */
+
+        const totalCell =
+            row.querySelector(
+                ".readonly-score"
+            );
+
+
+        if (totalCell) {
+
+            totalCell.textContent =
+                total.toFixed(2);
+        }
+
+
+        /* -----------------------------------------
+           UPDATE PERCENTAGE
+        ----------------------------------------- */
+
+        const percentageCell =
+            row.querySelector(
+                ".percentage"
+            );
+
+
+        if (percentageCell) {
+
+            percentageCell.textContent =
+                `${percentage}%`;
+        }
+    }
+
+
+    /* ---------------------------------------------
+       SUCCESS
+    --------------------------------------------- */
+
+    setSaveStatus(
+        "Mark saved.",
+        "success"
+    );
+
+
+} catch (error) {
+
+    console.error(
+        "Save mark error:",
+        error
+    );
+
+
+    setSaveStatus(
+        error.message ||
+        "Could not save mark.",
+        "error"
+    );
+
+
+    showToast(
+        error.message ||
+        "Could not save mark.",
+        "error"
+    );
+
+
+} finally {
+
+    input.disabled =
+        false;
 }
 
+
+}
 
 /* ============================================================
    SEARCH
